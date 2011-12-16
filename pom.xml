@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>servo</groupId>
+    <artifactId>servo</artifactId>
+    <version>1.0</version>
+
+    <profiles>
+        <profile>
+            <id>artifactory</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>netflix-artifactory-snapshots</id>
+                    <name>Netflix Artifactory Snapshots</name>
+                    <url>http://artifacts/libs-snapshots-local</url>
+                </snapshotRepository>
+                <repository>
+                    <id>netflix-artifactory-releases</id>
+                    <name>Netflix Artifactory Releases</name>
+                    <url>http://artifacts/libs-releases-local</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+    </dependencies>
+</project>
