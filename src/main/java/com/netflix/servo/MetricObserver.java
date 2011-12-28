@@ -17,8 +17,10 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.monitoring;
+package com.netflix.servo;
 
-public interface MetricPoller {
-    void poll(MetricFilter filter, MetricObserver observer);
+import java.util.List;
+
+public interface MetricObserver {
+    void update(List<Metric> metrics);
 }

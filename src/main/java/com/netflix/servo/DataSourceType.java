@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.monitoring;
+package com.netflix.servo;
 
 public enum DataSourceType {
     GAUGE,

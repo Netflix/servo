@@ -17,10 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.monitoring;
+package com.netflix.servo;
 
-import java.util.List;
-
-public interface MetricObserver {
-    void update(List<Metric> metrics);
+public interface MonitorRegistry {
+    void registerObject(Object obj);
+    void unRegisterObject(Object obj);
 }
