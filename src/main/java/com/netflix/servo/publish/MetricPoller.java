@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.publish;
 
+import java.util.List;
+
 public interface MetricPoller {
-    void poll(MetricFilter filter, MetricObserver observer);
+    List<Metric> poll(MetricFilter filter);
 }
