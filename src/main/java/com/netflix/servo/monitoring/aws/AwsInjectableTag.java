@@ -16,19 +16,31 @@
 
 package com.netflix.servo.monitoring.aws;
 
+import com.netflix.servo.monitoring.Tag;
+
 /**
  * User: gorzell
  * Date: 12/27/11
  * Time: 5:47 PM
  */
-public enum AwsInjectableTag {
-    AUTOSCALE_GROUP(getAutoScaleGroup()),
-    INSTANCE_ID(getInstanceId());
+public enum AwsInjectableTag implements Tag {
+    AUTOSCALE_GROUP("autoScalingGroup", getAutoScaleGroup()),
+    INSTANCE_ID("instanceId", getInstanceId());
 
+    private final String key;
     private final String value;
 
-    private AwsInjectableTag(String val) {
+    private AwsInjectableTag(String key, String val) {
+        this.key = key;
         this.value = val;
+    }
+    
+    public String getKey(){
+        return key;
+    }
+    
+    public String getValue(){
+        return value;
     }
 
     private static String getAutoScaleGroup() {

@@ -24,10 +24,11 @@ import java.net.UnknownHostException;
  * Date: 12/27/11
  * Time: 5:35 PM
  */
-public enum InjectableTag {
-    HOSTNAME(getHostName()),
-    IP(getIp());
+public enum InjectableTag implements Tag{
+    HOSTNAME("hostname", getHostName()),
+    IP("ip", getIp());
 
+    private final String key;
     private final String value;
     private static InetAddress address;
 
@@ -39,8 +40,13 @@ public enum InjectableTag {
         }
     }
 
-    private InjectableTag(String val) {
+    private InjectableTag(String key, String val) {
+        this.key = key;
         this.value = val;
+    }
+
+    public String getKey(){
+        return key;
     }
 
     public String getValue() {
