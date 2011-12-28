@@ -17,10 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.jmx;
 
-import java.util.Map;
-
-public interface MetricFilter {
-    boolean matches(String name, Map<String,String> tags);
+public interface MonitorRegistry {
+    void registerObject(Object obj);
+    void unRegisterObject(Object obj);
 }

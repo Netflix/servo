@@ -17,10 +17,10 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.publish;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+import java.util.Map;
+
+public interface MetricFilter {
+    boolean matches(String name, Map<String,String> tags);
 }
