@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring;
+package com.netflix.servo.monitoring;
 
 /**
  * Defines rdd data source types which are supported by EPIC.

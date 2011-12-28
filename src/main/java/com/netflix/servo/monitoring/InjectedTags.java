@@ -14,14 +14,22 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.publish.local;
+package com.netflix.servo.monitoring;
+
+import java.lang.annotation.*;
 
 /**
- * Created by IntelliJ IDEA.
  * User: gorzell
- * Date: 12/15/11
- * Time: 6:48 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 12/27/11
+ * Time: 6:28 PM
  */
-public class Memory {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Documented
+@Inherited
+public @interface InjectedTags {
+    /**
+     *
+     */
+    InjectableTag[] injectableTags() default {};
 }

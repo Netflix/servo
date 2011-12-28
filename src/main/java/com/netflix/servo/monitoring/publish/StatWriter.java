@@ -14,12 +14,19 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.publish.cloudwatch;
+package com.netflix.servo.monitoring.publish;
+
+import java.io.IOException;
 
 /**
  * User: gorzell
  * Date: 12/15/11
- * Time: 6:49 PM
+ * Time: 6:52 PM
  */
-public class CloudWatchStatsWriter {
+public interface StatWriter {
+    void writeSettings(String appName) throws IOException;
+
+    void writeValue(Metric metric) throws IOException;
+
+    void close() throws IOException;
 }
