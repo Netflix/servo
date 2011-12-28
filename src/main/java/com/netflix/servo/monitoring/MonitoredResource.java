@@ -13,9 +13,8 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package com.netflix.monitoring;
+package com.netflix.servo.monitoring;
 
-import com.netflix.monitoring.MonitorRegistry.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +97,7 @@ class MonitoredResource implements DynamicMBean {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitoredResource.class);
 
-    MonitoredResource(Namespace namespace, Object instance) {
+    MonitoredResource(MonitorRegistry.Namespace namespace, Object instance) {
 
         if (instance == null) {
             throw new IllegalArgumentException("Can't wrap a null instance!");
@@ -313,7 +312,7 @@ class MonitoredResource implements DynamicMBean {
         return _resourceToMonitor;
     }
 
-    private ObjectName createObjectName(Namespace namespace) {
+    private ObjectName createObjectName(MonitorRegistry.Namespace namespace) {
         try {
             StringBuilder nameBuf = new StringBuilder(MonitorRegistry.DOMAIN_NAME);
             nameBuf.append(":type=").append(namespace.name()).

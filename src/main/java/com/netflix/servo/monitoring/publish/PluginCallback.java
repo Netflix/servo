@@ -14,12 +14,13 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.publish;
+package com.netflix.servo.monitoring.publish;
 
 /**
  * User: gorzell
  * Date: 12/15/11
- * Time: 6:56 PM
+ * Time: 6:52 PM
  */
-public interface PluginManager {
+public interface PluginCallback {
+    void sendStats();
 }

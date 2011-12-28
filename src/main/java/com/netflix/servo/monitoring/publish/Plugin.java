@@ -14,22 +14,12 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring;
-
-import java.lang.annotation.*;
+package com.netflix.servo.monitoring.publish;
 
 /**
  * User: gorzell
- * Date: 12/27/11
- * Time: 6:28 PM
+ * Date: 12/15/11
+ * Time: 6:46 PM
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
-@Documented
-@Inherited
-public @interface InjectedTags {
-    /**
-     *
-     */
-    InjectableTag[] injectableTags() default {};
+public interface Plugin {
 }
