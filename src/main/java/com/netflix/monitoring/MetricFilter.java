@@ -21,6 +21,6 @@ package com.netflix.monitoring;
 
 import java.util.Map;
 
-public interface IMetricFilter {
+public interface MetricFilter {
     boolean matches(String name, Map<String,String> tags);
 }

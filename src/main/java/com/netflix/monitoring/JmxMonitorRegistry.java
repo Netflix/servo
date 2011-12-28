@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Monitor registry backed by JMX. The monitor annotations on registered
  * objects will be used to export the data to JMX.
  */
-public class JmxMonitorRegistry implements IMonitorRegistry {
+public class JmxMonitorRegistry implements MonitorRegistry {
 
     private final Logger mLogger = LoggerFactory.getLogger(getClass());
 

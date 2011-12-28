@@ -19,7 +19,8 @@
  */
 package com.netflix.monitoring;
 
-public interface IMetricWriter {
-    void write(Metric metric);
-    void close();
+import java.util.List;
+
+public interface MetricObserver {
+    void update(List<Metric> metrics);
 }
