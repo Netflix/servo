@@ -63,6 +63,15 @@
                     <organizationName>Netflix</organizationName>
                     <licenseName>apache_v2</licenseName>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
