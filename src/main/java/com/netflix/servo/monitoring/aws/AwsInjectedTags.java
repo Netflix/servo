@@ -14,13 +14,20 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.publish;
+package com.netflix.servo.monitoring.aws;
+
+import java.lang.annotation.*;
 
 /**
  * User: gorzell
- * Date: 12/15/11
- * Time: 6:52 PM
+ * Date: 12/27/11
+ * Time: 5:54 PM
  */
-public interface PluginCallback {
-    void sendStats();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Documented
+@Inherited
+public @interface AwsInjectedTags {
+
+    AwsInjectableTag[] tags() default {};
 }
