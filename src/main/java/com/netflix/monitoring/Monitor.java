@@ -71,9 +71,4 @@ public @interface Monitor {
      * @return
      */
     String[] tags() default {};
-
-    /**
-     *
-     */
-    InjectableTag[] injectableTags() default {};
 }

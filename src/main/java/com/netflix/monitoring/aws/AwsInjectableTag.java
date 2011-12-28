@@ -14,44 +14,29 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+package com.netflix.monitoring.aws;
 
 /**
  * User: gorzell
  * Date: 12/27/11
- * Time: 5:35 PM
+ * Time: 5:47 PM
  */
-public enum InjectableTag {
-    HOSTNAME(getHostName()),
-    IP(getIp());
+public enum AwsInjectableTag {
+    AUTOSCALE_GROUP(getAutoScaleGroup()),
+    INSTANCE_ID(getInstanceId());
 
     private final String value;
-    private static InetAddress address;
 
-    static {
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            address = null;
-        }
-    }
-
-    private InjectableTag(String val) {
+    private AwsInjectableTag(String val) {
         this.value = val;
     }
 
-    public String getValue() {
-        return value;
+    private static String getAutoScaleGroup() {
+        return "";
     }
 
-    private static String getHostName() {
-        return address != null ? address.getHostName() : "unkownHost";
+    private static String getInstanceId() {
+        return "";
     }
 
-    private static String getIp() {
-        return address != null ? address.getHostAddress() : "unknownHost";
-    }
 }
