@@ -49,12 +49,12 @@ public final class AsyncMetricObserver implements MetricObserver {
 
     @MonitorId
     private final String mName;
-    
+
     @Monitor(name="UpdateCount", type=DataSourceType.COUNTER,
              description="Total number of times update has been called on "
                         +"the wrapped observer.")
     private final AtomicInteger mUpdates = new AtomicInteger(0);
-    
+
     @Monitor(name="UpdateFailureCount", type=DataSourceType.COUNTER,
              description="Number of times the update call on the wrapped "
                         +"observer failed with an exception.")
