@@ -50,4 +50,20 @@
             <version>1.6.3</version>
         </dependency>
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <inceptionYear>2011</inceptionYear>
+                    <organizationName>Netflix</organizationName>
+                    <licenseName>apache_v2</licenseName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
