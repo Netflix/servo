@@ -14,12 +14,12 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.plugins;
+package com.netflix.monitoring.publish.cloudwatch;
 
 /**
  * User: gorzell
  * Date: 12/15/11
- * Time: 6:52 PM
+ * Time: 6:49 PM
  */
-public interface StatWriter {
+public class CloudWatchStatsWriter {
 }

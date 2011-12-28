@@ -15,10 +15,7 @@
  */
 package com.netflix.monitoring;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * By marking {@link ElementType#FIELD} or {@link ElementType#METHOD} with this
@@ -28,6 +25,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
+@Documented
+@Inherited
 public @interface Monitor {
 
     /**
@@ -65,4 +64,16 @@ public @interface Monitor {
      * Default is <tt>""</tt> which means it's undefined.
      */
     String expectedValue() default "";
+
+    /**
+     * List of tags to identify the resource.  Format "key=value"
+     *
+     * @return
+     */
+    String[] tags() default {};
+
+    /**
+     *
+     */
+    InjectableTag[] injectableTags() default {};
 }

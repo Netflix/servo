@@ -14,12 +14,14 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.plugins;
+package com.netflix.monitoring.publish.local;
 
 /**
+ * Created by IntelliJ IDEA.
  * User: gorzell
  * Date: 12/15/11
- * Time: 6:56 PM
+ * Time: 6:48 PM
+ * To change this template use File | Settings | File Templates.
  */
-public interface PluginManager {
+public class Memory {
 }

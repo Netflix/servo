@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-package com.netflix.monitoring.plugins;
+package com.netflix.monitoring.publish;
 
 /**
  * User: gorzell
@@ -22,4 +22,5 @@ package com.netflix.monitoring.plugins;
  * Time: 6:52 PM
  */
 public interface PluginCallback {
+    void sendStats();
 }
