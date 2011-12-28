@@ -19,8 +19,6 @@
  */
 package com.netflix.monitoring;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+public interface IMetricPoller {
+    void poll(IMetricFilter filter, IMetricWriter writer);
 }

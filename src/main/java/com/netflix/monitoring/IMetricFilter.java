@@ -19,8 +19,8 @@
  */
 package com.netflix.monitoring;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+import java.util.Map;
+
+public interface IMetricFilter {
+    boolean matches(String name, Map<String,String> tags);
 }

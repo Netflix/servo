@@ -19,8 +19,7 @@
  */
 package com.netflix.monitoring;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+public interface IMetricWriter {
+    void write(Metric metric);
+    void close();
 }

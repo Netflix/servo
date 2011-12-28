@@ -8,6 +8,10 @@
     <artifactId>servo</artifactId>
     <version>1.0</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <profiles>
         <profile>
             <id>artifactory</id>
@@ -36,9 +40,30 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>[10,)</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.6.3</version>
         </dependency>
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <inceptionYear>2011</inceptionYear>
+                    <organizationName>Netflix</organizationName>
+                    <licenseName>apache_v2</licenseName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

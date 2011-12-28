@@ -19,8 +19,7 @@
  */
 package com.netflix.monitoring;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+public interface IMonitorRegistry {
+    void registerObject(Object obj);
+    void unRegisterObject(Object obj);
 }
