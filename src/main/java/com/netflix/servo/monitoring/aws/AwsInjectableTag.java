@@ -17,6 +17,12 @@
 package com.netflix.servo.monitoring.aws;
 
 import com.netflix.servo.monitoring.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * User: gorzell
@@ -34,12 +40,16 @@ public enum AwsInjectableTag implements Tag {
         this.key = key;
         this.value = val;
     }
-    
-    public String getKey(){
+
+    private static final Logger log = LoggerFactory.getLogger(AwsInjectableTag.class);
+
+    private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
+
+    public String getKey() {
         return key;
     }
-    
-    public String getValue(){
+
+    public String getValue() {
         return value;
     }
 
@@ -48,7 +58,25 @@ public enum AwsInjectableTag implements Tag {
     }
 
     private static String getInstanceId() {
-        return "";
+        return getUrlValue("/instance-id");
+    }
+
+    private static String getUrlValue(String path) {
+        try {
+            URL url = new URL(metaDataUrl + path);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line  = null;
+            StringBuilder stringBuilder = new StringBuilder();
+            String ls = System.getProperty("line.separator");
+            while( ( line = reader.readLine() ) != null ) {
+                stringBuilder.append( line );
+                stringBuilder.append( ls );
+            }
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            log.warn("", e);
+            return "uknown";
+        }
     }
 
 }
