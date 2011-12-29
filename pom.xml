@@ -1,44 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <groupId>com.netflix.servo</groupId>
-    <artifactId>servo</artifactId>
-    <version>1.0</version>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.netflix.servo</groupId>
+  <artifactId>servo</artifactId>
+  <version>1.0</version>
 
-    <profiles>
-        <profile>
-            <id>artifactory</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>netflix-artifactory-snapshots</id>
-                    <name>Netflix Artifactory Snapshots</name>
-                    <url>http://artifacts/libs-snapshots-local</url>
-                </snapshotRepository>
-                <repository>
-                    <id>netflix-artifactory-releases</id>
-                    <name>Netflix Artifactory Releases</name>
-                    <url>http://artifacts/libs-releases-local</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+  <profiles>
+    <profile>
+      <id>artifactory</id>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>netflix-artifactory-snapshots</id>
+          <name>Netflix Artifactory Snapshots</name>
+          <url>http://artifacts/libs-snapshots-local</url>
+        </snapshotRepository>
+        <repository>
+          <id>netflix-artifactory-releases</id>
+          <name>Netflix Artifactory Releases</name>
+          <url>http://artifacts/libs-releases-local</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.3</version>
-        </dependency>
-    </dependencies>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>[10,)</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.1.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.8</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.3</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <inceptionYear>2011</inceptionYear>
+          <organizationName>Netflix</organizationName>
+          <licenseName>apache_v2</licenseName>
+        </configuration>
+        <executions>
+          <execution>
+            <id>first</id>
+            <goals>
+              <goal>update-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <reportPlugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.8</version>
+            </plugin>
+          </reportPlugins>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
