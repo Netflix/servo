@@ -23,6 +23,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.google.common.collect.ImmutableMap;
+import com.netflix.servo.annotations.AnnotationUtils;
+import com.netflix.servo.annotations.Monitor;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

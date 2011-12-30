@@ -17,9 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx.aws;
+package com.netflix.servo.aws;
 
-import com.netflix.servo.jmx.Tag;
+import com.netflix.servo.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
