@@ -17,16 +17,16 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo.annotations;
 
-/**
- * User: gorzell
- * Date: 12/28/11
- * Time: 11:00 AM
- */
-public interface Tag {
-    
-    String getKey();
-    
-    String getValue();
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
+public @interface MonitorId {
 }

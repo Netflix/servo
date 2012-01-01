@@ -19,9 +19,9 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.jmx.DataSourceType;
-import com.netflix.servo.jmx.Monitor;
-import com.netflix.servo.jmx.MonitorId;
+import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.annotations.MonitorId;
 
 import com.google.common.base.Preconditions;
 
@@ -55,7 +55,7 @@ public final class AsyncMetricObserver implements MetricObserver {
                         +"the wrapped observer.")
     private final AtomicInteger mUpdates = new AtomicInteger(0);
 
-    @Monitor(name="UpdateFailureCount", type=DataSourceType.COUNTER,
+    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
              description="Number of times the update call on the wrapped "
                         +"observer failed with an exception.")
     private final AtomicInteger mFailedUpdates = new AtomicInteger(0);

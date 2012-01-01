@@ -17,10 +17,11 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.netflix.servo.jmx.MonitoredAttribute;
 
 import java.lang.annotation.Annotation;
 
@@ -72,7 +73,7 @@ public class AnnotationUtils {
 
     }
 
-    static Object getValue(Object obj, AccessibleObject attr) throws Exception {
+    public static Object getValue(Object obj, AccessibleObject attr) throws Exception {
         return (attr instanceof Field)
             ? ((Field) attr).get(obj)
             : ((Method) attr).invoke(obj);
