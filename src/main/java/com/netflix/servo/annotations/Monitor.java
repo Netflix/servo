@@ -17,9 +17,20 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo.annotations;
 
-public interface MonitorRegistry {
-    void registerObject(Object obj);
-    void unRegisterObject(Object obj);
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
+public @interface Monitor {
+    public String name();
+    public DataSourceType type() default DataSourceType.INFORMATIONAL;
+    public String[] tags() default {};
+    public String description() default "";
 }

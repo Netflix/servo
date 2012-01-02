@@ -17,7 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo;
+
+import com.netflix.servo.Tag;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,7 +29,7 @@ import java.net.UnknownHostException;
  * Date: 12/27/11
  * Time: 5:35 PM
  */
-public enum InjectableTag implements Tag{
+public enum InjectableTag implements Tag {
     HOSTNAME("hostname", getHostName()),
     IP("ip", getIp());
 
