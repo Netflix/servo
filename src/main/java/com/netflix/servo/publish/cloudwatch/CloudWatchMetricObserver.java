@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CloudWatchMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER =
+    private static final Logger log =
         LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
     public CloudWatchMetricObserver(String name) {

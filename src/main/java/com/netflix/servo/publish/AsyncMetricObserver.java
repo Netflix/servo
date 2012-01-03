@@ -19,17 +19,12 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
-
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Queue;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,27 +37,27 @@ import org.slf4j.LoggerFactory;
  * If an exception is thrown when calling update on wrapped observer it will
  * be logged, but otherwise ignored.
  */
-public abstract class AsyncMetricObserver extends BaseMetricObserver {
+public class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger log =
-        LoggerFactory.getLogger(AsyncMetricObserver.class);
+    private static final Logger log = LoggerFactory.getLogger(AsyncMetricObserver.class);
 
     private final MetricObserver wrappedObserver;
 
     private final int updateQueueSize;
-    private final Queue<List<Metric>> updateQueue;
+    private final long expireTime;
+    private final BlockingQueue<TimestampedUpdate> updateQueue;
 
     private final Thread updateProcessingThread;
 
-    public AsyncMetricObserver(
-            String name, MetricObserver observer, int queueSize) {
+    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize, long expireTime) {
         super(name);
+        this.expireTime = expireTime;
         wrappedObserver = Preconditions.checkNotNull(observer);
         updateQueueSize = queueSize;
         Preconditions.checkArgument(queueSize >= 1,
             "invalid queueSize %d, size must be >= 1", queueSize);
 
-        updateQueue = new ArrayDeque<List<Metric>>(queueSize);
+        updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
         String threadName = getClass().getSimpleName() + "-" + this.name;
         updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
@@ -73,25 +68,19 @@ public abstract class AsyncMetricObserver extends BaseMetricObserver {
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         synchronized (updateQueue) {
-            if (updateQueue.size() == updateQueueSize) {
+            TimestampedUpdate update = new TimestampedUpdate(System.currentTimeMillis(), metrics);
+            boolean result = updateQueue.offer(update);
+            while(!result){
                 updateQueue.remove();
+                result = updateQueue.offer(update);
             }
-            updateQueue.offer(metrics);
-            updateQueue.notify();
         }
     }
 
-    private void nextUpdate() {
+    private void processUpdate() {
         List<Metric> metrics = null;
         synchronized (updateQueue) {
-            while (updateQueue.isEmpty()) {
-                try {
-                    updateQueue.wait();
-                } catch (InterruptedException e) {
-                    log.trace(e.getMessage(), e);
-                }
-            }
-            metrics = updateQueue.remove();
+            metrics = updateQueue.remove().getMetrics();
         }
         try {
             wrappedObserver.update(metrics);
@@ -106,8 +95,26 @@ public abstract class AsyncMetricObserver extends BaseMetricObserver {
     private class UpdateProcessor implements Runnable {
         public void run() {
             while (true) {
-                nextUpdate();
+                processUpdate();
             }
+        }
+    }
+    
+    private class TimestampedUpdate{
+        private final long timestamp;
+        private final List<Metric> metrics;
+
+        public TimestampedUpdate(long timestamp, List<Metric> metrics){
+            this.timestamp = timestamp;
+            this.metrics = metrics;
+        }
+
+        long getTimestamp(){
+            return timestamp;
+        }
+
+        List<Metric> getMetrics(){
+            return metrics;
         }
     }
 }
