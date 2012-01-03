@@ -44,79 +44,79 @@ import org.slf4j.LoggerFactory;
  */
 public final class AsyncMetricObserver implements MetricObserver {
 
-    private static final Logger LOGGER =
+    private static final Logger log =
         LoggerFactory.getLogger(AsyncMetricObserver.class);
 
     @MonitorId
-    private final String mName;
+    private final String name;
 
     @Monitor(name="UpdateCount", type=DataSourceType.COUNTER,
              description="Total number of times update has been called on "
                         +"the wrapped observer.")
-    private final AtomicInteger mUpdates = new AtomicInteger(0);
+    private final AtomicInteger updateCount = new AtomicInteger(0);
 
     @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
              description="Number of times the update call on the wrapped "
                         +"observer failed with an exception.")
-    private final AtomicInteger mFailedUpdates = new AtomicInteger(0);
+    private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
 
-    private final MetricObserver mObserver;
+    private final MetricObserver wrappedObserver;
 
-    private final int mQueueSize;
-    private final Queue<List<Metric>> mQueue;
+    private final int updateQueueSize;
+    private final Queue<List<Metric>> updateQueue;
 
-    private final Thread mUpdateThread;
+    private final Thread updateProcessingThread;
 
     public AsyncMetricObserver(
             String name, MetricObserver observer, int queueSize) {
-        mName = Preconditions.checkNotNull(name);
-        mObserver = Preconditions.checkNotNull(observer);
-        mQueueSize = queueSize;
+        this.name = Preconditions.checkNotNull(name);
+        wrappedObserver = Preconditions.checkNotNull(observer);
+        updateQueueSize = queueSize;
         Preconditions.checkArgument(queueSize >= 1,
             "invalid queueSize %d, size must be >= 1", queueSize);
 
-        mQueue = new ArrayDeque<List<Metric>>(queueSize);
+        updateQueue = new ArrayDeque<List<Metric>>(queueSize);
 
-        String threadName = getClass().getSimpleName() + "-" + mName;
-        mUpdateThread = new Thread(new UpdateTask(), threadName);
-        mUpdateThread.setDaemon(true);
-        mUpdateThread.start();
+        String threadName = getClass().getSimpleName() + "-" + this.name;
+        updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
+        updateProcessingThread.setDaemon(true);
+        updateProcessingThread.start();
     }
 
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
-        synchronized (mQueue) {
-            if (mQueue.size() == mQueueSize) {
-                mQueue.poll();
+        synchronized (updateQueue) {
+            if (updateQueue.size() == updateQueueSize) {
+                updateQueue.remove();
             }
-            mQueue.offer(metrics);
-            mQueue.notify();
+            updateQueue.offer(metrics);
+            updateQueue.notify();
         }
     }
 
     private void nextUpdate() {
         List<Metric> metrics = null;
-        synchronized (mQueue) {
-            while (mQueue.isEmpty()) {
+        synchronized (updateQueue) {
+            while (updateQueue.isEmpty()) {
                 try {
-                    mQueue.wait();
+                    updateQueue.wait();
                 } catch (InterruptedException e) {
-                    LOGGER.trace(e.getMessage(), e);
+                    log.trace(e.getMessage(), e);
                 }
             }
-            metrics = mQueue.poll();
+            metrics = updateQueue.remove();
         }
         try {
-            mObserver.update(metrics);
+            wrappedObserver.update(metrics);
         } catch (Throwable t) {
-            LOGGER.warn("update failed for downstream queue", t);
-            mFailedUpdates.incrementAndGet();
+            log.warn("update failed for downstream queue", t);
+            failedUpdateCount.incrementAndGet();
         } finally {
-            mUpdates.incrementAndGet();
+            updateCount.incrementAndGet();
         }
     }
 
-    private class UpdateTask implements Runnable {
+    private class UpdateProcessor implements Runnable {
         public void run() {
             while (true) {
                 nextUpdate();
