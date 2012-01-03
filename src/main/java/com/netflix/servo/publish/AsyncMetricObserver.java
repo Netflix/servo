@@ -42,23 +42,10 @@ import org.slf4j.LoggerFactory;
  * If an exception is thrown when calling update on wrapped observer it will
  * be logged, but otherwise ignored.
  */
-public final class AsyncMetricObserver implements MetricObserver {
+public abstract class AsyncMetricObserver extends BaseMetricObserver {
 
     private static final Logger log =
         LoggerFactory.getLogger(AsyncMetricObserver.class);
-
-    @MonitorId
-    private final String name;
-
-    @Monitor(name="UpdateCount", type=DataSourceType.COUNTER,
-             description="Total number of times update has been called on "
-                        +"the wrapped observer.")
-    private final AtomicInteger updateCount = new AtomicInteger(0);
-
-    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
-             description="Number of times the update call on the wrapped "
-                        +"observer failed with an exception.")
-    private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
 
     private final MetricObserver wrappedObserver;
 
@@ -69,7 +56,7 @@ public final class AsyncMetricObserver implements MetricObserver {
 
     public AsyncMetricObserver(
             String name, MetricObserver observer, int queueSize) {
-        this.name = Preconditions.checkNotNull(name);
+        super(name);
         wrappedObserver = Preconditions.checkNotNull(observer);
         updateQueueSize = queueSize;
         Preconditions.checkArgument(queueSize >= 1,
