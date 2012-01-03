@@ -35,14 +35,15 @@ import org.slf4j.LoggerFactory;
  * Writes observations to a file. The format is a basic text file with tabs
  * separating the fields.
  */
-public final class FileMetricObserver implements MetricObserver {
+public final class FileMetricObserver extends BaseMetricObserver {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(FileMetricObserver.class);
 
     private final File mFile;
 
-    public FileMetricObserver(File file) {
+    public FileMetricObserver(String name, File file) {
+        super(name);
         mFile = file;
     }
 

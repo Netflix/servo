@@ -21,6 +21,7 @@ package com.netflix.servo.publish.cloudwatch;
 
 import com.google.common.base.Preconditions;
 
+import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.Metric;
 import com.netflix.servo.publish.MetricObserver;
 
@@ -32,12 +33,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Writes observations to Amazon's CloudWatch.
  */
-public final class CloudWatchMetricObserver implements MetricObserver {
+public class CloudWatchMetricObserver extends BaseMetricObserver {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
-    public CloudWatchMetricObserver() {
+    public CloudWatchMetricObserver(String name) {
+        super(name);
     }
 
     public void update(List<Metric> metrics) {
