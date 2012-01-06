@@ -19,108 +19,124 @@
  */
 package com.netflix.servo.publish;
 
+import com.google.common.base.Preconditions;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
-
-import com.google.common.base.Preconditions;
-
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Queue;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
  * update call will always return immediately. If the queue fills up newer
  * updates will overwrite older updates.
- *
+ * <p/>
  * If an exception is thrown when calling update on wrapped observer it will
  * be logged, but otherwise ignored.
  */
-public final class AsyncMetricObserver implements MetricObserver {
+public class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(AsyncMetricObserver.class);
+    private static final Logger log = LoggerFactory.getLogger(AsyncMetricObserver.class);
 
-    @MonitorId
-    private final String mName;
+    private final MetricObserver wrappedObserver;
 
-    @Monitor(name="UpdateCount", type=DataSourceType.COUNTER,
-             description="Total number of times update has been called on "
-                        +"the wrapped observer.")
-    private final AtomicInteger mUpdates = new AtomicInteger(0);
+    private final int updateQueueSize;
+    private final long expireTime;
+    private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
-             description="Number of times the update call on the wrapped "
-                        +"observer failed with an exception.")
-    private final AtomicInteger mFailedUpdates = new AtomicInteger(0);
+    private final Thread updateProcessingThread;
 
-    private final MetricObserver mObserver;
+    @Monitor(name = "UpdateExpiredCount", type = DataSourceType.COUNTER,
+            description = "Number of times the update call was skipped because the update was expired")
+    protected final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
 
-    private final int mQueueSize;
-    private final Queue<List<Metric>> mQueue;
-
-    private final Thread mUpdateThread;
-
-    public AsyncMetricObserver(
-            String name, MetricObserver observer, int queueSize) {
-        mName = Preconditions.checkNotNull(name);
-        mObserver = Preconditions.checkNotNull(observer);
-        mQueueSize = queueSize;
+    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize, long expireTime) {
+        super(name);
+        this.expireTime = expireTime;
+        wrappedObserver = Preconditions.checkNotNull(observer);
+        updateQueueSize = queueSize;
         Preconditions.checkArgument(queueSize >= 1,
-            "invalid queueSize %d, size must be >= 1", queueSize);
+                "invalid queueSize %d, size must be >= 1", updateQueueSize);
 
-        mQueue = new ArrayDeque<List<Metric>>(queueSize);
+        updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(updateQueueSize);
 
-        String threadName = getClass().getSimpleName() + "-" + mName;
-        mUpdateThread = new Thread(new UpdateTask(), threadName);
-        mUpdateThread.setDaemon(true);
-        mUpdateThread.start();
+        String threadName = getClass().getSimpleName() + "-" + this.name;
+        updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
+        updateProcessingThread.setDaemon(true);
+        updateProcessingThread.start();
+    }
+
+    public AsyncMetricObserver(String name, MetricObserver observer) {
+        this(name, observer, Integer.MAX_VALUE, -1);
+    }
+
+    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
+        this(name, observer, queueSize, -1);
+    }
+
+    public AsyncMetricObserver(String name, MetricObserver observer, long expireTime) {
+        this(name, observer, Integer.MAX_VALUE, expireTime);
     }
 
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
-        synchronized (mQueue) {
-            if (mQueue.size() == mQueueSize) {
-                mQueue.poll();
-            }
-            mQueue.offer(metrics);
-            mQueue.notify();
+        TimestampedUpdate update = new TimestampedUpdate(System.currentTimeMillis(), metrics);
+        boolean result = updateQueue.offer(update);
+        while (!result) {
+            updateQueue.remove();
+            result = updateQueue.offer(update);
         }
     }
 
-    private void nextUpdate() {
-        List<Metric> metrics = null;
-        synchronized (mQueue) {
-            while (mQueue.isEmpty()) {
-                try {
-                    mQueue.wait();
-                } catch (InterruptedException e) {
-                    LOGGER.trace(e.getMessage(), e);
-                }
-            }
-            metrics = mQueue.poll();
-        }
+    private void processUpdate() {
+        TimestampedUpdate update;
         try {
-            mObserver.update(metrics);
+            update = updateQueue.take();
+
+            if ((System.currentTimeMillis() - expireTime) < update.getTimestamp()) {
+                expiredUpdateCount.incrementAndGet();
+                return;
+            }
+
+            wrappedObserver.update(update.getMetrics());
+        } catch (InterruptedException ie){
+            log.warn("Interrupted while adding to queue, update dropped");
+            failedUpdateCount.incrementAndGet();
         } catch (Throwable t) {
-            LOGGER.warn("update failed for downstream queue", t);
-            mFailedUpdates.incrementAndGet();
+            log.warn("update failed for downstream queue", t);
+            failedUpdateCount.incrementAndGet();
         } finally {
-            mUpdates.incrementAndGet();
+            updateCount.incrementAndGet();
         }
     }
 
-    private class UpdateTask implements Runnable {
+    private class UpdateProcessor implements Runnable {
         public void run() {
             while (true) {
-                nextUpdate();
+                processUpdate();
             }
+        }
+    }
+
+    private class TimestampedUpdate {
+        private final long timestamp;
+        private final List<Metric> metrics;
+
+        public TimestampedUpdate(long timestamp, List<Metric> metrics) {
+            this.timestamp = timestamp;
+            this.metrics = metrics;
+        }
+
+        long getTimestamp() {
+            return timestamp;
+        }
+
+        List<Metric> getMetrics() {
+            return metrics;
         }
     }
 }

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Keeps the last N observations in-memory.
  */
-public final class MemoryMetricObserver implements MetricObserver {
+public final class MemoryMetricObserver extends BaseMetricObserver {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MemoryMetricObserver.class);
@@ -40,11 +40,12 @@ public final class MemoryMetricObserver implements MetricObserver {
     private int mNext;
 
     public MemoryMetricObserver() {
-        this(10);
+        this("unamed observer", 10);
     }
 
     @SuppressWarnings("unchecked")
-    public MemoryMetricObserver(int num) {
+    public MemoryMetricObserver(String name, int num) {
+        super(name);
         mObservations = (List<Metric>[]) new List[num];
         mNext = 0;
     }
