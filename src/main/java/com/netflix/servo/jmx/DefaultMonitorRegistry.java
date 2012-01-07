@@ -30,7 +30,7 @@ public class DefaultMonitorRegistry implements MonitorRegistry {
 
     private final MonitorRegistry mRegistry;
 
-    private static MonitorRegistry getInstance() {
+    public static MonitorRegistry getInstance() {
         return INSTANCE;
     }
 
