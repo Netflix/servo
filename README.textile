@@ -1,0 +1,261 @@
+h1. Overview
+
+We currently don't have a standard way of integrating with IT/OPs in respect to application-level monitoring. The following is a proposal for standardizing on how we monitor applications (specifically Java apps) both in [Amazon cloud|http://go/cloud] and our data center. This has already been implemented and many applications currently use it (e.g. {{evcache}}, {{discovery}}, {{rheventsconsumer}}, etc.)
+
+h1. Goals
+
+* *JMX-based*  — since it's the standard for Java applications and lots of existing tools already integrate with JMX
+* *simple*  — we shouldn't have to write lots of code (e.g. writing {{XMBean}} interfaces and implementing them)
+* *easy to register new monitors*  — should be dynamically driven (e.g. no need to file CMCs and have to wait for SAs to set up new monitors)
+* *integrated with IT/OPs monitoring strategy/solution* :
+** collect data for trending ([Epic|http://go/epic] & [Appdynamics|null:AppDynamics]) as well as alerting ([Nimsoft|http://go/nms] & [Appdynamics|null:AppDynamics])
+** provide application developers a way to specify the graph type for trending purposes
+** provide application developers a way to specify min/max thresholds for alerting purposes (Note: This is not currently supported by our alerting backend systems yet)
+
+h1. Approach
+
+* use annotations as to set monitors (along with thresholds)
+* use {{RDDTool}} semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data; IT/Ops currently uses this already in [Epic|http://go/epic]
+* all monitors will be available as MBeans uner a well-known domain name: {{com.netflix.MonitoredResources:\*}}. Monitoring/alerting systems will use JMX to query this data:
+*EPIC*
+when you integrate {{epic-plugin.jar}} into your application, the {{epic-plugin}} library will dynamically find resources to monitor and push them to the appropriate destination (cloud: {{epicproxy}} nodes; DC: directly to {{epicapi.netflix.com}})
+*AppDynamics*  (cloud only)
+we have a plug-in to the machineagent framework which will use JMX similar to the epic-plugin to push datapoints to the AppDynamics controller. This plug-in is part of the base AMI so Java applications running in [the cloud|http://go/cloud] get this for free. In addition to monitoring/trending, you can set up alerts on AppDynamics on any of these datapoints
+*Nimsoft*  (alerting only)
+for [Nimsoft|http://go/nms], you currently have to [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] and assign it to the OSD group. You'll need to specify the ObjectName of the mbean and thresholds for alerting.
+
+h2. Definitions / Conventions
+* *DataSourceName*
+** name of the monitor (e.g. datapoint name)
+* *DataSourceType*
+** type of monitor; the following are the currently supported types:
+{code:java}
+/**
+ * Defines rdd data source types that are supported by EPIC.
+ *
+ * @author gkim
+ */
+public enum DataSourceType {
+    /**
+     * GAUGE does not save the rate of change. The value measured at a point
+     * in time is stored. Examples are: CPU, memory, and disk usage
+     */
+    GAUGE,
+
+    /**
+     * COUNTER will save the rate of change of the value over a step period.
+     * This assumes that the value is always increasing (the difference between
+     * the current and the previous value is greater than 0).
+     */
+    COUNTER,
+
+    /**
+     * DERIVE is the same as COUNTER, but it allows negative values as well.
+     */
+    DERIVE,
+
+    /**
+     * Not part of RRD DST, but useful for status (Up/Down) monitoring
+     */
+    BOOLEAN,
+
+    /**
+     * Not part of RRD DST, but useful for debugging. This will not be monitoring
+     * by the NOC.
+     */
+    INFORMATIONAL;
+}
+{code}
+
+* [{{platform.jar}}|http://go/platform.jar] creates the JMX {{ObjectName}} using the following rule:__
+** com.netflix.MonitoredResources:type=\[PLATFORM_|PDCLOUDMIG:_ APPLICATION\],name=_classname_ \[PDCLOUDMIG:,instance=_mon-id_ \]
+
+* {{type}} is either "{{PLATFORM}}" (for [{{platform.jar}}|http://go/platform.jar] components) or "{{APPLICATION}}" (all others)
+* _classname_  = _XXX_ .class.getSimpleName( ) of the target class
+* _mon-id_ =value of field annotated with @MonitorId
+* [{{platform.jar}}|http://go/platform.jar] adds {{instance}} only if it finds {{@MonitorId}} in the class (this is a way to differentiate multiple instances of the same class)
+
+* uses Open MBean — MBean where the types of attributes and of operation parameters and return values are basic, predefined Java classes. This facilitates operation with remote management programs that do not necessarily have access to application-specific types.
+** doc: [http://download.oracle.com/javase/6/docs/api/index.html?javax/management/openmbean/package-summary.html]
+
+h2. Steps for Setting up Monitors on Your Code
+
+# If you are running in [the cloud|http://go/cloud] you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside [EC2|http://go/ec2]. An explanation of why is documented in the Appendix below.
+# Annotate with _@Monitor_ at the method or field level and optionally annotate with _@MonitorId_ if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same _dataSourceName_. Example:{code:java}// The name of the resource pool.
+@MonitorId
+private String _poolName = null;
+
+@Monitor(dataSourceName="NumOfInvalidResources",type=DataSourceType.GAUGE)
+private volatile int _numOfInvalidResources;
+…
+
+@Monitor(dataSourceName="NumOfAvailableResources", type=DataSourceType.GAUGE)
+public int getObjectsAvailable() { return _availableResourcePool.size(); }
+
+@Monitor(dataSourceName="NumOfInUseResources", type=DataSourceType.GAUGE)
+public int getObjectsInUse() { return (_borrowedResourcesTable!=null ?_borrowedResourcesTable.size():0); }
+
+@Monitor(dataSourceName="MachineStatus", type=DataSourceType.BOOLEAN, expectedValue="UP")
+private Status status = Status.UP;{code}
+# *Register with the* {{*MonitorRegistry* }}*. Example:* {code}public ResourceX() {
+ …
+ //This is all you need to do in order to register your object
+ MonitorRegistry.getInstance().registerObject(this);
+ …
+}
+
+public void shutdown() {
+ …
+ //Best practice to cleanup here
+ MonitorRegistry.getInstance().unRegisterObject(this);
+ …
+}{code}
+# *That's it.*
+
+* How it'll look on JConsole:
+!jconsole-1.png!
+
+h3. Valid characters for DataSourceName and MonitorId
+
+These are the allowed characters that you can have in the DataSourceName and MonitorIds.
+
+* *alphanumeric*  \[PDCLOUDMIG:{{A}}–{{Za}}–{{z0}}–{{9}}\]
+* *underscore*  '{{_}}'
+* *hyphen*  '{{-}}'
+* *period*  '{{.}}'
+
+h1. Integration with Our Monitoring/Alerting Systems
+
+h2. Epic
+
+If you wish to also expose your annotated monitors in [Epic|http://go/epic], you can do so by following these steps:
+
+# Add {{epic-plugin.jar}} to your {{ivy.xml}} (note: If you already have {{EPIC}} in [the platform|http://go/platform] components to initialize, remove it as it's now been pulled out of {{[platform.jar|http://go/platform.jar]}} into its own library) — [real example|http://depotsearch/xref/webapplications/discovery/main/ivy.xml#13]:{code}<dependency org="netflix" name="epic-plugin" rev="latest.${ivy.status}" conf="compile" />{code}
+# Initialize the library as part of your application startup — [real example|http://depotsearch/xref//webapplications/rheventsconsumer/main/src/com/netflix/rheventsconsumer/ContainerContext.java#76]:{code}NFLibraryManager.initLibrary(EpicPluginManager.class);{code}
+# Optionally override {{netflix.epic.plugin.name}} (the default value is the APPID)
+#* We currently don't have {{epic-awstest}} set up. Ryan is working on getting something together for our {{test}} environment, but there isn't a ETA yet. So currently, this is only available in {{prod}}.
+# There is a one-time setup for each application / datacenter that needs to be performed to the epic-backend system. Please email [Ryan Kubica|http://wiki.netflix.comuser mce_style=] and [InfrastructureSupport@netflix.com|mailto:InfrastructureSupport@netflix.com] for applications that are related to AWS. For applications running in the DC, please [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php].
+#* Here is the info we need: app_id, whether it'll run in datacenter or AWS, how many hosts or instances
+
+epic-plugin.jar automatically retrieves all monitors under the "{{com.netflix.MonitoredResources}}" MBean and pushes them over to [Epic|http://go/epic] every minute. If you have custom stats you wish to push over to [Epic|http://go/epic], you can also register a callback to customize to your needs [(example code)|http://depotsearch/xref/webapplications/discovery/main/src/com/netflix/discovery/util/EpicPluginCallback.java].
+
+*Example* [Epic|http://go/epic]*graphs on production* :
+
+URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=EVCACHE_RH_curr_items&s=e-2d&w=850&ng=evcache_rh.awsprod&title=Current+#+of+items]
+
+URL breakdown:
+
+* {{ds=APP_ID_datasource_name}} (e.g. {{EVCACHE_RH_curr_items}})
+* {{ng=_node_group_ }} (e.g. {{evcache_rh.awsprod}})
+
+!http://epic-awsprod.netflix.com/aws?a=g&ds=EVCACHE_RH_curr_items&s=e-2d&w=850&ng=evcache_rh.awsprod&title=Current+#+of+items|class=jive-imagepx!
+
+Slightly more advanced usage. You can do math across your datapoints using reverse polish notation:
+
+URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=100,EVCACHE_RH_get_hits,EVCACHE_RH_get_hits,EVCACHE_RH_get_misses,+,/,*&s=e-2d&w=850&ng=evcache_rh.awsprod&title=hit+ratio&u=100&l=0]
+
+!http://epic-awsprod.netflix.com/aws?a=g&ds=100,EVCACHE_RH_get_hits,EVCACHE_RH_get_hits,EVCACHE_RH_get_misses,+,/,*&s=e-2d&w=850&ng=evcache_rh.awsprod&title=hit+ratio&u=100&l=0|class=jive-imagepx!
+
+URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=DISCOVERY_us-east-1a.renewCounter,60,*]!DISCOVERY_us-east-1c.renewCounter,60,*!DISCOVERY_us-east-1d.renewCounter,60,*&s=e-2d&w=750&ng=discovery.awsprod&title=Lease+renews+by+zone+per+min
+
+!http://epic-awsprod.netflix.com/aws?a=g&ds=DISCOVERY_us-east-1a.renewCounter,60,*!DISCOVERY_us-east-1c.renewCounter,60,*!DISCOVERY_us-east-1d.renewCounter,60,*&s=e-2d&w=750&ng=discovery.awsprod&title=Lease+renews+by+zone+per+min|class=jive-imagepx!
+
+The really great thing is that you can easily embed these and create nice dashboard wikis like these:
+
+* [NCCP in the Cloud - Dashboard|CLDINFWEB:NCCP in the Cloud - Dashboard]
+* [Discovery in the cloud - Dashboard|Discovery in the cloud - Dashboard]
+* [evcache_rh - memcached for rental history in the cloud - Dashboard|CLDINFWEB:evcache_rh - memcached for rental history in the cloud - Dashboard]
+
+[Epic|http://go/epic] support contact: Brent Pitman
+h2. AppDynamics
+
+By default in [the cloud|http://go/cloud], AppDynamics receives all annotated monitors that are of type {{GAUGE}}, {{COUNTER}}, or {{DERIVE}}. These are available to you under *Metric Browser>Environment Performance>Application Tier>APP_NAME>…>Netflix JMX* . The really cool thing is that you can set up alerts to go off based on any of these metrics.
+
+*Note* : The current base AMI has a bug in the {{machineagent}} RPM that prevents datapoints from being pushed([pv|http://go/pv]) to the controller. There is currently a blocker [JIRA|http://go/jira] item open: [OQ-1136|http://jira/browse/OQ-1136] (ETA for new base AMI with fix is 07/01/2010. ). If you wish to manually install the RPM for this in order to bake your AMI, please email: [InfrastructureSupport@netflix.com|mailto:InfrastructureSupport@netflix.com] for instructions.)
+
+Here is an example of how this looks like for {{evcache_rh}}. The annotated monitors are exposed below in red rectangle:
+
+!evcache.png|thumbnail!
+
+Here is an example of how this looks for NCCP. The annotated monitors are exposed below within the red rectangle: ([code example|http://depotsearch/xref/cloud/edelivery/server/dev/java/NCCP/src/com/netflix/eds/server/NCCPStatistics.java]):
+
+!nccp.png|thumbnail!
+
+h3. Setting up Alerts on AppDynamics
+
+Goto *Policies>Custom Application Policies*  then click on New (*+* ) button
+
+Here you can set up alerts on any of the monitors you've annotated above. You will use the Metrics Browser to pick and you can mix and match using OR and AND… Look at the existing ones (e.g. "Discovery error count") as an example.
+
+*Note* : For alert emails, be aware that DLs are not externally accessible by default. So you'll need to [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] to allow external emails to the DL.
+
+AD support contact: [Adrian Cockcroft|http://wiki.netflix.comuser mce_style=] and [Michael Tripoli|http://wiki.netflix.comuser mce_style=]
+
+h2. Nimsoft
+
+In addition to the AppDynamic alerts, you can also set up [Nimsoft|http://go/nms] alerts on these datapoints. You'll need [to file a Helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] for this (assign it to the OSD team) — specify the JMX MBean's ObjectName that you need monitored and alert levels.
+
+IT/Ops contact: [Toggi Pollack|http://wiki.netflix.comuser mce_style=]
+
+h1. Appendix
+
+h2. 1. JMX in the Cloud
+
+We're currently using 7500 as the RMI registry port, but since the RMI transport layer opens dynamic socket connections between the client and the server to facilitate communication this doesn't work in [the Amazon cloud|http://go/cloud] since ports are all blocked by default.
+
+* *Note* : If you're running on [the Amazon cloud|http://go/cloud], a workaround is in [{{platform.jar}}|http://go/cloud] to fix the port at 7500 (same as RMI registry port) to export the remote objects on. Also since [the Amazon cloud|http://go/cloud] uses a NAT device for resolving external IP addresses, we also automatically set the {{java.rmi.server.hostname}} as well.
+* So for [the Amazon cloud|http://go/cloud] — we'll need to remove {{?Dcom.sun.management.jmxremote ?Dcom.sun.management.jmxremote.port=7500}} from {{setenv.sh}}.
+
+h2. 2. Sample Code for Querying JMX for the Curious
+
+Quick and dirty code snippet to dynamically get a list of what to monitor:
+{code}public class JMXClientTest {
+    public static void main(String[] args) {
+
+        try{
+            if(args.length <  2) {
+                System.out.println("Usage: java JMXClientTest <host> <port>");
+                System.exit(1);
+            }
+            String host = args[0];
+            String port = args[1];
+
+            System.out.println("All currently registered MonitoredResources:");
+
+            String jmxURL = "service:jmx:rmi://"+host + ":" + port +"/jndi/rmi://" + host + ":" + port + "/jmxrmi";
+
+            MBeanServerConnection connection = JMXConnectorFactory.connect(new JMXServiceURL(jmxURL),
+                    null).getMBeanServerConnection();
+
+            ObjectName pattern = new ObjectName("com.netflix.MonitoredResources:*");
+            Set<ObjectName> objNames = connection.queryNames(pattern, null);
+
+            for(ObjectName objName : objNames) {
+
+                System.out.println("\tObjectName: " + objName.toString());
+
+                MBeanAttributeInfo[] attrs = connection.getMBeanInfo(objName).getAttributes();
+                if(attrs != null) {
+                    String attrStrings[] = new String[attrs.length];
+                    for (int i = 0; i < attrStrings.length; i++) {
+                        attrStrings[i] = attrs[i].getName();
+                    }
+                    AttributeList list = connection.getAttributes(objName, attrStrings);
+
+                    for(Attribute a : list.asList() ) {
+                        System.out.println("\t\t" + a.getName() + ": ");
+                        if(a.getValue() instanceof CompositeDataSupport) {
+                            CompositeDataSupport compositeData =(CompositeDataSupport) a.getValue();
+                            CompositeType compositeType = compositeData.getCompositeType();
+                            for(Object key : compositeType.keySet()){
+                                System.out.println("\t\t\t" + key + " => " + compositeData.get((String)key));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}{code}
