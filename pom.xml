@@ -11,6 +11,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <checkstyle.version>2.8</checkstyle.version>
+    <findbugs.version>2.3.3</findbugs.version>
   </properties>
 
   <profiles>
@@ -63,12 +66,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.8</version>
+        <version>${checkstyle.version}</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.3.3</version>
+        <version>${findbugs.version}</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -99,6 +102,45 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-javadoc-plugin</artifactId>
               <version>2.8</version>
+            </plugin>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-checkstyle-plugin</artifactId>
+	      <version>${checkstyle.version}</version>
+	    </plugin>
+            <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>cobertura-maven-plugin</artifactId>
+	      <version>2.4</version>
+	      <configuration>
+	        <formats>
+	          <format>xml</format>
+	          <format>html</format>
+	        </formats>
+	      </configuration>
+	    </plugin>
+            <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-surefire-report-plugin</artifactId>
+	      <version>2.6</version>
+	    </plugin>
+            <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>findbugs-maven-plugin</artifactId>
+	      <version>${findbugs.version}</version>
+	    </plugin>
+            <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-jxr-plugin</artifactId>
+	      <version>2.1</version>
+	    </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-pmd-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <targetJdk>1.6</targetJdk>
+              </configuration>
             </plugin>
           </reportPlugins>
         </configuration>
