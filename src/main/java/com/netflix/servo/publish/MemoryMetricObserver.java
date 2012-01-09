@@ -58,7 +58,7 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
 
     public List<List<Metric>> getObservations() {
         ImmutableList.Builder<List<Metric>> builder = ImmutableList.builder();
-        int pos = (mNext + 1) % mObservations.length;
+        int pos = mNext;
         for (int i = 0; i < mObservations.length; ++i) {
             if (mObservations[pos] != null) {
                 builder.add(mObservations[pos]);
