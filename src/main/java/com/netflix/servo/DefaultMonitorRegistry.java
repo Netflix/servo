@@ -17,7 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo;
+
+import com.netflix.servo.jmx.JmxMonitorRegistry;
 
 import java.util.Properties;
 

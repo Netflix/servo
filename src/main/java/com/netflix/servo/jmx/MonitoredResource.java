@@ -36,9 +36,8 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 
-import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
-import javax.management.openmbean.SimpleType;
-
+import com.netflix.servo.annotations.AnnotationUtils;
+import com.netflix.servo.annotations.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

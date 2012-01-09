@@ -17,10 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.jmx;
+package com.netflix.servo;
 
-public enum DataSourceType {
-    GAUGE,
-    COUNTER,
-    INFORMATIONAL
+public interface MonitorRegistry {
+    void registerObject(Object obj);
+    void unRegisterObject(Object obj);
 }

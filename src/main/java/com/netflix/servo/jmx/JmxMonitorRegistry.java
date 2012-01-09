@@ -27,6 +27,7 @@ import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import com.netflix.servo.MonitorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
