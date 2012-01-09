@@ -124,78 +124,11 @@ These are the allowed characters that you can have in the DataSourceName and Mon
 * *hyphen*  '{{-}}'
 * *period*  '{{.}}'
 
-h1. Integration with Our Monitoring/Alerting Systems
+h1. Integration with Monitoring/Alerting Systems
 
-h2. Epic
+h2. CloudWatch
+h3. Setting up alerts in CloudWatch
 
-If you wish to also expose your annotated monitors in [Epic|http://go/epic], you can do so by following these steps:
-
-# Add {{epic-plugin.jar}} to your {{ivy.xml}} (note: If you already have {{EPIC}} in [the platform|http://go/platform] components to initialize, remove it as it's now been pulled out of {{[platform.jar|http://go/platform.jar]}} into its own library) — [real example|http://depotsearch/xref/webapplications/discovery/main/ivy.xml#13]:{code}<dependency org="netflix" name="epic-plugin" rev="latest.${ivy.status}" conf="compile" />{code}
-# Initialize the library as part of your application startup — [real example|http://depotsearch/xref//webapplications/rheventsconsumer/main/src/com/netflix/rheventsconsumer/ContainerContext.java#76]:{code}NFLibraryManager.initLibrary(EpicPluginManager.class);{code}
-# Optionally override {{netflix.epic.plugin.name}} (the default value is the APPID)
-#* We currently don't have {{epic-awstest}} set up. Ryan is working on getting something together for our {{test}} environment, but there isn't a ETA yet. So currently, this is only available in {{prod}}.
-# There is a one-time setup for each application / datacenter that needs to be performed to the epic-backend system. Please email [Ryan Kubica|http://wiki.netflix.comuser mce_style=] and [InfrastructureSupport@netflix.com|mailto:InfrastructureSupport@netflix.com] for applications that are related to AWS. For applications running in the DC, please [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php].
-#* Here is the info we need: app_id, whether it'll run in datacenter or AWS, how many hosts or instances
-
-epic-plugin.jar automatically retrieves all monitors under the "{{com.netflix.MonitoredResources}}" MBean and pushes them over to [Epic|http://go/epic] every minute. If you have custom stats you wish to push over to [Epic|http://go/epic], you can also register a callback to customize to your needs [(example code)|http://depotsearch/xref/webapplications/discovery/main/src/com/netflix/discovery/util/EpicPluginCallback.java].
-
-*Example* [Epic|http://go/epic]*graphs on production* :
-
-URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=EVCACHE_RH_curr_items&s=e-2d&w=850&ng=evcache_rh.awsprod&title=Current+#+of+items]
-
-URL breakdown:
-
-* {{ds=APP_ID_datasource_name}} (e.g. {{EVCACHE_RH_curr_items}})
-* {{ng=_node_group_ }} (e.g. {{evcache_rh.awsprod}})
-
-!http://epic-awsprod.netflix.com/aws?a=g&ds=EVCACHE_RH_curr_items&s=e-2d&w=850&ng=evcache_rh.awsprod&title=Current+#+of+items|class=jive-imagepx!
-
-Slightly more advanced usage. You can do math across your datapoints using reverse polish notation:
-
-URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=100,EVCACHE_RH_get_hits,EVCACHE_RH_get_hits,EVCACHE_RH_get_misses,+,/,*&s=e-2d&w=850&ng=evcache_rh.awsprod&title=hit+ratio&u=100&l=0]
-
-!http://epic-awsprod.netflix.com/aws?a=g&ds=100,EVCACHE_RH_get_hits,EVCACHE_RH_get_hits,EVCACHE_RH_get_misses,+,/,*&s=e-2d&w=850&ng=evcache_rh.awsprod&title=hit+ratio&u=100&l=0|class=jive-imagepx!
-
-URL:[http://epic-awsprod.netflix.com/aws?a=g&ds=DISCOVERY_us-east-1a.renewCounter,60,*]!DISCOVERY_us-east-1c.renewCounter,60,*!DISCOVERY_us-east-1d.renewCounter,60,*&s=e-2d&w=750&ng=discovery.awsprod&title=Lease+renews+by+zone+per+min
-
-!http://epic-awsprod.netflix.com/aws?a=g&ds=DISCOVERY_us-east-1a.renewCounter,60,*!DISCOVERY_us-east-1c.renewCounter,60,*!DISCOVERY_us-east-1d.renewCounter,60,*&s=e-2d&w=750&ng=discovery.awsprod&title=Lease+renews+by+zone+per+min|class=jive-imagepx!
-
-The really great thing is that you can easily embed these and create nice dashboard wikis like these:
-
-* [NCCP in the Cloud - Dashboard|CLDINFWEB:NCCP in the Cloud - Dashboard]
-* [Discovery in the cloud - Dashboard|Discovery in the cloud - Dashboard]
-* [evcache_rh - memcached for rental history in the cloud - Dashboard|CLDINFWEB:evcache_rh - memcached for rental history in the cloud - Dashboard]
-
-[Epic|http://go/epic] support contact: Brent Pitman
-h2. AppDynamics
-
-By default in [the cloud|http://go/cloud], AppDynamics receives all annotated monitors that are of type {{GAUGE}}, {{COUNTER}}, or {{DERIVE}}. These are available to you under *Metric Browser>Environment Performance>Application Tier>APP_NAME>…>Netflix JMX* . The really cool thing is that you can set up alerts to go off based on any of these metrics.
-
-*Note* : The current base AMI has a bug in the {{machineagent}} RPM that prevents datapoints from being pushed([pv|http://go/pv]) to the controller. There is currently a blocker [JIRA|http://go/jira] item open: [OQ-1136|http://jira/browse/OQ-1136] (ETA for new base AMI with fix is 07/01/2010. ). If you wish to manually install the RPM for this in order to bake your AMI, please email: [InfrastructureSupport@netflix.com|mailto:InfrastructureSupport@netflix.com] for instructions.)
-
-Here is an example of how this looks like for {{evcache_rh}}. The annotated monitors are exposed below in red rectangle:
-
-!evcache.png|thumbnail!
-
-Here is an example of how this looks for NCCP. The annotated monitors are exposed below within the red rectangle: ([code example|http://depotsearch/xref/cloud/edelivery/server/dev/java/NCCP/src/com/netflix/eds/server/NCCPStatistics.java]):
-
-!nccp.png|thumbnail!
-
-h3. Setting up Alerts on AppDynamics
-
-Goto *Policies>Custom Application Policies*  then click on New (*+* ) button
-
-Here you can set up alerts on any of the monitors you've annotated above. You will use the Metrics Browser to pick and you can mix and match using OR and AND… Look at the existing ones (e.g. "Discovery error count") as an example.
-
-*Note* : For alert emails, be aware that DLs are not externally accessible by default. So you'll need to [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] to allow external emails to the DL.
-
-AD support contact: [Adrian Cockcroft|http://wiki.netflix.comuser mce_style=] and [Michael Tripoli|http://wiki.netflix.comuser mce_style=]
-
-h2. Nimsoft
-
-In addition to the AppDynamic alerts, you can also set up [Nimsoft|http://go/nms] alerts on these datapoints. You'll need [to file a Helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] for this (assign it to the OSD team) — specify the JMX MBean's ObjectName that you need monitored and alert levels.
-
-IT/Ops contact: [Toggi Pollack|http://wiki.netflix.comuser mce_style=]
 
 h1. Appendix
 

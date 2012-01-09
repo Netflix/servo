@@ -33,12 +33,13 @@
  *     limitations under the License.
  */
 
-package com.netflix.servo.test;
+package com.netflix.servo.sample;
 
+import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.InjectableTag;
 import com.netflix.servo.Tag;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
 
 import java.util.ArrayList;
@@ -49,28 +50,51 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * User: gorzell
  * Date: 1/6/12
- * Time: 12:30 PM
+ * Time: 12:45 PM
  */
-public class TestMonitor {
-    
-    @Monitor(name="TestMonitor", type = DataSourceType.COUNTER,
-            description = "Monitor for doing testing", tags = {
-            "tag1=foo", "tag2=bar"})
+public class SimpleSample {
+
+    @Monitor(name = "SampleCounter", type = DataSourceType.COUNTER,
+            description = "Sample counting monitor", tags = {
+            "sample=simple"})
     public final AtomicInteger counter = new AtomicInteger(0);
-    
-    @MonitorId
-    public final String name = "testMonitor";
-    
+
+    @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
+            description = "Sample gauge monitor", tags = {
+            "sample=simple"})
+    private long sampleGuage = 0;
+
     @MonitorTags
     public final List<Tag> tagList = new ArrayList<Tag>(10);
-    
-    public TestMonitor(){}
-    
-    public TestMonitor(Collection<Tag> tags){
-        tagList.addAll(tags);
+
+    public SimpleSample() {
     }
 
-    public void increment(){
-        counter.incrementAndGet();
+    public SimpleSample(Collection<Tag> tags) {
+        tagList.addAll(tags);
+    }
+    
+    public synchronized void setSampleGauage(long val){
+        sampleGuage = val;
+    }
+    
+    public synchronized long getSampleGuage(){
+        return sampleGuage;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        List<Tag> tags = new ArrayList<Tag>(2);
+        tags.add(InjectableTag.HOSTNAME);
+        tags.add(InjectableTag.IP);
+        
+        SimpleSample sample = new SimpleSample(tags);
+
+        DefaultMonitorRegistry.getInstance().registerObject(sample);
+        
+        while(true){
+            sample.counter.incrementAndGet();
+            sample.setSampleGauage(Math.round(Math.random()*1000));
+            Thread.sleep(60000);
+        }
     }
 }

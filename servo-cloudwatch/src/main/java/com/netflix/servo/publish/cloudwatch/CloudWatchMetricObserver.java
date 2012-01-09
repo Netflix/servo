@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.Metric;
-import com.netflix.servo.publish.MetricObserver;
 
 import java.util.List;
 
