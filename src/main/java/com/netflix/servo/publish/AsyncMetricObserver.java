@@ -71,11 +71,11 @@ public class AsyncMetricObserver extends BaseMetricObserver {
     }
 
     public AsyncMetricObserver(String name, MetricObserver observer) {
-        this(name, observer, Integer.MAX_VALUE, -1);
+        this(name, observer, Integer.MAX_VALUE, Long.MAX_VALUE);
     }
 
     public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
-        this(name, observer, queueSize, -1);
+        this(name, observer, queueSize, Long.MAX_VALUE);
     }
 
     public AsyncMetricObserver(String name, MetricObserver observer, long expireTime) {
@@ -97,7 +97,8 @@ public class AsyncMetricObserver extends BaseMetricObserver {
         try {
             update = updateQueue.take();
 
-            if ((System.currentTimeMillis() - expireTime) < update.getTimestamp()) {
+            long cutoff = System.currentTimeMillis() - expireTime;
+            if (update.getTimestamp() < cutoff) {
                 expiredUpdateCount.incrementAndGet();
                 return;
             }
