@@ -19,8 +19,6 @@
  */
 package com.netflix.servo;
 
-import com.netflix.servo.Tag;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 

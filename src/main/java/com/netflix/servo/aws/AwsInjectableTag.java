@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.aws;
 
+import com.google.common.io.Closeables;
+
 import com.netflix.servo.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +67,10 @@ public enum AwsInjectableTag implements Tag {
     }
 
     private static String getUrlValue(String path) {
+        BufferedReader reader = null;
         try {
             URL url = new URL(metaDataUrl + path);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line  = null;
             StringBuilder stringBuilder = new StringBuilder();
             String ls = System.getProperty("line.separator");
@@ -79,6 +82,8 @@ public enum AwsInjectableTag implements Tag {
         } catch (Exception e) {
             log.warn("", e);
             return "uknown";
+        } finally {
+            Closeables.closeQuietly(reader);
         }
     }
 

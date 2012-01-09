@@ -19,25 +19,15 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.base.Preconditions;
-
-import com.google.common.collect.ImmutableMap;
-
-import java.util.List;
 import java.util.Map;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
-import javax.management.MalformedObjectNameException;
-import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
-
-import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
-import javax.management.openmbean.SimpleType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
