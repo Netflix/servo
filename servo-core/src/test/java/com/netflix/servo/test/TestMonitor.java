@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestMonitor {
     
-    @Monitor(name="TestMonitor", type = DataSourceType.COUNTER,
+    @Monitor(name="testCounter", type = DataSourceType.COUNTER,
             description = "Monitor for doing testing", tags = {
             "tag1=foo", "tag2=bar"})
     public final AtomicInteger counter = new AtomicInteger(0);

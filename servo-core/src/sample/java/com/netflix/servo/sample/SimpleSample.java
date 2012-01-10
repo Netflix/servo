@@ -21,7 +21,6 @@ package com.netflix.servo.sample;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.InjectableTag;
-import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.Tag;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
