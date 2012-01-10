@@ -16,12 +16,28 @@
 
 package com.netflix.servo.aws;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 /**
  * User: gorzell
  * Date: 1/9/12
  * Time: 5:31 PM
  */
 public class DataSourceTypeToAwsUnit {
-    
-    public static String getUnit(DataSourceT)
+    private static final String defaultUnit = "None";
+    private static final String count = "Count";
+    private static final String countSecond = "Count/Second";
+
+    public static String getUnit(DataSourceType dataSourceType){
+        switch (dataSourceType){
+            case COUNTER:
+                return countSecond;
+            case GAUGE:
+                return defaultUnit;
+            case INFORMATIONAL:
+                return defaultUnit;
+            default:
+                return defaultUnit;
+        }
+    }
 }
