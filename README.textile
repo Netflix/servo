@@ -15,21 +15,15 @@ h1. Goals
 h1. Approach
 
 * use annotations as to set monitors (along with thresholds)
-* use {{RDDTool}} semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data; IT/Ops currently uses this already in [Epic|http://go/epic]
-* all monitors will be available as MBeans uner a well-known domain name: {{com.netflix.MonitoredResources:\*}}. Monitoring/alerting systems will use JMX to query this data:
-*EPIC*
-when you integrate {{epic-plugin.jar}} into your application, the {{epic-plugin}} library will dynamically find resources to monitor and push them to the appropriate destination (cloud: {{epicproxy}} nodes; DC: directly to {{epicapi.netflix.com}})
-*AppDynamics*  (cloud only)
-we have a plug-in to the machineagent framework which will use JMX similar to the epic-plugin to push datapoints to the AppDynamics controller. This plug-in is part of the base AMI so Java applications running in [the cloud|http://go/cloud] get this for free. In addition to monitoring/trending, you can set up alerts on AppDynamics on any of these datapoints
-*Nimsoft*  (alerting only)
-for [Nimsoft|http://go/nms], you currently have to [file a helpdesk ticket|http://helpdesk.netflix.com/ticket/create_ticket.php] and assign it to the OSD group. You'll need to specify the ObjectName of the mbean and thresholds for alerting.
+* use {{RDDTool}} semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data.
+* all monitors will be available as MBeans uner a well-known domain name: {{com.netflix.MonitoredResources:\*}}. Monitoring/alerting systems will use JMX to query this data.
 
 h2. Definitions / Conventions
 * *DataSourceName*
 ** name of the monitor (e.g. datapoint name)
 * *DataSourceType*
 ** type of monitor; the following are the currently supported types:
-{code:java}
+```java
 /**
  * Defines rdd data source types that are supported by EPIC.
  *
@@ -50,38 +44,29 @@ public enum DataSourceType {
     COUNTER,
 
     /**
-     * DERIVE is the same as COUNTER, but it allows negative values as well.
-     */
-    DERIVE,
-
-    /**
-     * Not part of RRD DST, but useful for status (Up/Down) monitoring
-     */
-    BOOLEAN,
-
-    /**
      * Not part of RRD DST, but useful for debugging. This will not be monitoring
      * by the NOC.
      */
     INFORMATIONAL;
 }
-{code}
-
-* [{{platform.jar}}|http://go/platform.jar] creates the JMX {{ObjectName}} using the following rule:__
+```
+* The JMX {{ObjectName}} using the following rule:__
 ** com.netflix.MonitoredResources:type=\[PLATFORM_|PDCLOUDMIG:_ APPLICATION\],name=_classname_ \[PDCLOUDMIG:,instance=_mon-id_ \]
 
-* {{type}} is either "{{PLATFORM}}" (for [{{platform.jar}}|http://go/platform.jar] components) or "{{APPLICATION}}" (all others)
 * _classname_  = _XXX_ .class.getSimpleName( ) of the target class
 * _mon-id_ =value of field annotated with @MonitorId
-* [{{platform.jar}}|http://go/platform.jar] adds {{instance}} only if it finds {{@MonitorId}} in the class (this is a way to differentiate multiple instances of the same class)
+* Adds {{instance}} only if it finds {{@MonitorId}} in the class (this is a way to differentiate multiple instances of the same class)
 
 * uses Open MBean — MBean where the types of attributes and of operation parameters and return values are basic, predefined Java classes. This facilitates operation with remote management programs that do not necessarily have access to application-specific types.
 ** doc: [http://download.oracle.com/javase/6/docs/api/index.html?javax/management/openmbean/package-summary.html]
 
 h2. Steps for Setting up Monitors on Your Code
 
-# If you are running in [the cloud|http://go/cloud] you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside [EC2|http://go/ec2]. An explanation of why is documented in the Appendix below.
-# Annotate with _@Monitor_ at the method or field level and optionally annotate with _@MonitorId_ if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same _dataSourceName_. Example:{code:java}// The name of the resource pool.
+# If you are running in [the cloud|http://go/cloud] you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside EC2. An explanation of why is documented in the Appendix below.
+# Annotate with _@Monitor_ at the method or field level and optionally annotate with _@MonitorId_ if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same _dataSourceName_. Example:
+
+```java
+// The name of the resource pool.
 @MonitorId
 private String _poolName = null;
 
@@ -109,17 +94,18 @@ public void shutdown() {
  //Best practice to cleanup here
  MonitorRegistry.getInstance().unRegisterObject(this);
  …
-}{code}
+}
+```
 # *That's it.*
 
 * How it'll look on JConsole:
-!jconsole-1.png!
+ScreenShot Needed
 
 h3. Valid characters for DataSourceName and MonitorId
 
 These are the allowed characters that you can have in the DataSourceName and MonitorIds.
 
-* *alphanumeric*  \[PDCLOUDMIG:{{A}}–{{Za}}–{{z0}}–{{9}}\]
+* *alphanumeric* :{{A}}–{{Za}}–{{z0}}–{{9}}\]
 * *underscore*  '{{_}}'
 * *hyphen*  '{{-}}'
 * *period*  '{{.}}'
@@ -132,17 +118,18 @@ h3. Setting up alerts in CloudWatch
 
 h1. Appendix
 
-h2. 1. JMX in the Cloud
+h2. JMX in the Cloud
 
 We're currently using 7500 as the RMI registry port, but since the RMI transport layer opens dynamic socket connections between the client and the server to facilitate communication this doesn't work in [the Amazon cloud|http://go/cloud] since ports are all blocked by default.
 
 * *Note* : If you're running on [the Amazon cloud|http://go/cloud], a workaround is in [{{platform.jar}}|http://go/cloud] to fix the port at 7500 (same as RMI registry port) to export the remote objects on. Also since [the Amazon cloud|http://go/cloud] uses a NAT device for resolving external IP addresses, we also automatically set the {{java.rmi.server.hostname}} as well.
 * So for [the Amazon cloud|http://go/cloud] — we'll need to remove {{?Dcom.sun.management.jmxremote ?Dcom.sun.management.jmxremote.port=7500}} from {{setenv.sh}}.
 
-h2. 2. Sample Code for Querying JMX for the Curious
+h2. Sample Code for Querying JMX for the Curious
 
 Quick and dirty code snippet to dynamically get a list of what to monitor:
-{code}public class JMXClientTest {
+```java
+public class JMXClientTest {
     public static void main(String[] args) {
 
         try{
@@ -191,4 +178,5 @@ Quick and dirty code snippet to dynamically get a list of what to monitor:
             e.printStackTrace();
         }
     }
-}{code}
+}
+```
