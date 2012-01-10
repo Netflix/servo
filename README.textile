@@ -1,22 +1,22 @@
 h1. Overview
 
-We currently don't have a standard way of integrating with IT/OPs in respect to application-level monitoring. The following is a proposal for standardizing on how we monitor applications (specifically Java apps) both in [Amazon cloud|http://go/cloud] and our data center. This has already been implemented and many applications currently use it (e.g. {{evcache}}, {{discovery}}, {{rheventsconsumer}}, etc.)
+Our goal is to provide and simple and easy standard interface for monitoring and publishing application metrics in Java.  Both in "Amazon":http://aws.amazon.com, other clouds and private data centers. This has already been implemented inside of Netflix and most of our applications currently use it.
 
 h1. Goals
 
-* *JMX-based*  — since it's the standard for Java applications and lots of existing tools already integrate with JMX
-* *simple*  — we shouldn't have to write lots of code (e.g. writing {{XMBean}} interfaces and implementing them)
-* *easy to register new monitors*  — should be dynamically driven (e.g. no need to file CMCs and have to wait for SAs to set up new monitors)
-* *integrated with IT/OPs monitoring strategy/solution* :
-** collect data for trending ([Epic|http://go/epic] & [Appdynamics|null:AppDynamics]) as well as alerting ([Nimsoft|http://go/nms] & [Appdynamics|null:AppDynamics])
-** provide application developers a way to specify the graph type for trending purposes
-** provide application developers a way to specify min/max thresholds for alerting purposes (Note: This is not currently supported by our alerting backend systems yet)
+* *Leverage JMX*  — since it's the standard for Java applications and lots of existing tools already integrate with JMX
+* *Keep it simple*  — we shouldn't have to write lots of code (e.g. writing XMBean interfaces and implementing them)
+* *Make it easy to add new monitors*  — should be dynamically driven (e.g. no need for tickets and operational intervention)
+* *Integrated common monitoring solutions* :
+** Provide application developers a way to specify the graph type for trending purposes
+** Provide application developers a way to specify min/max thresholds for alerting purposes (Note: This is not currently supported by our alerting backend systems yet)
 
 h1. Approach
 
-* use annotations as to set monitors (along with thresholds)
-* use {{RDDTool}} semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data.
-* all monitors will be available as MBeans uner a well-known domain name: {{com.netflix.MonitoredResources:\*}}. Monitoring/alerting systems will use JMX to query this data.
+* Use "Annotations":https://github.com/Netflix/servo/wiki/Annotations to set monitors (and other meta data)
+* Use "RDDTool":http://oss.oetiker.ch/rrdtool semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data.
+* All monitors will be available as MBeans under a well-known domain name: {{com.netflix.MonitoredResources:\*}}.
+* Monitoring/alerting systems will use JMX to query this data.
 
 h2. Definitions / Conventions
 * *DataSourceName*
@@ -24,6 +24,7 @@ h2. Definitions / Conventions
 * *DataSourceType*
 ** type of monitor; the following are the currently supported types:
 
+"Code":https://github.com/Netflix/servo/blob/master/servo-core/src/main/java/com/netflix/servo/annotations/DataSourceType.java
 <pre>
 <code>
 /**

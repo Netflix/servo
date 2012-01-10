@@ -20,7 +20,22 @@
 package com.netflix.servo.annotations;
 
 public enum DataSourceType {
+    /**
+     * GAUGE does not save the rate of change. The value measured at a point
+     * in time is stored. Examples are: CPU, memory, and disk usage
+     */
     GAUGE,
+
+    /**
+     * COUNTER will save the rate of change of the value over a step period.
+     * This assumes that the value is always increasing (the difference between
+     * the current and the previous value is greater than 0).
+     */
     COUNTER,
+
+    /**
+     * Not part of RRD DST, but useful for debugging. This will not be monitoring
+     * by the NOC.
+     */
     INFORMATIONAL
 }
