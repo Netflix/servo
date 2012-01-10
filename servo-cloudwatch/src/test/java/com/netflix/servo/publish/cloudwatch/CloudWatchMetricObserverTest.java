@@ -16,6 +16,7 @@
 
 package com.netflix.servo.publish.cloudwatch;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.netflix.servo.publish.Metric;
 import org.testng.annotations.Test;
@@ -39,7 +40,9 @@ public class CloudWatchMetricObserverTest {
             metrics.add(new Metric("test", new HashMap<String, String>(), System.currentTimeMillis(), 10));
         }
 
-        observer.update(metrics);
+        try{
+            observer.update(metrics);
+        } catch (AmazonClientException e){}
     }
 
     @Test

@@ -26,6 +26,7 @@ import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.google.common.base.Preconditions;
+import com.netflix.servo.aws.DataSourceTypeToAwsUnit;
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.Metric;
 import org.slf4j.Logger;
@@ -95,12 +96,12 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     MetricDatum createMetricDatum(Metric metric) {
         MetricDatum metricDatum = new MetricDatum();
 
-        metricDatum = metricDatum.withMetricName(metric.name())
+        return metricDatum.withMetricName(metric.name())
                 .withDimensions(createDimensions(metric.tags()))
-                .withUnit("None").withTimestamp(new Date(metric.timestamp()))
+                .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
+                .withTimestamp(new Date(metric.timestamp()))
                 .withValue(Double.valueOf(metric.value().doubleValue()));
-                //TODO Need to convert into reasonable units based on DataType
-        return metricDatum;
+        //TODO Need to convert into reasonable units based on DataType
     }
 
     List<Dimension> createDimensions(Map<String, String> tags) {

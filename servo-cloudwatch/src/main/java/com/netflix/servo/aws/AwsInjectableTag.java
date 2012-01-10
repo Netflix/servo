@@ -19,11 +19,17 @@
  */
 package com.netflix.servo.aws;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.services.autoscaling.AmazonAutoScaling;
+import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
+import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
 import com.netflix.servo.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -34,7 +40,12 @@ import java.net.URL;
  */
 public enum AwsInjectableTag implements Tag {
     AUTOSCALE_GROUP("autoScalingGroup", getAutoScaleGroup()),
-    INSTANCE_ID("instanceId", getInstanceId());
+    INSTANCE_ID("instanceId", getInstanceId()),
+    AVAILABILITY_ZONE("availabilityZone", getZone());
+
+    private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
+    private static final String undefined = "undefined";
+    private static final Logger log = LoggerFactory.getLogger(AwsInjectableTag.class);
 
     private final String key;
     private final String value;
@@ -44,10 +55,6 @@ public enum AwsInjectableTag implements Tag {
         this.value = val;
     }
 
-    private static final Logger log = LoggerFactory.getLogger(AwsInjectableTag.class);
-
-    private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
-
     public String getKey() {
         return key;
     }
@@ -56,30 +63,44 @@ public enum AwsInjectableTag implements Tag {
         return value;
     }
 
-    private static String getAutoScaleGroup() {
-        return "";
+    static String getAutoScaleGroup() {
+        try {
+            File credFile = new File(System.getProperties().getProperty(AwsPropertyKeys.awsCredentialsFile));
+            AmazonAutoScaling autoScalingClient = new AmazonAutoScalingClient(new PropertiesCredentials(credFile));
+
+            return autoScalingClient.describeAutoScalingInstances(
+                    new DescribeAutoScalingInstancesRequest().withInstanceIds(getInstanceId()))
+                    .getAutoScalingInstances().get(0).getAutoScalingGroupName();
+        } catch (Exception e) {
+            log.error("Unable to get ASG name.", e);
+            return undefined;
+        }
     }
 
-    private static String getInstanceId() {
+    static String getInstanceId() {
         return getUrlValue("/instance-id");
     }
 
-    private static String getUrlValue(String path) {
+    static String getUrlValue(String path) {
         try {
             URL url = new URL(metaDataUrl + path);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line  = null;
+            String line = null;
             StringBuilder stringBuilder = new StringBuilder();
             String ls = System.getProperty("line.separator");
-            while( ( line = reader.readLine() ) != null ) {
-                stringBuilder.append( line );
-                stringBuilder.append( ls );
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
             }
             return stringBuilder.toString();
         } catch (Exception e) {
             log.warn("", e);
-            return "uknown";
+            return undefined;
         }
+    }
+    
+    static String getZone(){
+        return getUrlValue("/placement/availability-zone");
     }
 
 }
