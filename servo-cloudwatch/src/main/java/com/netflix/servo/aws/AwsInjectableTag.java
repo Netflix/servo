@@ -19,7 +19,6 @@
  */
 package com.netflix.servo.aws;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
@@ -42,6 +41,13 @@ public enum AwsInjectableTag implements Tag {
     AUTOSCALE_GROUP("autoScalingGroup", getAutoScaleGroup()),
     INSTANCE_ID("instanceId", getInstanceId()),
     AVAILABILITY_ZONE("availabilityZone", getZone());
+    /*TODO
+    instance-type
+    local-hostname
+    local-ipv4
+    public-hostname
+    public-ipv4
+     */
 
     private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
     private static final String undefined = "undefined";
@@ -98,8 +104,8 @@ public enum AwsInjectableTag implements Tag {
             return undefined;
         }
     }
-    
-    static String getZone(){
+
+    static String getZone() {
         return getUrlValue("/placement/availability-zone");
     }
 
