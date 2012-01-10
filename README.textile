@@ -24,7 +24,8 @@ h2. Definitions / Conventions
 * *DataSourceType*
 ** type of monitor; the following are the currently supported types:
 
-```java
+<pre>
+<code>
 /**
  * Defines rdd data source types that are supported by EPIC.
  *
@@ -50,7 +51,9 @@ public enum DataSourceType {
      */
     INFORMATIONAL;
 }
-```
+</code>
+</pre>
+
 * The JMX {{ObjectName}} using the following rule:__
 ** com.netflix.MonitoredResources:type=\[PLATFORM_|PDCLOUDMIG:_ APPLICATION\],name=_classname_ \[PDCLOUDMIG:,instance=_mon-id_ \]
 
@@ -66,7 +69,8 @@ h2. Steps for Setting up Monitors on Your Code
 # If you are running in [the cloud|http://go/cloud] you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside EC2. An explanation of why is documented in the Appendix below.
 # Annotate with _@Monitor_ at the method or field level and optionally annotate with _@MonitorId_ if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same _dataSourceName_. Example:
 
-```java
+<pre>
+<code>
 // The name of the resource pool.
 @MonitorId
 private String _poolName = null;
@@ -96,7 +100,8 @@ public void shutdown() {
  MonitorRegistry.getInstance().unRegisterObject(this);
  …
 }
-```
+</code>
+</pre>
 
 # *That's it.*
 
@@ -131,7 +136,8 @@ h2. Sample Code for Querying JMX for the Curious
 
 Quick and dirty code snippet to dynamically get a list of what to monitor:
 
-```java
+<pre>
+<code>
 public class JMXClientTest {
     public static void main(String[] args) {
 
@@ -182,4 +188,5 @@ public class JMXClientTest {
         }
     }
 }
-```
+</code>
+</pre>
