@@ -28,7 +28,7 @@ h2. Definitions / Conventions
 <pre>
 <code>
 /**
- * Defines rdd data source types that are supported by EPIC.
+ * Data source types that are supported.
  *
  * @author gkim
  */
