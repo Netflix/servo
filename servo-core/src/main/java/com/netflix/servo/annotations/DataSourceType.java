@@ -19,8 +19,30 @@
  */
 package com.netflix.servo.annotations;
 
+/**
+ * Indicates the type of value that is annotated to determine how it will be
+ * measured.
+ */
 public enum DataSourceType {
+    /**
+     * A gauge is for numeric values that can be sampled without modification.
+     * Examples of metrics that should be gauges are things like current
+     * temperature, number of open connections, disk usage, etc.
+     */
     GAUGE,
+
+    /**
+     * A counter is for numeric values that get incremented when some event
+     * occurs. Counters will be sampled and converted into a rate of change
+     * per second. Counter values should be monotonically increasing, i.e.,
+     * the value should not decrease.
+     */
     COUNTER,
+
+    /**
+     * An informational attribute is for values that might be useful for
+     * debugging, but will not be collected as metrics for monitoring purposes.
+     * These values are made available in JMX.
+     */
     INFORMATIONAL
 }
