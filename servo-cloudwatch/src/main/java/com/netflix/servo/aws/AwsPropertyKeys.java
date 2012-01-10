@@ -23,5 +23,5 @@ package com.netflix.servo.aws;
  */
 public class AwsPropertyKeys {
     
-    public static final String
+    public static final String awsCredentialsFile = "com.netflix.servo.aws.credentialsFile";
 }
