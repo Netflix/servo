@@ -41,7 +41,7 @@ import java.net.URL;
 public enum AwsInjectableTag implements Tag {
     AUTOSCALE_GROUP("autoScalingGroup", getAutoScaleGroup()),
     INSTANCE_ID("instanceId", getInstanceId()),
-    EC2_ZONE("zone", getZone());
+    AVAILABILITY_ZONE("availabilityZone", getZone());
 
     private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
     private static final String undefined = "undefined";
@@ -100,7 +100,7 @@ public enum AwsInjectableTag implements Tag {
     }
     
     static String getZone(){
-        return undefined;
+        return getUrlValue("/placement/availability-zone");
     }
 
 }
