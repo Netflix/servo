@@ -23,6 +23,7 @@ h2. Definitions / Conventions
 ** name of the monitor (e.g. datapoint name)
 * *DataSourceType*
 ** type of monitor; the following are the currently supported types:
+
 ```java
 /**
  * Defines rdd data source types that are supported by EPIC.
@@ -96,6 +97,7 @@ public void shutdown() {
  …
 }
 ```
+
 # *That's it.*
 
 * How it'll look on JConsole:
@@ -128,6 +130,7 @@ We're currently using 7500 as the RMI registry port, but since the RMI transport
 h2. Sample Code for Querying JMX for the Curious
 
 Quick and dirty code snippet to dynamically get a list of what to monitor:
+
 ```java
 public class JMXClientTest {
     public static void main(String[] args) {
