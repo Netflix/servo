@@ -20,13 +20,18 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.Closeables;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,34 +45,45 @@ public final class FileMetricObserver extends BaseMetricObserver {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(FileMetricObserver.class);
 
-    private final File mFile;
+    private static final String FILE_DATE_FORMAT = "yyyy_dd_MM_HH_mm_ss_SSS";
+    private static final String ISO_DATE_FORMAT = "yyyy-dd-MM'T'HH:mm:ss.SSS";
 
-    public FileMetricObserver(String name, File file) {
+    private final File dir;
+
+    private final SimpleDateFormat fileFormat;
+    private final SimpleDateFormat isoFormat;
+
+    public FileMetricObserver(String name, File dir) {
+        this(name, dir, String.format("'%s'_%s'.log'", name, FILE_DATE_FORMAT));
+    }
+
+    public FileMetricObserver(String name, File dir, String namePattern) {
         super(name);
-        mFile = file;
+        this.dir = dir;
+        fileFormat = new SimpleDateFormat(namePattern);
+        fileFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        isoFormat = new SimpleDateFormat(ISO_DATE_FORMAT);
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
+        File file = new File(dir, fileFormat.format(new Date()));
         Writer out = null;
         try {
-            out = new FileWriter(mFile, true);
+            LOGGER.debug("writing %d metrics to file %s", metrics.size(), file);
+            out = new FileWriter(file, true);
             for (Metric m : metrics) {
+                String timestamp = isoFormat.format(new Date(m.timestamp()));
                 out.append(m.name()).append('\t')
                    .append(m.tags().toString()).append('\t')
-                   .append(Long.toString(m.timestamp())).append('\t')
+                   .append(timestamp).append('\t')
                    .append(m.value().toString()).append('\n');
             }
         } catch (IOException e) {
-            LOGGER.error("failed to write update to file " + mFile, e);
+            LOGGER.error("failed to write update to file " + file, e);
         } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    LOGGER.warn("close failed for file " + mFile, e);
-                }
-            }
+            Closeables.closeQuietly(out);
         }
     }
 }
