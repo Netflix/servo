@@ -17,8 +17,12 @@
 package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.AmazonClientException;
+
 import com.amazonaws.auth.BasicAWSCredentials;
+
+import com.netflix.servo.BasicTagList;
 import com.netflix.servo.publish.Metric;
+
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -37,7 +41,7 @@ public class CloudWatchMetricObserverTest {
     public void testUpdate() throws Exception {
         List<Metric> metrics = new ArrayList<Metric>(33);
         for (int i = 0; i < 33; i++) {
-            metrics.add(new Metric("test", new HashMap<String, String>(), System.currentTimeMillis(), 10));
+            metrics.add(new Metric("test", BasicTagList.EMPTY, System.currentTimeMillis(), 10));
         }
 
         try{
