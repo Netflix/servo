@@ -25,6 +25,8 @@ public enum Namespace {
     AWS_EBS("AWS/EBS"),
     AWS_EC2("AWS/EC2"),
     AWS_RDS("AWS/RDS"),
+    AWS_SQS("AWS/SQS"),
+    AWS_SNS("AWS/SNS"),
     AWS_AUTOSCALING("AWS/AutoScaling"),
     AWS_ELB("AWS/ELB");
 
