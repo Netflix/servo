@@ -20,15 +20,23 @@
 package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.auth.AWSCredentials;
+
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
+
 import com.google.common.base.Preconditions;
+
+import com.netflix.servo.Tag;
+import com.netflix.servo.TagList;
+
 import com.netflix.servo.aws.DataSourceTypeToAwsUnit;
+
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.Metric;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,11 +112,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         //TODO Need to convert into reasonable units based on DataType
     }
 
-    List<Dimension> createDimensions(Map<String, String> tags) {
+    List<Dimension> createDimensions(TagList tags) {
         List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
 
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            dimensionList.add(new Dimension().withName(entry.getKey()).withValue(entry.getValue()));
+        for (Tag tag : tags) {
+            dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));
         }
 
         return dimensionList;
