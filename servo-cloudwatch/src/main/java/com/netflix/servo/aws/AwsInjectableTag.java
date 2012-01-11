@@ -28,6 +28,8 @@ import com.google.common.io.Closeables;
 
 import com.netflix.servo.Tag;
 
+import com.netflix.servo.aws.constants.Dimensions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +44,13 @@ import java.net.URL;
  * Time: 5:47 PM
  */
 public enum AwsInjectableTag implements Tag {
-    AUTOSCALE_GROUP("autoScalingGroup", getAutoScaleGroup()),
-    INSTANCE_ID("instanceId", getInstanceId()),
-    AVAILABILITY_ZONE("availabilityZone", getZone());
+    //The keys for and values of these Tags are consistent with AWS naming.
+    AUTOSCALE_GROUP(Dimensions.AUTOSCALING_GROUP.getAwsString(), getAutoScaleGroup()),
+    INSTANCE_ID(Dimensions.INSTANCE_ID.getAwsString(), getInstanceId()),
+    AVAILABILITY_ZONE(Dimensions.AVAILABILITY_ZONE.getAwsString(), getZone());
     /*TODO
-    instance-type
+    ami id - ImageId
+    instance-type InstanceType
     local-hostname
     local-ipv4
     public-hostname
