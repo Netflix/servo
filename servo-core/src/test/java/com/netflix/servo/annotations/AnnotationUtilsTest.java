@@ -19,6 +19,9 @@
  */
 package com.netflix.servo.annotations;
 
+import com.netflix.servo.BasicTagList;
+import com.netflix.servo.TagList;
+
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
@@ -83,6 +86,28 @@ public class AnnotationUtilsTest {
         }
     }
 
+    public static class FieldTagObject {
+        @MonitorTags
+        private final TagList tags;
+
+        public FieldTagObject(String... tags) {
+            this.tags = BasicTagList.copyOf(tags);
+        }
+    }
+
+    public static class MethodTagObject {
+        private final TagList tags;
+
+        public MethodTagObject(String... tags) {
+            this.tags = BasicTagList.copyOf(tags);
+        }
+
+        @MonitorTags
+        private TagList getTags() {
+            return tags;
+        }
+    }
+
     @Test
     public void testGetMonitorIdFromField() throws Exception {
         Object obj = new FieldIdObject("foo");
@@ -113,5 +138,19 @@ public class AnnotationUtilsTest {
     public void testGetMonitorIdWithMethodParams() throws Exception {
         Object obj = new MethodParamsIdObject("foo");
         AnnotationUtils.getMonitorId(obj);
+    }
+
+    @Test
+    public void testGetMonitorTagsFromField() throws Exception {
+        Object obj = new FieldTagObject("foo=bar");
+        TagList tags = AnnotationUtils.getMonitorTags(obj);
+        assertEquals(tags, BasicTagList.copyOf("foo=bar"));
+    }
+
+    @Test
+    public void testGetMonitorTagsFromMethod() throws Exception {
+        Object obj = new MethodTagObject("foo=bar");
+        TagList tags = AnnotationUtils.getMonitorTags(obj);
+        assertEquals(tags, BasicTagList.copyOf("foo=bar"));
     }
 }

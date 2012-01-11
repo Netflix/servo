@@ -21,6 +21,9 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableMap;
 
+import com.netflix.servo.BasicTagList;
+import com.netflix.servo.TagList;
+
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -29,11 +32,11 @@ import static org.testng.Assert.*;
 
 public class MetricTest {
 
-    private final Map<String,String> tags1 =
-        ImmutableMap.of("cluster", "foo", "asg", "foo-v000");
+    private final TagList tags1 =
+        BasicTagList.copyOf("cluster=foo", "asg=foo-v000");
 
-    private final Map<String,String> tags2 =
-        ImmutableMap.of("cluster", "foo", "asg", "foo-v001");
+    private final TagList tags2 =
+        BasicTagList.copyOf("cluster=foo", "asg=foo-v001");
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {

@@ -123,7 +123,7 @@ public class AsyncMetricObserver extends BaseMetricObserver {
         }
     }
 
-    private class TimestampedUpdate {
+    private static class TimestampedUpdate {
         private final long timestamp;
         private final List<Metric> metrics;
 

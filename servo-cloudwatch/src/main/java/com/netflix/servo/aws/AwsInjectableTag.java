@@ -23,8 +23,13 @@ import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
+
+import com.google.common.io.Closeables;
+
 import com.netflix.servo.Tag;
+
 import com.netflix.servo.aws.constants.Dimensions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,10 +96,11 @@ public enum AwsInjectableTag implements Tag {
     }
 
     static String getUrlValue(String path) {
+        BufferedReader reader = null;
         try {
             URL url = new URL(metaDataUrl + path);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line = null;
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line  = null;
             StringBuilder stringBuilder = new StringBuilder();
             String ls = System.getProperty("line.separator");
             while ((line = reader.readLine()) != null) {
@@ -105,6 +111,8 @@ public enum AwsInjectableTag implements Tag {
         } catch (Exception e) {
             log.warn("", e);
             return undefined;
+        } finally {
+            Closeables.closeQuietly(reader);
         }
     }
 
