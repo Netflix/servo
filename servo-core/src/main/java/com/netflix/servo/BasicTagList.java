@@ -90,6 +90,10 @@ public class BasicTagList implements TagList {
         return Joiner.on(",").join(tags.values());
     }
 
+    public static TagList copyOf(Tag... tags) {
+        return new BasicTagList(Arrays.asList(tags));
+    }
+
     public static TagList copyOf(String... tags) {
         return copyOf(Arrays.asList(tags));
     }

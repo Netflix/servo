@@ -19,11 +19,13 @@
  */
 package com.netflix.servo.annotations;
 
+import com.netflix.servo.Tag;
+
 /**
  * Indicates the type of value that is annotated to determine how it will be
  * measured.
  */
-public enum DataSourceType {
+public enum DataSourceType implements Tag {
     /**
      * A gauge is for numeric values that can be sampled without modification.
      * Examples of metrics that should be gauges are things like current
@@ -44,5 +46,15 @@ public enum DataSourceType {
      * debugging, but will not be collected as metrics for monitoring purposes.
      * These values are made available in JMX.
      */
-    INFORMATIONAL
+    INFORMATIONAL;
+
+    public static final String KEY = "DataSourceType";
+
+    public String getKey() {
+        return KEY;
+    }
+
+    public String getValue() {
+        return name();
+    }
 }
