@@ -19,15 +19,20 @@
  */
 package com.netflix.servo;
 
+import com.google.common.base.Joiner;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 public class BasicTagList implements TagList {
+
+    public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
 
     private final Map<String,Tag> tags;
 
@@ -65,5 +70,30 @@ public class BasicTagList implements TagList {
             builder.put(tag.getKey(), tag.getValue());
         }
         return builder.build();
+    }
+
+    @Override
+    public String toString() {
+        return Joiner.on(",").join(tags.values());
+    }
+
+    public static TagList copyOf(String... tags) {
+        return copyOf(Arrays.asList(tags));
+    }
+
+    public static TagList copyOf(Iterable<String> tags) {
+        ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
+        for (String tag : tags) {
+            builder.add(BasicTag.parseTag(tag));
+        }
+        return new BasicTagList(builder.build());
+    }
+
+    public static TagList copyOf(Map<String,String> tags) {
+        ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
+        for (Map.Entry<String,String> tag : tags.entrySet()) {
+            builder.add(new BasicTag(tag.getKey(), tag.getValue()));
+        }
+        return new BasicTagList(builder.build());
     }
 }
