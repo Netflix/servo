@@ -77,6 +77,8 @@ public class BasicTag implements Tag {
         k = tagString.substring(0, eqIndex);
         v = tagString.substring(eqIndex + 1, tagString.length());
 
+        if (k.length() == 0 || v.length() == 0) throw new IllegalArgumentException("Key or Value cannot be empty");
+
         return new BasicTag(k, v);
     }
 }
