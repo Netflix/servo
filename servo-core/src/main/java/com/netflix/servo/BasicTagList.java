@@ -20,6 +20,7 @@
 package com.netflix.servo;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -70,6 +71,18 @@ public class BasicTagList implements TagList {
             builder.put(tag.getKey(), tag.getValue());
         }
         return builder.build();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof BasicTagList)
+            ? tags.equals(((BasicTagList) obj).tags)
+            : false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tags);
     }
 
     @Override

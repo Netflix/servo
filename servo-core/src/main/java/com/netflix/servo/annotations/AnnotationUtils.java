@@ -21,6 +21,9 @@ package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import com.netflix.servo.BasicTagList;
+import com.netflix.servo.TagList;
 import com.netflix.servo.jmx.MonitoredAttribute;
 
 import java.lang.annotation.Annotation;
@@ -45,14 +48,12 @@ public class AnnotationUtils {
     }
 
     /** Return the value of the field/method annotated with @MonitorTags. */
-    @SuppressWarnings("unchecked")
-    public static Map<String,String> getMonitorTags(Object obj)
-            throws Exception {
+    public static TagList getMonitorTags(Object obj) throws Exception {
         List<AccessibleObject> attrs =
             getAnnotatedAttributes(MonitorTags.class, obj, 1);
         return attrs.isEmpty()
-            ? ImmutableMap.<String,String>of()
-            : ImmutableMap.copyOf((Map<String,String>) getValue(obj, attrs.get(0)));
+            ? BasicTagList.EMPTY
+            : (TagList) getValue(obj, attrs.get(0));
     }
 
     /** Return the list of fields/methods annotated with @Monitor. */
