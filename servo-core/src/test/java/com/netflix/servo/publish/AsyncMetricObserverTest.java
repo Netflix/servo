@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.publish;
 
+import static com.netflix.servo.BasicTagList.EMPTY;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -30,8 +32,6 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class AsyncMetricObserverTest {
-
-    private final Map<String,String> EMPTY = ImmutableMap.of();
 
     private List<Metric> mkList(int v) {
         return ImmutableList.of(new Metric("m", EMPTY, 0L, v));

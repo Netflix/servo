@@ -22,23 +22,18 @@ package com.netflix.servo.publish;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
+import com.netflix.servo.TagList;
 
 public class Metric {
     private final String mName;
-    private final Map<String,String> mTags;
+    private final TagList mTags;
     private final long mTimestamp;
     private final Number mValue;
 
-    public Metric(
-            String name,
-            Map<String,String> tags,
-            long timestamp,
-            Number value) {
+    public Metric(String name, TagList tags, long timestamp, Number value) {
         mName = Preconditions.checkNotNull(name, "name cannot be null");
-        mTags = ImmutableMap.copyOf(tags);
+        mTags = Preconditions.checkNotNull(
+            tags, "tags cannot be null (name=%s)", mName);
         mTimestamp = timestamp;
         mValue = Preconditions.checkNotNull(
             value, "value cannot be null (name=%s, tags=%s)", mName, mTags);
@@ -48,7 +43,7 @@ public class Metric {
         return mName;
     }
 
-    public Map<String,String> tags() {
+    public TagList tags() {
         return mTags;
     }
 

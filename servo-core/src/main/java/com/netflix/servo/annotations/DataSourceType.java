@@ -19,23 +19,42 @@
  */
 package com.netflix.servo.annotations;
 
-public enum DataSourceType {
+import com.netflix.servo.Tag;
+
+/**
+ * Indicates the type of value that is annotated to determine how it will be
+ * measured.
+ */
+public enum DataSourceType implements Tag {
     /**
-     * GAUGE does not save the rate of change. The value measured at a point
-     * in time is stored. Examples are: CPU, memory, and disk usage
+     * A gauge is for numeric values that can be sampled without modification.
+     * Examples of metrics that should be gauges are things like current
+     * temperature, number of open connections, disk usage, etc.
      */
     GAUGE,
 
     /**
-     * COUNTER will save the rate of change of the value over a step period.
-     * This assumes that the value is always increasing (the difference between
-     * the current and the previous value is greater than 0).
+     * A counter is for numeric values that get incremented when some event
+     * occurs. Counters will be sampled and converted into a rate of change
+     * per second. Counter values should be monotonically increasing, i.e.,
+     * the value should not decrease.
      */
     COUNTER,
 
     /**
-     * Not part of RRD DST, but useful for debugging. This will not be monitoring
-     * by the NOC.
+     * An informational attribute is for values that might be useful for
+     * debugging, but will not be collected as metrics for monitoring purposes.
+     * These values are made available in JMX.
      */
-    INFORMATIONAL
+    INFORMATIONAL;
+
+    public static final String KEY = "DataSourceType";
+
+    public String getKey() {
+        return KEY;
+    }
+
+    public String getValue() {
+        return name();
+    }
 }
