@@ -35,6 +35,8 @@
 
 package com.netflix.servo;
 
+import com.google.common.base.Objects;
+
 /**
  * User: gorzell
  * Date: 1/7/12
@@ -50,6 +52,14 @@ public class BasicTag implements Tag {
         this.value = value;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof BasicTag) {
@@ -60,12 +70,14 @@ public class BasicTag implements Tag {
         }
     }
 
-    public String getKey() {
-        return key;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key, value);
     }
 
-    public String getValue() {
-        return value;
+    @Override
+    public String toString() {
+        return key + "=" + value;
     }
 
     public static BasicTag parseTag(String tagString) throws IllegalArgumentException {
