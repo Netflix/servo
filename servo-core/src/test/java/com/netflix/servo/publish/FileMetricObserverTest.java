@@ -23,6 +23,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 
+import com.netflix.servo.Tag;
+import com.netflix.servo.TagList;
+import com.netflix.servo.BasicTagList;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -37,8 +41,8 @@ import static org.testng.Assert.*;
 
 public class FileMetricObserverTest {
 
-    private final Map<String,String> TAGS =
-        ImmutableMap.of("cluster", "foo", "zone", "a", "node", "i-123");
+    private final TagList TAGS =
+        BasicTagList.copyOf("cluster=foo", "zone=a", "node=i-123");
 
     private List<Metric> mkList(int v) {
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();
@@ -69,9 +73,9 @@ public class FileMetricObserverTest {
         String[] parts = line.split("\t");
         assertEquals(parts.length, 4);
         assertEquals(parts[0], "m");
-        for (Map.Entry<String,String> tag : TAGS.entrySet()) {
+        for (Tag tag : TAGS) {
             String tagStr = tag.getKey() + "=" + tag.getValue();
-            assertTrue(parts[1].indexOf(tagStr) != -1);
+            assertTrue(parts[1].indexOf(tagStr) != -1, "missing " + tagStr);
         }
         assertEquals(parts[2], "1970-01-01T00:00:00.000");
         assertEquals(Integer.parseInt(parts[3]), i);
