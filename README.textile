@@ -55,21 +55,36 @@ public enum DataSourceType {
 </code>
 </pre>
 
-* The JMX {{ObjectName}} using the following rule:__
-** com.netflix.MonitoredResources:type=\[PLATFORM_|PDCLOUDMIG:_ APPLICATION\],name=_classname_ \[PDCLOUDMIG:,instance=_mon-id_ \]
+h2. JMX
 
-* _classname_  = _XXX_ .class.getSimpleName( ) of the target class
-* _mon-id_ =value of field annotated with @MonitorId
-* Adds {{instance}} only if it finds {{@MonitorId}} in the class (this is a way to differentiate multiple instances of the same class)
+h3. ObjectName is created using the following rule:
+
+* com.netflix.MonitoredResources:type=[PLATFORM_|PDCLOUDMIG:_ APPLICATION],name=_classname_ [PDCLOUDMIG:,instance=_mon-id_ ]
+
+** _classname_  = _XXX_ .class.getSimpleName( ) of the target class
+** _mon-id_ =value of field annotated with @MonitorId
+** Adds {{instance}} only if it finds {{@MonitorId}} in the class (this is a way to differentiate multiple instances of the same class)
+
+h3. Valid characters for DataSourceName and MonitorId
+
+These are the allowed characters that you can have in the DataSourceName and MonitorIds.
+
+* *alphanumeric* [A–Za–z0–9]
+* *underscore*  '_'
+* *hyphen*  '-'
+* *period*  '.'
+
+h3. MBean
 
 * uses Open MBean — MBean where the types of attributes and of operation parameters and return values are basic, predefined Java classes. This facilitates operation with remote management programs that do not necessarily have access to application-specific types.
 ** doc: [http://download.oracle.com/javase/6/docs/api/index.html?javax/management/openmbean/package-summary.html]
 
 h2. Steps for Setting up Monitors on Your Code
 
-# If you are running in [the cloud|http://go/cloud] you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside EC2. An explanation of why is documented in the Appendix below.
-# Annotate with _@Monitor_ at the method or field level and optionally annotate with _@MonitorId_ if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same _dataSourceName_. Example:
+# If you are running in the cloud you'll need to remove *-Dcom.sun.management.jmxremote* and *-Dcom.sun.management.jmxremote.port=7500* from _setenv.sh_, otherwise you won't be able to connect to the JMX port from outside EC2. An explanation of why is documented in the Appendix below.
+# Annotate with @Monitor at the method or field level and optionally annotate with @MonitorId if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same dataSourceName. Example:
 
+"Code":https://github.com/Netflix/servo/blob/master/servo-core/src/sample/java/com/netflix/servo/sample/SimpleSample.java
 <pre>
 <code>
 // The name of the resource pool.
@@ -109,24 +124,15 @@ public void shutdown() {
 * How it'll look on JConsole:
 ScreenShot Needed
 
-h3. Valid characters for DataSourceName and MonitorId
-
-These are the allowed characters that you can have in the DataSourceName and MonitorIds.
-
-* *alphanumeric* :{{A}}–{{Za}}–{{z0}}–{{9}}\]
-* *underscore*  '{{_}}'
-* *hyphen*  '{{-}}'
-* *period*  '{{.}}'
 
 h1. Integration with Monitoring/Alerting Systems
 
 h2. CloudWatch
+
 h3. Setting up alerts in CloudWatch
 
 
-h1. Appendix
-
-h2. JMX in the Cloud
+h1. JMX in the Cloud
 
 We're currently using 7500 as the RMI registry port, but since the RMI transport layer opens dynamic socket connections between the client and the server to facilitate communication this doesn't work in [the Amazon cloud|http://go/cloud] since ports are all blocked by default.
 
