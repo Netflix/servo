@@ -47,16 +47,14 @@ public enum AwsInjectableTag implements Tag {
     //The keys for and values of these Tags are consistent with AWS naming.
     AUTOSCALE_GROUP(Dimensions.AUTOSCALING_GROUP.getAwsString(), getAutoScaleGroup()),
     INSTANCE_ID(Dimensions.INSTANCE_ID.getAwsString(), getInstanceId()),
-    AVAILABILITY_ZONE(Dimensions.AVAILABILITY_ZONE.getAwsString(), getZone());
-    /*TODO
-    ami id - ImageId
-    instance-type InstanceType
-    local-hostname
-    local-ipv4
-    public-hostname
-    public-ipv4
-     */
-
+    AVAILABILITY_ZONE(Dimensions.AVAILABILITY_ZONE.getAwsString(), getZone()),
+    AMI_ID(Dimensions.AMI_IMAGE_ID.getAwsString(), getAmiId()),
+    INSTANCE_TYPE(Dimensions.INSTANCE_TYPE.getAwsString(), getInstanceType()),
+    LOCAL_HOSTNAME("local-hostname", getLocalHostname()),
+    LOCAL_IPV4("local-ipv4", getLocalIpv4()),
+    PUBLIC_HOSTNAME("public-hostname", getPublicHostname()),
+    PUBLIC_IPV4("public-ipv4", getPublicIpv4());
+    
     private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
     private static final String undefined = "undefined";
     private static final Logger log = LoggerFactory.getLogger(AwsInjectableTag.class);
@@ -119,5 +117,28 @@ public enum AwsInjectableTag implements Tag {
     static String getZone() {
         return getUrlValue("/placement/availability-zone");
     }
+    
+    static String getAmiId(){
+        return getUrlValue("/ami-id");
+    }
 
+    static String getInstanceType(){
+        return getUrlValue("/instance-type");
+    }
+    
+    static String getLocalHostname(){
+        return getUrlValue("/local-hostname");
+    }
+    
+    static String getLocalIpv4(){
+        return getUrlValue("/local-ipv4");
+    }
+
+    static String getPublicHostname(){
+        return getUrlValue("/public-hostname");
+    }
+    
+    static String getPublicIpv4(){
+        return getUrlValue("public-ipv4");
+    }
 }
