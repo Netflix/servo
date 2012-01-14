@@ -16,7 +16,12 @@
 
 package com.netflix.servo.aws;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import java.net.URL;
+
+import static org.testng.Assert.assertTrue;
 
 /**
  * User: gorzell
@@ -24,13 +29,56 @@ import org.testng.annotations.Test;
  * Time: 9:11 PM
  */
 public class AwsInjectableTagTest {
-    @Test
-    public void testGetKey() throws Exception {
 
+    @BeforeTest
+    public void checkEc2() throws Exception {
+        URL testEc2Url = new URL("http://169.254.169.254/latest/meta-data");
+        testEc2Url.getContent();
     }
 
-    @Test
-    public void testGetValue() throws Exception {
+    @Test(groups = {"aws"})
+    public void testGetZone() throws Exception {
+        String zone = AwsInjectableTag.getZone();
+        assertTrue(zone.startsWith("us-") || zone.startsWith("eu-"));
+    }
 
+    @Test(groups = {"aws"}, enabled = false)
+    public void testAmiId() throws Exception {
+
+        String amiId = AwsInjectableTag.getAmiId();
+        assertTrue(amiId.startsWith("ami-"));
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetInstanceType() throws Exception {
+        String instanceType = AwsInjectableTag.getInstanceType();
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetLocalHostname() throws Exception {
+        String localHostname = AwsInjectableTag.getLocalHostname();
+        assertTrue(localHostname.startsWith("domU-"));
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetLocalIpv4() throws Exception {
+        String localIpv4 = AwsInjectableTag.getLocalIpv4();
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetPublicHostname() throws Exception {
+        String publicHostname = AwsInjectableTag.getPublicHostname();
+        assertTrue(publicHostname.startsWith("ec2-"));
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetPublicIpv4() throws Exception {
+        String publicIpv4 = AwsInjectableTag.getPublicIpv4();
+    }
+
+    @Test(groups = {"aws"})
+    public void testGetInstanceId() throws Exception {
+        String instanceId = AwsInjectableTag.getInstanceId();
+        assertTrue(instanceId.startsWith("i-"));
     }
 }
