@@ -20,6 +20,8 @@ package com.netflix.servo.aws.constants;
  * User: gorzell
  * Date: 1/10/12
  * Time: 9:50 AM
+ *
+ * Constants for the namespaces aws publish their metrics to cloudwatch under.
  */
 public enum Namespace {
     AWS_EBS("AWS/EBS"),
