@@ -58,6 +58,12 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     private final AmazonCloudWatch cloudWatch;
     private final String cloudWatchNamespace;
 
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param credentials Amazon credentials.
+     */
     public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials) {
         super(name);
         cloudWatch = new AmazonCloudWatchClient(credentials);
@@ -65,11 +71,22 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         batchSize = 20;
     }
 
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param credentials Amazon credentials.
+     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+     */
     public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials, int batchSize) {
         this(name, cloudWatchNamespace, credentials);
         this.batchSize = batchSize;
     }
 
+    /**
+     *
+     * @param metrics The list of metrics you want to send to CloudWatch
+     */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
 

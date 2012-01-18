@@ -20,6 +20,8 @@ package com.netflix.servo.aws;
  * User: gorzell
  * Date: 1/9/12
  * Time: 9:03 PM
+ *
+ * Constant key values for setting aws related properties.
  */
 public class AwsPropertyKeys {
     

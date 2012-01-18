@@ -42,9 +42,13 @@ import java.net.URL;
  * User: gorzell
  * Date: 12/27/11
  * Time: 5:47 PM
+ *
+ * Group of Tags who's values will be dynamically set at runtime
+ * based on amazon api calls.
+ *
+ * The keys for and values of these Tags are consistent with AWS naming.
  */
 public enum AwsInjectableTag implements Tag {
-    //The keys for and values of these Tags are consistent with AWS naming.
     AUTOSCALE_GROUP(Dimensions.AUTOSCALING_GROUP.getAwsString(), getAutoScaleGroup()),
     INSTANCE_ID(Dimensions.INSTANCE_ID.getAwsString(), getInstanceId()),
     AVAILABILITY_ZONE(Dimensions.AVAILABILITY_ZONE.getAwsString(), getZone()),
@@ -67,10 +71,18 @@ public enum AwsInjectableTag implements Tag {
         this.value = val;
     }
 
+    /**
+     *
+     * @return Amazon compliant string representation of the key.
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     *
+     * @return value as determined at runtime for the key.
+     */
     public String getValue() {
         return value;
     }
@@ -139,6 +151,6 @@ public enum AwsInjectableTag implements Tag {
     }
     
     static String getPublicIpv4(){
-        return getUrlValue("public-ipv4");
+        return getUrlValue("/public-ipv4");
     }
 }
