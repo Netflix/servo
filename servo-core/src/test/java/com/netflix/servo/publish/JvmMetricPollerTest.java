@@ -35,6 +35,6 @@ public class JvmMetricPollerTest {
     @Test
     public void testPoll() throws Exception {
         JvmMetricPoller p = new JvmMetricPoller();
-        System.out.println(p.poll(null));
+        System.out.println(p.poll(new BasicMetricFilter(true)));
     }
 }

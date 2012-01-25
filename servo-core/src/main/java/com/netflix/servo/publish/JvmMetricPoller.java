@@ -42,13 +42,7 @@ import java.lang.management.ThreadMXBean;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class JvmMetricPoller implements MetricPoller {
-
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(JvmMetricPoller.class);
+public class JvmMetricPoller extends BaseMetricPoller {
 
     private static final String LOADED_COUNT = "LoadedClassCount";
     private static final String TOTAL_LOADED_COUNT = "TotalLoadedClassCount";
@@ -95,7 +89,7 @@ public class JvmMetricPoller implements MetricPoller {
                 tags, now,
                 mbean.getUnloadedClassCount()));
         } else {
-            LOGGER.debug("ClassLoadingMXBean is null");
+            logger.debug("ClassLoadingMXBean is null");
         }
     }
 
@@ -108,7 +102,7 @@ public class JvmMetricPoller implements MetricPoller {
                 tags, now,
                 mbean.getTotalCompilationTime()));
         } else {
-            LOGGER.debug("CompilationMXBean is null");
+            logger.debug("CompilationMXBean is null");
         }
     }
 
@@ -178,7 +172,7 @@ public class JvmMetricPoller implements MetricPoller {
             mbean.getPeakThreadCount()));
     }
 
-    public List<Metric> poll(MetricFilter filter) {
+    public List<Metric> pollImpl() {
         List<Metric> metrics = Lists.newArrayList();
         getClassLoadingMetrics(metrics, ManagementFactory.getClassLoadingMXBean());
         getCompilationMetrics(metrics, ManagementFactory.getCompilationMXBean());
