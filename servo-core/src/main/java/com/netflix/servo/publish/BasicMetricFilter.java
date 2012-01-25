@@ -21,6 +21,15 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.TagList;
 
-public interface MetricFilter {
-    boolean matches(String name, TagList tags);
+public class BasicMetricFilter implements MetricFilter {
+
+    private final boolean match;
+
+    public BasicMetricFilter(boolean match) {
+        this.match = match;
+    }
+
+    public boolean matches(String name, TagList tags) {
+        return match;
+    }
 }
