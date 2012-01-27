@@ -51,18 +51,7 @@ public class Counters {
             }
         });
 
-    private static final ThreadLocal<TagList> CONTEXT =
-        new ThreadLocal<TagList>();
-
     private Counters() {
-    }
-
-    private static void setTags(TagList tags) {
-        CONTEXT.set(tags);
-    }
-
-    private static TagList getTags() {
-        return CONTEXT.get();
     }
 
     public static void increment(String name) {
@@ -82,7 +71,7 @@ public class Counters {
     }
 
     public static void increment(MetricConfig config, int delta) {
-        TagList cxtTags = getTags();
+        TagList cxtTags = TaggingContext.getTags();
         if (cxtTags != null) {
             String name = config.getName();
             TagList newTags = BasicTagList.concat(config.getTags(), cxtTags);
@@ -91,5 +80,9 @@ public class Counters {
         } else {
             COUNTERS.getUnchecked(config).increment(delta);
         }
+    }
+
+    public static void reset() {
+        COUNTERS.invalidateAll();
     }
 }
