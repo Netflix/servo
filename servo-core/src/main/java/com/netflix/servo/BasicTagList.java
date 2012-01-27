@@ -24,6 +24,7 @@ import com.google.common.base.Objects;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -73,6 +74,14 @@ public class BasicTagList implements TagList {
         return builder.build();
     }
 
+    public BasicTagList copy(TagList tags) {
+        return concat(this, tags);
+    }
+
+    public BasicTagList copy(String key, String value) {
+        return concat(this, new BasicTag(key, value));
+    }
+
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof BasicTagList)
@@ -90,15 +99,23 @@ public class BasicTagList implements TagList {
         return Joiner.on(",").join(tags.values());
     }
 
-    public static TagList copyOf(Tag... tags) {
+    public static BasicTagList concat(TagList t1, TagList t2) {
+        return new BasicTagList(Iterables.concat(t1, t2));
+    }
+
+    public static BasicTagList concat(TagList t1, Tag... t2) {
+        return new BasicTagList(Iterables.concat(t1, Arrays.asList(t2)));
+    }
+
+    public static BasicTagList copyOf(Tag... tags) {
         return new BasicTagList(Arrays.asList(tags));
     }
 
-    public static TagList copyOf(String... tags) {
+    public static BasicTagList copyOf(String... tags) {
         return copyOf(Arrays.asList(tags));
     }
 
-    public static TagList copyOf(Iterable<String> tags) {
+    public static BasicTagList copyOf(Iterable<String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
         for (String tag : tags) {
             builder.add(BasicTag.parseTag(tag));
@@ -106,7 +123,7 @@ public class BasicTagList implements TagList {
         return new BasicTagList(builder.build());
     }
 
-    public static TagList copyOf(Map<String,String> tags) {
+    public static BasicTagList copyOf(Map<String,String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
         for (Map.Entry<String,String> tag : tags.entrySet()) {
             builder.add(new BasicTag(tag.getKey(), tag.getValue()));
