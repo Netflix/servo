@@ -21,7 +21,6 @@ package com.netflix.servo.publish;
 
 import static com.netflix.servo.annotations.DataSourceType.*;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

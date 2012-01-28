@@ -22,7 +22,6 @@ package com.netflix.servo.publish;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public class RegexMetricFilter implements MetricFilter {

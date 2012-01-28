@@ -19,24 +19,14 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.base.Objects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.MapMaker;
 
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.publish.MetricConfig;
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
-import com.netflix.servo.annotations.MonitorTags;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Counters {
 

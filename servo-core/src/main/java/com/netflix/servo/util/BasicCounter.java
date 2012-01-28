@@ -19,8 +19,6 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.base.Objects;
-
 import com.netflix.servo.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;

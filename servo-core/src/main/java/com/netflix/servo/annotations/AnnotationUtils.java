@@ -20,7 +20,6 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
@@ -33,7 +32,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Helper functions for querying the monitor annotations associated with a

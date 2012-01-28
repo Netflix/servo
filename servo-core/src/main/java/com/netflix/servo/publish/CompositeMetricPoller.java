@@ -21,7 +21,6 @@ package com.netflix.servo.publish;
 
 import static com.netflix.servo.annotations.DataSourceType.*;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -34,12 +33,12 @@ import com.netflix.servo.util.Counters;
 
 import java.util.List;
 import java.util.Map;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
