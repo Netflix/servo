@@ -20,13 +20,12 @@
 package com.netflix.servo;
 
 /**
- * User: gorzell
- * Date: 12/28/11
- * Time: 11:00 AM
+ * A key-value pair associated with a metric.
  */
 public interface Tag {
-    
+    /** Returns the key corresponding to this tag. */
     String getKey();
-    
+
+    /** Returns the value corresponding to this tag. */
     String getValue();
 }

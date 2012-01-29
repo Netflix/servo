@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
 /**
  * Callable implementation that invokes the {@link MetricPoller#poll} method.
  */
-public class PollCallable implements Callable<List<Metric>> {
+public final class PollCallable implements Callable<List<Metric>> {
 
     private final MetricPoller poller;
     private final MetricFilter filter;
@@ -35,6 +35,7 @@ public class PollCallable implements Callable<List<Metric>> {
         this.filter = filter;
     }
 
+    /** {@inheritDoc} */
     public List<Metric> call() {
         return poller.poll(filter);
     }

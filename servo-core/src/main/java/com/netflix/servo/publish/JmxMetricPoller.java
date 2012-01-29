@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Generic poller for fetching simple data from JMX.
  */
-public class JmxMetricPoller implements MetricPoller {
+public final class JmxMetricPoller implements MetricPoller {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(JmxMetricPoller.class);
@@ -72,7 +72,7 @@ public class JmxMetricPoller implements MetricPoller {
     /**
      * Creates a new instance that polls mbeans matching the provided object
      * name pattern.
-     * 
+     *
      * @param connector  used to get a connection to an MBeanServer
      * @param query      object name pattern for selecting mbeans
      * @param counters   metrics matching this filter will be treated as
@@ -86,7 +86,7 @@ public class JmxMetricPoller implements MetricPoller {
     }
 
     /**
-     * Creates a tag list from an object name. 
+     * Creates a tag list from an object name.
      */
     private BasicTagList createTagList(ObjectName name) {
         Map<String,String> props =

@@ -23,6 +23,6 @@ import java.util.List;
 
 public interface MetricObserver {
     void update(List<Metric> metrics);
-    
+
     String getName();
 }

@@ -81,7 +81,7 @@ public class CompositeMetricPoller implements MetricPoller {
         TagList tags = BasicTagList.copyOf(new BasicTag(POLLER_KEY, name));
         Counters.increment(t.getClass().getSimpleName() + "Count", tags);
     }
-    
+
     private List<Metric> getMetrics(String name, Future<List<Metric>> future) {
         List<Metric> metrics = EMPTY;
         try {

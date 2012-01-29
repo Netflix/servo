@@ -37,15 +37,23 @@ import java.util.List;
  * Helper functions for querying the monitor annotations associated with a
  * class.
  */
-public class AnnotationUtils {
-    /** Return the value of the field/method annotated with @MonitorId. */
+public final class AnnotationUtils {
+    private AnnotationUtils() {
+    }
+
+    /**
+     * Return the value of the field/method annotated with {@link MonitorId}.
+     */
     public static String getMonitorId(Object obj) throws Exception {
         List<AccessibleObject> attrs =
             getAnnotatedAttributes(MonitorId.class, obj, 1);
         return attrs.isEmpty() ? null : (String) getValue(obj, attrs.get(0));
     }
 
-    /** Return the value of the field/method annotated with @MonitorTags. */
+    /**
+     * Return the value of the field/method annotated with
+     * {@link MonitorTags}.
+     */
     public static TagList getMonitorTags(Object obj) throws Exception {
         List<AccessibleObject> attrs =
             getAnnotatedAttributes(MonitorTags.class, obj, 1);
@@ -54,7 +62,7 @@ public class AnnotationUtils {
             : (TagList) getValue(obj, attrs.get(0));
     }
 
-    /** Return the list of fields/methods annotated with @Monitor. */
+    /** Return the list of fields/methods annotated with {@link Monitor}. */
     public static List<MonitoredAttribute> getMonitoredAttributes(Object obj) {
         List<AccessibleObject> annotatedAttrs =
             getAnnotatedAttributes(Monitor.class, obj, Integer.MAX_VALUE);
@@ -72,12 +80,31 @@ public class AnnotationUtils {
 
     }
 
-    public static Object getValue(Object obj, AccessibleObject attr) throws Exception {
+    /**
+     * Get the value of a field or accessor method of {@code obj} identified
+     * by {@code attr}.
+     *
+     * @param obj   the instance to query
+     * @param attr  the field or method to retrieve
+     * @return      value of the field or method
+     */
+    public static Object getValue(Object obj, AccessibleObject attr)
+            throws Exception {
         return (attr instanceof Field)
             ? ((Field) attr).get(obj)
             : ((Method) attr).invoke(obj);
     }
 
+    /**
+     * Helper to return all fields or methods that have the specified
+     * annotation.
+     *
+     * @param annotationClass  the type of annotation to check for
+     * @param obj              instance to query
+     * @param maxPerClass      max number of annotated attributes that are
+     *                         permitted for this class
+     * @return                 list of matching attributes
+     */
     private static List<AccessibleObject> getAnnotatedAttributes(
             Class<? extends Annotation> annotationClass,
             Object obj,

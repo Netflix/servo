@@ -28,7 +28,7 @@ import com.netflix.servo.publish.MetricConfig;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BasicCounter {
+public final class BasicCounter {
 
     @MonitorId
     private final String name;

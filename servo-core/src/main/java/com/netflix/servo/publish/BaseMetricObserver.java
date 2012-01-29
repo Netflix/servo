@@ -49,7 +49,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
     }
 
     public abstract void update(List<Metric> metrics);
-    
+
     public String getName(){
         return this.name;
     }

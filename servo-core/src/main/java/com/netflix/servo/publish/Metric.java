@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
 
 import com.netflix.servo.TagList;
 
-public class Metric {
+public final class Metric {
     private final String mName;
     private final TagList mTags;
     private final long mTimestamp;
@@ -55,6 +55,7 @@ public class Metric {
         return mValue;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof Metric)) {
@@ -67,11 +68,13 @@ public class Metric {
             && mValue.equals(m.value());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(mName, mTags, mTimestamp, mValue);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

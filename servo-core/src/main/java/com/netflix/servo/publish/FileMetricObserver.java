@@ -66,6 +66,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
         isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         File file = new File(dir, fileFormat.format(new Date()));

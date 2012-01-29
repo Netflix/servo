@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * A poller that can be used to fetch current values for a list of metrics on
- * demand. 
+ * demand.
  */
 public interface MetricPoller {
     /**

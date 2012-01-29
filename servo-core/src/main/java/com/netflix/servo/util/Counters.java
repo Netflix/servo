@@ -28,7 +28,7 @@ import com.netflix.servo.TagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.publish.MetricConfig;
 
-public class Counters {
+public final class Counters {
 
     private static final LoadingCache<MetricConfig,BasicCounter> COUNTERS =
         CacheBuilder.newBuilder().build(

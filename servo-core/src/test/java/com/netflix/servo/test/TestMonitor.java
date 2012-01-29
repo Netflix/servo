@@ -36,20 +36,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Time: 12:30 PM
  */
 public class TestMonitor {
-    
+
     @Monitor(name="testCounter", type = DataSourceType.COUNTER,
             description = "Monitor for doing testing", tags = {
             "tag1=foo", "tag2=bar"})
     public final AtomicInteger counter = new AtomicInteger(0);
-    
+
     @MonitorId
     public final String name = "testMonitor";
-    
+
     @MonitorTags
     public final List<Tag> tagList = new ArrayList<Tag>(10);
-    
+
     public TestMonitor(){}
-    
+
     public TestMonitor(Collection<Tag> tags){
         tagList.addAll(tags);
     }

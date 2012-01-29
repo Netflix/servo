@@ -21,7 +21,7 @@ package com.netflix.servo.util;
 
 import com.netflix.servo.TagList;
 
-public class TaggingContext {
+public final class TaggingContext {
 
     private static final ThreadLocal<TagList> CONTEXT =
         new ThreadLocal<TagList>();

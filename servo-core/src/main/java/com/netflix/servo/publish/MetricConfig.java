@@ -25,7 +25,7 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
 
-public class MetricConfig {
+public final class MetricConfig {
 
     private final String name;
     private final TagList tags;
@@ -47,6 +47,7 @@ public class MetricConfig {
         return tags;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof MetricConfig)) {
@@ -56,11 +57,13 @@ public class MetricConfig {
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(name, tags);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

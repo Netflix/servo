@@ -33,14 +33,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
- * objects will be used to export the data to JMX.
+ * objects will be used to export the data to JMX. For details about the
+ * representation in JMX see {@link MonitoredResource}.
  */
-public class JmxMonitorRegistry implements MonitorRegistry {
+public final class JmxMonitorRegistry implements MonitorRegistry {
 
-    private final Logger mLogger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final MBeanServer mBeanServer;
 
+    /**
+     * Creates a new instance that registers metrics with the local mbean
+     * server.
+     */
     public JmxMonitorRegistry() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
     }
@@ -53,6 +58,7 @@ public class JmxMonitorRegistry implements MonitorRegistry {
         mBeanServer.registerMBean(mbean, name);
     }
 
+    /** {@inheritDoc} */
     public void registerObject(Object obj) {
         Preconditions.checkNotNull("obj cannot be null", obj);
         try {
@@ -62,11 +68,12 @@ public class JmxMonitorRegistry implements MonitorRegistry {
             MetadataMBean metadata = resource.getMetadataMBean();
             register(metadata.getObjectName(), metadata);
         } catch (Throwable t) {
-            mLogger.warn("could not register object of class " +
-                obj.getClass().getCanonicalName(), t);
+            logger.warn("could not register object of class "
+                + obj.getClass().getCanonicalName(), t);
         }
     }
 
+    /** {@inheritDoc} */
     public void unRegisterObject(Object obj) {
         Preconditions.checkNotNull("obj cannot be null", obj);
         try {
@@ -76,8 +83,8 @@ public class JmxMonitorRegistry implements MonitorRegistry {
             MetadataMBean metadata = resource.getMetadataMBean();
             mBeanServer.unregisterMBean(metadata.getObjectName());
         } catch (Throwable t) {
-            mLogger.warn("could not un-register object of class " +
-                obj.getClass().getCanonicalName(), t);
+            logger.warn("could not un-register object of class "
+                + obj.getClass().getCanonicalName(), t);
         }
     }
 }

@@ -24,7 +24,7 @@ import com.netflix.servo.TagList;
 
 import java.util.regex.Pattern;
 
-public class RegexMetricFilter implements MetricFilter {
+public final class RegexMetricFilter implements MetricFilter {
 
     private final String tagKey;
     private final Pattern pattern;
@@ -42,6 +42,7 @@ public class RegexMetricFilter implements MetricFilter {
         this.invert = invert;
     }
 
+    /** {@inheritDoc} */
     public boolean matches(String name, TagList tags) {
         String value = null;
         if (tagKey == null) {

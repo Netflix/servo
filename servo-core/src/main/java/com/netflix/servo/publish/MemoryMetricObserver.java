@@ -50,6 +50,7 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
         mNext = 0;
     }
 
+    /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         mObservations[mNext] = metrics;

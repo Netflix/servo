@@ -41,7 +41,7 @@ import com.netflix.servo.annotations.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MonitoredResource implements DynamicMBean {
+public final class MonitoredResource implements DynamicMBean {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MonitoredResource.class);

@@ -25,7 +25,7 @@ import com.netflix.servo.TagList;
 import java.util.Map;
 import java.util.NavigableMap;
 
-public class PrefixMetricFilter implements MetricFilter {
+public final class PrefixMetricFilter implements MetricFilter {
 
     private final String tagKey;
     private final MetricFilter root;
@@ -40,6 +40,7 @@ public class PrefixMetricFilter implements MetricFilter {
         this.filters = filters;
     }
 
+    /** {@inheritDoc} */
     public boolean matches(String name, TagList tags) {
         String value = null;
         if (tagKey == null) {
