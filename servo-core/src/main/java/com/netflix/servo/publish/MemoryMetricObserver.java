@@ -39,10 +39,12 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
     private final List<Metric>[] mObservations;
     private int mNext;
 
+    /** Creates a new instance that keeps 10 copies in memory. */
     public MemoryMetricObserver() {
         this("unamed observer", 10);
     }
 
+    /** Creates a new instance that keeps {@code num} copies in memory. */
     @SuppressWarnings("unchecked")
     public MemoryMetricObserver(String name, int num) {
         super(name);
@@ -57,6 +59,9 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
         mNext = (mNext + 1) % mObservations.length;
     }
 
+    /**
+     * Returns the current set of observations.
+     */
     public List<List<Metric>> getObservations() {
         ImmutableList.Builder<List<Metric>> builder = ImmutableList.builder();
         int pos = mNext;

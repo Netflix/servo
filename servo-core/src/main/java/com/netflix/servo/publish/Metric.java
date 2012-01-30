@@ -25,34 +25,34 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.TagList;
 
 public final class Metric {
-    private final String mName;
-    private final TagList mTags;
-    private final long mTimestamp;
-    private final Number mValue;
+    private final String name;
+    private final TagList tags;
+    private final long timestamp;
+    private final Number value;
 
     public Metric(String name, TagList tags, long timestamp, Number value) {
-        mName = Preconditions.checkNotNull(name, "name cannot be null");
-        mTags = Preconditions.checkNotNull(
-            tags, "tags cannot be null (name=%s)", mName);
-        mTimestamp = timestamp;
-        mValue = Preconditions.checkNotNull(
-            value, "value cannot be null (name=%s, tags=%s)", mName, mTags);
+        this.name = Preconditions.checkNotNull(name, "name cannot be null");
+        this.tags = Preconditions.checkNotNull(
+            tags, "tags cannot be null (name=%s)", name);
+        this.timestamp = timestamp;
+        this.value = Preconditions.checkNotNull(
+            value, "value cannot be null (name=%s, tags=%s)", name, tags);
     }
 
-    public String name() {
-        return mName;
+    public String getName() {
+        return name;
     }
 
-    public TagList tags() {
-        return mTags;
+    public TagList getTags() {
+        return tags;
     }
 
-    public long timestamp() {
-        return mTimestamp;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public Number value() {
-        return mValue;
+    public Number getValue() {
+        return value;
     }
 
     /** {@inheritDoc} */
@@ -62,26 +62,26 @@ public final class Metric {
             return false;
         }
         Metric m = (Metric) obj;
-        return mName.equals(m.name())
-            && mTags.equals(m.tags())
-            && mTimestamp == m.timestamp()
-            && mValue.equals(m.value());
+        return name.equals(m.getName())
+            && tags.equals(m.getTags())
+            && timestamp == m.getTimestamp()
+            && value.equals(m.getValue());
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(mName, mTags, mTimestamp, mValue);
+        return Objects.hashCode(name, tags, timestamp, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("name", mName)
-            .add("tags", mTags)
-            .add("timestamp", mTimestamp)
-            .add("value", mValue)
+            .add("name", name)
+            .add("tags", tags)
+            .add("timestamp", timestamp)
+            .add("value", value)
             .toString();
     }
 }

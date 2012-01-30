@@ -25,7 +25,7 @@ import javax.management.MBeanServerConnection;
 /**
  * Retrieves a connection to the local mbean server running in the same JVM.
  */
-public class LocalJmxConnector implements JmxConnector {
+public final class LocalJmxConnector implements JmxConnector {
 
     /** Creates a new instance. */
     public LocalJmxConnector() {

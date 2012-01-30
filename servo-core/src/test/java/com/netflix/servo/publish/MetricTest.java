@@ -60,10 +60,10 @@ public class MetricTest {
     public void testAccessors() throws Exception {
         long now = System.currentTimeMillis();
         Metric m1 = new Metric("a", tags1, now, 42);
-        assertEquals(m1.name(), "a");
-        assertEquals(m1.tags(), tags1);
-        assertEquals(m1.timestamp(), now);
-        assertEquals(m1.value(), 42);
+        assertEquals(m1.getName(), "a");
+        assertEquals(m1.getTags(), tags1);
+        assertEquals(m1.getTimestamp(), now);
+        assertEquals(m1.getValue(), 42);
     }
 
     @Test

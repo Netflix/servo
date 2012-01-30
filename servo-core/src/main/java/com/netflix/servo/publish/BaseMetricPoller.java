@@ -38,14 +38,18 @@ public abstract class BaseMetricPoller implements MetricPoller {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Return a list of all current metrics for this poller.
+     */
     public abstract List<Metric> pollImpl();
 
+    /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter) {
         Preconditions.checkNotNull(filter, "filter cannot be null");
         List<Metric> metrics = pollImpl();
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();
         for (Metric m : metrics) {
-            if (filter.matches(m.name(), m.tags())) {
+            if (filter.matches(m.getName(), m.getTags())) {
                 builder.add(m);
             }
         }

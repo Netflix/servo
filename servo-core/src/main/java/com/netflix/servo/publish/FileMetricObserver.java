@@ -91,11 +91,11 @@ public final class FileMetricObserver extends BaseMetricObserver {
             LOGGER.debug("writing %d metrics to file %s", metrics.size(), file);
             out = new FileWriter(file, true);
             for (Metric m : metrics) {
-                String timestamp = isoFormat.format(new Date(m.timestamp()));
-                out.append(m.name()).append('\t')
-                   .append(m.tags().toString()).append('\t')
+                String timestamp = isoFormat.format(new Date(m.getTimestamp()));
+                out.append(m.getName()).append('\t')
+                   .append(m.getTags().toString()).append('\t')
                    .append(timestamp).append('\t')
-                   .append(m.value().toString()).append('\n');
+                   .append(m.getValue().toString()).append('\n');
             }
         } catch (IOException e) {
             LOGGER.error("failed to write update to file " + file, e);
