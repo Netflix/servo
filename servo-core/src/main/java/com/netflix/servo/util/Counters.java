@@ -28,6 +28,12 @@ import com.netflix.servo.TagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.publish.MetricConfig;
 
+/**
+ * Helper class for basic counters that can be actively updated and tagged
+ * based on context. When one of the increment methods is called a counter will
+ * be created automatically if one does not already exist and registered with
+ * the {@link com.netflix.servo.DefaultMonitorRegistry}.
+ */
 public final class Counters {
 
     private static final LoadingCache<MetricConfig,BasicCounter> COUNTERS =
@@ -44,22 +50,54 @@ public final class Counters {
     private Counters() {
     }
 
+    /**
+     * Increment the counter with the given name and only tags specified in the
+     * context.
+     *
+     * @param name  name of the counter to increment
+     */
     public static void increment(String name) {
         increment(new MetricConfig(name), 1);
     }
 
+    /**
+     * Increment the counter with the given name and only tags specified in the
+     * context.
+     *
+     * @param name   name of the counter to increment
+     * @param delta  the amount to increment the counter by
+     */
     public static void increment(String name, int delta) {
         increment(new MetricConfig(name), delta);
     }
 
+    /**
+     * Increment the counter with the given name and tags.
+     *
+     * @param name   name of the counter to increment
+     * @param tags   tags to associate with the counter
+     */
     public static void increment(String name, TagList tags) {
         increment(new MetricConfig(name, tags), 1);
     }
 
+    /**
+     * Increment the counter with the given name and tags.
+     *
+     * @param name   name of the counter to increment
+     * @param tags   tags to associate with the counter
+     * @param delta  the amount to increment the counter by
+     */
     public static void increment(String name, TagList tags, int delta) {
         increment(new MetricConfig(name, tags), delta);
     }
 
+    /**
+     * Increment the counter with the given config.
+     *
+     * @param config  config of the counter to increment
+     * @param delta   the amount to increment the counter by
+     */
     public static void increment(MetricConfig config, int delta) {
         TagList cxtTags = TaggingContext.getTags();
         if (cxtTags != null) {
@@ -72,6 +110,7 @@ public final class Counters {
         }
     }
 
+    /** Clear out all counters. */
     public static void reset() {
         COUNTERS.invalidateAll();
     }

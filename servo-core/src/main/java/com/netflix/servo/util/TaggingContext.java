@@ -21,6 +21,12 @@ package com.netflix.servo.util;
 
 import com.netflix.servo.TagList;
 
+/**
+ * Keeps track of tags that should be applied to counters incremented in the
+ * current thread. Can be used to customize the context for code executed in
+ * a particular thread. For example, on a server with a thread per request the
+ * context can be set so metrics will be tagged accordingly.
+ */
 public final class TaggingContext {
 
     private static final ThreadLocal<TagList> CONTEXT =
@@ -29,15 +35,18 @@ public final class TaggingContext {
     private TaggingContext() {
     }
 
+    /** Set the tags to be associated with the current thread. */
     public static void setTags(TagList tags) {
         CONTEXT.set(tags);
     }
 
+    /** Get the tags associated with the current thread. */
     public static TagList getTags() {
         return CONTEXT.get();
     }
 
+    /** Remove the tags associated with the current thread. */
     public static void reset() {
-        setTags(null);
+        CONTEXT.remove();
     }
 }

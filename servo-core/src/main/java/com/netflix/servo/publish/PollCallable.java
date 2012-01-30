@@ -30,6 +30,12 @@ public final class PollCallable implements Callable<List<Metric>> {
     private final MetricPoller poller;
     private final MetricFilter filter;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param poller  poller to invoke
+     * @param filter  filter to pass into the poller
+     */
     public PollCallable(MetricPoller poller, MetricFilter filter) {
         this.poller = poller;
         this.filter = filter;

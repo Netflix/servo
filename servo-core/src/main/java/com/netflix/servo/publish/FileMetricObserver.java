@@ -53,11 +53,27 @@ public final class FileMetricObserver extends BaseMetricObserver {
     private final SimpleDateFormat fileFormat;
     private final SimpleDateFormat isoFormat;
 
+    /**
+     * Creates a new instance that stores files in {@code dir} with a prefix of
+     * {@code name} and a suffix of a timestamp in the format
+     * {@code yyyy_dd_MM_HH_mm_ss_SSS}. 
+     *
+     * @param name  name to use as a prefix on files
+     * @param dir   directory where observations will be stored
+     */
     public FileMetricObserver(String name, File dir) {
-        this(name, dir, String.format("'%s'_%s'.log'", name, FILE_DATE_FORMAT));
+        this(name, String.format("'%s'_%s'.log'", name, FILE_DATE_FORMAT), dir);
     }
 
-    public FileMetricObserver(String name, File dir, String namePattern) {
+    /**
+     * Creates a new instance that stores files in {@code dir} with a name that
+     * is created using {@code namePattern}.
+     *
+     * @param name         name of the observer
+     * @param namePattern  date format pattern used to create the file names
+     * @param dir          directory where observations will be stored
+     */
+    public FileMetricObserver(String name, String namePattern, File dir) {
         super(name);
         this.dir = dir;
         fileFormat = new SimpleDateFormat(namePattern);

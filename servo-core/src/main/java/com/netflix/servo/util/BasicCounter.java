@@ -28,6 +28,11 @@ import com.netflix.servo.publish.MetricConfig;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Helper class for a monitored counter value that can be actively updated
+ * instead of being polled. After creating an instance of the counter it must
+ * be registered with the a {@link com.netflix.servo.MonitorRegistry}.
+ */
 public final class BasicCounter {
 
     @MonitorId
@@ -39,24 +44,38 @@ public final class BasicCounter {
     @Monitor(name="Count", type=DataSourceType.COUNTER)
     private final AtomicInteger value;
 
+    /**
+     * Creates a new instance based on the provided metric config.
+     *
+     * @param config  config to associate with the counter
+     */
     public BasicCounter(MetricConfig config) {
         this(config.getName(), config.getTags());
     }
 
+    /**
+     * Creates a new instance based on the provided metric name and tags.
+     *
+     * @param name  the name of the metric
+     * @param tags  tags to associate with the counter 
+     */
     public BasicCounter(String name, TagList tags) {
         this.name = name;
         this.tags = tags;
         this.value = new AtomicInteger(0);
     }
 
+    /** Returns the current value of the counter. */
     public int getValue() {
         return value.get();
     }
 
+    /** Increment the counter by 1. */
     public void increment() {
         value.incrementAndGet();
     }
 
+    /** Increment the counter by {@code delta}. */
     public void increment(int delta) {
         value.getAndAdd(delta);
     }

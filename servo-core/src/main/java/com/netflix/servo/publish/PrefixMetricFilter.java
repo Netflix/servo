@@ -25,12 +25,24 @@ import com.netflix.servo.TagList;
 import java.util.Map;
 import java.util.NavigableMap;
 
+/**
+ * Filter that checks for a prefix match on a given tag. This can be useful
+ * providing rules associated with the canonical class name.
+ */
 public final class PrefixMetricFilter implements MetricFilter {
 
     private final String tagKey;
     private final MetricFilter root;
     private final NavigableMap<String,MetricFilter> filters;
 
+    /**
+     * Creates a new prefix filter.
+     *
+     * @param tagKey   the tag to perform matching on
+     * @param root     filter used if there are no prefix matches
+     * @param filters  map of prefix to sub-filter. The filter associated with
+     *                 the longest matching prefix will be used.
+     */
     public PrefixMetricFilter(
             String tagKey,
             MetricFilter root,

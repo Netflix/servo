@@ -21,6 +21,13 @@ package com.netflix.servo.publish;
 
 import javax.management.MBeanServerConnection;
 
+/**
+ * Used to get a connection to a JMX mbean server.
+ */
 public interface JmxConnector {
+    /**
+     * Returns a connection to an mbean server that can be used to poll metrics
+     * from JMX.
+     */
     MBeanServerConnection getConnection();
 }

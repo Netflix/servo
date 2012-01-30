@@ -24,6 +24,9 @@ import com.netflix.servo.TagList;
 
 import java.util.regex.Pattern;
 
+/**
+ * Filter that checks if a tag value matches a regular expression.
+ */
 public final class RegexMetricFilter implements MetricFilter {
 
     private final String tagKey;
@@ -31,6 +34,14 @@ public final class RegexMetricFilter implements MetricFilter {
     private final boolean matchIfMissingTag;
     private final boolean invert;
 
+    /**
+     * Creates a new regex filter.
+     *
+     * @param tagKey             tag to check against the pattern
+     * @param pattern            pattern to check
+     * @param matchIfMissingTag  should metrics without the specified tag match?
+     * @param invert             should the match be inverted?
+     */
     public RegexMetricFilter(
             String tagKey,
             Pattern pattern,

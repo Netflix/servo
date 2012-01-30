@@ -22,11 +22,16 @@ package com.netflix.servo.publish;
 import java.lang.management.ManagementFactory;
 import javax.management.MBeanServerConnection;
 
+/**
+ * Retrieves a connection to the local mbean server running in the same JVM.
+ */
 public class LocalJmxConnector implements JmxConnector {
 
+    /** Creates a new instance. */
     public LocalJmxConnector() {
     }
 
+    /** {@inheritDoc} */
     public MBeanServerConnection getConnection() {
         return ManagementFactory.getPlatformMBeanServer();
     }

@@ -21,6 +21,17 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.TagList;
 
+/**
+ * A filter to restrict the set of metrics that are polled.
+ */
 public interface MetricFilter {
+    /**
+     * Check if a metric with the provided configuration should be selected and
+     * sent to observers.
+     *
+     * @param name  name of the metric
+     * @param tags  tags associated with the metric
+     * @return      true if the metric should be selected
+     */
     boolean matches(String name, TagList tags);
 }

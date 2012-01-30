@@ -21,10 +21,19 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.TagList;
 
+/**
+ * Filter that always returns true of false.
+ */
 public final class BasicMetricFilter implements MetricFilter {
 
     private final boolean match;
 
+    /**
+     * Creates a new instance with a boolean indicating whether it should
+     * always match or always fail.
+     *
+     * @param match  should this filter match?
+     */
     public BasicMetricFilter(boolean match) {
         this.match = match;
     }
