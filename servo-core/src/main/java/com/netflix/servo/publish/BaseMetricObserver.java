@@ -21,11 +21,15 @@ package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+
+import com.netflix.servo.Metric;
+
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
 
 import java.util.List;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -69,7 +73,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
     }
 
     /** {@inheritDoc} */
-    public String getName(){
+    public final String getName(){
         return name;
     }
 
@@ -77,7 +81,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
      * Can be used by sub-classes to increment the failed count if they handle
      * exception internally.
      */
-    protected void incrementFailedCount() {
+    protected final void incrementFailedCount() {
         failedUpdateCount.incrementAndGet();
     }
 }

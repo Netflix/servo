@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.publish;
 
+import com.netflix.servo.Metric;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -39,7 +41,7 @@ public class SlowMetricObserver extends BaseMetricObserver {
         this.delay = delay;
     }
 
-    public void update(List<Metric> metrics) {
+    public void updateImpl(List<Metric> metrics) {
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {

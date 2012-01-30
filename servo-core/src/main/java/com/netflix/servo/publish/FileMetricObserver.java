@@ -22,6 +22,8 @@ package com.netflix.servo.publish;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 
+import com.netflix.servo.Metric;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -95,8 +97,8 @@ public final class FileMetricObserver extends BaseMetricObserver {
             out = new OutputStreamWriter(fileOut, "UTF-8");
             for (Metric m : metrics) {
                 String timestamp = isoFormat.format(new Date(m.getTimestamp()));
-                out.append(m.getName()).append('\t')
-                   .append(m.getTags().toString()).append('\t')
+                out.append(m.getConfig().getName()).append('\t')
+                   .append(m.getConfig().getTags().toString()).append('\t')
                    .append(timestamp).append('\t')
                    .append(m.getValue().toString()).append('\n');
             }

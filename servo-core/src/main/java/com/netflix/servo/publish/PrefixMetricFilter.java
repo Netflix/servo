@@ -19,6 +19,7 @@
  */
 package com.netflix.servo.publish;
 
+import com.netflix.servo.MetricConfig;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
 
@@ -53,7 +54,9 @@ public final class PrefixMetricFilter implements MetricFilter {
     }
 
     /** {@inheritDoc} */
-    public boolean matches(String name, TagList tags) {
+    public boolean matches(MetricConfig config) {
+        String name = config.getName();
+        TagList tags = config.getTags();
         String value = null;
         if (tagKey == null) {
             value = name;
@@ -64,12 +67,12 @@ public final class PrefixMetricFilter implements MetricFilter {
 
         boolean match = false;
         if (value == null) {
-            match = root.matches(name, tags);
+            match = root.matches(config);
         } else {
             Map.Entry<String,MetricFilter> e = filters.floorEntry(value);
             match = (e == null || !value.startsWith(e.getKey()))
-                ? root.matches(name, tags)
-                : e.getValue().matches(name, tags);
+                ? root.matches(config)
+                : e.getValue().matches(config);
         }
         return match;
     }

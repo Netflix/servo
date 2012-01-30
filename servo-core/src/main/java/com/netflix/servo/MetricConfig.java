@@ -17,13 +17,10 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.publish;
+package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.TagList;
 
 /**
  * Configuration settings associated with a metric.

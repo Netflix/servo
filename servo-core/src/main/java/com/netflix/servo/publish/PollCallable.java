@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.publish;
 
+import com.netflix.servo.Metric;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 

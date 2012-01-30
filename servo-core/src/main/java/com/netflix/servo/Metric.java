@@ -17,19 +17,16 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.publish;
+package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-
-import com.netflix.servo.TagList;
 
 /**
  * Represents a metric value at a given point in time.
  */
 public final class Metric {
-    private final String name;
-    private final TagList tags;
+    private final MetricConfig config;
     private final long timestamp;
     private final Number value;
 
@@ -42,22 +39,27 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(String name, TagList tags, long timestamp, Number value) {
-        this.name = Preconditions.checkNotNull(name, "name cannot be null");
-        this.tags = Preconditions.checkNotNull(
-            tags, "tags cannot be null (name=%s)", name);
+        this(new MetricConfig(name, tags), timestamp, value);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param config     config settings associated with the metric
+     * @param timestamp  point in time when the metric value was sampled
+     * @param value      value of the metric
+     */
+    public Metric(MetricConfig config, long timestamp, Number value) {
+        this.config = Preconditions.checkNotNull(
+            config, "config cannot be null");
         this.timestamp = timestamp;
         this.value = Preconditions.checkNotNull(
-            value, "value cannot be null (name=%s, tags=%s)", name, tags);
+            value, "value cannot be null (config=%s)", config);
     }
 
-    /** Returns the name of the metric. */
-    public String getName() {
-        return name;
-    }
-
-    /** Returns the tags associated with the metric. */
-    public TagList getTags() {
-        return tags;
+    /** Returns the config settings associated with the metric. */
+    public MetricConfig getConfig() {
+        return config;
     }
 
     /** Returns the point in time when the metric was sampled. */
@@ -77,8 +79,7 @@ public final class Metric {
             return false;
         }
         Metric m = (Metric) obj;
-        return name.equals(m.getName())
-            && tags.equals(m.getTags())
+        return config.equals(m.getConfig())
             && timestamp == m.getTimestamp()
             && value.equals(m.getValue());
     }
@@ -86,15 +87,14 @@ public final class Metric {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, tags, timestamp, value);
+        return Objects.hashCode(config, timestamp, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("name", name)
-            .add("tags", tags)
+            .add("config", config)
             .add("timestamp", timestamp)
             .add("value", value)
             .toString();

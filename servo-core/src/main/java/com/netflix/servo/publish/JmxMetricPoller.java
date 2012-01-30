@@ -26,6 +26,8 @@ import com.google.common.collect.Maps;
 
 import com.netflix.servo.BasicTag;
 import com.netflix.servo.BasicTagList;
+import com.netflix.servo.Metric;
+import com.netflix.servo.MetricConfig;
 import com.netflix.servo.StandardTagKeys;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
@@ -129,7 +131,7 @@ public final class JmxMetricPoller implements MetricPoller {
         long now = System.currentTimeMillis();
         Number num = asNumber(value);
         if (num != null) {
-            TagList newTags = counters.matches(name, tags)
+            TagList newTags = counters.matches(new MetricConfig(name, tags))
                 ? tags.copy(BasicTagList.copyOf(DataSourceType.COUNTER))
                 : tags.copy(BasicTagList.copyOf(DataSourceType.GAUGE));
             Metric m = new Metric(name, newTags, now, num);
@@ -177,7 +179,7 @@ public final class JmxMetricPoller implements MetricPoller {
         List<String> matchingNames = Lists.newArrayList();
         for (MBeanAttributeInfo attrInfo : attrInfos) {
             String attrName = attrInfo.getName();
-            if (filter.matches(attrName, tags)) {
+            if (filter.matches(new MetricConfig(attrName, tags))) {
                 matchingNames.add(attrName);
             }
         }
@@ -195,7 +197,7 @@ public final class JmxMetricPoller implements MetricPoller {
                 for (Map.Entry<String,Object> e : values.entrySet()) {
                     String key = e.getKey();
                     BasicTagList newTags = tags.copy(COMPOSITE_PATH_KEY, key);
-                    if (filter.matches(attrName, newTags)) {
+                    if (filter.matches(new MetricConfig(attrName, newTags))) {
                         addMetric(metrics, attrName, newTags, e.getValue());
                     }
                 }

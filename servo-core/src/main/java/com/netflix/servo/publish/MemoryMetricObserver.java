@@ -21,6 +21,8 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 
+import com.netflix.servo.Metric;
+
 import java.util.List;
 
 import org.slf4j.Logger;

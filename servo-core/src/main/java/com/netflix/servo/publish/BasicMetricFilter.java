@@ -19,10 +19,10 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.TagList;
+import com.netflix.servo.MetricConfig;
 
 /**
- * Filter that always returns true of false.
+ * Filter that always returns true or false.
  */
 public final class BasicMetricFilter implements MetricFilter {
 
@@ -39,7 +39,7 @@ public final class BasicMetricFilter implements MetricFilter {
     }
 
     /** {@inheritDoc} */
-    public boolean matches(String name, TagList tags) {
+    public boolean matches(MetricConfig config) {
         return match;
     }
 }

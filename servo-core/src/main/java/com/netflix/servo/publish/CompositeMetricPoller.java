@@ -28,7 +28,9 @@ import com.google.common.collect.Maps;
 
 import com.netflix.servo.BasicTag;
 import com.netflix.servo.BasicTagList;
+import com.netflix.servo.Metric;
 import com.netflix.servo.TagList;
+
 import com.netflix.servo.util.Counters;
 
 import java.util.List;

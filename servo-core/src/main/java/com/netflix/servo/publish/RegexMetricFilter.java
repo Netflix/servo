@@ -19,6 +19,7 @@
  */
 package com.netflix.servo.publish;
 
+import com.netflix.servo.MetricConfig;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
 
@@ -54,7 +55,9 @@ public final class RegexMetricFilter implements MetricFilter {
     }
 
     /** {@inheritDoc} */
-    public boolean matches(String name, TagList tags) {
+    public boolean matches(MetricConfig config) {
+        String name = config.getName();
+        TagList tags = config.getTags();
         String value = null;
         if (tagKey == null) {
             value = name;

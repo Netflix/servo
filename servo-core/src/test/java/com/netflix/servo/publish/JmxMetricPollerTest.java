@@ -22,6 +22,7 @@ package com.netflix.servo.publish;
 import com.google.common.collect.ImmutableMap;
 
 import com.netflix.servo.BasicTagList;
+import com.netflix.servo.Metric;
 import com.netflix.servo.TagList;
 
 import java.util.Map;

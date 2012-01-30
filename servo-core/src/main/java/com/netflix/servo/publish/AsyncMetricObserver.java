@@ -20,15 +20,20 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
+
+import com.netflix.servo.Metric;
+
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The

@@ -24,6 +24,8 @@ import static com.netflix.servo.annotations.DataSourceType.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import com.netflix.servo.Metric;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,7 +51,7 @@ public abstract class BaseMetricPoller implements MetricPoller {
         List<Metric> metrics = pollImpl();
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();
         for (Metric m : metrics) {
-            if (filter.matches(m.getName(), m.getTags())) {
+            if (filter.matches(m.getConfig())) {
                 builder.add(m);
             }
         }

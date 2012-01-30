@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.publish;
+package com.netflix.servo;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -44,10 +44,11 @@ public class MetricTest {
         new Metric(null, tags1, now, 42);
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test
     public void testNullTags() throws Exception {
         long now = System.currentTimeMillis();
-        new Metric("a", null, now, 42);
+        Metric m = new Metric("a", null, now, 42);
+        assertEquals(m.getConfig(), new MetricConfig("a"));
     }
 
     @Test(expectedExceptions = NullPointerException.class)
@@ -60,8 +61,7 @@ public class MetricTest {
     public void testAccessors() throws Exception {
         long now = System.currentTimeMillis();
         Metric m1 = new Metric("a", tags1, now, 42);
-        assertEquals(m1.getName(), "a");
-        assertEquals(m1.getTags(), tags1);
+        assertEquals(m1.getConfig(), new MetricConfig("a", tags1));
         assertEquals(m1.getTimestamp(), now);
         assertEquals(m1.getValue(), 42);
     }
