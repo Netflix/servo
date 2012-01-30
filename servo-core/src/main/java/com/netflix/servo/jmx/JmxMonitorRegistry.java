@@ -60,7 +60,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     /** {@inheritDoc} */
     public void registerObject(Object obj) {
-        Preconditions.checkNotNull("obj cannot be null", obj);
+        Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             MonitoredResource resource = new MonitoredResource(obj);
             register(resource.getObjectName(), resource);
@@ -75,7 +75,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     /** {@inheritDoc} */
     public void unRegisterObject(Object obj) {
-        Preconditions.checkNotNull("obj cannot be null", obj);
+        Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             MonitoredResource resource = new MonitoredResource(obj);
             mBeanServer.unregisterMBean(resource.getObjectName());

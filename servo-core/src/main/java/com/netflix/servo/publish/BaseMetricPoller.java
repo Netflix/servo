@@ -44,7 +44,7 @@ public abstract class BaseMetricPoller implements MetricPoller {
     public abstract List<Metric> pollImpl();
 
     /** {@inheritDoc} */
-    public List<Metric> poll(MetricFilter filter) {
+    public final List<Metric> poll(MetricFilter filter) {
         Preconditions.checkNotNull(filter, "filter cannot be null");
         List<Metric> metrics = pollImpl();
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();

@@ -25,24 +25,36 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
 
+/**
+ * Configuration settings associated with a metric.
+ */
 public final class MetricConfig {
 
     private final String name;
     private final TagList tags;
 
+    /**
+     * Creates a new instance with an empty tag list.
+     */
     public MetricConfig(String name) {
         this(name, null);
     }
 
+    /**
+     * Creates a new instance with a given name and tags. If {@code tags} is
+     * null an empty tag list will be used.
+     */
     public MetricConfig(String name, TagList tags) {
         this.name = Preconditions.checkNotNull(name, "name cannot be null");
         this.tags = (tags == null) ? BasicTagList.EMPTY : tags;
     }
 
+     /** Returns the name of the metric. */
     public String getName() {
         return name;
     }
 
+     /** Returns the tags associated with the metric. */
     public TagList getTags() {
         return tags;
     }

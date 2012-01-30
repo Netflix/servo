@@ -23,8 +23,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import java.text.SimpleDateFormat;
@@ -83,13 +85,14 @@ public final class FileMetricObserver extends BaseMetricObserver {
     }
 
     /** {@inheritDoc} */
-    public void update(List<Metric> metrics) {
+    public void updateImpl(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         File file = new File(dir, fileFormat.format(new Date()));
         Writer out = null;
         try {
             LOGGER.debug("writing %d metrics to file %s", metrics.size(), file);
-            out = new FileWriter(file, true);
+            OutputStream fileOut = new FileOutputStream(file, true);
+            out = new OutputStreamWriter(fileOut, "UTF-8");
             for (Metric m : metrics) {
                 String timestamp = isoFormat.format(new Date(m.getTimestamp()));
                 out.append(m.getName()).append('\t')
@@ -98,6 +101,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
                    .append(m.getValue().toString()).append('\n');
             }
         } catch (IOException e) {
+            incrementFailedCount();
             LOGGER.error("failed to write update to file " + file, e);
         } finally {
             Closeables.closeQuietly(out);

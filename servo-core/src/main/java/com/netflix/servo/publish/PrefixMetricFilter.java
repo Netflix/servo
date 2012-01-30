@@ -67,7 +67,7 @@ public final class PrefixMetricFilter implements MetricFilter {
             match = root.matches(name, tags);
         } else {
             Map.Entry<String,MetricFilter> e = filters.floorEntry(value);
-            match = (e == null && value.startsWith(e.getKey()))
+            match = (e == null || !value.startsWith(e.getKey()))
                 ? root.matches(name, tags)
                 : e.getValue().matches(name, tags);
         }

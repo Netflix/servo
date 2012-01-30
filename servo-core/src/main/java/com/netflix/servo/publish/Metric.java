@@ -24,12 +24,23 @@ import com.google.common.base.Preconditions;
 
 import com.netflix.servo.TagList;
 
+/**
+ * Represents a metric value at a given point in time.
+ */
 public final class Metric {
     private final String name;
     private final TagList tags;
     private final long timestamp;
     private final Number value;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param name       name of the metric
+     * @param tags       tags associated with the metric
+     * @param timestamp  point in time when the metric value was sampled
+     * @param value      value of the metric
+     */
     public Metric(String name, TagList tags, long timestamp, Number value) {
         this.name = Preconditions.checkNotNull(name, "name cannot be null");
         this.tags = Preconditions.checkNotNull(
@@ -39,18 +50,22 @@ public final class Metric {
             value, "value cannot be null (name=%s, tags=%s)", name, tags);
     }
 
+    /** Returns the name of the metric. */
     public String getName() {
         return name;
     }
 
+    /** Returns the tags associated with the metric. */
     public TagList getTags() {
         return tags;
     }
 
+    /** Returns the point in time when the metric was sampled. */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /** Returns the value of the metric. */
     public Number getValue() {
         return value;
     }

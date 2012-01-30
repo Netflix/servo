@@ -48,11 +48,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CompositeMetricPoller implements MetricPoller {
 
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(CompositeMetricPoller.class);
+
     private static final List<Metric> EMPTY = ImmutableList.of();
 
     private static final String POLLER_KEY = "PollerName";
-
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String,MetricPoller> pollers;
     private final ExecutorService executor;
@@ -88,18 +89,19 @@ public class CompositeMetricPoller implements MetricPoller {
             metrics = future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
             increment(e, name);
-            logger.warn("uncaught exception from poll method for {}", e, name);
+            LOGGER.warn("uncaught exception from poll method for {}", e, name);
         } catch (TimeoutException e) {
             increment(e, name);
-            logger.warn("timeout executing poll method for {}", e, name);
+            LOGGER.warn("timeout executing poll method for {}", e, name);
         } catch (InterruptedException e) {
             increment(e, name);
-            logger.warn("interrupted while doing get for {}", e, name);
+            LOGGER.warn("interrupted while doing get for {}", e, name);
         }
         return metrics;
     }
 
-    public List<Metric> poll(MetricFilter filter) {
+    /** {@inheritDoc} */
+    public final List<Metric> poll(MetricFilter filter) {
         Map<String,Future<List<Metric>>> futures = Maps.newHashMap();
         for (Map.Entry<String,MetricPoller> e : pollers.entrySet()) {
             PollCallable task = new PollCallable(e.getValue(), filter);
