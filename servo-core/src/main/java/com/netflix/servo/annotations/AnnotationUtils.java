@@ -81,6 +81,23 @@ public final class AnnotationUtils {
     }
 
     /**
+     * Try to convert an object into a number. Boolean values will return 1 if
+     * true and 0 if false. If the value is null or an unknown data type null
+     * will be returned.
+     */
+    public static Number asNumber(Object value) {
+        Number num = null;
+        if (value == null) {
+            num = null;
+        } else if (value instanceof Number) {
+            num = (Number) value;
+        } else if (value instanceof Boolean) {
+            num = ((Boolean) value) ? 1 : 0;
+        }
+        return num;
+    }
+
+    /**
      * Get the value of a field or accessor method of {@code obj} identified
      * by {@code attr}.
      *
@@ -93,6 +110,20 @@ public final class AnnotationUtils {
         return (attr instanceof Field)
             ? ((Field) attr).get(obj)
             : ((Method) attr).invoke(obj);
+    }
+
+    /**
+     * Get the value of a field or accessor method of {@code obj} identified
+     * by {@code attr} as a number. See {@link #asNumber} for details on the
+     * conversion.
+     *
+     * @param obj   the instance to query
+     * @param attr  the field or method to retrieve
+     * @return      value of the field or method
+     */
+    public static Number getNumber(Object obj, AccessibleObject attr)
+            throws Exception {
+        return asNumber(getValue(obj, attr));
     }
 
     /**

@@ -165,6 +165,10 @@ public final class MonitoredAttribute {
         return AnnotationUtils.getValue(mObject, mAttr);
     }
 
+    public Number getNumber() throws Exception {
+        return AnnotationUtils.getNumber(mObject, mAttr);
+    }
+
     public CompositeDataSupport metadata() {
         return mMetadata;
     }
