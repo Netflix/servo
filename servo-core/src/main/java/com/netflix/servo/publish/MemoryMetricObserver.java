@@ -19,9 +19,9 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableList;
+
+import com.netflix.servo.Metric;
 
 import java.util.List;
 
@@ -36,34 +36,39 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MemoryMetricObserver.class);
 
-    private final List<Metric>[] mObservations;
-    private int mNext;
+    private final List<Metric>[] observations;
+    private int next;
 
+    /** Creates a new instance that keeps 10 copies in memory. */
     public MemoryMetricObserver() {
         this("unamed observer", 10);
     }
 
+    /** Creates a new instance that keeps {@code num} copies in memory. */
     @SuppressWarnings("unchecked")
     public MemoryMetricObserver(String name, int num) {
         super(name);
-        mObservations = (List<Metric>[]) new List[num];
-        mNext = 0;
+        observations = (List<Metric>[]) new List[num];
+        next = 0;
     }
 
-    public void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
-        mObservations[mNext] = metrics;
-        mNext = (mNext + 1) % mObservations.length;
+    /** {@inheritDoc} */
+    public void updateImpl(List<Metric> metrics) {
+        observations[next] = metrics;
+        next = (next + 1) % observations.length;
     }
 
+    /**
+     * Returns the current set of observations.
+     */
     public List<List<Metric>> getObservations() {
         ImmutableList.Builder<List<Metric>> builder = ImmutableList.builder();
-        int pos = mNext;
-        for (int i = 0; i < mObservations.length; ++i) {
-            if (mObservations[pos] != null) {
-                builder.add(mObservations[pos]);
+        int pos = next;
+        for (int i = 0; i < observations.length; ++i) {
+            if (observations[pos] != null) {
+                builder.add(observations[pos]);
             }
-            pos = (pos + 1) % mObservations.length;
+            pos = (pos + 1) % observations.length;
         }
         return builder.build();
     }

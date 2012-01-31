@@ -48,7 +48,7 @@ public enum InjectableTag implements Tag {
         this.value = val;
     }
 
-    public String getKey(){
+    public String getKey() {
         return key;
     }
 
@@ -57,10 +57,10 @@ public enum InjectableTag implements Tag {
     }
 
     private static String getHostName() {
-        return address != null ? address.getHostName() : "unkownHost";
+        return (address != null) ? address.getHostName() : "unkownHost";
     }
 
     private static String getIp() {
-        return address != null ? address.getHostAddress() : "unknownHost";
+        return (address != null) ? address.getHostAddress() : "unknownHost";
     }
 }

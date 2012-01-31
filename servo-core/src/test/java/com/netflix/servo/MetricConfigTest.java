@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.publish;
+package com.netflix.servo;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
-public class MetricTest {
+public class MetricConfigTest {
 
     private final TagList tags1 =
         BasicTagList.copyOf("cluster=foo", "asg=foo-v000");
@@ -40,38 +40,27 @@ public class MetricTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {
-        long now = System.currentTimeMillis();
-        new Metric(null, tags1, now, 42);
+        new MetricConfig(null, tags1);
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test
     public void testNullTags() throws Exception {
-        long now = System.currentTimeMillis();
-        new Metric("a", null, now, 42);
-    }
-
-    @Test(expectedExceptions = NullPointerException.class)
-    public void testNullValue() throws Exception {
-        long now = System.currentTimeMillis();
-        new Metric("a", tags1, now, null);
+        MetricConfig m = new MetricConfig("a");
+        assertEquals(m, new MetricConfig("a"));
     }
 
     @Test
     public void testAccessors() throws Exception {
-        long now = System.currentTimeMillis();
-        Metric m1 = new Metric("a", tags1, now, 42);
-        assertEquals(m1.name(), "a");
-        assertEquals(m1.tags(), tags1);
-        assertEquals(m1.timestamp(), now);
-        assertEquals(m1.value(), 42);
+        MetricConfig m1 = new MetricConfig("a", tags1);
+        assertEquals(m1.getName(), "a");
+        assertEquals(m1.getTags(), tags1);
     }
 
     @Test
     public void testEquals() throws Exception {
-        long now = System.currentTimeMillis();
-        Metric m1 = new Metric("a", tags1, now, 42);
-        Metric m2 = new Metric("a", tags2, now, 42);
-        Metric m3 = new Metric("a", tags1, now, 42);
+        MetricConfig m1 = new MetricConfig("a", tags1);
+        MetricConfig m2 = new MetricConfig("a", tags2);
+        MetricConfig m3 = new MetricConfig("a", tags1);
 
         assertFalse(m1.equals(null));
         assertFalse(m1.equals(m2.toString()));
@@ -82,10 +71,9 @@ public class MetricTest {
 
     @Test
     public void testHashCode() throws Exception {
-        long now = System.currentTimeMillis();
-        Metric m1 = new Metric("a", tags1, now, 42);
-        Metric m2 = new Metric("a", tags2, now, 42);
-        Metric m3 = new Metric("a", tags1, now, 42);
+        MetricConfig m1 = new MetricConfig("a", tags1);
+        MetricConfig m2 = new MetricConfig("a", tags2);
+        MetricConfig m3 = new MetricConfig("a", tags1);
 
         assertTrue(m1.hashCode() == m1.hashCode());
         assertTrue(m1.hashCode() != m2.hashCode());

@@ -48,12 +48,15 @@ public enum DataSourceType implements Tag {
      */
     INFORMATIONAL;
 
+    /** Key name used for the data source type tag. */
     public static final String KEY = "DataSourceType";
 
+    /** {@inheritDoc} */
     public String getKey() {
         return KEY;
     }
 
+    /** {@inheritDoc} */
     public String getValue() {
         return name();
     }

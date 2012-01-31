@@ -24,81 +24,146 @@ import com.google.common.base.Objects;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-public class BasicTagList implements TagList {
+/**
+ * Immutable tag list.
+ */
+public final class BasicTagList implements TagList {
 
-    public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
+    /** An empty tag list. */
+    public static final TagList EMPTY =
+        new BasicTagList(ImmutableSet.<Tag>of());
 
-    private final Map<String,Tag> tags;
+    private final Map<String,Tag> tagMap;
 
+    /**
+     * Creates a new instance with a fixed set of tags.
+     *
+     * @param entries  entries to include in this tag list
+     */
     public BasicTagList(Iterable<Tag> entries) {
-        ImmutableMap.Builder<String,Tag> builder = ImmutableMap.builder();
+        Map<String,Tag> tags = Maps.newHashMap();
         for (Tag tag : entries) {
-            builder.put(tag.getKey(), tag);
+            tags.put(tag.getKey(), tag);
         }
-        tags = builder.build();
+        tagMap = ImmutableMap.copyOf(tags);
     }
-    
+
+    /** {@inheritDoc} */
     public Tag getTag(String key) {
-        return tags.get(key);
+        return tagMap.get(key);
     }
 
+    /** {@inheritDoc} */
     public boolean containsKey(String key) {
-        return tags.containsKey(key);
+        return tagMap.containsKey(key);
     }
 
+    /** {@inheritDoc} */
     public boolean isEmpty() {
-        return tags.isEmpty();
+        return tagMap.isEmpty();
     }
 
+    /** {@inheritDoc} */
     public int size() {
-        return tags.size();
+        return tagMap.size();
     }
 
+    /** {@inheritDoc} */
     public Iterator<Tag> iterator() {
-        return tags.values().iterator();
+        return tagMap.values().iterator();
     }
 
+    /** {@inheritDoc} */
     public Map<String,String> asMap() {
         ImmutableMap.Builder<String,String> builder = ImmutableMap.builder();
-        for (Tag tag : tags.values()) {
+        for (Tag tag : tagMap.values()) {
             builder.put(tag.getKey(), tag.getValue());
         }
         return builder.build();
     }
 
+    /**
+     * Returns a new tag list with additional tags from {@code tags}. If there
+     * is a conflict with tag keys the tag from {@code tags} will be used.
+     */
+    public BasicTagList copy(TagList tags) {
+        return concat(this, tags);
+    }
+
+    /**
+     * Returns a new tag list with an additional tag. If {@code key} is
+     * already present in this tag list the value will be overwritten with
+     * {@code value}.
+     */
+    public BasicTagList copy(String key, String value) {
+        return concat(this, new BasicTag(key, value));
+    }
+
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof BasicTagList)
-            ? tags.equals(((BasicTagList) obj).tags)
+            ? tagMap.equals(((BasicTagList) obj).tagMap)
             : false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(tags);
+        return Objects.hashCode(tagMap);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tags.values());
+        return Joiner.on(",").join(tagMap.values());
     }
 
-    public static TagList copyOf(Tag... tags) {
+    /**
+     * Returns a tag list containing the union of {@code t1} and {@code t2}.
+     * If there is a conflict with tag keys, the tag from {@code t2} will be
+     * used.
+     */
+    public static BasicTagList concat(TagList t1, TagList t2) {
+        return new BasicTagList(Iterables.concat(t1, t2));
+    }
+
+    /**
+     * Returns a tag list containing the union of {@code t1} and {@code t2}.
+     * If there is a conflict with tag keys, the tag from {@code t2} will be
+     * used.
+     */
+    public static BasicTagList concat(TagList t1, Tag... t2) {
+        return new BasicTagList(Iterables.concat(t1, Arrays.asList(t2)));
+    }
+
+    /**
+     * Returns a tag list that has a copy of {@code tags}.
+     */
+    public static BasicTagList copyOf(Tag... tags) {
         return new BasicTagList(Arrays.asList(tags));
     }
 
-    public static TagList copyOf(String... tags) {
+    /**
+     * Returns a tag list that has a copy of {@code tags}. Each tag value
+     * is expected to be a string parseable using {@link BasicTag#parseTag}.
+     */
+    public static BasicTagList copyOf(String... tags) {
         return copyOf(Arrays.asList(tags));
     }
 
-    public static TagList copyOf(Iterable<String> tags) {
+    /**
+     * Returns a tag list that has a copy of {@code tags}. Each tag value
+     * is expected to be a string parseable using {@link BasicTag#parseTag}.
+     */
+    public static BasicTagList copyOf(Iterable<String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
         for (String tag : tags) {
             builder.add(BasicTag.parseTag(tag));
@@ -106,7 +171,10 @@ public class BasicTagList implements TagList {
         return new BasicTagList(builder.build());
     }
 
-    public static TagList copyOf(Map<String,String> tags) {
+    /**
+     * Returns a tag list that has a copy of {@code tags}.
+     */
+    public static BasicTagList copyOf(Map<String,String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
         for (Map.Entry<String,String> tag : tags.entrySet()) {
             builder.add(new BasicTag(tag.getKey(), tag.getValue()));

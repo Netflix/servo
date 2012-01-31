@@ -25,12 +25,37 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation indicating a field or method should be collected for monitoring.
+ * The attributes annotated should be thread-safe for access by a background
+ * thread. If a method is annotated it should be inexpensive and avoid any
+ * potentially costly operations such as IO and networking. Expect that the
+ * fields will be polled frequently and cache values that require expensive
+ * computation rather than computing them inline.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Monitor {
-    public String name();
-    public DataSourceType type() default DataSourceType.INFORMATIONAL;
-    public String[] tags() default {};
-    public String description() default "";
+    /**
+     * Name of the annotated attribute.
+     */
+    String name();
+
+    /**
+     * Type of value that is annotated, for more information see
+     * {@link DataSourceType}.
+     */
+    DataSourceType type() default DataSourceType.INFORMATIONAL;
+
+    /**
+     * Set of tags to associate with the value. The values must be parseable
+     * with {@link com.netflix.servo.BasicTag#parseTag}.
+     */
+    String[] tags() default {};
+
+    /**
+     * A human readable description of the annotated attribute.
+     */
+    String description() default "";
 }
