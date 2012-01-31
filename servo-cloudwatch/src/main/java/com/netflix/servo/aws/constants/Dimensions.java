@@ -21,6 +21,8 @@ package com.netflix.servo.aws.constants;
  * Date: 1/10/12
  * Time: 6:42 PM
  *
+ * Constants related to the AWS API, and what the labels they use for Dimensions across their services.
+ *
  * http://docs.amazonwebservices.com/AmazonCloudWatch/latest/DeveloperGuide/CW_Support_For_AWS.html
  */
 public enum Dimensions {

@@ -14,16 +14,22 @@
  *     limitations under the License.
  */
 
-package com.netflix.servo.aws;
+package com.netflix.servo;
+
+import java.util.Comparator;
 
 /**
  * User: gorzell
- * Date: 1/9/12
- * Time: 9:03 PM
- *
- * Constant key values for setting aws related properties.
+ * Date: 1/12/12
+ * Time: 9:49 PM
  */
-public class AwsPropertyKeys {
-    
-    public static final String awsCredentialsFile = "com.netflix.servo.aws.credentialsFile";
+public class TagComparator implements Comparator<Tag>{
+    @Override
+    public int compare(Tag tag, Tag tag1) {
+        if(tag.getKey().equals(tag1.getKey())){
+            return tag.getValue().compareTo(tag1.getValue());
+        }
+
+        return tag.getKey().compareTo(tag1.getKey());
+    }
 }

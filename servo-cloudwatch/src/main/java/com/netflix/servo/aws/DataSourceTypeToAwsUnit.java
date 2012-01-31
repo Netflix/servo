@@ -16,28 +16,27 @@
 
 package com.netflix.servo.aws;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.netflix.servo.annotations.DataSourceType;
 
 /**
  * User: gorzell
  * Date: 1/9/12
  * Time: 5:31 PM
+ *
+ * Conversion from internal data types to Amazon Units.
  */
 public class DataSourceTypeToAwsUnit {
-    private static final String defaultUnit = "None";
-    private static final String count = "Count";
-    private static final String countSecond = "Count/Second";
-
     public static String getUnit(DataSourceType dataSourceType){
         switch (dataSourceType){
             case COUNTER:
-                return countSecond;
+                return StandardUnit.CountSecond.toString();
             case GAUGE:
-                return defaultUnit;
+                return StandardUnit.None.toString();
             case INFORMATIONAL:
-                return defaultUnit;
+                return StandardUnit.None.toString();
             default:
-                return defaultUnit;
+                return StandardUnit.None.toString();
         }
     }
 }
