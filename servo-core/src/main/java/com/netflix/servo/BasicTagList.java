@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -47,11 +48,11 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        ImmutableMap.Builder<String,Tag> builder = ImmutableMap.builder();
+        Map<String,Tag> tags = Maps.newHashMap();
         for (Tag tag : entries) {
-            builder.put(tag.getKey(), tag);
+            tags.put(tag.getKey(), tag);
         }
-        tagMap = builder.build();
+        tagMap = ImmutableMap.copyOf(tags);
     }
 
     /** {@inheritDoc} */

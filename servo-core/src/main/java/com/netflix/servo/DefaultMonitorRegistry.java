@@ -22,6 +22,10 @@ package com.netflix.servo;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
 
 import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default registry that delegates all actions to a class specified by the
@@ -31,6 +35,9 @@ import java.util.Properties;
  * {@link com.netflix.servo.jmx.JmxMonitorRegistry} will be used.
  */
 public final class DefaultMonitorRegistry implements MonitorRegistry {
+
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(DefaultMonitorRegistry.class);
 
     private static final String CLASS_NAME =
         DefaultMonitorRegistry.class.getCanonicalName();
@@ -56,18 +63,25 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     /**
-     * Creates a new instance based on the provide properties object.
+     * Creates a new instance based on the provide properties object. Only
+     * intended for use in unit tests.
      */
     DefaultMonitorRegistry(Properties props) {
         String className = props.getProperty(REGISTRY_CLASS_PROP);
         if (className != null) {
+            MonitorRegistry r = null;
             try {
                 Class<?> c = Class.forName(className);
-                registry = (MonitorRegistry) c.newInstance();
+                r = (MonitorRegistry) c.newInstance();
             } catch (Throwable t) {
-                throw new IllegalArgumentException(
-                    "failed to create instance of class " + className, t);
+                LOGGER.error(
+                    "failed to create instance of class " + className + ", "
+                    + "using default class "
+                    + JmxMonitorRegistry.class.getName(),
+                    t);
+                r = new JmxMonitorRegistry();
             }
+            registry = r;
         } else {
             registry = new JmxMonitorRegistry();
         }
@@ -81,5 +95,15 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     /** {@inheritDoc} */
     public void unRegisterObject(Object obj) {
         registry.unRegisterObject(obj);
+    }
+
+    /** {@inheritDoc} */
+    public Set<Object> getRegisteredObjects() {
+        return registry.getRegisteredObjects();
+    }
+
+    /** Returns the inner registry that was created to service the requests. */
+    MonitorRegistry getInnerRegistry() {
+        return registry;
     }
 }

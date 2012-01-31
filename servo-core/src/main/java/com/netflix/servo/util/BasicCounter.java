@@ -46,6 +46,15 @@ public final class BasicCounter {
     private final AtomicInteger value;
 
     /**
+     * Creates a new instance based on the provide name and empty tag list.
+     *
+     * @param name  name of the counter
+     */
+    public BasicCounter(String name) {
+        this(new MetricConfig(name));
+    }
+
+    /**
      * Creates a new instance based on the provided metric config.
      *
      * @param config  config to associate with the counter

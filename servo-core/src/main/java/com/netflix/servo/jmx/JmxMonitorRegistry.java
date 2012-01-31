@@ -21,13 +21,20 @@ package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
 
+import com.google.common.collect.ImmutableSet;
+
+import com.netflix.servo.MonitorRegistry;
+
 import java.lang.management.ManagementFactory;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import com.netflix.servo.MonitorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +49,15 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     private final MBeanServer mBeanServer;
 
+    private final Set<Object> objects;
+
     /**
      * Creates a new instance that registers metrics with the local mbean
      * server.
      */
     public JmxMonitorRegistry() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        objects = Collections.synchronizedSet(new HashSet<Object>());
     }
 
     private void register(ObjectName name, DynamicMBean mbean)
@@ -67,6 +77,8 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
             MetadataMBean metadata = resource.getMetadataMBean();
             register(metadata.getObjectName(), metadata);
+
+            objects.add(obj);
         } catch (Throwable t) {
             logger.warn("could not register object of class "
                 + obj.getClass().getCanonicalName(), t);
@@ -82,9 +94,16 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
             MetadataMBean metadata = resource.getMetadataMBean();
             mBeanServer.unregisterMBean(metadata.getObjectName());
+
+            objects.remove(obj);
         } catch (Throwable t) {
             logger.warn("could not un-register object of class "
                 + obj.getClass().getCanonicalName(), t);
         }
+    }
+
+    /** {@inheritDoc} */
+    public Set<Object> getRegisteredObjects() {
+        return ImmutableSet.copyOf(objects);
     }
 }
