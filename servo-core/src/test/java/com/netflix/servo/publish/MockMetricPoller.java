@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 - 2012 Netflix
+ * Copyright (C) 2011 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,23 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableMap;
+import static com.netflix.servo.annotations.DataSourceType.*;
 
-import com.netflix.servo.BasicTagList;
+import com.google.common.collect.ImmutableList;
+
 import com.netflix.servo.Metric;
-import com.netflix.servo.TagList;
 
-import java.util.Map;
+import java.util.List;
 
-import javax.management.ObjectName;
+public class MockMetricPoller extends BaseMetricPoller {
 
-import org.testng.annotations.Test;
+    private List<Metric> metrics;
 
-import static org.testng.Assert.*;
+    public void setMetrics(List<Metric> metrics) {
+        this.metrics = ImmutableList.copyOf(metrics);
+    }
 
-public class JmxMetricPollerTest {
-
-    @Test
-    public void testPoll() throws Exception {
-        JmxMetricPoller p = new JmxMetricPoller(
-            new LocalJmxConnector(),
-            new ObjectName("*:*"),
-            new BasicMetricFilter(false));
-        //System.out.println(p.poll(new BasicMetricFilter(true)));
+    public List<Metric> pollImpl() {
+        return metrics;
     }
 }

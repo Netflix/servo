@@ -84,4 +84,14 @@ public abstract class BaseMetricObserver implements MetricObserver {
     protected final void incrementFailedCount() {
         failedUpdateCount.incrementAndGet();
     }
+
+    /** Returns the total number of times update has been called. */
+    public int getUpdateCount() {
+        return updateCount.get();
+    }
+
+    /** Returns the number of times update failed with an exception. */
+    public int getFailedUpdateCount() {
+        return failedUpdateCount.get();
+    }
 }

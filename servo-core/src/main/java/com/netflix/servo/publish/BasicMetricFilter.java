@@ -26,6 +26,12 @@ import com.netflix.servo.MetricConfig;
  */
 public final class BasicMetricFilter implements MetricFilter {
 
+    /** Filter that matches all metrics. */
+    public static final MetricFilter MATCH_ALL = new BasicMetricFilter(true);
+
+    /** Filter that does not match any metrics. */
+    public static final MetricFilter MATCH_NONE = new BasicMetricFilter(false);
+
     private final boolean match;
 
     /**

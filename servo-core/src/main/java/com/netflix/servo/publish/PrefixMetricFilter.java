@@ -39,7 +39,8 @@ public final class PrefixMetricFilter implements MetricFilter {
     /**
      * Creates a new prefix filter.
      *
-     * @param tagKey   the tag to perform matching on
+     * @param tagKey   the tag to perform matching on, if null the name will be
+     *                 checked
      * @param root     filter used if there are no prefix matches
      * @param filters  map of prefix to sub-filter. The filter associated with
      *                 the longest matching prefix will be used.
@@ -65,15 +66,21 @@ public final class PrefixMetricFilter implements MetricFilter {
             value = (t == null) ? null : t.getValue();
         }
 
-        boolean match = false;
         if (value == null) {
-            match = root.matches(config);
+            return root.matches(config);
         } else {
-            Map.Entry<String,MetricFilter> e = filters.floorEntry(value);
-            match = (e == null || !value.startsWith(e.getKey()))
-                ? root.matches(config)
-                : e.getValue().matches(config);
+            NavigableMap<String,MetricFilter> candidates =
+                filters.headMap(value, true).descendingMap();
+            if (candidates.isEmpty()) {
+                return root.matches(config);
+            } else {
+                for (Map.Entry<String,MetricFilter> e : candidates.entrySet()) {
+                    if (value.startsWith(e.getKey())) {
+                        return e.getValue().matches(config);
+                    }
+                }
+                return root.matches(config);
+            }
         }
-        return match;
     }
 }

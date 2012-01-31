@@ -90,4 +90,18 @@ public class AsyncMetricObserverTest {
         assertEquals(observations.size(), 1);
         assertEquals(observations.get(0), mkList(1));
     }
+
+    @Test
+    public void testFailedUpdate() throws Exception {
+        // Just making sure exception does not propagate
+        MetricObserver fmo = new FailingMetricObserver();
+        MetricObserver amo = new AsyncMetricObserver("async", fmo, 50, 250);
+        amo.update(mkList(1));
+        amo.update(mkList(1));
+        amo.update(mkList(1));
+        amo.update(mkList(1));
+        amo.update(mkList(1));
+        amo.update(mkList(1));
+        Thread.sleep(1000);
+    }
 }
