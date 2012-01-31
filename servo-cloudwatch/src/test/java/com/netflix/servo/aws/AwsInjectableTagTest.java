@@ -33,7 +33,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class AwsInjectableTagTest {
 
-    @BeforeTest
+    @BeforeTest(groups = {"aws"})
     public void checkEc2() throws Exception {
         URL testEc2Url = new URL("http://169.254.169.254/latest/meta-data");
         testEc2Url.getContent();
