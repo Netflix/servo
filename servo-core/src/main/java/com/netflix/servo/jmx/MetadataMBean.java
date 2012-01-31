@@ -32,7 +32,7 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class MetadataMBean implements DynamicMBean {
+final class MetadataMBean implements DynamicMBean {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MetadataMBean.class);

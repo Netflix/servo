@@ -19,8 +19,15 @@
  */
 package com.netflix.servo.annotations;
 
+import com.google.common.collect.Maps;
+
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
+
+import com.netflix.servo.jmx.MonitoredAttribute;
+
+import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -66,7 +73,7 @@ public class AnnotationUtilsTest {
 
     public static class IntIdObject {
         @MonitorId
-        private final int id;
+        public final int id;
 
         public IntIdObject(int id) {
             this.id = id;
@@ -81,7 +88,7 @@ public class AnnotationUtilsTest {
         }
 
         @MonitorId
-        private String getId(int p) {
+        public String getId(int p) {
             return id;
         }
     }
@@ -105,6 +112,38 @@ public class AnnotationUtilsTest {
         @MonitorTags
         private TagList getTags() {
             return tags;
+        }
+    }
+
+    public static class MonitorObject {
+
+        @Monitor(name="zero", type=DataSourceType.GAUGE)
+        boolean zero = false;
+
+        @Monitor(name="one", type=DataSourceType.GAUGE)
+        boolean one = true;
+
+        private float two = 2.0f;
+
+        @Monitor(name="three", type=DataSourceType.GAUGE)
+        byte three = (byte) 3;
+
+        @Monitor(name="four", description="useful information")
+        public int four = 4;
+
+        @Monitor(name="five", type=DataSourceType.COUNTER, tags={"foo=bar"})
+        private long five = 5L;
+
+        @Monitor(name="six")
+        private double six = 6.0;
+
+        public MonitorObject() {
+            
+        }
+
+        @Monitor(name="two")
+        public float getTwo() {
+            return two;
         }
     }
 
@@ -141,6 +180,12 @@ public class AnnotationUtilsTest {
     }
 
     @Test
+    public void testGetMonitorIdWithNoId() throws Exception {
+        Object obj = new Object();
+        assertEquals(AnnotationUtils.getMonitorId(obj), null);
+    }
+
+    @Test
     public void testGetMonitorTagsFromField() throws Exception {
         Object obj = new FieldTagObject("foo=bar");
         TagList tags = AnnotationUtils.getMonitorTags(obj);
@@ -152,5 +197,64 @@ public class AnnotationUtilsTest {
         Object obj = new MethodTagObject("foo=bar");
         TagList tags = AnnotationUtils.getMonitorTags(obj);
         assertEquals(tags, BasicTagList.copyOf("foo=bar"));
+    }
+
+    @Test
+    public void testGetMonitorTagsWithNoTags() throws Exception {
+        Object obj = new Object();
+        assertEquals(AnnotationUtils.getMonitorTags(obj), BasicTagList.EMPTY);
+    }
+
+    @Test
+    public void testGetMonitoredAttributes() throws Exception {
+        MonitorObject obj = new MonitorObject();
+        List<MonitoredAttribute> attrList =
+            AnnotationUtils.getMonitoredAttributes(obj);
+        assertEquals(attrList.size(), 7);
+
+        Map<String,MonitoredAttribute> attrs = Maps.newHashMap();
+        for (MonitoredAttribute a : attrList) {
+            attrs.put(a.annotation().name(), a);
+        }
+
+        MonitoredAttribute a = attrs.get("zero");
+        assertEquals(a.value(), false);
+        assertEquals(a.getNumber(), 0);
+
+        a = attrs.get("one");
+        assertEquals(a.value(), true);
+        assertEquals(a.getNumber(), 1);
+
+        a = attrs.get("three");
+        assertEquals(a.getNumber().intValue(), 3);
+
+        a = attrs.get("four");
+        assertEquals(a.value(), 4);
+        assertEquals(a.getNumber(), 4);
+
+        a = attrs.get("five");
+        assertEquals(a.value(), 5L);
+        assertEquals(a.getNumber(), 5L);
+
+        a = attrs.get("six");
+        assertEquals(a.getNumber().intValue(), 6);
+    }
+
+    @Test
+    public void testGetMonitoredAttributesWithNoMonitor() throws Exception {
+        Object obj = new Object();
+        List<MonitoredAttribute> attrs =
+            AnnotationUtils.getMonitoredAttributes(obj);
+        assertEquals(attrs.size(), 0);
+    }
+
+    @Test
+    public void testAsNumber() throws Exception {
+        assertEquals(AnnotationUtils.asNumber(null), null);
+        assertEquals(AnnotationUtils.asNumber(new Object()), null);
+        assertEquals(AnnotationUtils.asNumber(4), 4);
+        assertEquals(AnnotationUtils.asNumber(false), 0);
+        assertEquals(AnnotationUtils.asNumber(true), 1);
+        assertEquals(AnnotationUtils.asNumber("foo"), null);
     }
 }

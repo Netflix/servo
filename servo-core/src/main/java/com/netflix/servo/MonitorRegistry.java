@@ -19,7 +19,28 @@
  */
 package com.netflix.servo;
 
+import java.util.Set;
+
+/**
+ * Registry to keep track of objects with
+ * {@link com.netflix.servo.annotations.Monitor} annotations.
+ */
 public interface MonitorRegistry {
+    /**
+     * Register the object so annotated fields can be made available for
+     * querying.
+     */
     void registerObject(Object obj);
+
+    /**
+     * Un-register the object. It should be assumed that the registry will
+     * hold a reference to the object, and thus preventing garbage collection,
+     * unless it is unregistered. 
+     */
     void unRegisterObject(Object obj);
+
+    /**
+     * Returns a list of all registered objects.
+     */
+    Set<Object> getRegisteredObjects();
 }

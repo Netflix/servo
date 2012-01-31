@@ -22,17 +22,26 @@ package com.netflix.servo;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Represents a list of tags associated with a metric value.
+ */
 public interface TagList extends Iterable<Tag> {
-    
+
+    /** Returns the tag matching a given key or null if not match is found. */
     Tag getTag(String key);
 
+    /** Returns true if this list has a tag with the given key. */
     boolean containsKey(String key);
 
+    /** Returns true if this list is emtpy. */
     boolean isEmpty();
 
+    /** Returns the number of tags in this list. */
     int size();
 
+    /** {@inheritDoc} */
     Iterator<Tag> iterator();
 
+    /** Returns a map containing a copy of the tags in this list. */
     Map<String,String> asMap();
 }

@@ -35,7 +35,7 @@ import com.netflix.servo.TagList;
 import com.netflix.servo.aws.DataSourceTypeToAwsUnit;
 
 import com.netflix.servo.publish.BaseMetricObserver;
-import com.netflix.servo.publish.Metric;
+import com.netflix.servo.Metric;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      *
      * @param metrics The list of metrics you want to send to CloudWatch
      */
-    public void update(List<Metric> metrics) {
+    public void updateImpl(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
 
         List<Metric> batch = new ArrayList<Metric>(batchSize);
@@ -121,11 +121,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     MetricDatum createMetricDatum(Metric metric) {
         MetricDatum metricDatum = new MetricDatum();
 
-        return metricDatum.withMetricName(metric.name())
-                .withDimensions(createDimensions(metric.tags()))
+        return metricDatum.withMetricName(metric.getConfig().getName())
+                .withDimensions(createDimensions(metric.getConfig().getTags()))
                 .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
-                .withTimestamp(new Date(metric.timestamp()))
-                .withValue(Double.valueOf(metric.value().doubleValue()));
+                .withTimestamp(new Date(metric.getTimestamp()))
+                .withValue(Double.valueOf(metric.getValue().doubleValue()));
         //TODO Need to convert into reasonable units based on DataType
     }
 

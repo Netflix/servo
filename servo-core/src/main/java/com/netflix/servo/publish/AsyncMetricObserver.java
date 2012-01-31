@@ -20,15 +20,20 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
+
+import com.netflix.servo.Metric;
+
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -38,53 +43,78 @@ import java.util.concurrent.atomic.AtomicInteger;
  * If an exception is thrown when calling update on wrapped observer it will
  * be logged, but otherwise ignored.
  */
-public class AsyncMetricObserver extends BaseMetricObserver {
+public final class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger log = LoggerFactory.getLogger(AsyncMetricObserver.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(AsyncMetricObserver.class);
 
     private final MetricObserver wrappedObserver;
 
-    private final int updateQueueSize;
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
     private final Thread updateProcessingThread;
 
-    @Monitor(name = "UpdateExpiredCount", type = DataSourceType.COUNTER,
-            description = "Number of times the update call was skipped because the update was expired")
-    protected final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
+    @Monitor(name="UpdateExpiredCount", type=DataSourceType.COUNTER,
+             description="Number of updates that expire in queue.")
+    private final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
 
-    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize, long expireTime) {
+    /**
+     * Creates a new instance.
+     *
+     * @param name        name of this observer
+     * @param observer    a wrapped observer that will be updated asynchronously
+     * @param queueSize   maximum size of the update queue, if the queue fills
+     *                    up older entries will be dropped
+     * @param expireTime  age in milliseconds before an update expires and will
+     *                    not be passed on to the wrapped observer
+     */
+    public AsyncMetricObserver(
+            String name,
+            MetricObserver observer,
+            int queueSize,
+            long expireTime) {
         super(name);
         this.expireTime = expireTime;
         wrappedObserver = Preconditions.checkNotNull(observer);
-        updateQueueSize = queueSize;
         Preconditions.checkArgument(queueSize >= 1,
-                "invalid queueSize %d, size must be >= 1", updateQueueSize);
+                "invalid queueSize %d, size must be >= 1", queueSize);
 
-        updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(updateQueueSize);
+        updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
-        String threadName = getClass().getSimpleName() + "-" + this.name;
+        String threadName = getClass().getSimpleName() + "-" + name;
         updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
         updateProcessingThread.setDaemon(true);
         updateProcessingThread.start();
     }
 
+    /**
+     * Creates a new instance with an unbounded queue and no expiration time.
+     *
+     * @param name        name of this observer
+     * @param observer    a wrapped observer that will be updated asynchronously
+     */
     public AsyncMetricObserver(String name, MetricObserver observer) {
         this(name, observer, Integer.MAX_VALUE, Long.MAX_VALUE);
     }
 
-    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
+    /**
+     * Creates a new instance with no expiration time.
+     *
+     * @param name        name of this observer
+     * @param observer    a wrapped observer that will be updated asynchronously
+     * @param queueSize   maximum size of the update queue, if the queue fills
+     *                    up older entries will be dropped
+     */
+    public AsyncMetricObserver(
+            String name, MetricObserver observer, int queueSize) {
         this(name, observer, queueSize, Long.MAX_VALUE);
     }
 
-    public AsyncMetricObserver(String name, MetricObserver observer, long expireTime) {
-        this(name, observer, Integer.MAX_VALUE, expireTime);
-    }
-
-    public void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
-        TimestampedUpdate update = new TimestampedUpdate(System.currentTimeMillis(), metrics);
+    /** {@inheritDoc} */
+    public void updateImpl(List<Metric> metrics) {
+        long now = System.currentTimeMillis();
+        TimestampedUpdate update = new TimestampedUpdate(now, metrics);
         boolean result = updateQueue.offer(update);
         while (!result) {
             updateQueue.remove();
@@ -105,13 +135,11 @@ public class AsyncMetricObserver extends BaseMetricObserver {
 
             wrappedObserver.update(update.getMetrics());
         } catch (InterruptedException ie){
-            log.warn("Interrupted while adding to queue, update dropped");
-            failedUpdateCount.incrementAndGet();
+            LOGGER.warn("interrupted while adding to queue, update dropped");
+            incrementFailedCount();
         } catch (Throwable t) {
-            log.warn("update failed for downstream queue", t);
-            failedUpdateCount.incrementAndGet();
-        } finally {
-            updateCount.incrementAndGet();
+            LOGGER.warn("update failed for downstream queue", t);
+            incrementFailedCount();
         }
     }
 

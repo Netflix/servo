@@ -20,7 +20,6 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
@@ -33,21 +32,28 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Helper functions for querying the monitor annotations associated with a
  * class.
  */
-public class AnnotationUtils {
-    /** Return the value of the field/method annotated with @MonitorId. */
+public final class AnnotationUtils {
+    private AnnotationUtils() {
+    }
+
+    /**
+     * Return the value of the field/method annotated with {@link MonitorId}.
+     */
     public static String getMonitorId(Object obj) throws Exception {
         List<AccessibleObject> attrs =
             getAnnotatedAttributes(MonitorId.class, obj, 1);
         return attrs.isEmpty() ? null : (String) getValue(obj, attrs.get(0));
     }
 
-    /** Return the value of the field/method annotated with @MonitorTags. */
+    /**
+     * Return the value of the field/method annotated with
+     * {@link MonitorTags}.
+     */
     public static TagList getMonitorTags(Object obj) throws Exception {
         List<AccessibleObject> attrs =
             getAnnotatedAttributes(MonitorTags.class, obj, 1);
@@ -56,7 +62,7 @@ public class AnnotationUtils {
             : (TagList) getValue(obj, attrs.get(0));
     }
 
-    /** Return the list of fields/methods annotated with @Monitor. */
+    /** Return the list of fields/methods annotated with {@link Monitor}. */
     public static List<MonitoredAttribute> getMonitoredAttributes(Object obj) {
         List<AccessibleObject> annotatedAttrs =
             getAnnotatedAttributes(Monitor.class, obj, Integer.MAX_VALUE);
@@ -74,12 +80,62 @@ public class AnnotationUtils {
 
     }
 
-    public static Object getValue(Object obj, AccessibleObject attr) throws Exception {
+    /**
+     * Try to convert an object into a number. Boolean values will return 1 if
+     * true and 0 if false. If the value is null or an unknown data type null
+     * will be returned.
+     */
+    public static Number asNumber(Object value) {
+        Number num = null;
+        if (value == null) {
+            num = null;
+        } else if (value instanceof Number) {
+            num = (Number) value;
+        } else if (value instanceof Boolean) {
+            num = ((Boolean) value) ? 1 : 0;
+        }
+        return num;
+    }
+
+    /**
+     * Get the value of a field or accessor method of {@code obj} identified
+     * by {@code attr}.
+     *
+     * @param obj   the instance to query
+     * @param attr  the field or method to retrieve
+     * @return      value of the field or method
+     */
+    public static Object getValue(Object obj, AccessibleObject attr)
+            throws Exception {
         return (attr instanceof Field)
             ? ((Field) attr).get(obj)
             : ((Method) attr).invoke(obj);
     }
 
+    /**
+     * Get the value of a field or accessor method of {@code obj} identified
+     * by {@code attr} as a number. See {@link #asNumber} for details on the
+     * conversion.
+     *
+     * @param obj   the instance to query
+     * @param attr  the field or method to retrieve
+     * @return      value of the field or method
+     */
+    public static Number getNumber(Object obj, AccessibleObject attr)
+            throws Exception {
+        return asNumber(getValue(obj, attr));
+    }
+
+    /**
+     * Helper to return all fields or methods that have the specified
+     * annotation.
+     *
+     * @param annotationClass  the type of annotation to check for
+     * @param obj              instance to query
+     * @param maxPerClass      max number of annotated attributes that are
+     *                         permitted for this class
+     * @return                 list of matching attributes
+     */
     private static List<AccessibleObject> getAnnotatedAttributes(
             Class<? extends Annotation> annotationClass,
             Object obj,

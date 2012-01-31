@@ -20,37 +20,78 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+
+import com.netflix.servo.Metric;
+
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
 
 import java.util.List;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * User: gorzell
- * Date: 1/3/12
- * Time: 11:33 AM
+ * Helper class for metric observers that keeps track of the number of calls
+ * and number of failures.
  */
 public abstract class BaseMetricObserver implements MetricObserver {
     @MonitorId
-    protected final String name;
-    @Monitor(name="UpdateCount", type= DataSourceType.COUNTER,
-             description="Total number of times update has been called on "
-                        +"the wrapped observer.")
-    protected final AtomicInteger updateCount = new AtomicInteger(0);
-    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
-             description="Number of times the update call on the wrapped "
-                        +"observer failed with an exception.")
-    protected final AtomicInteger failedUpdateCount = new AtomicInteger(0);
+    private final String name;
 
+    @Monitor(name="UpdateCount", type= DataSourceType.COUNTER,
+             description="Total number of times update has been called.")
+    private final AtomicInteger updateCount = new AtomicInteger(0);
+
+    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
+             description="Number of times update failed with an exception.")
+    private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
+
+    /** Creates a new instance with a given name. */
     public BaseMetricObserver(String name) {
         this.name = Preconditions.checkNotNull(name);
     }
 
-    public abstract void update(List<Metric> metrics);
-    
-    public String getName(){
-        return this.name;
+    /**
+     * Update method that should be defined by sub-classes. This method will
+     * get invoked and counts will be maintained in the base observer.
+     */
+    public abstract void updateImpl(List<Metric> metrics);
+
+    /** {@inheritDoc} */
+    public final void update(List<Metric> metrics) {
+        Preconditions.checkNotNull(metrics);
+        try {
+            updateImpl(metrics);
+        } catch (Throwable t) {
+            failedUpdateCount.incrementAndGet();
+            Throwables.propagate(t);
+        } finally {
+            updateCount.incrementAndGet();
+        }
+    }
+
+    /** {@inheritDoc} */
+    public final String getName(){
+        return name;
+    }
+
+    /**
+     * Can be used by sub-classes to increment the failed count if they handle
+     * exception internally.
+     */
+    protected final void incrementFailedCount() {
+        failedUpdateCount.incrementAndGet();
+    }
+
+    /** Returns the total number of times update has been called. */
+    public int getUpdateCount() {
+        return updateCount.get();
+    }
+
+    /** Returns the number of times update failed with an exception. */
+    public int getFailedUpdateCount() {
+        return failedUpdateCount.get();
     }
 }

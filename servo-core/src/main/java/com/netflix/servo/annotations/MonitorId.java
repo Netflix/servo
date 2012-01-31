@@ -25,6 +25,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Indicates a string field that contains a unique id for a given instance of
+ * an object. If you need to register multiple instance of the same class then
+ * they should have distinct ids so they can distinguished in the
+ * {@link com.netflix.servo.MonitorRegistry}.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})

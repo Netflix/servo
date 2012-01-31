@@ -57,11 +57,11 @@ public class SimpleSample {
     public SimpleSample(Collection<Tag> tags) {
         tagList.addAll(tags);
     }
-    
+
     public synchronized void setSampleGauage(long val){
         sampleGuage = val;
     }
-    
+
     public synchronized long getSampleGuage(){
         return sampleGuage;
     }
@@ -70,11 +70,11 @@ public class SimpleSample {
         List<Tag> tags = new ArrayList<Tag>(2);
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
-        
+
         SimpleSample sample = new SimpleSample(tags);
 
         DefaultMonitorRegistry.getInstance().registerObject(sample);
-        
+
         while(true){
             sample.counter.incrementAndGet();
             sample.setSampleGauage(Math.round(Math.random()*1000));

@@ -19,8 +19,18 @@
  */
 package com.netflix.servo.publish;
 
-import java.util.Map;
+import com.netflix.servo.MetricConfig;
 
+/**
+ * A filter to restrict the set of metrics that are polled.
+ */
 public interface MetricFilter {
-    boolean matches(String name, Map<String,String> tags);
+    /**
+     * Check if a metric with the provided configuration should be selected and
+     * sent to observers.
+     *
+     * @param config  config settings associated with the metric
+     * @return        true if the metric should be selected
+     */
+    boolean matches(MetricConfig config);
 }

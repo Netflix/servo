@@ -22,44 +22,88 @@ package com.netflix.servo;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
 
 import java.util.Properties;
+import java.util.Set;
 
-public class DefaultMonitorRegistry implements MonitorRegistry {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default registry that delegates all actions to a class specified by the
+ * {@code com.netflix.servo.DefaultMonitorRegistry.registryClass} property. The
+ * specified registry class must have a constructor with no arguments. If the
+ * property is not specified or the class cannot be loaded an instance of
+ * {@link com.netflix.servo.jmx.JmxMonitorRegistry} will be used.
+ */
+public final class DefaultMonitorRegistry implements MonitorRegistry {
+
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(DefaultMonitorRegistry.class);
+
+    private static final String CLASS_NAME =
+        DefaultMonitorRegistry.class.getCanonicalName();
 
     private static final String REGISTRY_CLASS_PROP =
-        "com.netflix.monitoring.registryClass";
+        CLASS_NAME + ".registryClass";
 
-    private static MonitorRegistry INSTANCE = new DefaultMonitorRegistry();
+    private static final MonitorRegistry INSTANCE =
+        new DefaultMonitorRegistry();
 
-    private final MonitorRegistry mRegistry;
+    private final MonitorRegistry registry;
 
+    /** Returns the instance of this registry. */
     public static MonitorRegistry getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Creates a new instance based on system properties.
+     */
     DefaultMonitorRegistry() {
         this(System.getProperties());
     }
 
+    /**
+     * Creates a new instance based on the provide properties object. Only
+     * intended for use in unit tests.
+     */
     DefaultMonitorRegistry(Properties props) {
         String className = props.getProperty(REGISTRY_CLASS_PROP);
         if (className != null) {
+            MonitorRegistry r = null;
             try {
                 Class<?> c = Class.forName(className);
-                mRegistry = (MonitorRegistry) c.newInstance();
+                r = (MonitorRegistry) c.newInstance();
             } catch (Throwable t) {
-                throw new IllegalArgumentException(
-                    "failed to create instance of class " + className, t);
+                LOGGER.error(
+                    "failed to create instance of class " + className + ", "
+                    + "using default class "
+                    + JmxMonitorRegistry.class.getName(),
+                    t);
+                r = new JmxMonitorRegistry();
             }
+            registry = r;
         } else {
-            mRegistry = new JmxMonitorRegistry();
+            registry = new JmxMonitorRegistry();
         }
     }
 
+    /** {@inheritDoc} */
     public void registerObject(Object obj) {
-        mRegistry.registerObject(obj);
+        registry.registerObject(obj);
     }
 
+    /** {@inheritDoc} */
     public void unRegisterObject(Object obj) {
-        mRegistry.unRegisterObject(obj);
+        registry.unRegisterObject(obj);
+    }
+
+    /** {@inheritDoc} */
+    public Set<Object> getRegisteredObjects() {
+        return registry.getRegisteredObjects();
+    }
+
+    /** Returns the inner registry that was created to service the requests. */
+    MonitorRegistry getInnerRegistry() {
+        return registry;
     }
 }

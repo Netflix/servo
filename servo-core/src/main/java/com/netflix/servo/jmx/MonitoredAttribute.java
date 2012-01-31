@@ -45,7 +45,7 @@ import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 
-public class MonitoredAttribute {
+public final class MonitoredAttribute {
 
     private static final String TYPE_NAME = "MonitoredResourceMetadata";
     private static final String TYPE_DESC = "Metadata for monitored resource";
@@ -163,6 +163,10 @@ public class MonitoredAttribute {
 
     public Object value() throws Exception {
         return AnnotationUtils.getValue(mObject, mAttr);
+    }
+
+    public Number getNumber() throws Exception {
+        return AnnotationUtils.getNumber(mObject, mAttr);
     }
 
     public CompositeDataSupport metadata() {
