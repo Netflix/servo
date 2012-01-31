@@ -77,4 +77,15 @@ public class PrefixMetricFilterTest {
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 2);
     }
+
+    @Test
+    public void testPrefixFilterOnName() throws Exception {
+        TreeMap<String,MetricFilter> filters = Maps.newTreeMap();
+        filters.put("m", MATCH_ALL);
+        MetricFilter filter = new PrefixMetricFilter(null, MATCH_NONE, filters);
+        MetricPoller poller = newPoller();
+      
+        List<Metric> metrics = poller.poll(filter);
+        assertEquals(metrics.size(), 5);
+    }
 }

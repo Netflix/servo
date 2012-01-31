@@ -19,13 +19,26 @@
  */
 package com.netflix.servo.publish;
 
+import static com.netflix.servo.BasicTagList.EMPTY;
+import static com.netflix.servo.publish.BasicMetricFilter.*;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.TagList;
 
+import com.netflix.servo.annotations.DataSourceType;
+
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import javax.management.ObjectName;
 
@@ -36,11 +49,49 @@ import static org.testng.Assert.*;
 public class JmxMetricPollerTest {
 
     @Test
-    public void testPoll() throws Exception {
-        JmxMetricPoller p = new JmxMetricPoller(
+    public void testBasic() throws Exception {
+        MetricPoller poller = new JmxMetricPoller(
             new LocalJmxConnector(),
-            new ObjectName("*:*"),
-            new BasicMetricFilter(false));
-        //System.out.println(p.poll(new BasicMetricFilter(true)));
+            new ObjectName("java.lang:type=OperatingSystem"), 
+            MATCH_NONE);
+
+        boolean found = false;
+        List<Metric> metrics = poller.poll(MATCH_ALL);
+        for (Metric m : metrics) {
+            if ("AvailableProcessors".equals(m.getConfig().getName())) {
+                found = true;
+                Map<String,String> tags = m.getConfig().getTags().asMap();
+                assertEquals(tags.get("JmxDomain"), "java.lang");
+                assertEquals(tags.get("Jmx.type"), "OperatingSystem");
+                assertEquals(tags.get("ClassName"),
+                    "com.netflix.servo.publish.JmxMetricPoller");
+                assertEquals(tags.get(DataSourceType.KEY), "GAUGE");
+            }
+        }
+        assertTrue(found);
     }
+
+    @Test
+    public void testCounterFilter() throws Exception {
+        MetricPoller poller = new JmxMetricPoller(
+            new LocalJmxConnector(),
+            new ObjectName("java.lang:type=OperatingSystem"), 
+            MATCH_ALL);
+
+        boolean found = false;
+        List<Metric> metrics = poller.poll(MATCH_ALL);
+        for (Metric m : metrics) {
+            if ("AvailableProcessors".equals(m.getConfig().getName())) {
+                found = true;
+                Map<String,String> tags = m.getConfig().getTags().asMap();
+                assertEquals(tags.get("JmxDomain"), "java.lang");
+                assertEquals(tags.get("Jmx.type"), "OperatingSystem");
+                assertEquals(tags.get("ClassName"),
+                    "com.netflix.servo.publish.JmxMetricPoller");
+                assertEquals(tags.get(DataSourceType.KEY), "COUNTER");
+            }
+        }
+        assertTrue(found);
+    }
+
 }

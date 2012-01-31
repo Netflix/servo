@@ -30,12 +30,32 @@ import java.util.List;
 public class MockMetricPoller extends BaseMetricPoller {
 
     private List<Metric> metrics;
+    private long delay;
+    private boolean die;
+
+    public MockMetricPoller() {
+        metrics = ImmutableList.of();
+        delay = 0L;
+    }
 
     public void setMetrics(List<Metric> metrics) {
         this.metrics = ImmutableList.copyOf(metrics);
     }
 
+    public void setDelay(long delay) {
+        this.delay = delay;
+    }
+
+    public void setDie(boolean die) {
+        this.die = die;
+    }
+
     public List<Metric> pollImpl() {
+        if (die) {
+            throw new IllegalStateException("die");
+        }
+
+        try { Thread.sleep(delay); } catch (InterruptedException e) { }
         return metrics;
     }
 }

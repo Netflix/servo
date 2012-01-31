@@ -31,6 +31,8 @@ import com.netflix.servo.MetricConfig;
 import com.netflix.servo.StandardTagKeys;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
+
+import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.io.IOException;
@@ -104,23 +106,6 @@ public final class JmxMetricPoller implements MetricPoller {
     }
 
     /**
-     * Try to convert an object into a number. Boolean values will return 1 if
-     * true and 0 if false. If the value is null or an unknown data type null
-     * will be returned.
-     */
-    private Number asNumber(Object value) {
-        Number num = null;
-        if (value == null) {
-            num = null;
-        } else if (value instanceof Number) {
-            num = (Number) value;
-        } else if (value instanceof Boolean) {
-            num = ((Boolean) value) ? 1 : 0;
-        }
-        return num;
-    }
-
-    /**
      * Create a new metric object and add it to the list.
      */
     private void addMetric(
@@ -129,7 +114,7 @@ public final class JmxMetricPoller implements MetricPoller {
             BasicTagList tags,
             Object value) {
         long now = System.currentTimeMillis();
-        Number num = asNumber(value);
+        Number num = AnnotationUtils.asNumber(value);
         if (num != null) {
             TagList newTags = counters.matches(new MetricConfig(name, tags))
                 ? tags.copy(BasicTagList.copyOf(DataSourceType.COUNTER))

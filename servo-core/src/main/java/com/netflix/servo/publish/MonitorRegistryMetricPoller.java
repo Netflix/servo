@@ -69,23 +69,6 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         this.registry = registry;
     }
 
-    /**
-     * Try to convert an object into a number. Boolean values will return 1 if
-     * true and 0 if false. If the value is null or an unknown data type null
-     * will be returned.
-     */
-    private Number asNumber(Object value) {
-        Number num = null;
-        if (value == null) {
-            num = null;
-        } else if (value instanceof Number) {
-            num = (Number) value;
-        } else if (value instanceof Boolean) {
-            num = ((Boolean) value) ? 1 : 0;
-        }
-        return num;
-    }
-
     private void getMetrics(
             List<Metric> metrics, MetricFilter filter, Object obj)
             throws Exception {
@@ -109,14 +92,13 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             // Create config and add metric if filter matches 
             MetricConfig config = new MetricConfig(anno.name(), tags);
             if (filter.matches(config)) {
-                Object value = attr.value();
-                Number num = asNumber(value);
+                Number num = attr.getNumber();
                 if (num != null) {
                     long now = System.currentTimeMillis();
                     metrics.add(new Metric(config, now, num));
                 } else {
                     LOGGER.debug("expected number but found {}, metric {}",
-                        value, config);
+                        attr.value(), config);
                 }
             }
         }
