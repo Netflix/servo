@@ -5,3 +5,4 @@ com.netflix.servo.aws.constants
 com.netflix.servo.jmx
 com.netflix.servo.publish
 com.netflix.servo.publish.cloudwatch
+com.netflix.servo.util
