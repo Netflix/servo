@@ -39,9 +39,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 /**
- * User: gorzell
- * Date: 12/27/11
- * Time: 5:47 PM
  *
  * Group of Tags who's values will be dynamically set at runtime
  * based on amazon api calls.
