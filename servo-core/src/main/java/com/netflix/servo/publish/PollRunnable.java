@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * Runnable that will send updates to a collection of observers.
+ * Immutable.
  */
 public class PollRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(PollRunnable.class);

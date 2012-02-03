@@ -23,7 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * Very basic timed poller singleton.  You can add PollRunnables but not remove them.
+ * If you stop the instance and then start it again all of the prior PollRunnables will be thrown away.
  */
 public class TimedMetricPoller {
     private static TimedMetricPoller ourInstance = new TimedMetricPoller();
@@ -38,6 +39,12 @@ public class TimedMetricPoller {
     private ScheduledExecutorService scheduledExecutorService;
     private boolean started = false;
 
+    /**
+     * Add a PollRunnable to execute with a fixed delay from when the last execution finishes.
+     * @param poller
+     * @param delay
+     * @param timeUnit
+     */
     public void addPoller(PollRunnable poller, long delay, TimeUnit timeUnit){
         if(started){
             scheduledExecutorService.scheduleWithFixedDelay(poller, 0, delay, timeUnit);
@@ -46,11 +53,18 @@ public class TimedMetricPoller {
         }
     }
 
+    /**
+     * Start the poller with a scheduled threadpool of size 5.
+     */
     public void start(){
         //TODO This should use a daemon ThreadFactory
         start(Executors.newScheduledThreadPool(5));
     }
 
+    /**
+     * Start the poller with the give executor service.
+     * @param service
+     */
     public synchronized void start(ScheduledExecutorService service){
         if(!started){
             scheduledExecutorService = service;
@@ -58,7 +72,10 @@ public class TimedMetricPoller {
             throw new IllegalStateException("Cannot start poller again without stopping it.");
         }
     }
-    
+
+    /**
+     * Stop the poller, shutting down the current executor service.
+     */
     public synchronized void stop(){
         if(started){
         scheduledExecutorService.shutdown();
