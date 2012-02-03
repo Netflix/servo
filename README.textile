@@ -1,5 +1,3 @@
-h1. Overview
-
 Our goal is to provide and simple and easy, standard interface for publishing and monitoring application metrics in Java.  Both in "Amazon":http://aws.amazon.com, other clouds and private data centers. This has already been implemented inside of Netflix and most of our applications currently use it.
 
 h1. Goals
@@ -13,10 +11,10 @@ h1. Goals
 
 h1. Approach
 
-* Use "Annotations":https://github.com/Netflix/servo/wiki/Annotations to set monitors (and other meta data)
-* Use "RDDTool":http://oss.oetiker.ch/rrdtool semantics (for trending data) — open-source standard, high-performance data logging and graphing system for time-series data.
-* All monitors will be available as MBeans under a well-known domain name: {{com.netflix.MonitoredResources:\*}}.
-* Monitoring/alerting systems will use JMX to query this data.
+* Use "Annotations":https://github.com/Netflix/servo/wiki/Annotations to set monitors (and other meta com.netflix.autoscaling.tools.data)
+* Use "RDDTool":http://oss.oetiker.ch/rrdtool semantics (for trending com.netflix.autoscaling.tools.data) — open-source standard, high-performance com.netflix.autoscaling.tools.data logging and graphing system for time-series com.netflix.autoscaling.tools.data.
+* All monitors will be available as MBeans under a well-known domain name: {{com.netflix.servo:\*}}.
+* Monitoring/alerting systems will use JMX to query this com.netflix.autoscaling.tools.data.
 
 h2. Definitions / Conventions
 * *DataSourceName*
@@ -25,8 +23,8 @@ h2. Definitions / Conventions
 ** type of monitor; the following are the currently supported types:
 
 "Code":https://github.com/Netflix/servo/blob/master/servo-core/src/main/java/com/netflix/servo/annotations/DataSourceType.java
-<pre>
-<code>
+
+```java
 /**
  * Data source types that are supported.
  *
@@ -52,9 +50,7 @@ public enum DataSourceType {
      */
     INFORMATIONAL;
 }
-</code>
-</pre>
-
+```
 h2. JMX
 
 h3. ObjectName is created using the following rule:
@@ -85,8 +81,8 @@ h2. Steps for Setting up Monitors on Your Code
 # Annotate with @Monitor at the method or field level and optionally annotate with @MonitorId if you'd like to dynamically further qualify by instance otherwise, we will override conflicting registrations with the same dataSourceName. Example:
 
 "Code":https://github.com/Netflix/servo/blob/master/servo-core/src/sample/java/com/netflix/servo/sample/SimpleSample.java
-<pre>
-<code>
+
+```java
 // The name of the resource pool.
 @MonitorId
 private String _poolName = null;
@@ -116,8 +112,7 @@ public void shutdown() {
  MonitorRegistry.getInstance().unRegisterObject(this);
  …
 }
-</code>
-</pre>
+```
 
 # *That's it.*
 
@@ -136,15 +131,14 @@ h1. JMX in the Cloud
 
 We're currently using 7500 as the RMI registry port, but since the RMI transport layer opens dynamic socket connections between the client and the server to facilitate communication this doesn't work in [the Amazon cloud|http://go/cloud] since ports are all blocked by default.
 
-* *Note* : If you're running on [the Amazon cloud|http://go/cloud], a workaround is in [{{platform.jar}}|http://go/cloud] to fix the port at 7500 (same as RMI registry port) to export the remote objects on. Also since [the Amazon cloud|http://go/cloud] uses a NAT device for resolving external IP addresses, we also automatically set the {{java.rmi.server.hostname}} as well.
-* So for [the Amazon cloud|http://go/cloud] — we'll need to remove {{?Dcom.sun.management.jmxremote ?Dcom.sun.management.jmxremote.port=7500}} from {{setenv.sh}}.
+* *Note* : If you're running on the Amazon cloud, a workaround is needed to fix the port at 7500 (same as RMI registry port) to export the remote objects on. Also since the Amazon cloud uses a NAT device for resolving external IP addresses, we also automatically set the {{java.rmi.server.hostname}} as well.
+* So for the Amazon cloud — we'll need to remove {{?Dcom.sun.management.jmxremote ?Dcom.sun.management.jmxremote.port=7500}} from {{setenv.sh}}.
 
 h2. Sample Code for Querying JMX for the Curious
 
 Quick and dirty code snippet to dynamically get a list of what to monitor:
 
-<pre>
-<code>
+```java
 public class JMXClientTest {
     public static void main(String[] args) {
 
@@ -195,5 +189,4 @@ public class JMXClientTest {
         }
     }
 }
-</code>
-</pre>
+```
