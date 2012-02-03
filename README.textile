@@ -1,4 +1,4 @@
-Our goal is to provide and simple and easy, standard interface for publishing and monitoring application metrics in Java.  Both in "Amazon":http://aws.amazon.com, other clouds and private data centers. This has already been implemented inside of Netflix and most of our applications currently use it.
+Our goal is to provide a simple and easy, standard interface for publishing and monitoring application metrics in Java.  Both in "Amazon":http://aws.amazon.com, other clouds and private data centers. This has already been implemented inside of Netflix and most of our applications currently use it.
 
 h1. Goals
 
