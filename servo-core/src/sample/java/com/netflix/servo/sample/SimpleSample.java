@@ -19,9 +19,12 @@
  */
 package com.netflix.servo.sample;
 
+import com.netflix.servo.*;
+import com.netflix.servo.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.InjectableTag;
 import com.netflix.servo.Tag;
+import com.netflix.servo.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
@@ -32,9 +35,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * User: gorzell
- * Date: 1/6/12
- * Time: 12:45 PM
+ * Simple Sample Code for getting a monitor into JMX.
  */
 public class SimpleSample {
 
@@ -49,13 +50,13 @@ public class SimpleSample {
     private long sampleGuage = 0;
 
     @MonitorTags
-    public final List<Tag> tagList = new ArrayList<Tag>(10);
+    public TagList tagList = BasicTagList.EMPTY;
 
     public SimpleSample() {
     }
 
     public SimpleSample(Collection<Tag> tags) {
-        tagList.addAll(tags);
+        tagList = new BasicTagList(tags);
     }
 
     public synchronized void setSampleGauage(long val){
