@@ -59,6 +59,10 @@ public class SimpleSample {
         tagList = new BasicTagList(tags);
     }
 
+    public SimpleSample(TagList tags){
+        tagList = tags;
+    }
+
     public synchronized void setSampleGauage(long val){
         sampleGuage = val;
     }
@@ -68,7 +72,7 @@ public class SimpleSample {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        List<Tag> tags = new ArrayList<Tag>(2);
+        TagList tags = new BasicTagList();
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
