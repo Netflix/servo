@@ -77,7 +77,21 @@ public final class AnnotationUtils {
 
     /** Check that the object conforms to annotation requirements. */
     public static void validate(Object obj) {
+        try {
+            getMonitorId(obj);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "invalid MonitorId annotation on object " + obj, e);
+        }
 
+        try {
+            getMonitorTags(obj);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "invalid MonitorTags annotation on object " + obj, e);
+        }
+
+        // TODO: check Monitor annotations
     }
 
     /**
