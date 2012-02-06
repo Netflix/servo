@@ -16,8 +16,6 @@
 
 package com.netflix.servo.publish;
 
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +66,7 @@ public class TimedMetricPoller {
     public synchronized void start(ScheduledExecutorService service){
         if(!started){
             scheduledExecutorService = service;
+            started = true;
         } else {
             throw new IllegalStateException("Cannot start poller again without stopping it.");
         }
@@ -83,5 +82,9 @@ public class TimedMetricPoller {
         } else {
             throw new IllegalStateException("Poller must be started before you stop it.");
         }
+    }
+
+    public synchronized boolean isStarted(){
+        return started;
     }
 }
