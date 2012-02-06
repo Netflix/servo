@@ -27,7 +27,7 @@ import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Helper class for a monitored counter value that can be actively updated
@@ -43,7 +43,7 @@ public final class BasicCounter {
     private final TagList tags;
 
     @Monitor(name="Count", type=DataSourceType.COUNTER)
-    private final AtomicInteger value;
+    private final AtomicLong value;
 
     /**
      * Creates a new instance based on the provide name and empty tag list.
@@ -72,11 +72,11 @@ public final class BasicCounter {
     public BasicCounter(String name, TagList tags) {
         this.name = name;
         this.tags = tags;
-        this.value = new AtomicInteger(0);
+        this.value = new AtomicLong(0);
     }
 
     /** Returns the current value of the counter. */
-    public int getValue() {
+    public long getValue() {
         return value.get();
     }
 
@@ -86,7 +86,7 @@ public final class BasicCounter {
     }
 
     /** Increment the counter by {@code delta}. */
-    public void increment(int delta) {
+    public void increment(long delta) {
         value.getAndAdd(delta);
     }
 }
