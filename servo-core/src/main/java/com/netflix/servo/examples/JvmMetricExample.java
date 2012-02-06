@@ -30,6 +30,8 @@ import com.netflix.servo.publish.LocalJmxConnector;
 import com.netflix.servo.publish.MetricFilter;
 import com.netflix.servo.publish.MetricObserver;
 import com.netflix.servo.publish.MetricPoller;
+import com.netflix.servo.publish.PollRunnable;
+import com.netflix.servo.publish.PollScheduler;
 import com.netflix.servo.publish.PrefixMetricFilter;
 import com.netflix.servo.publish.RegexMetricFilter;
 
@@ -38,6 +40,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.management.ObjectName;
@@ -101,10 +104,16 @@ public class JvmMetricExample {
         MetricObserver observer = new FileMetricObserver(
             "jvmstats", new File("."));
 
-        // Collect stats until someone kills the process
+        // Schedule metrics to be collected in the background every 10 seconds
+        PollRunnable task = new PollRunnable(poller, filter, observer);
+        PollScheduler scheduler = PollScheduler.getInstance();
+        scheduler.start();
+        scheduler.addPoller(task, 10, TimeUnit.SECONDS);
+
+        // Do main work of program
         while (true) {
-            observer.update(poller.poll(filter));
-            Thread.sleep(10000);
+            System.out.println("Doing work...");
+            Thread.sleep(1000);
         }
     }
 }
