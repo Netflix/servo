@@ -22,7 +22,6 @@ package com.netflix.servo.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.MetricConfig;

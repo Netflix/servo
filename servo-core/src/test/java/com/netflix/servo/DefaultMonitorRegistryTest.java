@@ -19,20 +19,14 @@
  */
 package com.netflix.servo;
 
-import com.google.common.collect.ImmutableMap;
-
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.TagList;
-
+import com.google.common.collect.Sets;
+import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
-
 import com.netflix.servo.util.BasicCounter;
+import org.testng.annotations.Test;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
@@ -48,6 +42,15 @@ public class DefaultMonitorRegistryTest {
 
     private DefaultMonitorRegistry newInstance() {
         return new DefaultMonitorRegistry(getProps());
+    }
+
+    private Set<Object> getObjects(MonitorRegistry registry) {
+        Set<AnnotatedObject> annoObjs = registry.getRegisteredObjects();
+        Set<Object> objects = Sets.newHashSet();
+        for (AnnotatedObject annoObj : annoObjs) {
+            objects.add(annoObj.getObject());
+        }
+        return objects;
     }
 
     @Test
@@ -84,7 +87,7 @@ public class DefaultMonitorRegistryTest {
     @Test
     public void testGetRegisteredObjectsEmpty() throws Exception {
         DefaultMonitorRegistry registry = newInstance();
-        Set<Object> objects = registry.getRegisteredObjects();
+        Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 0);
     }
 
@@ -97,7 +100,7 @@ public class DefaultMonitorRegistryTest {
         registry.registerObject(o1);
         registry.registerObject(o2);
 
-        Set<Object> objects = registry.getRegisteredObjects();
+        Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(o1));
         assertTrue(objects.contains(o2));

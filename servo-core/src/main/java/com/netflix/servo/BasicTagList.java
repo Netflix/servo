@@ -21,7 +21,6 @@ package com.netflix.servo;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -110,8 +109,7 @@ public final class BasicTagList implements TagList {
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof BasicTagList)
-            ? tagMap.equals(((BasicTagList) obj).tagMap)
-            : false;
+            && tagMap.equals(((BasicTagList) obj).tagMap);
     }
 
     /** {@inheritDoc} */

@@ -19,6 +19,8 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.annotations.AnnotatedObject;
+
 import java.util.Set;
 
 /**
@@ -42,5 +44,5 @@ public interface MonitorRegistry {
     /**
      * Returns a list of all registered objects.
      */
-    Set<Object> getRegisteredObjects();
+    Set<AnnotatedObject> getRegisteredObjects();
 }
