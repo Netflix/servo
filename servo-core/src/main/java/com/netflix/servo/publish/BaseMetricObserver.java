@@ -63,7 +63,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
             updateImpl(metrics);
         } catch (Throwable t) {
             failedUpdateCount.incrementAndGet();
-            Throwables.propagate(t);
+            throw Throwables.propagate(t);
         } finally {
             updateCount.incrementAndGet();
         }

@@ -49,8 +49,6 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    private final Thread updateProcessingThread;
-
     @Monitor(name="UpdateExpiredCount", type=DataSourceType.COUNTER,
              description="Number of updates that expire in queue.")
     private final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
@@ -79,9 +77,9 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
         String threadName = getClass().getSimpleName() + "-" + name;
-        updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
-        updateProcessingThread.setDaemon(true);
-        updateProcessingThread.start();
+        Thread processingThread = new Thread(new UpdateProcessor(), threadName);
+        processingThread.setDaemon(true);
+        processingThread.start();
     }
 
     /**

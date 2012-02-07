@@ -109,8 +109,7 @@ public final class BasicTagList implements TagList {
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof BasicTagList)
-            ? tagMap.equals(((BasicTagList) obj).tagMap)
-            : false;
+            && tagMap.equals(((BasicTagList) obj).tagMap);
     }
 
     /** {@inheritDoc} */
