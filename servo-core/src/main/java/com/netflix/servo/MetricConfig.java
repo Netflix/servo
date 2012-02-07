@@ -21,6 +21,8 @@ package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 
 /**
  * Configuration settings associated with a metric.

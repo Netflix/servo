@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.tag;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;

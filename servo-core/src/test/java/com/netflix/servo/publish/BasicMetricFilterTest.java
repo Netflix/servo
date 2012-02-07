@@ -20,13 +20,13 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.netflix.servo.BasicTagList.*;
+import static com.netflix.servo.tag.BasicTagList.*;
 import static org.testng.Assert.*;
 
 public class BasicMetricFilterTest {

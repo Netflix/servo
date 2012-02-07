@@ -19,18 +19,17 @@
  */
 package com.netflix.servo.examples;
 
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.InjectableTag;
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.InjectableTag;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 

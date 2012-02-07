@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.aws;
+package com.netflix.servo.tag.aws;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
@@ -26,7 +26,8 @@ import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequ
 
 import com.google.common.io.Closeables;
 
-import com.netflix.servo.Tag;
+import com.netflix.servo.aws.AwsPropertyKeys;
+import com.netflix.servo.tag.Tag;
 
 import com.netflix.servo.aws.constants.Dimensions;
 

@@ -29,10 +29,8 @@ import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 
 import com.google.common.base.Preconditions;
 
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
-
-import com.netflix.servo.aws.DataSourceTypeToAwsUnit;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.Metric;
@@ -43,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Writes observations to Amazon's CloudWatch.

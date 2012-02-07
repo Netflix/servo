@@ -19,9 +19,9 @@
  */
 package com.netflix.servo.annotations;
 
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 
 import java.lang.reflect.AccessibleObject;
 
@@ -81,7 +81,7 @@ public final class AnnotatedAttribute {
 
     /** 
      * Returns the tags as an array of strings that can be parsed with
-     * {#link com.netflix.servo.BasicTag#parseTag}.
+     * {#link com.netflix.servo.tag.BasicTag#parseTag}.
      */
     public String[] getTagsArray() {
         return tagsArray;

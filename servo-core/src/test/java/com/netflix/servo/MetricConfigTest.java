@@ -19,6 +19,8 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;

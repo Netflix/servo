@@ -24,7 +24,7 @@ import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.annotations.DataSourceType;
@@ -75,7 +75,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         for (AnnotatedAttribute attr : attrs) {
             // Skip informational annotations
             Monitor anno = attr.getAnnotation();
-            TagList tags = attr.getTags(); 
+            TagList tags = attr.getTags();
             if (anno.type() == DataSourceType.INFORMATIONAL) {
                 continue;
             }

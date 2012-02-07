@@ -17,15 +17,25 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.tag;
 
 /**
- * A key-value pair associated with a metric.
+ * Standard tag keys that are used within this library.
  */
-public interface Tag {
-    /** Returns the key corresponding to this tag. */
-    String getKey();
+public enum StandardTagKeys {
+    /** Canonical name for the class that is providing the metric. */
+    CLASS_NAME("ClassName"),
 
-    /** Returns the value corresponding to this tag. */
-    String getValue();
+    /** Hostname for the system reporting the metric. */
+    HOST("Host");
+
+    private String keyName;
+
+    private StandardTagKeys(String keyName) {
+        this.keyName = keyName;
+    }
+
+    public String getKeyName() {
+        return keyName;
+    }
 }

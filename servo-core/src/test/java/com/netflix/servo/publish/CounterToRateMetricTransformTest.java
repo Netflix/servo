@@ -21,9 +21,9 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.netflix.servo.BasicTagList.*;
+import static com.netflix.servo.tag.BasicTagList.*;
 import static org.testng.Assert.*;
 
 public class CounterToRateMetricTransformTest {

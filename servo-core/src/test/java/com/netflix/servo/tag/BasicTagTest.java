@@ -17,8 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.tag;
 
+import com.netflix.servo.tag.BasicTag;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;

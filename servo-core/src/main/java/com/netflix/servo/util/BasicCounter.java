@@ -20,7 +20,7 @@
 package com.netflix.servo.util;
 
 import com.netflix.servo.MetricConfig;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
