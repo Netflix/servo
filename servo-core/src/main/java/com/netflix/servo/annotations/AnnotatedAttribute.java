@@ -26,8 +26,8 @@ import com.netflix.servo.TagList;
 import java.lang.reflect.AccessibleObject;
 
 /**
- * Helper functions for querying the monitor annotations associated with a
- * class.
+ * Wrapper around an {@link java.lang.reflect.AccessibleObject} that is
+ * annotated with {@link Monitor}.
  */
 public final class AnnotatedAttribute {
 
@@ -37,10 +37,12 @@ public final class AnnotatedAttribute {
     private final TagList tags;
     private final String[] tagsArray;
 
+    /** Creates a new instance. */
     public AnnotatedAttribute(Object obj, Monitor anno, AccessibleObject attr) {
         this(obj, anno, attr, BasicTagList.copyOf(anno.tags()));
     }
 
+    /** Creates a new instance. */
     public AnnotatedAttribute(
             Object obj,
             Monitor anno,
@@ -62,30 +64,40 @@ public final class AnnotatedAttribute {
         }
     }
 
+    /** Returns the annotation on the attribute. */
     public Monitor getAnnotation() {
         return anno;
     }
 
+    /** Returns the accessible object that is annotated. */
     public AccessibleObject getAttribute() {
         return attr;
     }
 
+    /** Returns the tags for the attribute. */
     public TagList getTags() {
         return tags;
     }
 
+    /** 
+     * Returns the tags as an array of strings that can be parsed with
+     * {#link com.netflix.servo.BasicTag#parseTag}.
+     */
     public String[] getTagsArray() {
         return tagsArray;
     }
 
+    /** Returns the current value for the attribute. */
     public Object getValue() throws Exception {
         return AnnotationUtils.getValue(obj, attr);
     }
 
+    /** Returns the current value for the attribute as a number. */
     public Number getNumber() throws Exception {
         return AnnotationUtils.getNumber(obj, attr);
     }
 
+    /** Returns the copy with the additional tags from the class. */
     public AnnotatedAttribute copy(TagList classTags) {
         TagList newTags = BasicTagList.concat(classTags, tags);
         return new AnnotatedAttribute(obj, anno, attr, newTags);

@@ -26,8 +26,8 @@ import com.netflix.servo.TagList;
 import java.util.List;
 
 /**
- * Helper functions for querying the monitor annotations associated with a
- * class.
+ * Wrapper around an object that is annotated to make it easy to access the
+ * annotated fields.
  */
 public final class AnnotatedObject {
 
@@ -43,26 +43,32 @@ public final class AnnotatedObject {
         attrs = AnnotationUtils.getMonitoredAttributes(obj);
     }
 
+    /** Returns the wrapped object. */
     public Object getObject() {
         return object;
     }
 
+    /** Returns the id from the {@link MonitorId} annotation. */
     public String getId() {
         return id;
     }
 
+    /** Returns the tags from the {@link MonitorTags} annotation. */
     public TagList getTags() {
         return tags;
     }
 
+    /** Returns the attributes with {@link Monitor} annotations. */
     public List<AnnotatedAttribute> getAttributes() {
         return attrs;
     }
 
+    /** Returns the canonical class name of the wrapped class. */
     public String getClassName() {
         return object.getClass().getCanonicalName();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof AnnotatedObject)) {
@@ -72,6 +78,7 @@ public final class AnnotatedObject {
         return object == annoObj.getObject();
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(object);
