@@ -21,6 +21,7 @@ package com.netflix.servo.examples;
 
 import com.google.common.collect.Maps;
 import com.netflix.servo.publish.BasicMetricFilter;
+import com.netflix.servo.publish.CounterToRateMetricTransform;
 import com.netflix.servo.publish.FileMetricObserver;
 import com.netflix.servo.publish.JmxMetricPoller;
 import com.netflix.servo.publish.LocalJmxConnector;
@@ -97,16 +98,24 @@ public class JvmMetricExample {
         MetricObserver observer = new FileMetricObserver(
             "jvmstats", new File("."));
 
+        // Sampling interval
+        long samplingInterval = 10;
+        TimeUnit samplingUnit = TimeUnit.SECONDS;
+
+        // Transform used to convert counter metrics into a rate per second
+        MetricObserver transform = new CounterToRateMetricTransform(
+            observer, 2 * samplingInterval, samplingUnit);
+
         // Schedule metrics to be collected in the background every 10 seconds
-        PollRunnable task = new PollRunnable(poller, filter, observer);
+        PollRunnable task = new PollRunnable(poller, filter, transform);
         PollScheduler scheduler = PollScheduler.getInstance();
         scheduler.start();
-        scheduler.addPoller(task, 10, TimeUnit.SECONDS);
+        scheduler.addPoller(task, samplingInterval, samplingUnit);
 
         // Do main work of program
         while (true) {
             System.out.println("Doing work...");
-            Thread.sleep(1000);
+            Thread.sleep(samplingUnit.toMillis(samplingInterval));
         }
     }
 }
