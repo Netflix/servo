@@ -21,6 +21,7 @@ package com.netflix.servo.annotations;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.netflix.servo.TagList;
 
 import java.util.List;
@@ -40,7 +41,14 @@ public final class AnnotatedObject {
         object = Preconditions.checkNotNull(obj);
         id = AnnotationUtils.getMonitorId(obj);
         tags = AnnotationUtils.getMonitorTags(obj);
-        attrs = AnnotationUtils.getMonitoredAttributes(obj);
+        List<AnnotatedAttribute> attributes =
+            AnnotationUtils.getMonitoredAttributes(obj);
+        ImmutableList.Builder<AnnotatedAttribute> builder =
+            ImmutableList.builder();
+        for (AnnotatedAttribute attr : attributes) {
+            builder.add(attr.copy(tags));
+        }
+        attrs = builder.build();
     }
 
     /** Returns the wrapped object. */
