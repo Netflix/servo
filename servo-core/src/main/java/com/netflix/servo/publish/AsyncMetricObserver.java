@@ -20,20 +20,16 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
-
 import com.netflix.servo.Metric;
-
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -52,8 +48,6 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
 
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
-
-    private final Thread updateProcessingThread;
 
     @Monitor(name="UpdateExpiredCount", type=DataSourceType.COUNTER,
              description="Number of updates that expire in queue.")
@@ -83,9 +77,9 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
         String threadName = getClass().getSimpleName() + "-" + name;
-        updateProcessingThread = new Thread(new UpdateProcessor(), threadName);
-        updateProcessingThread.setDaemon(true);
-        updateProcessingThread.start();
+        Thread processingThread = new Thread(new UpdateProcessor(), threadName);
+        processingThread.setDaemon(true);
+        processingThread.start();
     }
 
     /**

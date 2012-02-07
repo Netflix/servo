@@ -19,11 +19,8 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicTag;
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
@@ -31,15 +28,10 @@ import com.netflix.servo.MetricConfig;
 import com.netflix.servo.StandardTagKeys;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
-
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
-
-import java.io.IOException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -49,9 +41,10 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Generic poller for fetching simple data from JMX.

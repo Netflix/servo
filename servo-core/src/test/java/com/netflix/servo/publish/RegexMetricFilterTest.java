@@ -19,22 +19,15 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.BasicTagList.EMPTY;
-import static com.netflix.servo.publish.BasicMetricFilter.*;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
-
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.testng.annotations.Test;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static com.netflix.servo.BasicTagList.*;
 import static org.testng.Assert.*;
 
 public class RegexMetricFilterTest {

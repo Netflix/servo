@@ -19,36 +19,14 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.BasicTagList.EMPTY;
-import static com.netflix.servo.publish.BasicMetricFilter.*;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicMonitorRegistry;
-import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.TagList;
-
-import com.netflix.servo.annotations.DataSourceType;
-
 import com.netflix.servo.util.BasicCounter;
-
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-
-import javax.management.ObjectName;
-
 import org.testng.annotations.Test;
 
+import static com.netflix.servo.publish.BasicMetricFilter.*;
 import static org.testng.Assert.*;
 
 public class MonitorRegistryMetricPollerTest {

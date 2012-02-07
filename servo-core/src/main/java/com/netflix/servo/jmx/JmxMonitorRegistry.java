@@ -20,23 +20,19 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableSet;
-
 import com.netflix.servo.MonitorRegistry;
-
-import java.lang.management.ManagementFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.netflix.servo.annotations.AnnotatedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
@@ -49,7 +45,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     private final MBeanServer mBeanServer;
 
-    private final Set<Object> objects;
+    private final Set<AnnotatedObject> objects;
 
     /**
      * Creates a new instance that registers metrics with the local mbean
@@ -57,7 +53,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      */
     public JmxMonitorRegistry() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        objects = Collections.synchronizedSet(new HashSet<Object>());
+        objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
     }
 
     private void register(ObjectName name, DynamicMBean mbean)
@@ -72,13 +68,14 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public void registerObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
-            MonitoredResource resource = new MonitoredResource(obj);
+            AnnotatedObject annoObj = new AnnotatedObject(obj);
+            MonitoredResource resource = new MonitoredResource(annoObj);
             register(resource.getObjectName(), resource);
 
             MetadataMBean metadata = resource.getMetadataMBean();
             register(metadata.getObjectName(), metadata);
 
-            objects.add(obj);
+            objects.add(annoObj);
         } catch (Throwable t) {
             logger.warn("could not register object of class "
                 + obj.getClass().getCanonicalName(), t);
@@ -89,13 +86,14 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public void unRegisterObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
-            MonitoredResource resource = new MonitoredResource(obj);
+            AnnotatedObject annoObj = new AnnotatedObject(obj);
+            MonitoredResource resource = new MonitoredResource(annoObj);
             mBeanServer.unregisterMBean(resource.getObjectName());
 
             MetadataMBean metadata = resource.getMetadataMBean();
             mBeanServer.unregisterMBean(metadata.getObjectName());
 
-            objects.remove(obj);
+            objects.remove(annoObj);
         } catch (Throwable t) {
             logger.warn("could not un-register object of class "
                 + obj.getClass().getCanonicalName(), t);
@@ -103,7 +101,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public Set<Object> getRegisteredObjects() {
+    public Set<AnnotatedObject> getRegisteredObjects() {
         return ImmutableSet.copyOf(objects);
     }
 }

@@ -17,9 +17,8 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.sample;
+package com.netflix.servo.examples;
 
-import com.netflix.servo.*;
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.InjectableTag;
@@ -27,6 +26,7 @@ import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
 
 import java.util.ArrayList;
@@ -37,37 +37,39 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Simple Sample Code for getting a monitor into JMX.
  */
-public class SimpleSample {
+public class BasicExample {
 
     @Monitor(name = "SampleCounter", type = DataSourceType.COUNTER,
-            description = "Sample counting monitor", tags = {
-            "sample=simple"})
+            description = "Sample counting monitor",
+            tags = {"sample=simple"})
     public final AtomicInteger counter = new AtomicInteger(0);
 
     @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
-            description = "Sample gauge monitor", tags = {
-            "sample=simple"})
+            description = "Sample gauge monitor",
+            tags = {"sample=simple"})
     private long sampleGuage = 0;
 
+    @MonitorId
+    private final String id;
+
     @MonitorTags
-    public TagList tagList = BasicTagList.EMPTY;
+    public final TagList tags;
 
-    public SimpleSample() {
+    public BasicExample() {
+        this(null, BasicTagList.EMPTY);
     }
 
-    public SimpleSample(Collection<Tag> tags) {
-        tagList = new BasicTagList(tags);
+    public BasicExample(String id, Iterable<Tag> tags) {
+        this.id = id;
+        this.tags = new BasicTagList(tags);
     }
 
-    public SimpleSample(TagList tags){
-        tagList = tags;
-    }
 
-    public synchronized void setSampleGauage(long val){
+    public synchronized void setSampleGauge(long val){
         sampleGuage = val;
     }
 
-    public synchronized long getSampleGuage(){
+    public synchronized long getSampleGauge(){
         return sampleGuage;
     }
 
@@ -76,14 +78,18 @@ public class SimpleSample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        SimpleSample sample = new SimpleSample(tags);
+        String id = null;
+        if (args.length > 0) {
+            id = args[0];
+        }
+        BasicExample example = new BasicExample(id, tags);
 
-        DefaultMonitorRegistry.getInstance().registerObject(sample);
+        DefaultMonitorRegistry.getInstance().registerObject(example);
 
-        while(true){
-            sample.counter.incrementAndGet();
-            sample.setSampleGauage(Math.round(Math.random()*1000));
-            Thread.sleep(60000);
+        while(true) {
+            example.counter.incrementAndGet();
+            example.setSampleGauge(Math.round(Math.random() * 1000));
+            Thread.sleep(10000);
         }
     }
 }

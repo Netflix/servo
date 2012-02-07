@@ -20,17 +20,13 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
-import com.netflix.servo.jmx.MonitoredAttribute;
 
 import java.lang.annotation.Annotation;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
 import java.util.List;
 
 /**
@@ -45,9 +41,9 @@ public final class AnnotationUtils {
      * Return the value of the field/method annotated with {@link MonitorId}.
      */
     public static String getMonitorId(Object obj) throws Exception {
-        List<AccessibleObject> attrs =
-            getAnnotatedAttributes(MonitorId.class, obj, 1);
-        return attrs.isEmpty() ? null : (String) getValue(obj, attrs.get(0));
+        List<AccessibleObject> fields =
+            getAnnotatedFields(MonitorId.class, obj, 1);
+        return fields.isEmpty() ? null : (String) getValue(obj, fields.get(0));
     }
 
     /**
@@ -55,29 +51,43 @@ public final class AnnotationUtils {
      * {@link MonitorTags}.
      */
     public static TagList getMonitorTags(Object obj) throws Exception {
-        List<AccessibleObject> attrs =
-            getAnnotatedAttributes(MonitorTags.class, obj, 1);
-        return attrs.isEmpty()
+        List<AccessibleObject> fields =
+            getAnnotatedFields(MonitorTags.class, obj, 1);
+        return fields.isEmpty()
             ? BasicTagList.EMPTY
-            : (TagList) getValue(obj, attrs.get(0));
+            : (TagList) getValue(obj, fields.get(0));
     }
 
     /** Return the list of fields/methods annotated with {@link Monitor}. */
-    public static List<MonitoredAttribute> getMonitoredAttributes(Object obj) {
-        List<AccessibleObject> annotatedAttrs =
-            getAnnotatedAttributes(Monitor.class, obj, Integer.MAX_VALUE);
-        ImmutableList.Builder<MonitoredAttribute> monitoredAttrs =
+    public static List<AnnotatedAttribute> getMonitoredAttributes(Object obj) {
+        List<AccessibleObject> fields =
+            getAnnotatedFields(Monitor.class, obj, Integer.MAX_VALUE);
+        ImmutableList.Builder<AnnotatedAttribute> attrs =
             ImmutableList.builder();
-        for (AccessibleObject attr : annotatedAttrs) {
-            Monitor m = attr.getAnnotation(Monitor.class);
-            monitoredAttrs.add(new MonitoredAttribute(m, attr, obj));
+        for (AccessibleObject field : fields) {
+            Monitor m = field.getAnnotation(Monitor.class);
+            attrs.add(new AnnotatedAttribute(obj, m, field));
         }
-        return monitoredAttrs.build();
+        return attrs.build();
     }
 
     /** Check that the object conforms to annotation requirements. */
     public static void validate(Object obj) {
+        try {
+            getMonitorId(obj);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "invalid MonitorId annotation on object " + obj, e);
+        }
 
+        try {
+            getMonitorTags(obj);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "invalid MonitorTags annotation on object " + obj, e);
+        }
+
+        // TODO: check Monitor annotations
     }
 
     /**
@@ -136,7 +146,7 @@ public final class AnnotationUtils {
      *                         permitted for this class
      * @return                 list of matching attributes
      */
-    private static List<AccessibleObject> getAnnotatedAttributes(
+    private static List<AccessibleObject> getAnnotatedFields(
             Class<? extends Annotation> annotationClass,
             Object obj,
             int maxPerClass) {

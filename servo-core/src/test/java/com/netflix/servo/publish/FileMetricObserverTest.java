@@ -20,23 +20,18 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
+import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.util.List;
-import java.util.Map;
-
-import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
