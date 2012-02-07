@@ -20,9 +20,12 @@
 package com.netflix.servo;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
+
+import com.netflix.servo.annotations.AnnotatedObject;
 
 import com.netflix.servo.util.BasicCounter;
 
@@ -38,6 +41,15 @@ public class BasicMonitorRegistryTest {
 
     private BasicMonitorRegistry newInstance() {
         return new BasicMonitorRegistry();
+    }
+
+    private Set<Object> getObjects(MonitorRegistry registry) {
+        Set<AnnotatedObject> annoObjs = registry.getRegisteredObjects();
+        Set<Object> objects = Sets.newHashSet();
+        for (AnnotatedObject annoObj : annoObjs) {
+            objects.add(annoObj.getObject());
+        }
+        return objects;
     }
 
     @Test(expectedExceptions = NullPointerException.class)
@@ -61,19 +73,19 @@ public class BasicMonitorRegistryTest {
         registry.registerObject(o1);
         registry.registerObject(o2);
 
-        Set<Object> objects = registry.getRegisteredObjects();
+        Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(o1));
         assertTrue(objects.contains(o2));
 
         registry.unRegisterObject(o1);
-        objects = registry.getRegisteredObjects();
+        objects = getObjects(registry);
         assertEquals(objects.size(), 1);
         assertFalse(objects.contains(o1));
         assertTrue(objects.contains(o2));
 
         registry.unRegisterObject(o2);
-        objects = registry.getRegisteredObjects();
+        objects = getObjects(registry);
         assertEquals(objects.size(), 0);
         assertFalse(objects.contains(o1));
         assertFalse(objects.contains(o2));
@@ -82,7 +94,7 @@ public class BasicMonitorRegistryTest {
     @Test
     public void testGetRegisteredObjectsEmpty() throws Exception {
         MonitorRegistry registry = newInstance();
-        Set<Object> objects = registry.getRegisteredObjects();
+        Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 0);
     }
 
@@ -95,7 +107,7 @@ public class BasicMonitorRegistryTest {
         registry.registerObject(o1);
         registry.registerObject(o2);
 
-        Set<Object> objects = registry.getRegisteredObjects();
+        Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(o1));
         assertTrue(objects.contains(o2));

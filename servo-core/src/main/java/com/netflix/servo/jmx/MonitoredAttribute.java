@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.google.common.collect.ImmutableMap;
+import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.Monitor;
 
@@ -103,34 +104,23 @@ public final class MonitoredAttribute {
             .put(String.class,     SimpleType.STRING)
             .build();
 
-    private final Monitor mAnnotation;
-    private final AccessibleObject mAttr;
-    private final Object mObject;
+    private final AnnotatedAttribute attr;
 
-    private final MBeanAttributeInfo mMetadataAttributeInfo;
-    private final MBeanAttributeInfo mValueAttributeInfo;
+    private final MBeanAttributeInfo metadataAttributeInfo;
+    private final MBeanAttributeInfo valueAttributeInfo;
 
-    private final CompositeDataSupport mMetadata;
+    private final CompositeDataSupport metadata;
 
-    public MonitoredAttribute(
-            Monitor annotation,
-            AccessibleObject attr,
-            Object object) {
-        mAnnotation = Preconditions.checkNotNull(
-            annotation, "annotation cannot be null");
-        mAttr = Preconditions.checkNotNull(
-            attr, "attr cannot be null (annotation=%s)", annotation);
-        mObject = Preconditions.checkNotNull(
-            object, "object cannot be null (annotation=%s)", annotation);
-        if (!mAttr.isAccessible()) {
-            mAttr.setAccessible(true);
-        }
+    public MonitoredAttribute(AnnotatedAttribute attr) {
+        this.attr = Preconditions.checkNotNull(
+            attr, "attribute cannot be null");
 
-        String name = mAnnotation.name();
-        String type = mAnnotation.type().name();
-        String desc = mAnnotation.description();
+        Monitor anno = attr.getAnnotation();
+        String name = anno.name();
+        String type = anno.type().name();
+        String desc = anno.description();
 
-        mMetadataAttributeInfo = new OpenMBeanAttributeInfoSupport(
+        metadataAttributeInfo = new OpenMBeanAttributeInfoSupport(
             name,
             "".equals(desc.trim()) ? name : desc,
             METADATA_TYPE,
@@ -138,56 +128,56 @@ public final class MonitoredAttribute {
             false,     // isWritable
             false);    // isIs
 
-        mValueAttributeInfo = new OpenMBeanAttributeInfoSupport(
+        valueAttributeInfo = new OpenMBeanAttributeInfoSupport(
             name,
             "".equals(desc.trim()) ? name : desc,
-            getType(attr),
+            getType(attr.getAttribute()),
             true,      // isReadable
             false,     // isWritable
             false);    // isIs
 
         try {
-            mMetadata = new CompositeDataSupport(
+            metadata = new CompositeDataSupport(
                 METADATA_TYPE,
                 ITEM_NAMES,
-                new Object[] {name, type, desc, mAnnotation.tags()});
+                new Object[] {name, type, desc, attr.getTagsArray()});
         } catch (OpenDataException e) {
             throw new IllegalArgumentException(
                 "failed to create mbean metadata value for " + toString(), e);
         }
     }
 
-    public Monitor annotation() {
-        return mAnnotation;
+    public Monitor getAnnotation() {
+        return attr.getAnnotation();
     }
 
-    public Object value() throws Exception {
-        return AnnotationUtils.getValue(mObject, mAttr);
+    public Object getValue() throws Exception {
+        return attr.getValue();
     }
 
     public Number getNumber() throws Exception {
-        return AnnotationUtils.getNumber(mObject, mAttr);
+        return attr.getNumber();
     }
 
-    public CompositeDataSupport metadata() {
-        return mMetadata;
+    public CompositeDataSupport getMetadata() {
+        return metadata;
     }
 
-    public MBeanAttributeInfo metadataAttributeInfo() {
-        return mMetadataAttributeInfo;
+    public MBeanAttributeInfo getMetadataAttributeInfo() {
+        return metadataAttributeInfo;
     }
 
-    public MBeanAttributeInfo valueAttributeInfo() {
-        return mValueAttributeInfo;
+    public MBeanAttributeInfo getValueAttributeInfo() {
+        return valueAttributeInfo;
     }
 
-    private OpenType<?> getType(AccessibleObject attr) {
+    private OpenType<?> getType(AccessibleObject obj) {
         SimpleType<?> t = null;
-        if (attr instanceof Field) {
-            Field f = (Field) attr;
+        if (obj instanceof Field) {
+            Field f = (Field) obj;
             t = TYPES.get(f.getType());
         } else {
-            Method m = (Method) attr;
+            Method m = (Method) obj;
             t = TYPES.get(m.getReturnType());
         }
         return (t == null) ? SimpleType.STRING : t;
@@ -196,9 +186,7 @@ public final class MonitoredAttribute {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("annotation", mAnnotation)
-            .add("attr", mAttr)
-            .add("object", mObject)
+            .add("attr", attr)
             .toString();
     }
 }

@@ -19,6 +19,7 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
 
 import java.util.Properties;
@@ -98,7 +99,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public Set<Object> getRegisteredObjects() {
+    public Set<AnnotatedObject> getRegisteredObjects() {
         return registry.getRegisteredObjects();
     }
 

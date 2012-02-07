@@ -30,11 +30,11 @@ import com.netflix.servo.MetricConfig;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.TagList;
 
+import com.netflix.servo.annotations.AnnotatedAttribute;
+import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-
-import com.netflix.servo.jmx.MonitoredAttribute;
 
 import java.util.List;
 
@@ -70,21 +70,19 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     }
 
     private void getMetrics(
-            List<Metric> metrics, MetricFilter filter, Object obj)
+            List<Metric> metrics,
+            MetricFilter filter,
+            AnnotatedObject obj)
             throws Exception {
-        String classId = AnnotationUtils.getMonitorId(obj);
-        TagList classTags = AnnotationUtils.getMonitorTags(obj);
+        String classId = obj.getId();
         LOGGER.debug("retrieving metrics from class {} id {}",
-            obj.getClass().getCanonicalName(), classId);
+            obj.getClassName(), classId);
 
-        List<MonitoredAttribute> attrs =
-            AnnotationUtils.getMonitoredAttributes(obj);
-
-        for (MonitoredAttribute attr : attrs) {
+        List<AnnotatedAttribute> attrs = obj.getAttributes();
+        for (AnnotatedAttribute attr : attrs) {
             // Skip informational annotations
-            Monitor anno = attr.annotation();
-            TagList annoTags = BasicTagList.copyOf(anno.tags());
-            TagList tags = BasicTagList.concat(classTags, annoTags);
+            Monitor anno = attr.getAnnotation();
+            TagList tags = attr.getTags(); 
             if (anno.type() == DataSourceType.INFORMATIONAL) {
                 continue;
             }
@@ -98,7 +96,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
                     metrics.add(new Metric(config, now, num));
                 } else {
                     LOGGER.debug("expected number but found {}, metric {}",
-                        attr.value(), config);
+                        attr.getValue(), config);
                 }
             }
         }
@@ -107,7 +105,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter) {
         List<Metric> metrics = Lists.newArrayList();
-        for (Object obj : registry.getRegisteredObjects()) {
+        for (AnnotatedObject obj : registry.getRegisteredObjects()) {
             try {
                 getMetrics(metrics, filter, obj);
             } catch (Exception e) {

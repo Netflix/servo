@@ -208,32 +208,32 @@ public class AnnotationUtilsTest {
     @Test
     public void testGetMonitoredAttributes() throws Exception {
         MonitorObject obj = new MonitorObject();
-        List<MonitoredAttribute> attrList =
+        List<AnnotatedAttribute> attrList =
             AnnotationUtils.getMonitoredAttributes(obj);
         assertEquals(attrList.size(), 7);
 
-        Map<String,MonitoredAttribute> attrs = Maps.newHashMap();
-        for (MonitoredAttribute a : attrList) {
-            attrs.put(a.annotation().name(), a);
+        Map<String,AnnotatedAttribute> attrs = Maps.newHashMap();
+        for (AnnotatedAttribute a : attrList) {
+            attrs.put(a.getAnnotation().name(), a);
         }
 
-        MonitoredAttribute a = attrs.get("zero");
-        assertEquals(a.value(), false);
+        AnnotatedAttribute a = attrs.get("zero");
+        assertEquals(a.getValue(), false);
         assertEquals(a.getNumber(), 0);
 
         a = attrs.get("one");
-        assertEquals(a.value(), true);
+        assertEquals(a.getValue(), true);
         assertEquals(a.getNumber(), 1);
 
         a = attrs.get("three");
         assertEquals(a.getNumber().intValue(), 3);
 
         a = attrs.get("four");
-        assertEquals(a.value(), 4);
+        assertEquals(a.getValue(), 4);
         assertEquals(a.getNumber(), 4);
 
         a = attrs.get("five");
-        assertEquals(a.value(), 5L);
+        assertEquals(a.getValue(), 5L);
         assertEquals(a.getNumber(), 5L);
 
         a = attrs.get("six");
@@ -243,7 +243,7 @@ public class AnnotationUtilsTest {
     @Test
     public void testGetMonitoredAttributesWithNoMonitor() throws Exception {
         Object obj = new Object();
-        List<MonitoredAttribute> attrs =
+        List<AnnotatedAttribute> attrs =
             AnnotationUtils.getMonitoredAttributes(obj);
         assertEquals(attrs.size(), 0);
     }

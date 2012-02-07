@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableSet;
 
 import com.netflix.servo.MonitorRegistry;
 
+import com.netflix.servo.annotations.AnnotatedObject;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,29 +41,37 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Set<Object> objects;
+    private final Set<AnnotatedObject> objects;
 
     /**
      * Creates a new instance.
      */
     public BasicMonitorRegistry() {
-        objects = Collections.synchronizedSet(new HashSet<Object>());
+        objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
     }
 
     /** {@inheritDoc} */
     public void registerObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
-        objects.add(obj);
+        try {
+            objects.add(new AnnotatedObject(obj));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("invalid object", e);
+        }
     }
 
     /** {@inheritDoc} */
     public void unRegisterObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
-        objects.remove(obj);
+        try {
+            objects.remove(new AnnotatedObject(obj));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("invalid object", e);
+        }
     }
 
     /** {@inheritDoc} */
-    public Set<Object> getRegisteredObjects() {
+    public Set<AnnotatedObject> getRegisteredObjects() {
         return ImmutableSet.copyOf(objects);
     }
 }
