@@ -20,77 +20,67 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableMap;
-
-import java.util.List;
-import java.util.Map;
+import com.netflix.servo.annotations.AnnotatedAttribute;
+import com.netflix.servo.annotations.AnnotatedObject;
+import com.netflix.servo.annotations.Monitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
-import javax.management.MalformedObjectNameException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
-import com.netflix.servo.annotations.AnnotationUtils;
-import com.netflix.servo.annotations.Monitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Map;
 
 public final class MonitoredResource implements DynamicMBean {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MonitoredResource.class);
 
-    private final Object mObject;
+    private final AnnotatedObject object;
 
-    private final ObjectName mName;
+    private final ObjectName name;
 
-    private final MBeanInfo mBeanInfo;
+    private final MBeanInfo beanInfo;
 
-    private final Map<String,MonitoredAttribute> mAttrs;
+    private final Map<String,MonitoredAttribute> attrs;
 
-    private final MetadataMBean mMetadataMBean;
+    private final MetadataMBean metadataMBean;
 
-    public MonitoredResource(Object obj) {
+    public MonitoredResource(AnnotatedObject obj) {
         this(null, obj);
     }
 
-    public MonitoredResource(String domain, Object obj) {
-        mObject = Preconditions.checkNotNull(obj, "object cannot be null");
+    public MonitoredResource(String domain, AnnotatedObject obj) {
+        object = Preconditions.checkNotNull(obj, "object cannot be null");
 
-        String className = mObject.getClass().getCanonicalName();
-        String id;
-        try {
-            id = AnnotationUtils.getMonitorId(mObject);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-                "could not get monitor id from object of type %s",
-                className), e);
-        }
+        String className = object.getClassName();
+        String id = object.getId();
+        name = createObjectName(domain, className, id, "value");
 
-        mName = createObjectName(domain, className, id, "value");
-
-        ImmutableMap.Builder<String,MonitoredAttribute> attrs =
+        ImmutableMap.Builder<String,MonitoredAttribute> builder =
             ImmutableMap.builder();
-        List<MonitoredAttribute> monitoredAttrs =
-            AnnotationUtils.getMonitoredAttributes(obj);
+        List<AnnotatedAttribute> annotatedAttrs = obj.getAttributes();
 
         MBeanAttributeInfo[] attributes =
-            new MBeanAttributeInfo[monitoredAttrs.size()];
-        for (int i = 0; i < monitoredAttrs.size(); ++i) {
-            MonitoredAttribute attr = monitoredAttrs.get(i);
-            Monitor m = attr.annotation();
-            attrs.put(m.name(), attr);
-            attributes[i] = attr.valueAttributeInfo();
+            new MBeanAttributeInfo[annotatedAttrs.size()];
+        for (int i = 0; i < annotatedAttrs.size(); ++i) {
+            MonitoredAttribute attr = new MonitoredAttribute(
+                annotatedAttrs.get(i));
+            Monitor m = attr.getAnnotation();
+            builder.put(m.name(), attr);
+            attributes[i] = attr.getValueAttributeInfo();
         }
-        mAttrs = attrs.build();
+        attrs = builder.build();
 
-        mBeanInfo = new MBeanInfo(
+        beanInfo = new MBeanInfo(
             className,
             "MonitoredResource MBean",
             attributes,  // attributes
@@ -107,7 +97,7 @@ public final class MonitoredResource implements DynamicMBean {
             null,  // constructors
             null,  // operations
             null); // notifications
-        mMetadataMBean = new MetadataMBean(metadataName, metadataInfo, mAttrs);
+        metadataMBean = new MetadataMBean(metadataName, metadataInfo, attrs);
     }
 
     private ObjectName createObjectName(
@@ -130,21 +120,21 @@ public final class MonitoredResource implements DynamicMBean {
     }
 
     public ObjectName getObjectName() {
-        return mName;
+        return name;
     }
 
     public MetadataMBean getMetadataMBean() {
-        return mMetadataMBean;
+        return metadataMBean;
     }
 
     public Object getAttribute(String attribute)
             throws AttributeNotFoundException, MBeanException {
-        MonitoredAttribute attr = mAttrs.get(attribute);
+        MonitoredAttribute attr = attrs.get(attribute);
         if (attr == null) {
             throw new AttributeNotFoundException(attribute);
         }
         try {
-            return attr.value();
+            return attr.getValue();
         } catch (Exception e) {
             throw new MBeanException(e);
         }
@@ -163,7 +153,7 @@ public final class MonitoredResource implements DynamicMBean {
     }
 
     public MBeanInfo getMBeanInfo() {
-        return mBeanInfo;
+        return beanInfo;
     }
 
     public Object invoke(

@@ -19,13 +19,6 @@
  */
 package com.netflix.servo;
 
-import com.google.common.collect.ImmutableMap;
-
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.TagList;
-
-import java.util.Map;
-
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;

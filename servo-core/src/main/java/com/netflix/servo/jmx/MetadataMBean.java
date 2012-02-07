@@ -19,7 +19,8 @@
  */
 package com.netflix.servo.jmx;
 
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -28,42 +29,40 @@ import javax.management.DynamicMBean;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 final class MetadataMBean implements DynamicMBean {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MetadataMBean.class);
 
-    private final ObjectName mName;
+    private final ObjectName name;
 
-    private final MBeanInfo mBeanInfo;
+    private final MBeanInfo beanInfo;
 
-    private final Map<String,MonitoredAttribute> mAttrs;
+    private final Map<String,MonitoredAttribute> attrs;
 
     MetadataMBean(
             ObjectName name,
             MBeanInfo beanInfo,
             Map<String,MonitoredAttribute> attrs) {
-        mName = name;
-        mBeanInfo = beanInfo;
-        mAttrs = attrs;
+        this.name = name;
+        this.beanInfo = beanInfo;
+        this.attrs = attrs;
     }
 
     public ObjectName getObjectName() {
-        return mName;
+        return name;
     }
 
     public Object getAttribute(String attribute)
             throws AttributeNotFoundException, MBeanException {
-        MonitoredAttribute attr = mAttrs.get(attribute);
+        MonitoredAttribute attr = attrs.get(attribute);
         if (attr == null) {
             throw new AttributeNotFoundException(attribute);
         }
         try {
-            return attr.metadata();
+            return attr.getMetadata();
         } catch (Exception e) {
             throw new MBeanException(e);
         }
@@ -82,7 +81,7 @@ final class MetadataMBean implements DynamicMBean {
     }
 
     public MBeanInfo getMBeanInfo() {
-        return mBeanInfo;
+        return beanInfo;
     }
 
     public Object invoke(

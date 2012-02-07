@@ -19,31 +19,25 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicTag;
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.TagList;
-
 import com.netflix.servo.util.Counters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Combines results from a list of metric pollers. This clas

@@ -19,18 +19,13 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.BasicTagList.EMPTY;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
 import com.netflix.servo.Metric;
-
-import java.util.List;
-import java.util.Map;
-
 import org.testng.annotations.Test;
 
+import java.util.List;
+
+import static com.netflix.servo.BasicTagList.*;
 import static org.testng.Assert.*;
 
 public class AsyncMetricObserverTest {

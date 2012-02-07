@@ -19,6 +19,7 @@
  */
 package com.netflix.servo.publish;
 
+import com.google.common.base.Strings;
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
@@ -66,11 +67,12 @@ public final class PrefixMetricFilter implements MetricFilter {
             value = (t == null) ? null : t.getValue();
         }
 
-        if (value == null) {
+        if (Strings.isNullOrEmpty(value)) {
             return root.matches(config);
         } else {
+            String start = value.substring(0, 1);
             NavigableMap<String,MetricFilter> candidates =
-                filters.headMap(value, true).descendingMap();
+                filters.subMap(start, true, value, true).descendingMap();
             if (candidates.isEmpty()) {
                 return root.matches(config);
             } else {

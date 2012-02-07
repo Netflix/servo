@@ -21,11 +21,10 @@ package com.netflix.servo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
-
-import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
@@ -128,7 +127,6 @@ public class BasicTagListTest {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         BasicTagList t1 = BasicTagList.copyOf("foo=bar");
         BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
-        BasicTagList t3 = BasicTagList.copyOf("dee=dum");
         assertEquals(t1.copy("foo", "bar2"), t2);
         assertEquals(t1.copy("dee", "dum").asMap(), map);
     }
