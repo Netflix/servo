@@ -19,27 +19,20 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
 import com.google.common.collect.Lists;
-
-import com.netflix.servo.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.TagList;
-
 import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.AnnotatedObject;
-import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Poller for fetching {@link com.netflix.servo.annotations.Monitor} metrics

@@ -21,15 +21,12 @@ package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-
 import com.netflix.servo.Metric;
-
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorId;
 
 import java.util.List;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

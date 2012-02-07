@@ -21,11 +21,10 @@ package com.netflix.servo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
-
-import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 

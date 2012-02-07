@@ -21,21 +21,9 @@ package com.netflix.servo.jmx;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableMap;
 import com.netflix.servo.annotations.AnnotatedAttribute;
-import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.Monitor;
-
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import java.util.Date;
-import java.util.Map;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.openmbean.ArrayType;
@@ -45,6 +33,13 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Map;
 
 public final class MonitoredAttribute {
 

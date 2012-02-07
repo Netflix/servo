@@ -20,16 +20,13 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.Metric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Runnable that will send updates to a collection of observers.

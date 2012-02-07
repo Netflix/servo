@@ -20,16 +20,13 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
 
 import java.lang.annotation.Annotation;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
 import java.util.List;
 
 /**

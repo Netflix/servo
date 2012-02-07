@@ -20,25 +20,19 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableSet;
-
 import com.netflix.servo.MonitorRegistry;
-
 import com.netflix.servo.annotations.AnnotatedObject;
-
-import java.lang.management.ManagementFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered

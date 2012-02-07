@@ -19,21 +19,11 @@
  */
 package com.netflix.servo.annotations;
 
-import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;
 
-import com.netflix.servo.jmx.MonitoredAttribute;
-
-import java.lang.annotation.Annotation;
-
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import java.util.List;
 
 /**
  * Helper functions for querying the monitor annotations associated with a

@@ -20,7 +20,6 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Strings;
-
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.Tag;
 import com.netflix.servo.TagList;

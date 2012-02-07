@@ -20,16 +20,12 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.TagList;
-
-import com.netflix.servo.jmx.MonitoredAttribute;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
-
-import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 

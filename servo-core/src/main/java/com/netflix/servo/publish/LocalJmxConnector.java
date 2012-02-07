@@ -19,8 +19,8 @@
  */
 package com.netflix.servo.publish;
 
-import java.lang.management.ManagementFactory;
 import javax.management.MBeanServerConnection;
+import java.lang.management.ManagementFactory;
 
 /**
  * Retrieves a connection to the local mbean server running in the same JVM.

@@ -20,19 +20,14 @@
 package com.netflix.servo;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableSet;
-
-import com.netflix.servo.MonitorRegistry;
-
 import com.netflix.servo.annotations.AnnotatedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Simple monitor registry backed by a {@link java.util.Set}.

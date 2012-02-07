@@ -21,12 +21,11 @@ package com.netflix.servo;
 
 import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default registry that delegates all actions to a class specified by the

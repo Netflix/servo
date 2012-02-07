@@ -19,10 +19,7 @@
  */
 package com.netflix.servo.examples;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-
-import com.netflix.servo.Metric;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.FileMetricObserver;
 import com.netflix.servo.publish.JmxMetricPoller;
@@ -35,15 +32,11 @@ import com.netflix.servo.publish.PollScheduler;
 import com.netflix.servo.publish.PrefixMetricFilter;
 import com.netflix.servo.publish.RegexMetricFilter;
 
+import javax.management.ObjectName;
 import java.io.File;
-
-import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import javax.management.ObjectName;
 
 /**
  * Example of collecting arbitrary JMX metrics.

@@ -19,26 +19,20 @@
  */
 package com.netflix.servo.publish;
 
-import static com.netflix.servo.BasicTagList.EMPTY;
-import static com.netflix.servo.publish.BasicMetricFilter.*;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-
 import com.netflix.servo.BasicTagList;
 import com.netflix.servo.Metric;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.testng.annotations.Test;
-
+import static com.netflix.servo.BasicTagList.*;
+import static com.netflix.servo.publish.BasicMetricFilter.*;
 import static org.testng.Assert.*;
 
 public class CompositeMetricPollerTest {

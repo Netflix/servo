@@ -20,29 +20,24 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
-
 import com.google.common.collect.ImmutableMap;
-
 import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.AnnotatedObject;
-import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.Monitor;
-
-import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
-import javax.management.MalformedObjectNameException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Map;
 
 public final class MonitoredResource implements DynamicMBean {
 

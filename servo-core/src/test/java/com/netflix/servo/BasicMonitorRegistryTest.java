@@ -19,21 +19,12 @@
  */
 package com.netflix.servo;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.TagList;
-
 import com.netflix.servo.annotations.AnnotatedObject;
-
 import com.netflix.servo.util.BasicCounter;
-
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.testng.annotations.Test;
+
+import java.util.Set;
 
 import static org.testng.Assert.*;
 

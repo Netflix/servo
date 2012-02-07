@@ -21,7 +21,6 @@ package com.netflix.servo;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
