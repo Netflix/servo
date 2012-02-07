@@ -72,7 +72,7 @@ public class SimpleSample {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        TagList tags = new BasicTagList();
+        List<Tag> tags = new ArrayList<Tag>(2);
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
