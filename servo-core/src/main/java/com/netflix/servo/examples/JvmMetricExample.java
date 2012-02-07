@@ -40,7 +40,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
- * Example of collecting arbitrary JMX metrics.
+ * Example of collecting arbitrary JMX metrics, in this case the standard
+ * metrics exposed under java.lang by the JVM.
  */
 public class JvmMetricExample {
     public static void main(String[] args) throws Exception {
