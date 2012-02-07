@@ -17,8 +17,7 @@
  * limitations under the License.
  * #L%
  */
-
-package com.netflix.servo.sample;
+package com.netflix.servo.examples;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.netflix.servo.*;
@@ -43,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Sample of publishing the SimpleSample to CloudWatch
  */
-public class CloudWatchSample {
+public class CloudWatchExample {
     
     public static void main(String[] args) throws Exception {
         if(args.length != 1){
@@ -58,50 +57,18 @@ public class CloudWatchSample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        SimpleSample sample = new SimpleSample(tags);
+        BasicExample example = new BasicExample("test", tags);
 
-        DefaultMonitorRegistry.getInstance().registerObject(sample);
+        DefaultMonitorRegistry.getInstance().registerObject(example);
 
         PollCallable poller = new PollCallable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL);
 
 
         while(true){
-            sample.counter.incrementAndGet();
-            sample.setSampleGauage(Math.round(Math.random() * 1000));
+            example.counter.incrementAndGet();
+            example.setSampleGauge(Math.round(Math.random() * 1000));
             observer.update(poller.call());
             Thread.sleep(60000);
         }
     }
-
-
-public static class SimpleSample {
-
-    @Monitor(name = "SampleCounter", type = DataSourceType.COUNTER,
-            description = "Sample counting monitor", tags = {
-            "sample=counter"})
-    public final AtomicInteger counter = new AtomicInteger(0);
-
-    @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
-            description = "Sample gauge monitor", tags = {
-            "sample=gauge"})
-    private long sampleGuage = 0;
-
-    @MonitorTags
-    public TagList tagList = BasicTagList.EMPTY;
-
-    public SimpleSample() {
-    }
-
-    public SimpleSample(Collection<Tag> tags) {
-        tagList = new BasicTagList(tags);
-    }
-
-    public synchronized void setSampleGauage(long val){
-        sampleGuage = val;
-    }
-
-    public synchronized long getSampleGuage(){
-        return sampleGuage;
-    }
-}
 }
