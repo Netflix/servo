@@ -1,8 +1,8 @@
 /*
  * #%L
- * servo-cloudwatch
+ * servo
  * %%
- * Copyright (C) 2011 - 2012 Netflix
+ * Copyright (C) 2011 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,15 @@
  * limitations under the License.
  * #L%
  */
+package com.netflix.servo.tag;
 
 /**
- * Code related to Amazon Web Services (AWS).
+ * A key-value pair associated with a metric.
  */
-package com.netflix.servo.aws;
+public interface Tag {
+    /** Returns the key corresponding to this tag. */
+    String getKey();
+
+    /** Returns the value corresponding to this tag. */
+    String getValue();
+}

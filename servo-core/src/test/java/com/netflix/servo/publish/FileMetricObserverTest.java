@@ -21,10 +21,10 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;

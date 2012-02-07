@@ -21,6 +21,7 @@ package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.netflix.servo.tag.TagList;
 
 /**
  * Represents a metric value at a given point in time.

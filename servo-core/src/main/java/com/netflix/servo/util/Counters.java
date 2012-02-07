@@ -22,10 +22,10 @@ package com.netflix.servo.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.MetricConfig;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 
 /**
  * Helper class for basic counters that can be actively updated and tagged

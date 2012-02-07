@@ -20,8 +20,8 @@
 package com.netflix.servo.publish;
 
 import com.netflix.servo.MetricConfig;
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 
 import java.util.regex.Pattern;
 

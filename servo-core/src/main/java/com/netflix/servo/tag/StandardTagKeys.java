@@ -1,8 +1,8 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
- * Copyright (C) 2011 - 2012 Netflix
+ * Copyright (C) 2011 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,25 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
-
-import java.util.Comparator;
+package com.netflix.servo.tag;
 
 /**
- * Comparator for ordering tags based on the key then the value.
+ * Standard tag keys that are used within this library.
  */
-public class TagComparator implements Comparator<Tag>{
-    /** {@inheritDoc} */
-    @Override
-    public int compare(Tag tag, Tag tag1) {
-        if(tag.getKey().equals(tag1.getKey())){
-            return tag.getValue().compareTo(tag1.getValue());
-        }
+public enum StandardTagKeys {
+    /** Canonical name for the class that is providing the metric. */
+    CLASS_NAME("ClassName"),
 
-        return tag.getKey().compareTo(tag1.getKey());
+    /** Hostname for the system reporting the metric. */
+    HOST("Host");
+
+    private String keyName;
+
+    private StandardTagKeys(String keyName) {
+        this.keyName = keyName;
+    }
+
+    public String getKeyName() {
+        return keyName;
     }
 }

@@ -22,7 +22,7 @@ package com.netflix.servo.annotations;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 
 import java.util.List;
 

@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.netflix.servo.BasicTagList.*;
+import static com.netflix.servo.tag.BasicTagList.*;
 import static org.testng.Assert.*;
 
 public class AsyncMetricObserverTest {

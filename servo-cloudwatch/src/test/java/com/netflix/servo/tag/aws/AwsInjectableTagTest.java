@@ -17,8 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo.aws;
+package com.netflix.servo.tag.aws;
 
+import com.netflix.servo.tag.aws.AwsInjectableTag;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 

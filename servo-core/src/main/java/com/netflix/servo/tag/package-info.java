@@ -1,8 +1,8 @@
 /*
  * #%L
- * servo
+ * servo-cloudwatch
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,8 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
 
 /**
- * Standard tag keys that are used within this library.
+ * Code related to Tagging objects with metadata.
  */
-public enum StandardTagKeys {
-    /** Canonical name for the class that is providing the metric. */
-    CLASS_NAME("ClassName"),
-
-    /** Hostname for the system reporting the metric. */
-    HOST("Host");
-
-    private String keyName;
-
-    private StandardTagKeys(String keyName) {
-        this.keyName = keyName;
-    }
-
-    public String getKeyName() {
-        return keyName;
-    }
-}
+package com.netflix.servo.tag;
