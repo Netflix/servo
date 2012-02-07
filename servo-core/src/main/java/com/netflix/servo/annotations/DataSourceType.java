@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.annotations;
 
-import com.netflix.servo.Tag;
+import com.netflix.servo.tag.Tag;
 
 /**
  * Indicates the type of value that is annotated to determine how it will be

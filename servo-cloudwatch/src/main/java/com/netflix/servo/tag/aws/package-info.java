@@ -19,6 +19,7 @@
  */
 
 /**
- * Code related to Amazon Web Services (AWS).
+ * Amazon Web Services (AWS) related tags.
  */
-package com.netflix.servo.aws;
+
+package com.netflix.servo.tag.aws;

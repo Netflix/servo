@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.tag;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

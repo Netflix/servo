@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.util;
 
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.TagList;
 
 /**
  * Keeps track of tags that should be applied to counters incremented in the

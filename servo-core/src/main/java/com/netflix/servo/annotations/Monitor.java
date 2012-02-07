@@ -50,7 +50,7 @@ public @interface Monitor {
 
     /**
      * Set of tags to associate with the value. The values must be parseable
-     * with {@link com.netflix.servo.BasicTag#parseTag}.
+     * with {@link com.netflix.servo.tag.BasicTag#parseTag}.
      */
     String[] tags() default {};
 

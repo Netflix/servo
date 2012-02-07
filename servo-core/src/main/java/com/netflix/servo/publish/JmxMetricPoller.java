@@ -21,15 +21,15 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.netflix.servo.BasicTag;
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MetricConfig;
-import com.netflix.servo.StandardTagKeys;
-import com.netflix.servo.Tag;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.StandardTagKeys;
+import com.netflix.servo.tag.Tag;
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

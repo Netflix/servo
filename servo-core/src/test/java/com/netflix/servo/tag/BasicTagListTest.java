@@ -17,10 +17,14 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.tag;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.netflix.servo.tag.BasicTag;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.util.List;

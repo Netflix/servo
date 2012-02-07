@@ -23,13 +23,12 @@ import com.amazonaws.AmazonClientException;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 
-import com.netflix.servo.BasicTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
 
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

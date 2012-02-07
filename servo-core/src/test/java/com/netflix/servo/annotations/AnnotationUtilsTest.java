@@ -20,8 +20,8 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.Maps;
-import com.netflix.servo.BasicTagList;
-import com.netflix.servo.TagList;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
