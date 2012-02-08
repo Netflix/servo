@@ -59,7 +59,7 @@ public class PollScheduler {
     }
 
     /**
-     * Start scheduling tasks with a default thead pool sized based on the
+     * Start scheduling tasks with a default thread pool, sized based on the
      * number of available processors.
      */
     public void start() {
@@ -72,7 +72,7 @@ public class PollScheduler {
     }
 
     /**
-     * Start the poller with the give executor service.
+     * Start the poller with the given executor service.
      */
     public synchronized void start(ScheduledExecutorService service) {
         if (!started) {
