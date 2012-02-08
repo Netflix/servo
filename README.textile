@@ -1,1 +1,1 @@
-"See Overview":https://github.com/Netflix/servo/wiki/Overview
+"See Wiki":https://github.com/Netflix/servo/wiki
