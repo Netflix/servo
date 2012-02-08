@@ -74,7 +74,6 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
             MetadataMBean metadata = resource.getMetadataMBean();
             register(metadata.getObjectName(), metadata);
-
             objects.add(annoObj);
         } catch (Throwable t) {
             logger.warn("could not register object of class "
