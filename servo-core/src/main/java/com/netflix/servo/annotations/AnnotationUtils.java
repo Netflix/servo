@@ -87,7 +87,34 @@ public final class AnnotationUtils {
                 "invalid MonitorTags annotation on object " + obj, e);
         }
 
-        // TODO: check Monitor annotations
+        List<AnnotatedAttribute> attrs = getMonitoredAttributes(obj);
+        if (attrs.isEmpty()) {
+            throw new IllegalArgumentException(
+                "no Monitor annotations on object " + obj);
+        }
+        String ctype = obj.getClass().getCanonicalName();
+        for (AnnotatedAttribute attr : attrs) {
+            Monitor m = attr.getAnnotation();
+            Object value = null;
+            try {
+                value = attr.getValue();
+            } catch (Exception e) {
+                throw new IllegalArgumentException(
+                    "failed to get value for " + m + " on " + ctype, e);
+            }
+
+            if (m.type() != DataSourceType.INFORMATIONAL) {
+                String vtype = (value == null)
+                    ? null
+                    : value.getClass().getCanonicalName();
+                Number n = asNumber(value);
+                if (n == null) {
+                    throw new IllegalArgumentException(
+                        "expected java.lang.Number, but received " + vtype +
+                        " for " + m + " on " + ctype);
+                }
+            }
+        }
     }
 
     /**

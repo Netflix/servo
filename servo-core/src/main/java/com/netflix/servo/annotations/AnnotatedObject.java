@@ -19,9 +19,15 @@
  */
 package com.netflix.servo.annotations;
 
+import static com.netflix.servo.tag.StandardTagKeys.*;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.netflix.servo.tag.BasicTag;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
 import java.util.List;
@@ -39,8 +45,19 @@ public final class AnnotatedObject {
 
     public AnnotatedObject(Object obj) throws Exception {
         object = Preconditions.checkNotNull(obj);
+
+        String className = obj.getClass().getCanonicalName();
         id = AnnotationUtils.getMonitorId(obj);
-        tags = AnnotationUtils.getMonitorTags(obj);
+
+        List<Tag> commonTags = Lists.newArrayList();
+        commonTags.add(new BasicTag(CLASS_NAME.getKeyName(), className));
+        if (id != null) {
+            commonTags.add(new BasicTag(MONITOR_ID.getKeyName(), id));
+        }
+        tags = BasicTagList.concat(
+            AnnotationUtils.getMonitorTags(obj),
+            new BasicTagList(commonTags));
+
         List<AnnotatedAttribute> attributes =
             AnnotationUtils.getMonitoredAttributes(obj);
         ImmutableList.Builder<AnnotatedAttribute> builder =
