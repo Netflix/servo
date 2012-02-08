@@ -19,29 +19,23 @@
  */
 package com.netflix.servo.tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * User: gorzell
- * Date: 12/27/11
- * Time: 5:35 PM
+ * Group of Tags who's values will be dynamically set at runtime
+ * based on local calls.
  */
 public enum InjectableTag implements Tag {
     HOSTNAME("hostname", getHostName()),
     IP("ip", getIp());
 
+    private static final Logger log = LoggerFactory.getLogger(InjectableTag.class);
     private final String key;
     private final String value;
-    private static InetAddress address;
-
-    static {
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            address = null;
-        }
-    }
 
     private InjectableTag(String key, String val) {
         this.key = key;
@@ -57,10 +51,19 @@ public enum InjectableTag implements Tag {
     }
 
     private static String getHostName() {
-        return (address != null) ? address.getHostName() : "unkownHost";
+        return (loadAddress() != null) ? loadAddress().getHostName() : "unkownHost";
     }
 
     private static String getIp() {
-        return (address != null) ? address.getHostAddress() : "unknownHost";
+        return (loadAddress() != null) ? loadAddress().getHostAddress() : "unknownHost";
+    }
+
+    private static InetAddress loadAddress() {
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            log.warn("Unable to load INET info.", e);
+            return null;
+        }
     }
 }
