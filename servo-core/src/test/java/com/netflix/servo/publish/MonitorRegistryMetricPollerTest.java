@@ -23,6 +23,10 @@ import com.netflix.servo.BasicMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MetricConfig;
 import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.BasicTag;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.BasicCounter;
 import org.testng.annotations.Test;
 
@@ -38,7 +42,11 @@ public class MonitorRegistryMetricPollerTest {
 
         MetricPoller poller = new MonitorRegistryMetricPoller(registry);
         Metric metric = poller.poll(MATCH_ALL).get(0);
-        assertEquals(metric.getConfig(), new MetricConfig("Count"));
+        TagList tags = BasicTagList.copyOf(
+            new BasicTag("MonitorId", "foo"),
+            new BasicTag("ClassName", "com.netflix.servo.util.BasicCounter"),
+            DataSourceType.COUNTER);
+        assertEquals(metric.getConfig(), new MetricConfig("Count", tags));
     }
 
 }
