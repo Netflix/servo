@@ -40,9 +40,14 @@ public final class Counters {
         new CacheLoader<MetricConfig,BasicCounter>() {
             @Override
             public BasicCounter load(MetricConfig key) {
+                try {
                 BasicCounter counter = new BasicCounter(key);
                 DefaultMonitorRegistry.getInstance().registerObject(counter);
                 return counter;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -66,7 +71,7 @@ public final class Counters {
      * @param name   name of the counter to increment
      * @param delta  the amount to increment the counter by
      */
-    public static void increment(String name, int delta) {
+    public static void increment(String name, long delta) {
         increment(new MetricConfig(name), delta);
     }
 
@@ -87,7 +92,7 @@ public final class Counters {
      * @param tags   tags to associate with the counter
      * @param delta  the amount to increment the counter by
      */
-    public static void increment(String name, TagList tags, int delta) {
+    public static void increment(String name, TagList tags, long delta) {
         increment(new MetricConfig(name, tags), delta);
     }
 
@@ -97,7 +102,7 @@ public final class Counters {
      * @param config  config of the counter to increment
      * @param delta   the amount to increment the counter by
      */
-    public static void increment(MetricConfig config, int delta) {
+    public static void increment(MetricConfig config, long delta) {
         TagList cxtTags = TaggingContext.getTags();
         if (cxtTags != null) {
             String name = config.getName();
