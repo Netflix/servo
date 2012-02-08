@@ -26,8 +26,8 @@ public enum StandardTagKeys {
     /** Canonical name for the class that is providing the metric. */
     CLASS_NAME("ClassName"),
 
-    /** Hostname for the system reporting the metric. */
-    HOST("Host");
+    /** Monitor id if one is provided via the annotation. */
+    MONITOR_ID("MonitorId");
 
     private String keyName;
 
