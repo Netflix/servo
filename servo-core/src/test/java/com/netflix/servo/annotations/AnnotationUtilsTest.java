@@ -89,6 +89,15 @@ public class AnnotationUtilsTest {
         }
     }
 
+    public static class StringArrayTagObject {
+        @MonitorTags
+        private final String[] tags;
+
+        public StringArrayTagObject(String... tags) {
+            this.tags = tags;
+        }
+    }
+
     public static class FieldTagObject {
         @MonitorTags
         private final TagList tags;
@@ -140,6 +149,24 @@ public class AnnotationUtilsTest {
         @Monitor(name="two")
         public float getTwo() {
             return two;
+        }
+    }
+
+    public static class StringGaugeObject {
+
+        @Monitor(name="foo", type=DataSourceType.GAUGE)
+        String foo = "bar";
+
+        public StringGaugeObject() {
+        }
+    }
+
+    public static class StringCounterObject {
+
+        @Monitor(name="foo", type=DataSourceType.COUNTER)
+        String foo = "bar";
+
+        public StringCounterObject() {
         }
     }
 
@@ -252,5 +279,25 @@ public class AnnotationUtilsTest {
         assertEquals(AnnotationUtils.asNumber(false), 0);
         assertEquals(AnnotationUtils.asNumber(true), 1);
         assertEquals(AnnotationUtils.asNumber("foo"), null);
+    }
+
+    @Test
+    public void testValidateOk() throws Exception {
+        AnnotationUtils.validate(new MonitorObject());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testValidateNoMonitor() throws Exception {
+        AnnotationUtils.validate(new Object());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testValidateBadGauge() throws Exception {
+        AnnotationUtils.validate(new StringGaugeObject());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testValidateBadCounter() throws Exception {
+        AnnotationUtils.validate(new StringCounterObject());
     }
 }
