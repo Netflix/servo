@@ -40,14 +40,9 @@ public final class Counters {
         new CacheLoader<MetricConfig,BasicCounter>() {
             @Override
             public BasicCounter load(MetricConfig key) {
-                try {
                 BasicCounter counter = new BasicCounter(key);
                 DefaultMonitorRegistry.getInstance().registerObject(counter);
                 return counter;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
             }
         });
 
