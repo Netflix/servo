@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.netflix.servo</groupId>
         <artifactId>servo</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.1</version>
     </parent>
 
     <artifactId>servo-core</artifactId>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>[10,)</version>
+            <version>[11,)</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
