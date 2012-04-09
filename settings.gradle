@@ -1,0 +1,2 @@
+rootProject.name = 'servo'
+include 'servo-core','servo-cloudwatch'
