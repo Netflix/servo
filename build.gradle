@@ -1,0 +1,56 @@
+// Establish version and status
+ext.releaseVersion = '0.1.2'
+ext.githubProjectName = rootProject.name
+
+buildscript {
+    repositories { mavenCentral() }
+}
+
+allprojects {
+    repositories { mavenCentral() }
+}
+
+//apply from: file('gradle/release.gradle') // Not fully tested
+apply from: file('gradle/convention.gradle')
+apply from: file('gradle/maven.gradle')
+apply from: file('gradle/check.gradle')
+//apply from: file('gradle/license.gradle') // Waiting for re-release
+
+subprojects {
+    // Closure to configure all the POM with extra info, common to all projects
+    pom {
+        project {
+            url "https://github.com/Netflix/${rootProject.githubProjectName}"
+            scm {
+                connection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+                url "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+                developerConnection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+            }
+            issueManagement {
+                system 'github'
+                url "https://github.com/Netflix/${rootProject.githubProjectName}/issues"
+            }
+        }
+    }
+
+    group = 'com.netflix.servo'
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.6.3'
+        testCompile 'org.testng:testng:6.1.1'
+    }
+}
+
+project(':servo-core') {
+    dependencies {
+        compile 'com.google.guava:guava:11.+'
+    }
+}
+
+project(':servo-cloudwatch') {
+    dependencies {
+        compile 'com.amazonaws:aws-java-sdk:1.2.15'
+        compile project(':servo-core')
+    }
+}
+
