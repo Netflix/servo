@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 
 /**
  * Filter that always returns true or false.
@@ -45,7 +45,7 @@ public final class BasicMetricFilter implements MetricFilter {
     }
 
     /** {@inheritDoc} */
-    public boolean matches(MetricConfig config) {
+    public boolean matches(MonitorContext config) {
         return match;
     }
 }

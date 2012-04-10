@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.util;
 
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
@@ -50,7 +50,7 @@ public final class BasicCounter {
      * @param name  name of the counter
      */
     public BasicCounter(String name) {
-        this(new MetricConfig(name));
+        this(new MonitorContext(name));
     }
 
     /**
@@ -58,7 +58,7 @@ public final class BasicCounter {
      *
      * @param config  config to associate with the counter
      */
-    public BasicCounter(MetricConfig config) {
+    public BasicCounter(MonitorContext config) {
         this(config.getName(), config.getTags());
     }
 

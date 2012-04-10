@@ -24,7 +24,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
@@ -54,7 +54,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
     private final MetricObserver observer;
-    private final Cache<MetricConfig,CounterValue> cache;
+    private final Cache<MonitorContext,CounterValue> cache;
 
     /**
      * Creates a new instance with the specified heartbeat interval. The

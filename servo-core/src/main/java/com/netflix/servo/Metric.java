@@ -27,7 +27,7 @@ import com.netflix.servo.tag.TagList;
  * Represents a metric value at a given point in time.
  */
 public final class Metric {
-    private final MetricConfig config;
+    private final MonitorContext config;
     private final long timestamp;
     private final Number value;
 
@@ -40,7 +40,7 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(String name, TagList tags, long timestamp, Number value) {
-        this(new MetricConfig(name, tags), timestamp, value);
+        this(new MonitorContext(name, tags), timestamp, value);
     }
 
     /**
@@ -50,7 +50,7 @@ public final class Metric {
      * @param timestamp  point in time when the metric value was sampled
      * @param value      value of the metric
      */
-    public Metric(MetricConfig config, long timestamp, Number value) {
+    public Metric(MonitorContext config, long timestamp, Number value) {
         this.config = Preconditions.checkNotNull(
             config, "config cannot be null");
         this.timestamp = timestamp;
@@ -59,7 +59,7 @@ public final class Metric {
     }
 
     /** Returns the config settings associated with the metric. */
-    public MetricConfig getConfig() {
+    public MonitorContext getConfig() {
         return config;
     }
 

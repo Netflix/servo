@@ -1,0 +1,70 @@
+/*
+ * Copyright (c) 2012. Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ */
+
+// Establish version and status
+ext.releaseVersion = '0.1.1' // TEMPLATE: Set to latest release
+ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
+
+buildscript {
+    repositories { mavenCentral() }
+}
+
+allprojects {
+    repositories { mavenCentral() }
+}
+
+//apply from: file('gradle/release.gradle') // Not fully tested
+apply from: file('gradle/convention.gradle')
+apply from: file('gradle/maven.gradle')
+apply from: file('gradle/check.gradle')
+//apply from: file('gradle/license.gradle') // Waiting for re-release
+
+subprojects {
+    // Closure to configure all the POM with extra info, common to all projects
+    pom {
+        project {
+            url "https://github.com/Netflix/${rootProject.githubProjectName}"
+            scm {
+                connection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+                url "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+                developerConnection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
+            }
+            issueManagement {
+                system 'github'
+                url "https://github.com/Netflix/${rootProject.githubProjectName}/issues"
+            }
+        }
+    }
+
+    group = 'com.netflix.osstemplate' // TEMPLATE: Set to organization of project
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.6.3'
+        compile 'com.google.guava:guava:[11,)'
+        testCompile 'org.testng:testng:6.1.1'
+    }
+}
+
+project(':servo-core') {
+
+}
+
+project(':servo-aws') {
+    dependencies {
+        compile project(':servo-core')
+        compile 'com.amazonaws:aws-java-sdk:[1.3,)'
+    }
+}

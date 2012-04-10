@@ -22,9 +22,9 @@ package com.netflix.servo.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.MetricConfig;
 import com.netflix.servo.tag.TagList;
 
 /**
@@ -35,11 +35,11 @@ import com.netflix.servo.tag.TagList;
  */
 public final class Counters {
 
-    private static final LoadingCache<MetricConfig,BasicCounter> COUNTERS =
+    private static final LoadingCache<MonitorContext,BasicCounter> COUNTERS =
         CacheBuilder.newBuilder().build(
-        new CacheLoader<MetricConfig,BasicCounter>() {
+        new CacheLoader<MonitorContext,BasicCounter>() {
             @Override
-            public BasicCounter load(MetricConfig key) {
+            public BasicCounter load(MonitorContext key) {
                 BasicCounter counter = new BasicCounter(key);
                 DefaultMonitorRegistry.getInstance().registerObject(counter);
                 return counter;
@@ -56,7 +56,7 @@ public final class Counters {
      * @param name  name of the counter to increment
      */
     public static void increment(String name) {
-        increment(new MetricConfig(name), 1);
+        increment(new MonitorContext(name), 1);
     }
 
     /**
@@ -67,7 +67,7 @@ public final class Counters {
      * @param delta  the amount to increment the counter by
      */
     public static void increment(String name, long delta) {
-        increment(new MetricConfig(name), delta);
+        increment(new MonitorContext(name), delta);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class Counters {
      * @param tags   tags to associate with the counter
      */
     public static void increment(String name, TagList tags) {
-        increment(new MetricConfig(name, tags), 1);
+        increment(new MonitorContext(name, tags), 1);
     }
 
     /**
@@ -88,7 +88,7 @@ public final class Counters {
      * @param delta  the amount to increment the counter by
      */
     public static void increment(String name, TagList tags, long delta) {
-        increment(new MetricConfig(name, tags), delta);
+        increment(new MonitorContext(name, tags), delta);
     }
 
     /**
@@ -97,12 +97,12 @@ public final class Counters {
      * @param config  config of the counter to increment
      * @param delta   the amount to increment the counter by
      */
-    public static void increment(MetricConfig config, long delta) {
+    public static void increment(MonitorContext config, long delta) {
         TagList cxtTags = TaggingContext.getTags();
         if (cxtTags != null) {
             String name = config.getName();
             TagList newTags = BasicTagList.concat(config.getTags(), cxtTags);
-            MetricConfig newConfig = new MetricConfig(name, newTags);
+            MonitorContext newConfig = new MonitorContext(name, newTags);
             COUNTERS.getUnchecked(newConfig).increment(delta);
         } else {
             COUNTERS.getUnchecked(config).increment(delta);
