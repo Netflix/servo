@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 
 /**
  * A filter to restrict the set of metrics that are polled.
@@ -32,5 +32,5 @@ public interface MetricFilter {
      * @param config  config settings associated with the metric
      * @return        true if the metric should be selected
      */
-    boolean matches(MetricConfig config);
+    boolean matches(MonitorContext config);
 }

@@ -23,4 +23,6 @@ package com.netflix.servo;
  */
 public interface Monitor<T> {
     public T getValue();
+
+    public MonitorContext getContext();
 }

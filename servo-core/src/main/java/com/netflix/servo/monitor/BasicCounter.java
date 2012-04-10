@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Date: 4/9/12
  * Time: 6:29 PM
  */
-public class BasicCounter implements Count {
+public class BasicCounter implements Counter {
     protected final AtomicLong count = new AtomicLong();
 
     @Override

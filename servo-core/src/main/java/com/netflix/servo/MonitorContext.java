@@ -27,7 +27,7 @@ import com.netflix.servo.tag.TagList;
 /**
  * Configuration settings associated with a metric.
  */
-public final class MetricConfig {
+public final class MonitorContext {
 
     private final String name;
     private final TagList tags;
@@ -35,7 +35,7 @@ public final class MetricConfig {
     /**
      * Creates a new instance with an empty tag list.
      */
-    public MetricConfig(String name) {
+    public MonitorContext(String name) {
         this(name, null);
     }
 
@@ -43,7 +43,7 @@ public final class MetricConfig {
      * Creates a new instance with a given name and tags. If {@code tags} is
      * null an empty tag list will be used.
      */
-    public MetricConfig(String name, TagList tags) {
+    public MonitorContext(String name, TagList tags) {
         this.name = Preconditions.checkNotNull(name, "name cannot be null");
         this.tags = (tags == null) ? BasicTagList.EMPTY : tags;
     }
@@ -61,10 +61,10 @@ public final class MetricConfig {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof MetricConfig)) {
+        if (obj == null || !(obj instanceof MonitorContext)) {
             return false;
         }
-        MetricConfig m = (MetricConfig) obj;
+        MonitorContext m = (MonitorContext) obj;
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 

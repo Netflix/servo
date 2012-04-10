@@ -23,7 +23,7 @@ import com.netflix.servo.Monitor;
  * Date: 4/9/12
  * Time: 6:26 PM
  */
-public interface Count extends Monitor<Long> {
+public interface Counter extends Monitor<Long> {
     public void increment();
 
     public void increment(int amount);
