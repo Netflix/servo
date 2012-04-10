@@ -16,6 +16,8 @@
 
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.MonitorContext;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -23,8 +25,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * Date: 4/9/12
  * Time: 6:36 PM
  */
-public class CountingGauge implements Gauge<Long> {
+public class CountingGauge extends AbstractMonitor<Number> implements Gauge<Long> {
     private final AtomicLong count = new AtomicLong();
+
+    public CountingGauge(MonitorContext context){
+        super(context);
+    }
 
     public void decrement() {
         count.decrementAndGet();

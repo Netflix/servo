@@ -17,14 +17,19 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.Monitor;
+import com.netflix.servo.MonitorContext;
 
 /**
  * User: gorzell
  * Date: 4/9/12
  * Time: 6:53 PM
  */
-public class BasicInformational implements Monitor<String> {
+public class BasicInformational extends AbstractMonitor<String> implements Monitor<String> {
     protected String info = "";
+
+    public BasicInformational(MonitorContext context){
+        super(context);
+    }
 
     public void setValue(String value){
         info = value;

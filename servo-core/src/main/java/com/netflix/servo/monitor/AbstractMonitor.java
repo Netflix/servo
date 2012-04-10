@@ -16,48 +16,23 @@
 
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.Monitor;
 import com.netflix.servo.MonitorContext;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * User: gorzell
- * Date: 4/9/12
- * Time: 6:29 PM
+ * Date: 4/10/12
+ * Time: 11:53 AM
  */
-public class BasicCounter extends AbstractMonitor<Long> implements Counter {
-    protected final AtomicLong count = new AtomicLong();
+public abstract class AbstractMonitor<T> implements Monitor<T> {
+    private final MonitorContext context;
 
-    /**
-     *
-     * @param context
-     */
-    public BasicCounter(MonitorContext context){
-        super(context);
+    AbstractMonitor(MonitorContext context){
+        this.context = context;
     }
 
     @Override
-    public void increment() {
-        count.incrementAndGet();
-    }
-
-    @Override
-    public void increment(int amount) {
-        increment((long)amount);
-    }
-
-    @Override
-    public void increment(long amount) {
-        count.getAndAdd(amount);
-    }
-
-    @Override
-    public void increment(Long amount) {
-        increment(amount.longValue());
-    }
-
-    @Override
-    public Long getValue() {
-        return count.get();
+    public MonitorContext getContext() {
+        return context;
     }
 }
