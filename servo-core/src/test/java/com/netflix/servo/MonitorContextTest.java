@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
-public class MetricConfigTest {
+public class MonitorContextTest {
 
     private final TagList tags1 =
         BasicTagList.copyOf("cluster=foo", "asg=foo-v000");
@@ -35,27 +35,27 @@ public class MetricConfigTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {
-        new MetricConfig(null, tags1);
+        new MonitorContext(null, tags1);
     }
 
     @Test
     public void testNullTags() throws Exception {
-        MetricConfig m = new MetricConfig("a");
-        assertEquals(m, new MetricConfig("a"));
+        MonitorContext m = new MonitorContext("a");
+        assertEquals(m, new MonitorContext("a"));
     }
 
     @Test
     public void testAccessors() throws Exception {
-        MetricConfig m1 = new MetricConfig("a", tags1);
+        MonitorContext m1 = new MonitorContext("a", tags1);
         assertEquals(m1.getName(), "a");
         assertEquals(m1.getTags(), tags1);
     }
 
     @Test
     public void testEquals() throws Exception {
-        MetricConfig m1 = new MetricConfig("a", tags1);
-        MetricConfig m2 = new MetricConfig("a", tags2);
-        MetricConfig m3 = new MetricConfig("a", tags1);
+        MonitorContext m1 = new MonitorContext("a", tags1);
+        MonitorContext m2 = new MonitorContext("a", tags2);
+        MonitorContext m3 = new MonitorContext("a", tags1);
 
         assertFalse(m1.equals(null));
         assertFalse(m1.equals(m2.toString()));
@@ -66,9 +66,9 @@ public class MetricConfigTest {
 
     @Test
     public void testHashCode() throws Exception {
-        MetricConfig m1 = new MetricConfig("a", tags1);
-        MetricConfig m2 = new MetricConfig("a", tags2);
-        MetricConfig m3 = new MetricConfig("a", tags1);
+        MonitorContext m1 = new MonitorContext("a", tags1);
+        MonitorContext m2 = new MonitorContext("a", tags2);
+        MonitorContext m3 = new MonitorContext("a", tags1);
 
         assertTrue(m1.hashCode() == m1.hashCode());
         assertTrue(m1.hashCode() != m2.hashCode());

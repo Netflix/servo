@@ -22,7 +22,7 @@ package com.netflix.servo.publish;
 import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
@@ -82,7 +82,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             }
 
             // Create config and add metric if filter matches 
-            MetricConfig config = new MetricConfig(anno.name(), tags);
+            MonitorContext config = new MonitorContext(anno.name(), tags);
             if (filter.matches(config)) {
                 Number num = attr.getNumber();
                 if (num != null) {

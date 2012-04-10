@@ -21,7 +21,7 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.BasicMonitorRegistry;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MetricConfig;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.BasicTag;
@@ -44,9 +44,9 @@ public class MonitorRegistryMetricPollerTest {
         Metric metric = poller.poll(MATCH_ALL).get(0);
         TagList tags = BasicTagList.copyOf(
             new BasicTag("MonitorId", "foo"),
-            new BasicTag("ClassName", "com.netflix.servo.util.BasicCounter"),
+            new BasicTag("ClassName", "com.netflix.servo.util.CountingGauge"),
             DataSourceType.COUNTER);
-        assertEquals(metric.getConfig(), new MetricConfig("Count", tags));
+        assertEquals(metric.getConfig(), new MonitorContext("Count", tags));
     }
 
 }
