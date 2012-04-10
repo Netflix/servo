@@ -21,27 +21,39 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * User: gorzell
  * Date: 4/9/12
- * Time: 6:29 PM
+ * Time: 6:36 PM
  */
-public class BasicCount implements Count {
-    protected final AtomicLong count = new AtomicLong();
+public class CountingGauge implements Gauge<Long> {
+    private final AtomicLong count = new AtomicLong();
 
-    @Override
+    public void decrement() {
+        count.decrementAndGet();
+    }
+
+    public void decrement(int amount) {
+        decrement((long) amount);
+    }
+
+    public void decrement(long amount) {
+        count.addAndGet(0 - amount);
+    }
+
+    public void decrement(Long amount) {
+        decrement(amount.longValue());
+    }
+
     public void increment() {
         count.incrementAndGet();
     }
 
-    @Override
     public void increment(int amount) {
         increment((long)amount);
     }
 
-    @Override
     public void increment(long amount) {
         count.getAndAdd(amount);
     }
 
-    @Override
     public void increment(Long amount) {
         increment(amount.longValue());
     }
@@ -49,5 +61,10 @@ public class BasicCount implements Count {
     @Override
     public Long getValue() {
         return count.get();
+    }
+
+    @Override
+    public void setValue(Long value) {
+        count.set(value.longValue());
     }
 }

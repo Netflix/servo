@@ -16,31 +16,38 @@
 
 package com.netflix.servo.monitor;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * User: gorzell
  * Date: 4/9/12
- * Time: 6:36 PM
+ * Time: 6:29 PM
  */
-public class BasicCounter extends BasicCount implements Counter {
+public class BasicCounter implements Count {
+    protected final AtomicLong count = new AtomicLong();
 
     @Override
-    public void decrement() {
-        count.decrementAndGet();
+    public void increment() {
+        count.incrementAndGet();
     }
 
     @Override
-    public void decrement(int amount) {
-        decrement((long) amount);
-    }
-
-
-    @Override
-    public void decrement(long amount) {
-        count.addAndGet(0 - amount);
+    public void increment(int amount) {
+        increment((long)amount);
     }
 
     @Override
-    public void decrement(Long amount) {
-        decrement(amount.longValue());
+    public void increment(long amount) {
+        count.getAndAdd(amount);
+    }
+
+    @Override
+    public void increment(Long amount) {
+        increment(amount.longValue());
+    }
+
+    @Override
+    public Long getValue() {
+        return count.get();
     }
 }
