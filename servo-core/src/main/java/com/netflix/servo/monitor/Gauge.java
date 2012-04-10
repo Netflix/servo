@@ -23,9 +23,6 @@ import com.netflix.servo.Monitor;
  * Date: 4/9/12
  * Time: 1:53 PM
  */
-public interface Gauge extends Monitor {
-    
-    public Number getValue();
-    
-    public void setValue(Number value);
+public interface Gauge<T> extends Monitor<T> {
+    public void setValue(T value);
 }

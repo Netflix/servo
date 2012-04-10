@@ -21,14 +21,17 @@ import com.netflix.servo.Monitor;
 /**
  * User: gorzell
  * Date: 4/9/12
- * Time: 1:51 PM
+ * Time: 6:53 PM
  */
-public interface Counter extends Count {
-    public void decrement();
+public class BasicInformational implements Monitor<String> {
+    protected String info = "";
 
-    public void decrement(int amount);
+    public void setValue(String value){
+        info = value;
+    }
 
-    public void decrement(long amount);
-
-    public void decrement(Long amount);
+    @Override
+    public String getValue() {
+        return info;
+    }
 }

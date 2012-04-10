@@ -21,5 +21,6 @@ package com.netflix.servo;
  * Date: 4/9/12
  * Time: 1:50 PM
  */
-public interface Monitor {
+public interface Monitor<T> {
+    public T getValue();
 }

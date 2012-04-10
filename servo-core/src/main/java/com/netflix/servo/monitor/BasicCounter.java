@@ -16,19 +16,31 @@
 
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.Monitor;
-
 /**
  * User: gorzell
  * Date: 4/9/12
- * Time: 1:51 PM
+ * Time: 6:36 PM
  */
-public interface Counter extends Count {
-    public void decrement();
+public class BasicCounter extends BasicCount implements Counter {
 
-    public void decrement(int amount);
+    @Override
+    public void decrement() {
+        count.decrementAndGet();
+    }
 
-    public void decrement(long amount);
+    @Override
+    public void decrement(int amount) {
+        decrement((long) amount);
+    }
 
-    public void decrement(Long amount);
+
+    @Override
+    public void decrement(long amount) {
+        count.addAndGet(0 - amount);
+    }
+
+    @Override
+    public void decrement(Long amount) {
+        decrement(amount.longValue());
+    }
 }
