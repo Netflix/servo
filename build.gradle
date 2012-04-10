@@ -62,7 +62,7 @@ project(':servo-core') {
 
 }
 
-project(':servo-cloudwatch') {
+project(':servo-aws') {
     dependencies {
         compile project(':servo-core')
         compile 'com.amazonaws:aws-java-sdk:[1.3,)'

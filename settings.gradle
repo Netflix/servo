@@ -14,6 +14,4 @@
  *     limitations under the License.
  */
 
-
-
-include 'servo-core','servo-cloudwatch'
+include 'servo-core','servo-aws'
