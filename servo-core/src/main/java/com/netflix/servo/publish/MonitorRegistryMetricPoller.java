@@ -82,7 +82,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             }
 
             // Create config and add metric if filter matches 
-            MonitorContext config = new MonitorContext(anno.name(), tags);
+            MonitorContext config = new MonitorContext.Builder(anno.name()).withTags(tags).build();
             if (filter.matches(config)) {
                 Number num = attr.getNumber();
                 if (num != null) {

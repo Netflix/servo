@@ -109,7 +109,7 @@ public final class JmxMetricPoller implements MetricPoller {
         long now = System.currentTimeMillis();
         Number num = AnnotationUtils.asNumber(value);
         if (num != null) {
-            TagList newTags = counters.matches(new MonitorContext(name, tags))
+            TagList newTags = counters.matches(new MonitorContext.Builder(name).withTags(tags).build())
                 ? tags.copy(BasicTagList.copyOf(DataSourceType.COUNTER))
                 : tags.copy(BasicTagList.copyOf(DataSourceType.GAUGE));
             Metric m = new Metric(name, newTags, now, num);
@@ -157,7 +157,7 @@ public final class JmxMetricPoller implements MetricPoller {
         List<String> matchingNames = Lists.newArrayList();
         for (MBeanAttributeInfo attrInfo : attrInfos) {
             String attrName = attrInfo.getName();
-            if (filter.matches(new MonitorContext(attrName, tags))) {
+            if (filter.matches(new MonitorContext.Builder(attrName).withTags(tags).build())) {
                 matchingNames.add(attrName);
             }
         }
@@ -175,7 +175,7 @@ public final class JmxMetricPoller implements MetricPoller {
                 for (Map.Entry<String,Object> e : values.entrySet()) {
                     String key = e.getKey();
                     BasicTagList newTags = tags.copy(COMPOSITE_PATH_KEY, key);
-                    if (filter.matches(new MonitorContext(attrName, newTags))) {
+                    if (filter.matches(new MonitorContext.Builder(attrName).withTags(newTags).build())) {
                         addMetric(metrics, attrName, newTags, e.getValue());
                     }
                 }

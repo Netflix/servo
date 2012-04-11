@@ -21,31 +21,60 @@ package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Configuration settings associated with a metric.
  */
 public final class MonitorContext {
 
+    public static class Builder{
+        private final String name;
+        private final List<Tag> tags = new LinkedList<Tag>();
+
+        public Builder(String name){
+            this.name = name;
+        }
+
+        public Builder withTag(String key, String val){
+            tags.add(new BasicTag(key, val));
+            return this;
+        }
+
+        public Builder withTags(TagList tagList){
+            for(Tag t : tagList){
+                tags.add(t);
+            }
+            return this;
+        }
+
+        public Builder withTags(Collection<Tag> tagCollection){
+            tags.addAll(tagCollection);
+            return this;
+        }
+
+        public MonitorContext build(){
+            return new MonitorContext(this);
+        }
+    }
+
     private final String name;
     private final TagList tags;
-
-    /**
-     * Creates a new instance with an empty tag list.
-     */
-    public MonitorContext(String name) {
-        this(name, null);
-    }
 
     /**
      * Creates a new instance with a given name and tags. If {@code tags} is
      * null an empty tag list will be used.
      */
-    public MonitorContext(String name, TagList tags) {
-        this.name = Preconditions.checkNotNull(name, "name cannot be null");
-        this.tags = (tags == null) ? BasicTagList.EMPTY : tags;
+    private MonitorContext(Builder builder) {
+        this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
+        this.tags = (builder.tags.isEmpty()) ? BasicTagList.EMPTY : new BasicTagList(builder.tags);
     }
 
      /** Returns the name of the metric. */

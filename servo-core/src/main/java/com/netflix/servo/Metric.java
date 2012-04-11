@@ -40,7 +40,7 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(String name, TagList tags, long timestamp, Number value) {
-        this(new MonitorContext(name, tags), timestamp, value);
+        this(new MonitorContext.Builder(name).withTags(tags).build(), timestamp, value);
     }
 
     /**
