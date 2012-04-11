@@ -44,9 +44,9 @@ public class MonitorRegistryMetricPollerTest {
         Metric metric = poller.poll(MATCH_ALL).get(0);
         TagList tags = BasicTagList.copyOf(
             new BasicTag("MonitorId", "foo"),
-            new BasicTag("ClassName", "com.netflix.servo.util.CountingGauge"),
+            new BasicTag("ClassName", "com.netflix.servo.monitor.Counter"),
             DataSourceType.COUNTER);
-        assertEquals(metric.getConfig(), new MonitorContext("Count", tags));
+        assertEquals(metric.getConfig(), new MonitorContext.Builder("Count").withTags(tags).build());
     }
 
 }
