@@ -56,7 +56,7 @@ public final class Counters {
      * @param name  name of the counter to increment
      */
     public static void increment(String name) {
-        increment(new MonitorContext(name), 1);
+        increment(new MonitorContext.Builder(name).build(), 1);
     }
 
     /**
@@ -67,7 +67,7 @@ public final class Counters {
      * @param delta  the amount to increment the counter by
      */
     public static void increment(String name, long delta) {
-        increment(new MonitorContext(name), delta);
+        increment(new MonitorContext.Builder(name).build(), delta);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class Counters {
      * @param tags   tags to associate with the counter
      */
     public static void increment(String name, TagList tags) {
-        increment(new MonitorContext(name, tags), 1);
+        increment(new MonitorContext.Builder(name).withTags(tags).build(), 1);
     }
 
     /**
@@ -88,7 +88,7 @@ public final class Counters {
      * @param delta  the amount to increment the counter by
      */
     public static void increment(String name, TagList tags, long delta) {
-        increment(new MonitorContext(name, tags), delta);
+        increment(new MonitorContext.Builder(name).withTags(tags).build(), delta);
     }
 
     /**
@@ -102,7 +102,7 @@ public final class Counters {
         if (cxtTags != null) {
             String name = config.getName();
             TagList newTags = BasicTagList.concat(config.getTags(), cxtTags);
-            MonitorContext newConfig = new MonitorContext(name, newTags);
+            MonitorContext newConfig = new MonitorContext.Builder(name).withTags(newTags).build();
             COUNTERS.getUnchecked(newConfig).increment(delta);
         } else {
             COUNTERS.getUnchecked(config).increment(delta);
