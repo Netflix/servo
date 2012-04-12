@@ -39,27 +39,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BasicExample {
 
     @Monitor(name = "SampleCounter", type = DataSourceType.COUNTER,
-            description = "Sample counting monitor",
-            tags = {"sample=simple"})
+            description = "Sample counting monitor")
     public final AtomicInteger counter = new AtomicInteger(0);
 
     @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
-            description = "Sample gauge monitor",
-            tags = {"sample=simple"})
+            description = "Sample gauge monitor")
     private long sampleGuage = 0;
 
-    @MonitorId
-    private final String id;
+
 
     @MonitorTags
     public final TagList tags;
 
     public BasicExample() {
-        this(null, BasicTagList.EMPTY);
+        this(BasicTagList.EMPTY);
     }
 
-    public BasicExample(String id, Iterable<Tag> tags) {
-        this.id = id;
+    public BasicExample(Iterable<Tag> tags) {
         this.tags = new BasicTagList(tags);
     }
 
@@ -81,7 +77,7 @@ public class BasicExample {
         if (args.length > 0) {
             id = args[0];
         }
-        BasicExample example = new BasicExample(id, tags);
+        BasicExample example = new BasicExample(tags);
 
         DefaultMonitorRegistry.getInstance().registerObject(example);
 

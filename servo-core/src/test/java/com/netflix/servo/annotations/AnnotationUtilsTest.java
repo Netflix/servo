@@ -31,64 +31,6 @@ import static org.testng.Assert.*;
 
 public class AnnotationUtilsTest {
 
-    public static class FieldIdObject {
-        @MonitorId
-        private final String id;
-
-        public FieldIdObject(String id) {
-            this.id = id;
-        }
-    }
-
-    public static class MethodIdObject {
-        private final String id;
-
-        public MethodIdObject(String id) {
-            this.id = id;
-        }
-
-        @MonitorId
-        private String getId() {
-            return id;
-        }
-    }
-
-    public static class TwoIdObject {
-        @MonitorId
-        private final String id;
-
-        public TwoIdObject(String id) {
-            this.id = id;
-        }
-
-        @MonitorId
-        private String getId() {
-            return id;
-        }
-    }
-
-    public static class IntIdObject {
-        @MonitorId
-        public final int id;
-
-        public IntIdObject(int id) {
-            this.id = id;
-        }
-    }
-
-    public static class MethodParamsIdObject {
-        private final String id;
-
-        public MethodParamsIdObject(String id) {
-            this.id = id;
-        }
-
-        @MonitorId
-        public String getId(int p) {
-            return id;
-        }
-    }
-
     public static class StringArrayTagObject {
         @MonitorTags
         private final String[] tags;
@@ -136,7 +78,7 @@ public class AnnotationUtilsTest {
         @Monitor(name="four", description="useful information")
         public int four = 4;
 
-        @Monitor(name="five", type=DataSourceType.COUNTER, tags={"foo=bar"})
+        @Monitor(name="five", type=DataSourceType.COUNTER)
         private long five = 5L;
 
         @Monitor(name="six")
@@ -168,44 +110,6 @@ public class AnnotationUtilsTest {
 
         public StringCounterObject() {
         }
-    }
-
-    @Test
-    public void testGetMonitorIdFromField() throws Exception {
-        Object obj = new FieldIdObject("foo");
-        String id = AnnotationUtils.getMonitorId(obj);
-        assertEquals(id, "foo");
-    }
-
-    @Test
-    public void testGetMonitorIdFromMethod() throws Exception {
-        Object obj = new MethodIdObject("foo");
-        String id = AnnotationUtils.getMonitorId(obj);
-        assertEquals(id, "foo");
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testGetMonitorIdWithTwo() throws Exception {
-        Object obj = new TwoIdObject("foo");
-        AnnotationUtils.getMonitorId(obj);
-    }
-
-    @Test(expectedExceptions = ClassCastException.class)
-    public void testGetMonitorIdWithInt() throws Exception {
-        Object obj = new IntIdObject(42);
-        AnnotationUtils.getMonitorId(obj);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testGetMonitorIdWithMethodParams() throws Exception {
-        Object obj = new MethodParamsIdObject("foo");
-        AnnotationUtils.getMonitorId(obj);
-    }
-
-    @Test
-    public void testGetMonitorIdWithNoId() throws Exception {
-        Object obj = new Object();
-        assertEquals(AnnotationUtils.getMonitorId(obj), null);
     }
 
     @Test

@@ -49,12 +49,6 @@ public @interface Monitor {
     DataSourceType type() default DataSourceType.INFORMATIONAL;
 
     /**
-     * Set of tags to associate with the value. The values must be parseable
-     * with {@link com.netflix.servo.tag.BasicTag#parseTag}.
-     */
-    String[] tags() default {};
-
-    /**
      * A human readable description of the annotated attribute.
      */
     String description() default "";
