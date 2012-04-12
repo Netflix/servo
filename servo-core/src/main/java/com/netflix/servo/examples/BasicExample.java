@@ -26,7 +26,6 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
 
 import java.util.ArrayList;
@@ -45,8 +44,6 @@ public class BasicExample {
     @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
             description = "Sample gauge monitor")
     private long sampleGuage = 0;
-
-
 
     @MonitorTags
     public final TagList tags;

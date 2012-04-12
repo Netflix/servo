@@ -39,7 +39,6 @@ import java.util.List;
 public final class AnnotatedObject {
 
     private final Object object;
-    private final String id;
     private final TagList tags;
     private final List<AnnotatedAttribute> attrs;
 
@@ -47,13 +46,10 @@ public final class AnnotatedObject {
         object = Preconditions.checkNotNull(obj);
 
         String className = obj.getClass().getCanonicalName();
-        id = AnnotationUtils.getMonitorId(obj);
 
         List<Tag> commonTags = Lists.newArrayList();
         commonTags.add(new BasicTag(CLASS_NAME.getKeyName(), className));
-        if (id != null) {
-            commonTags.add(new BasicTag(MONITOR_ID.getKeyName(), id));
-        }
+
         tags = BasicTagList.concat(
             AnnotationUtils.getMonitorTags(obj),
             new BasicTagList(commonTags));
@@ -71,11 +67,6 @@ public final class AnnotatedObject {
     /** Returns the wrapped object. */
     public Object getObject() {
         return object;
-    }
-
-    /** Returns the id from the {@link MonitorId} annotation. */
-    public String getId() {
-        return id;
     }
 
     /** Returns the tags from the {@link MonitorTags} annotation. */

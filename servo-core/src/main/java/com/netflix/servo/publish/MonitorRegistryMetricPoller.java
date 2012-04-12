@@ -68,9 +68,6 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             MetricFilter filter,
             AnnotatedObject obj)
             throws Exception {
-        String classId = obj.getId();
-        LOGGER.debug("retrieving metrics from class {} id {}",
-            obj.getClassName(), classId);
 
         List<AnnotatedAttribute> attrs = obj.getAttributes();
         for (AnnotatedAttribute attr : attrs) {

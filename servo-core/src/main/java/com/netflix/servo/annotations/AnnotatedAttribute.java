@@ -39,7 +39,7 @@ public final class AnnotatedAttribute {
 
     /** Creates a new instance. */
     public AnnotatedAttribute(Object obj, Monitor anno, AccessibleObject attr) {
-        this(obj, anno, attr, BasicTagList.copyOf(anno.tags()));
+        this(obj, anno, attr, BasicTagList.EMPTY);
     }
 
     /** Creates a new instance. */
