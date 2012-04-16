@@ -19,10 +19,10 @@
  */
 package com.netflix.servo.tag;
 
-import com.netflix.servo.tag.BasicTag;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * User: gorzell

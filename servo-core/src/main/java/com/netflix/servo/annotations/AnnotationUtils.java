@@ -20,7 +20,7 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 
 import java.lang.annotation.Annotation;
@@ -38,15 +38,6 @@ public final class AnnotationUtils {
     }
 
     /**
-     * Return the value of the field/method annotated with {@link MonitorId}.
-     */
-    public static String getMonitorId(Object obj) throws Exception {
-        List<AccessibleObject> fields =
-            getAnnotatedFields(MonitorId.class, obj, 1);
-        return fields.isEmpty() ? null : (String) getValue(obj, fields.get(0));
-    }
-
-    /**
      * Return the value of the field/method annotated with
      * {@link MonitorTags}.
      */
@@ -54,7 +45,7 @@ public final class AnnotationUtils {
         List<AccessibleObject> fields =
             getAnnotatedFields(MonitorTags.class, obj, 1);
         return fields.isEmpty()
-            ? BasicTagList.EMPTY
+            ? SortedTagList.EMPTY
             : (TagList) getValue(obj, fields.get(0));
     }
 
@@ -73,13 +64,6 @@ public final class AnnotationUtils {
 
     /** Check that the object conforms to annotation requirements. */
     public static void validate(Object obj) {
-        try {
-            getMonitorId(obj);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                "invalid MonitorId annotation on object " + obj, e);
-        }
-
         try {
             getMonitorTags(obj);
         } catch (Exception e) {

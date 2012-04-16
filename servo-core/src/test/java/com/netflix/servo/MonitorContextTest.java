@@ -19,7 +19,7 @@
  */
 package com.netflix.servo;
 
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
@@ -27,11 +27,11 @@ import static org.testng.Assert.*;
 
 public class MonitorContextTest {
 
-    private final TagList tags1 =
-        BasicTagList.copyOf("cluster=foo", "asg=foo-v000");
+    private final TagList tags1 = SortedTagList.builder().withTag("cluster", "foo")
+            .withTag("asg", "foo-v000").build();
 
-    private final TagList tags2 =
-        BasicTagList.copyOf("cluster=foo", "asg=foo-v001");
+    private final TagList tags2 = SortedTagList.builder().withTag("cluster", "foo")
+            .withTag("asg", "foo-v001").build();
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {

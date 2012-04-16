@@ -26,13 +26,7 @@ import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.Monitor;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.openmbean.ArrayType;
-import javax.management.openmbean.CompositeDataSupport;
-import javax.management.openmbean.CompositeType;
-import javax.management.openmbean.OpenDataException;
-import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
-import javax.management.openmbean.OpenType;
-import javax.management.openmbean.SimpleType;
+import javax.management.openmbean.*;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

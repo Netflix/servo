@@ -19,18 +19,18 @@
  */
 package com.netflix.servo.annotations;
 
-import static com.netflix.servo.tag.StandardTagKeys.*;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
 import java.util.List;
+
+import static com.netflix.servo.tag.StandardTagKeys.CLASS_NAME;
 
 /**
  * Wrapper around an object that is annotated to make it easy to access the
@@ -39,7 +39,6 @@ import java.util.List;
 public final class AnnotatedObject {
 
     private final Object object;
-    private final String id;
     private final TagList tags;
     private final List<AnnotatedAttribute> attrs;
 
@@ -47,16 +46,11 @@ public final class AnnotatedObject {
         object = Preconditions.checkNotNull(obj);
 
         String className = obj.getClass().getCanonicalName();
-        id = AnnotationUtils.getMonitorId(obj);
 
         List<Tag> commonTags = Lists.newArrayList();
         commonTags.add(new BasicTag(CLASS_NAME.getKeyName(), className));
-        if (id != null) {
-            commonTags.add(new BasicTag(MONITOR_ID.getKeyName(), id));
-        }
-        tags = BasicTagList.concat(
-            AnnotationUtils.getMonitorTags(obj),
-            new BasicTagList(commonTags));
+
+        tags = SortedTagList.builder().withTags(AnnotationUtils.getMonitorTags(obj)).withTags(commonTags).build();
 
         List<AnnotatedAttribute> attributes =
             AnnotationUtils.getMonitoredAttributes(obj);
@@ -71,11 +65,6 @@ public final class AnnotatedObject {
     /** Returns the wrapped object. */
     public Object getObject() {
         return object;
-    }
-
-    /** Returns the id from the {@link MonitorId} annotation. */
-    public String getId() {
-        return id;
     }
 
     /** Returns the tags from the {@link MonitorTags} annotation. */

@@ -19,17 +19,17 @@
  */
 package com.netflix.servo.examples;
 
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.tag.InjectableTag;
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.InjectableTag;
+import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,28 +39,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BasicExample {
 
     @Monitor(name = "SampleCounter", type = DataSourceType.COUNTER,
-            description = "Sample counting monitor",
-            tags = {"sample=simple"})
+            description = "Sample counting monitor")
     public final AtomicInteger counter = new AtomicInteger(0);
 
     @Monitor(name = "SampleGauge", type = DataSourceType.GAUGE,
-            description = "Sample gauge monitor",
-            tags = {"sample=simple"})
+            description = "Sample gauge monitor")
     private long sampleGuage = 0;
-
-    @MonitorId
-    private final String id;
 
     @MonitorTags
     public final TagList tags;
 
     public BasicExample() {
-        this(null, BasicTagList.EMPTY);
+        this.tags = SortedTagList.EMPTY;
     }
 
-    public BasicExample(String id, Iterable<Tag> tags) {
-        this.id = id;
-        this.tags = new BasicTagList(tags);
+    public BasicExample(Collection<Tag> tags) {
+        this.tags = SortedTagList.builder().withTags(tags).build();
     }
 
 
@@ -81,7 +75,7 @@ public class BasicExample {
         if (args.length > 0) {
             id = args[0];
         }
-        BasicExample example = new BasicExample(id, tags);
+        BasicExample example = new BasicExample(tags);
 
         DefaultMonitorRegistry.getInstance().registerObject(example);
 

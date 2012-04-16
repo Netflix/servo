@@ -57,7 +57,7 @@ public class CloudWatchExample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        BasicExample example = new BasicExample("test", tags);
+        BasicExample example = new BasicExample(tags);
 
         DefaultMonitorRegistry.getInstance().registerObject(example);
 

@@ -25,13 +25,13 @@ import com.netflix.servo.MonitorContext;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.BasicCounter;
 import org.testng.annotations.Test;
 
-import static com.netflix.servo.publish.BasicMetricFilter.*;
-import static org.testng.Assert.*;
+import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
+import static org.testng.Assert.assertEquals;
 
 public class MonitorRegistryMetricPollerTest {
 
@@ -42,10 +42,9 @@ public class MonitorRegistryMetricPollerTest {
 
         MetricPoller poller = new MonitorRegistryMetricPoller(registry);
         Metric metric = poller.poll(MATCH_ALL).get(0);
-        TagList tags = BasicTagList.copyOf(
-            new BasicTag("MonitorId", "foo"),
-            new BasicTag("ClassName", "com.netflix.servo.monitor.Counter"),
-            DataSourceType.COUNTER);
+        TagList tags = SortedTagList.builder().withTag(new BasicTag("MonitorId", "foo"))
+                .withTag(new BasicTag("ClassName", "com.netflix.servo.util.BasicCounter"))
+                .withTag(DataSourceType.COUNTER).build();
         assertEquals(metric.getConfig(), new MonitorContext.Builder("Count").withTags(tags).build());
     }
 

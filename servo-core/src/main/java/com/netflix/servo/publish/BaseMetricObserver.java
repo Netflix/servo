@@ -21,10 +21,12 @@ package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
+import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.*;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and number of failures.
  */
 public abstract class BaseMetricObserver implements MetricObserver {
-    @MonitorId
+    @MonitorTags
+    private final TagList tags;
+
     private final String name;
 
     @Monitor(name="UpdateCount", type= DataSourceType.COUNTER,
@@ -48,6 +52,8 @@ public abstract class BaseMetricObserver implements MetricObserver {
     /** Creates a new instance with a given name. */
     public BaseMetricObserver(String name) {
         this.name = Preconditions.checkNotNull(name);
+        this.tags = SortedTagList.builder()
+                .withTags(ImmutableSet.<Tag>of(new BasicTag(StandardTagKeys.MONITOR_ID.getKeyName(), name))).build();
     }
 
     /**

@@ -21,30 +21,27 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.netflix.servo.tag.BasicTagList.*;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class CounterToRateMetricTransformTest {
 
-    private static final TagList GAUGE =
-        BasicTagList.copyOf(DataSourceType.GAUGE);
+    private static final TagList GAUGE = SortedTagList.builder().withTag(DataSourceType.GAUGE).build();
 
-    private static final TagList COUNTER =
-        BasicTagList.copyOf(DataSourceType.COUNTER);
+    private static final TagList COUNTER = SortedTagList.builder().withTag(DataSourceType.COUNTER).build();
 
     private List<Metric> mkList(long ts, int value) {
         return ImmutableList.of(
-            new Metric("m1", EMPTY, ts, value),
+            new Metric("m1", SortedTagList.EMPTY, ts, value),
             new Metric("m2", GAUGE, ts, value),
             new Metric("m3", COUNTER, ts, value)
         );
