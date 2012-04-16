@@ -56,9 +56,15 @@ subprojects {
         options.excludeGroups = ['aws']
     }
 
+    task(testWithCloud, type: Test) {
+        useTestNG()
+        group = 'verification'
+        options.excludeGroups = [] as Set
+    }
+
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
-        compile 'com.google.guava:guava:[11,)'
+        compile 'com.google.guava:guava:11.0.1'
         testCompile 'org.testng:testng:6.1.1'
     }
 }
