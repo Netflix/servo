@@ -52,7 +52,8 @@ public abstract class BaseMetricObserver implements MetricObserver {
     /** Creates a new instance with a given name. */
     public BaseMetricObserver(String name) {
         this.name = Preconditions.checkNotNull(name);
-        this.tags = new BasicTagList(ImmutableSet.<Tag>of(new BasicTag(StandardTagKeys.MONITOR_ID.getKeyName(), name)));
+        this.tags = SortedTagList.builder()
+                .withTags(ImmutableSet.<Tag>of(new BasicTag(StandardTagKeys.MONITOR_ID.getKeyName(), name))).build();
     }
 
     /**

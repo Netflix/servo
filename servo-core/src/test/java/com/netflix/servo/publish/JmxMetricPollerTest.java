@@ -27,8 +27,10 @@ import javax.management.ObjectName;
 import java.util.List;
 import java.util.Map;
 
-import static com.netflix.servo.publish.BasicMetricFilter.*;
-import static org.testng.Assert.*;
+import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
+import static com.netflix.servo.publish.BasicMetricFilter.MATCH_NONE;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class JmxMetricPollerTest {
 

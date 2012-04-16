@@ -20,10 +20,10 @@
 package com.netflix.servo.util;
 
 import com.netflix.servo.MonitorContext;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.TagList;
 
 import java.util.concurrent.atomic.AtomicLong;
 

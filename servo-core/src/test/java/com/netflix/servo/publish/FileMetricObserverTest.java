@@ -21,8 +21,8 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
@@ -33,12 +33,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class FileMetricObserverTest {
 
-    private final TagList TAGS =
-        BasicTagList.copyOf("cluster=foo", "zone=a", "node=i-123");
+    private final TagList TAGS = SortedTagList.builder().withTag("cluster","foo").withTag("zone","a")
+            .withTag("node","i-123").build();
 
     private List<Metric> mkList(int v) {
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();

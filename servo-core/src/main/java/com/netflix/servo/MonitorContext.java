@@ -22,7 +22,7 @@ package com.netflix.servo;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
@@ -74,7 +74,8 @@ public final class MonitorContext {
      */
     private MonitorContext(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
-        this.tags = (builder.tags.isEmpty()) ? BasicTagList.EMPTY : new BasicTagList(builder.tags);
+        this.tags = (builder.tags.isEmpty()) ? SortedTagList.EMPTY : SortedTagList.builder()
+                .withTags(builder.tags).build();
     }
 
      /** Returns the name of the metric. */

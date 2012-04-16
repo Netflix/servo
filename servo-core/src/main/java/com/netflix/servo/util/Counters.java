@@ -22,9 +22,9 @@ package com.netflix.servo.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.netflix.servo.MonitorContext;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.MonitorContext;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 
 /**
@@ -101,7 +101,7 @@ public final class Counters {
         TagList cxtTags = TaggingContext.getTags();
         if (cxtTags != null) {
             String name = config.getName();
-            TagList newTags = BasicTagList.concat(config.getTags(), cxtTags);
+            TagList newTags = SortedTagList.builder().withTags(config.getTags()).withTags(cxtTags).build();
             MonitorContext newConfig = new MonitorContext.Builder(name).withTags(newTags).build();
             COUNTERS.getUnchecked(newConfig).increment(delta);
         } else {

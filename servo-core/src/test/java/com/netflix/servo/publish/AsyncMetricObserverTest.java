@@ -21,17 +21,18 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.netflix.servo.tag.BasicTagList.*;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class AsyncMetricObserverTest {
 
     private List<Metric> mkList(int v) {
-        return ImmutableList.of(new Metric("m", EMPTY, 0L, v));
+        return ImmutableList.of(new Metric("m", SortedTagList.EMPTY, 0L, v));
     }
 
     @Test

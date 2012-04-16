@@ -19,10 +19,10 @@
  */
 package com.netflix.servo.test;
 
-import com.netflix.servo.tag.Tag;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;

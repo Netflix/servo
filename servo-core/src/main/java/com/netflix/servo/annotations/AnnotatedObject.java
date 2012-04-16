@@ -19,18 +19,18 @@
  */
 package com.netflix.servo.annotations;
 
-import static com.netflix.servo.tag.StandardTagKeys.*;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
 import java.util.List;
+
+import static com.netflix.servo.tag.StandardTagKeys.CLASS_NAME;
 
 /**
  * Wrapper around an object that is annotated to make it easy to access the
@@ -50,9 +50,7 @@ public final class AnnotatedObject {
         List<Tag> commonTags = Lists.newArrayList();
         commonTags.add(new BasicTag(CLASS_NAME.getKeyName(), className));
 
-        tags = BasicTagList.concat(
-            AnnotationUtils.getMonitorTags(obj),
-            new BasicTagList(commonTags));
+        tags = SortedTagList.builder().withTags(AnnotationUtils.getMonitorTags(obj)).withTags(commonTags).build();
 
         List<AnnotatedAttribute> attributes =
             AnnotationUtils.getMonitoredAttributes(obj);

@@ -19,13 +19,10 @@
  */
 package com.netflix.servo.tag;
 
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagComparator;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertTrue;
 
 public class TagComparatorTest {
     Tag a;

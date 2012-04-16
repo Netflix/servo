@@ -20,47 +20,15 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.Maps;
-import com.netflix.servo.tag.BasicTagList;
-import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class AnnotationUtilsTest {
 
-    public static class StringArrayTagObject {
-        @MonitorTags
-        private final String[] tags;
-
-        public StringArrayTagObject(String... tags) {
-            this.tags = tags;
-        }
-    }
-
-    public static class FieldTagObject {
-        @MonitorTags
-        private final TagList tags;
-
-        public FieldTagObject(String... tags) {
-            this.tags = BasicTagList.copyOf(tags);
-        }
-    }
-
-    public static class MethodTagObject {
-        private final TagList tags;
-
-        public MethodTagObject(String... tags) {
-            this.tags = BasicTagList.copyOf(tags);
-        }
-
-        @MonitorTags
-        private TagList getTags() {
-            return tags;
-        }
-    }
 
     public static class MonitorObject {
 
@@ -110,26 +78,6 @@ public class AnnotationUtilsTest {
 
         public StringCounterObject() {
         }
-    }
-
-    @Test
-    public void testGetMonitorTagsFromField() throws Exception {
-        Object obj = new FieldTagObject("foo=bar");
-        TagList tags = AnnotationUtils.getMonitorTags(obj);
-        assertEquals(tags, BasicTagList.copyOf("foo=bar"));
-    }
-
-    @Test
-    public void testGetMonitorTagsFromMethod() throws Exception {
-        Object obj = new MethodTagObject("foo=bar");
-        TagList tags = AnnotationUtils.getMonitorTags(obj);
-        assertEquals(tags, BasicTagList.copyOf("foo=bar"));
-    }
-
-    @Test
-    public void testGetMonitorTagsWithNoTags() throws Exception {
-        Object obj = new Object();
-        assertEquals(AnnotationUtils.getMonitorTags(obj), BasicTagList.EMPTY);
     }
 
     @Test

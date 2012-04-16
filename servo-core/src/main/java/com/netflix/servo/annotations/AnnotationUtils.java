@@ -20,7 +20,7 @@
 package com.netflix.servo.annotations;
 
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 
 import java.lang.annotation.Annotation;
@@ -45,7 +45,7 @@ public final class AnnotationUtils {
         List<AccessibleObject> fields =
             getAnnotatedFields(MonitorTags.class, obj, 1);
         return fields.isEmpty()
-            ? BasicTagList.EMPTY
+            ? SortedTagList.EMPTY
             : (TagList) getValue(obj, fields.get(0));
     }
 

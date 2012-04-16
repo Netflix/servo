@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.annotations;
 
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
@@ -39,7 +39,7 @@ public final class AnnotatedAttribute {
 
     /** Creates a new instance. */
     public AnnotatedAttribute(Object obj, Monitor anno, AccessibleObject attr) {
-        this(obj, anno, attr, BasicTagList.EMPTY);
+        this(obj, anno, attr, SortedTagList.EMPTY);
     }
 
     /** Creates a new instance. */
@@ -98,8 +98,9 @@ public final class AnnotatedAttribute {
     }
 
     /** Returns the copy with the additional tags from the class. */
+    //TODO is this still needed given that object level tags are all we allow in annotations?
     public AnnotatedAttribute copy(TagList classTags) {
-        TagList newTags = BasicTagList.concat(classTags, tags);
+        TagList newTags = SortedTagList.builder().withTags(classTags).withTags(tags).build();
         return new AnnotatedAttribute(obj, anno, attr, newTags);
     }
 }

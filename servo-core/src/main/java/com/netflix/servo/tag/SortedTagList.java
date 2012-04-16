@@ -45,6 +45,13 @@ public final class SortedTagList implements TagList {
             return this;
         }
 
+        public Builder withTags(TagList tags){
+            for (Tag t : tags) {
+                mapBuilder.put(t.getKey(), t);
+            }
+            return this;
+        }
+
         public Builder withTag(Tag t) {
             mapBuilder.put(t.getKey(), t);
             return this;
@@ -114,5 +121,9 @@ public final class SortedTagList implements TagList {
             stringMap.put(t.getKey(), t.getValue());
         }
         return stringMap;
+    }
+
+    public static Builder builder(){
+        return new Builder();
     }
 }

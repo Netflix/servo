@@ -25,9 +25,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorContext;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.annotations.DataSourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
