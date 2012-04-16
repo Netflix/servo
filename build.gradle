@@ -49,7 +49,12 @@ subprojects {
         }
     }
 
-    group = 'com.netflix.osstemplate' // TEMPLATE: Set to organization of project
+    group = 'com.netflix.servo' // TEMPLATE: Set to organization of project
+
+    test {
+        useTestNG()
+        options.excludeGroups = ['aws']
+    }
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
