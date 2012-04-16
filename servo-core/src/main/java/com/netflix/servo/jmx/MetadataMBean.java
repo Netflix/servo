@@ -22,13 +22,7 @@ package com.netflix.servo.jmx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.AttributeNotFoundException;
-import javax.management.DynamicMBean;
-import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.util.Map;
 
 final class MetadataMBean implements DynamicMBean {

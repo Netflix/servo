@@ -20,11 +20,10 @@
 package com.netflix.servo.util;
 
 import com.netflix.servo.MonitorContext;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.TagList;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,7 +34,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class BasicCounter {
 
-    @MonitorId
     private final String name;
 
     @MonitorTags
@@ -50,7 +48,7 @@ public final class BasicCounter {
      * @param name  name of the counter
      */
     public BasicCounter(String name) {
-        this(new MonitorContext.Builder(name).build());
+        this(new MonitorContext.Builder(name).withTag("MonitorId", name).build());
     }
 
     /**

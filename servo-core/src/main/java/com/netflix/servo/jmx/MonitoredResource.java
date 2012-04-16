@@ -27,15 +27,7 @@ import com.netflix.servo.annotations.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.AttributeNotFoundException;
-import javax.management.DynamicMBean;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.util.List;
 import java.util.Map;
 
@@ -62,8 +54,7 @@ public final class MonitoredResource implements DynamicMBean {
         object = Preconditions.checkNotNull(obj, "object cannot be null");
 
         String className = object.getClassName();
-        String id = object.getId();
-        name = createObjectName(domain, className, id, "value");
+        name = createObjectName(domain, className, "value");
 
         ImmutableMap.Builder<String,MonitoredAttribute> builder =
             ImmutableMap.builder();
@@ -89,7 +80,7 @@ public final class MonitoredResource implements DynamicMBean {
             null); // notifications
 
         ObjectName metadataName =
-            createObjectName(domain, className, id, "metadata");
+            createObjectName(domain, className, "metadata");
         MBeanInfo metadataInfo = new MBeanInfo(
             className,
             "MonitoredResource Metdata MBean",
@@ -101,14 +92,12 @@ public final class MonitoredResource implements DynamicMBean {
     }
 
     private ObjectName createObjectName(
-            String domain, String className, String id, String field) {
+            String domain, String className, String field) {
         StringBuilder buf = new StringBuilder();
         buf.append((domain == null) ? getClass().getCanonicalName() : domain)
            .append(":class=")
            .append(className);
-        if (id != null) {
-            buf.append(",instance=").append(id);
-        }
+
         buf.append(",field=").append(field);
 
         String name = buf.toString();

@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.tag.BasicTag;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Counters;
 import org.slf4j.Logger;
@@ -33,11 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * Combines results from a list of metric pollers. This clas
@@ -75,7 +71,7 @@ public class CompositeMetricPoller implements MetricPoller {
     }
 
     private void increment(Throwable t, String name) {
-        TagList tags = BasicTagList.copyOf(new BasicTag(POLLER_KEY, name));
+        TagList tags = SortedTagList.builder().withTag(new BasicTag(POLLER_KEY, name)).build();
         Counters.increment(t.getClass().getSimpleName() + "Count", tags);
     }
 

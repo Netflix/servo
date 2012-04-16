@@ -20,25 +20,24 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.netflix.servo.tag.BasicTagList.*;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class RegexMetricFilterTest {
 
     private List<Metric> mkList() {
         return ImmutableList.of(
-            new Metric("m1", EMPTY, 0L, 0),
-            new Metric("m2", BasicTagList.copyOf("c=a.b.c.d.M1"), 0L, 0),
-            new Metric("m3", BasicTagList.copyOf("c=a.b.c.c.M3"), 0L, 0),
-            new Metric("m4", BasicTagList.copyOf("c=a.b.c.d.M4"), 0L, 0),
-            new Metric("m5", BasicTagList.copyOf("c=a.a.a.a.M5"), 0L, 0)
+                new Metric("m1", SortedTagList.EMPTY, 0L, 0),
+                new Metric("m2", SortedTagList.builder().withTag("c","a.b.c.d.M1").build(), 0L, 0),
+                new Metric("m3", SortedTagList.builder().withTag("c","a.b.c.c.M3").build(), 0L, 0),
+                new Metric("m4", SortedTagList.builder().withTag("c","a.b.c.d.M4").build(), 0L, 0),
+                new Metric("m5", SortedTagList.builder().withTag("c","a.a.a.a.M5").build(), 0L, 0)
         );
     }
 

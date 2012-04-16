@@ -19,11 +19,10 @@
  */
 package com.netflix.servo.test;
 
-import com.netflix.servo.tag.Tag;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorId;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,12 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TestMonitor {
 
     @Monitor(name="testCounter", type = DataSourceType.COUNTER,
-            description = "Monitor for doing testing", tags = {
-            "tag1=foo", "tag2=bar"})
+            description = "Monitor for doing testing")
     public final AtomicInteger counter = new AtomicInteger(0);
-
-    @MonitorId
-    public final String name = "testMonitor";
 
     @MonitorTags
     public final List<Tag> tagList = new ArrayList<Tag>(10);

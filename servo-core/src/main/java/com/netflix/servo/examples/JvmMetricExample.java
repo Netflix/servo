@@ -20,18 +20,7 @@
 package com.netflix.servo.examples;
 
 import com.google.common.collect.Maps;
-import com.netflix.servo.publish.BasicMetricFilter;
-import com.netflix.servo.publish.CounterToRateMetricTransform;
-import com.netflix.servo.publish.FileMetricObserver;
-import com.netflix.servo.publish.JmxMetricPoller;
-import com.netflix.servo.publish.LocalJmxConnector;
-import com.netflix.servo.publish.MetricFilter;
-import com.netflix.servo.publish.MetricObserver;
-import com.netflix.servo.publish.MetricPoller;
-import com.netflix.servo.publish.PollRunnable;
-import com.netflix.servo.publish.PollScheduler;
-import com.netflix.servo.publish.PrefixMetricFilter;
-import com.netflix.servo.publish.RegexMetricFilter;
+import com.netflix.servo.publish.*;
 
 import javax.management.ObjectName;
 import java.io.File;

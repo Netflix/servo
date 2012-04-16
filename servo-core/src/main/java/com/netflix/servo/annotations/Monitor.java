@@ -19,11 +19,7 @@
  */
 package com.netflix.servo.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Annotation indicating a field or method should be collected for monitoring.
@@ -47,12 +43,6 @@ public @interface Monitor {
      * {@link DataSourceType}.
      */
     DataSourceType type() default DataSourceType.INFORMATIONAL;
-
-    /**
-     * Set of tags to associate with the value. The values must be parseable
-     * with {@link com.netflix.servo.tag.BasicTag#parseTag}.
-     */
-    String[] tags() default {};
 
     /**
      * A human readable description of the annotated attribute.

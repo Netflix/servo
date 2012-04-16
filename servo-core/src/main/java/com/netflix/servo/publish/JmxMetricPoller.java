@@ -21,25 +21,15 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.netflix.servo.MonitorContext;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.Metric;
-import com.netflix.servo.tag.StandardTagKeys;
-import com.netflix.servo.tag.Tag;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.BasicTagList;
-import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.openmbean.CompositeData;
 import java.io.IOException;
 import java.util.List;
@@ -85,7 +75,7 @@ public final class JmxMetricPoller implements MetricPoller {
     /**
      * Creates a tag list from an object name.
      */
-    private BasicTagList createTagList(ObjectName name) {
+    private TagList createTagList(ObjectName name) {
         Map<String,String> props =
             (Map<String,String>) name.getKeyPropertyList();
         List<Tag> tags = Lists.newArrayList();
@@ -95,7 +85,7 @@ public final class JmxMetricPoller implements MetricPoller {
         }
         tags.add(new BasicTag(DOMAIN_KEY, name.getDomain()));
         tags.add(CLASS_TAG);
-        return new BasicTagList(tags);
+        return SortedTagList.builder().withTags(tags).build();
     }
 
     /**
@@ -104,14 +94,14 @@ public final class JmxMetricPoller implements MetricPoller {
     private void addMetric(
             List<Metric> metrics,
             String name,
-            BasicTagList tags,
+            TagList tags,
             Object value) {
         long now = System.currentTimeMillis();
         Number num = AnnotationUtils.asNumber(value);
         if (num != null) {
             TagList newTags = counters.matches(new MonitorContext.Builder(name).withTags(tags).build())
-                ? tags.copy(BasicTagList.copyOf(DataSourceType.COUNTER))
-                : tags.copy(BasicTagList.copyOf(DataSourceType.GAUGE));
+                ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
+                : SortedTagList.builder().withTags(tags).withTag(DataSourceType.GAUGE).build();
             Metric m = new Metric(name, newTags, now, num);
             metrics.add(m);
         }
@@ -146,7 +136,7 @@ public final class JmxMetricPoller implements MetricPoller {
             ObjectName name)
             throws JMException, IOException {
         // Create tags from the object name
-        BasicTagList tags = createTagList(name);
+        TagList tags = createTagList(name);
         MBeanInfo info = con.getMBeanInfo(name);
         MBeanAttributeInfo[] attrInfos = info.getAttributes();
         if (attrInfos == null) {
@@ -174,7 +164,7 @@ public final class JmxMetricPoller implements MetricPoller {
                 extractValues(null, values, (CompositeData) obj);
                 for (Map.Entry<String,Object> e : values.entrySet()) {
                     String key = e.getKey();
-                    BasicTagList newTags = tags.copy(COMPOSITE_PATH_KEY, key);
+                    TagList newTags = SortedTagList.builder().withTags(tags).withTag(COMPOSITE_PATH_KEY, key).build();
                     if (filter.matches(new MonitorContext.Builder(attrName).withTags(newTags).build())) {
                         addMetric(metrics, attrName, newTags, e.getValue());
                     }

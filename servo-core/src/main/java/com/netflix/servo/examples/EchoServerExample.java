@@ -19,33 +19,19 @@
  */
 package com.netflix.servo.examples;
 
-import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.CountingOutputStream;
-import com.netflix.servo.publish.BasicMetricFilter;
-import com.netflix.servo.publish.CounterToRateMetricTransform;
-import com.netflix.servo.publish.FileMetricObserver;
-import com.netflix.servo.publish.JmxMetricPoller;
-import com.netflix.servo.publish.LocalJmxConnector;
-import com.netflix.servo.publish.MetricFilter;
-import com.netflix.servo.publish.MetricObserver;
-import com.netflix.servo.publish.MetricPoller;
-import com.netflix.servo.publish.MonitorRegistryMetricPoller;
-import com.netflix.servo.publish.PollRunnable;
-import com.netflix.servo.publish.PollScheduler;
-import com.netflix.servo.publish.PrefixMetricFilter;
-import com.netflix.servo.publish.RegexMetricFilter;
+import com.netflix.servo.publish.*;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Counters;
 import com.netflix.servo.util.TaggingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -53,7 +39,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * An really basic echo server that uses the utility methods from
@@ -92,7 +77,7 @@ public class EchoServerExample {
 
         public TagList getTags(Socket s) {
             String country = COUNTRIES[r.nextInt(COUNTRIES.length)];
-            return BasicTagList.copyOf(new BasicTag("Country", country));
+            return SortedTagList.builder().withTag(new BasicTag("Country", country)).build();
         }
 
         public void run() {

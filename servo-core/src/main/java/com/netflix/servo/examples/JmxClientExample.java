@@ -19,11 +19,7 @@
  */
 package com.netflix.servo.examples;
 
-import javax.management.AttributeList;
-import javax.management.Attribute;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
