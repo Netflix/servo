@@ -43,7 +43,7 @@ public class MonitorRegistryMetricPollerTest {
         MetricPoller poller = new MonitorRegistryMetricPoller(registry);
         Metric metric = poller.poll(MATCH_ALL).get(0);
         TagList tags = SortedTagList.builder().withTag(new BasicTag("MonitorId", "foo"))
-                .withTag(new BasicTag("ClassName", "com.netflix.servo.monitor.Counter"))
+                .withTag(new BasicTag("ClassName", "com.netflix.servo.util.BasicCounter"))
                 .withTag(DataSourceType.COUNTER).build();
         assertEquals(metric.getConfig(), new MonitorContext.Builder("Count").withTags(tags).build());
     }

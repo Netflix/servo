@@ -35,32 +35,34 @@ import java.util.List;
  */
 public final class MonitorContext {
 
-    public static class Builder{
+    public static class Builder {
         private final String name;
         private final List<Tag> tags = new LinkedList<Tag>();
 
-        public Builder(String name){
+        public Builder(String name) {
             this.name = name;
         }
 
-        public Builder withTag(String key, String val){
+        public Builder withTag(String key, String val) {
             tags.add(new BasicTag(key, val));
             return this;
         }
 
-        public Builder withTags(TagList tagList){
-            for(Tag t : tagList){
-                tags.add(t);
+        public Builder withTags(TagList tagList) {
+            if (tagList != null) {
+                for (Tag t : tagList) {
+                    tags.add(t);
+                }
             }
             return this;
         }
 
-        public Builder withTags(Collection<Tag> tagCollection){
+        public Builder withTags(Collection<Tag> tagCollection) {
             tags.addAll(tagCollection);
             return this;
         }
 
-        public MonitorContext build(){
+        public MonitorContext build() {
             return new MonitorContext(this);
         }
     }
@@ -78,17 +80,23 @@ public final class MonitorContext {
                 .withTags(builder.tags).build();
     }
 
-     /** Returns the name of the metric. */
+    /**
+     * Returns the name of the metric.
+     */
     public String getName() {
         return name;
     }
 
-     /** Returns the tags associated with the metric. */
+    /**
+     * Returns the tags associated with the metric.
+     */
     public TagList getTags() {
         return tags;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof MonitorContext)) {
@@ -98,18 +106,22 @@ public final class MonitorContext {
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(name, tags);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("name", name)
-            .add("tags", tags)
-            .toString();
+                .add("name", name)
+                .add("tags", tags)
+                .toString();
     }
 }

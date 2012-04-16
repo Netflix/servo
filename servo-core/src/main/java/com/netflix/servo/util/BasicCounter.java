@@ -48,7 +48,7 @@ public final class BasicCounter {
      * @param name  name of the counter
      */
     public BasicCounter(String name) {
-        this(new MonitorContext.Builder(name).build());
+        this(new MonitorContext.Builder(name).withTag("MonitorId", name).build());
     }
 
     /**

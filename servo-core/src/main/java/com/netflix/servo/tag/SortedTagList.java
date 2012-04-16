@@ -16,6 +16,8 @@
 
 package com.netflix.servo.tag;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Ordering;
 
@@ -125,5 +127,24 @@ public final class SortedTagList implements TagList {
 
     public static Builder builder(){
         return new Builder();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof SortedTagList)
+                && tagSortedMap.equals(((SortedTagList) obj).tagSortedMap);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tagSortedMap);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return Joiner.on(",").join(tagSortedMap.values());
     }
 }
