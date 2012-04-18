@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableMap;
 import com.netflix.servo.annotations.AnnotatedAttribute;
 import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public final class MonitoredResource implements DynamicMBean {
         object = Preconditions.checkNotNull(obj, "object cannot be null");
 
         String className = object.getClassName();
-        name = createObjectName(domain, className, "value");
+        name = createObjectName(domain, className, object.getTags(), "value");
 
         ImmutableMap.Builder<String,MonitoredAttribute> builder =
             ImmutableMap.builder();
@@ -80,7 +82,7 @@ public final class MonitoredResource implements DynamicMBean {
             null); // notifications
 
         ObjectName metadataName =
-            createObjectName(domain, className, "metadata");
+            createObjectName(domain, className, object.getTags(), "metadata");
         MBeanInfo metadataInfo = new MBeanInfo(
             className,
             "MonitoredResource Metdata MBean",
@@ -91,12 +93,15 @@ public final class MonitoredResource implements DynamicMBean {
         metadataMBean = new MetadataMBean(metadataName, metadataInfo, attrs);
     }
 
-    private ObjectName createObjectName(
-            String domain, String className, String field) {
+    private ObjectName createObjectName(String domain, String className, TagList tags, String field) {
         StringBuilder buf = new StringBuilder();
         buf.append((domain == null) ? getClass().getCanonicalName() : domain)
            .append(":class=")
            .append(className);
+
+        for(Tag t : tags){
+            buf.append(",").append(t.tagString());
+        }
 
         buf.append(",field=").append(field);
 

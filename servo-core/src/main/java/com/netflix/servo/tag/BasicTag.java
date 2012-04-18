@@ -99,4 +99,8 @@ public final class BasicTag implements Tag {
         v = tagString.substring(eqIndex + 1, tagString.length()).trim();
         return new BasicTag(k, v);
     }
+
+    public String tagString(){
+        return toString();
+    }
 }
