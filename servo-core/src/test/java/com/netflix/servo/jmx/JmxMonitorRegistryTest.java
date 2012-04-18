@@ -57,7 +57,6 @@ public class JmxMonitorRegistryTest {
     }
 
     @Test
-    //TODO Until tags are included in the ObjectName this will not work.
     public void testUnRegisterObject() throws Exception {
         MonitorRegistry registry = newInstance();
         Object o1 = new BasicCounter("one");
