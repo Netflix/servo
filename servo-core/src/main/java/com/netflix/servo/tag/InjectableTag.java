@@ -50,6 +50,10 @@ public enum InjectableTag implements Tag {
         return value;
     }
 
+    public String tagString(){
+        return key + "=" + value;
+    }
+
     private static String getHostName() {
         return (loadAddress() != null) ? loadAddress().getHostName() : "unkownHost";
     }

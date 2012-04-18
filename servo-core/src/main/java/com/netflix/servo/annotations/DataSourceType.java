@@ -60,4 +60,9 @@ public enum DataSourceType implements Tag {
     public String getValue() {
         return name();
     }
+
+    /** {@inheritDoc} */
+    public String tagString(){
+        return getKey() + "=" + getValue();
+    }
 }
