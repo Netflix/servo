@@ -27,9 +27,22 @@ import java.util.concurrent.TimeUnit;
  */
 public interface Timer extends Monitor<Long> {
 
+    /**
+     * The TimeUnit that this timer is stored in.
+     * @return
+     */
     public TimeUnit getTimeUnit();
 
+    /**
+     * Record a new value for this timer
+     * @param duration
+     */
     public void record(long duration);
 
+    /**
+     * Record a new value that was collected with the given TimeUnit
+     * @param duration
+     * @param timeUnit
+     */
     public void record(long duration, TimeUnit timeUnit);
 }
