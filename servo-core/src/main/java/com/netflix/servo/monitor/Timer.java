@@ -29,11 +29,7 @@ public interface Timer extends Monitor<Long> {
 
     public TimeUnit getTimeUnit();
 
-    public boolean start();
+    public void record(long duration);
 
-    public boolean stop();
-
-    public void record();
-
-    public void stopAndRecord();
+    public void record(long duration, TimeUnit timeUnit);
 }

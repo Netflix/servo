@@ -5,19 +5,6 @@ import java.util.concurrent.TimeUnit;
 public interface Stopwatch {
 
     /**
-     * Creates a new Stopwatch that has not been started.
-     * @return The new Stopwatch
-     */
-    public Stopwatch createStopwatch();
-
-    /**
-     * Creates a new Stopwatch instance.  allowing the caller to specify whether or not is started right away.
-     * @param started
-     * @return The new Stopwatch
-     */
-    public Stopwatch createStopwatch(boolean started);
-
-    /**
      * Start the stopwatch.
      */
     public void start();
@@ -32,5 +19,5 @@ public interface Stopwatch {
      * @param timeUnit
      * @return duration in specified time unit.
      */
-    public double getDuration(TimeUnit timeUnit);
+    public long getDuration(TimeUnit timeUnit);
 }
