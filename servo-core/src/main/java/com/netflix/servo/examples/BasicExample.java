@@ -77,7 +77,7 @@ public class BasicExample {
         }
         BasicExample example = new BasicExample(tags);
 
-        DefaultMonitorRegistry.getInstance().registerObject(example);
+        DefaultMonitorRegistry.getInstance().registerAnnotatedObject(example);
 
         while(true) {
             example.counter.incrementAndGet();

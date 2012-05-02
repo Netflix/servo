@@ -29,10 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BasicTimer extends AbstractMonitor<Long> implements Timer {
     private final TimeUnit timeUnit;
-    private long start;
-    private long end;
-    private long time = -1;
-    private boolean started;
+    private long lastDuration = -1;
 
     public BasicTimer(MonitorContext context, TimeUnit unit) {
         super(context);
@@ -44,37 +41,29 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer {
         return timeUnit;
     }
 
+    /**
+     * Record a new value for this timer
+     *
+     * @param duration
+     */
     @Override
-    public boolean start() {
-        if (started) return false;
-
-        start = System.nanoTime();
-        started = true;
-        return true;
+    public void record(long duration) {
+        this.lastDuration = duration;
     }
 
+    /**
+     * Record a new value that was collected with the given TimeUnit
+     *
+     * @param duration
+     * @param timeUnit
+     */
     @Override
-    public boolean stop() {
-        if (!started) return false;
-
-        end = System.nanoTime();
-        started = false;
-        return true;
-    }
-
-    @Override
-    public void record() {
-        time = end - start;
-    }
-
-    @Override
-    public void stopAndRecord() {
-        stop();
-        record();
+    public void record(long duration, TimeUnit timeUnit) {
+        record(this.timeUnit.convert(duration, timeUnit));
     }
 
     @Override
     public Long getValue() {
-        return Long.valueOf(time);
+        return Long.valueOf(lastDuration);
     }
 }

@@ -88,18 +88,48 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public void registerObject(Object obj) {
-        registry.registerObject(obj);
+    public void registerAnnotatedObject(Object obj) {
+        registry.registerAnnotatedObject(obj);
     }
 
     /** {@inheritDoc} */
-    public void unRegisterObject(Object obj) {
-        registry.unRegisterObject(obj);
+    public void unregisterAnnotatedObject(Object obj) {
+        registry.unregisterAnnotatedObject(obj);
     }
 
     /** {@inheritDoc} */
-    public Set<AnnotatedObject> getRegisteredObjects() {
-        return registry.getRegisteredObjects();
+    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
+        return registry.getRegisteredAnnotatedObjects();
+    }
+
+    /**
+     * The set of registered Monitor objects.
+     *
+     * @return
+     */
+    @Override
+    public Set<Monitor> getRegisteredMonitors() {
+        return registry.getRegisteredMonitors();
+    }
+
+    /**
+     * Register a new monitor in the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void register(Monitor monitor) {
+        registry.register(monitor);
+    }
+
+    /**
+     * Unregister a Monitor from the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void unregister(Monitor monitor) {
+        registry.unregister(monitor);
     }
 
     /** Returns the inner registry that was created to service the requests. */
