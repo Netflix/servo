@@ -21,6 +21,7 @@ package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.netflix.servo.Monitor;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.annotations.AnnotatedObject;
 import org.slf4j.Logger;
@@ -42,10 +43,9 @@ import java.util.Set;
 public final class JmxMonitorRegistry implements MonitorRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final MBeanServer mBeanServer;
-
     private final Set<AnnotatedObject> objects;
+    private final Set<Monitor> monitors;
 
     /**
      * Creates a new instance that registers metrics with the local mbean
@@ -54,6 +54,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public JmxMonitorRegistry() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
+        monitors = Collections.synchronizedSet(new HashSet<Monitor>());
     }
 
     private void register(ObjectName name, DynamicMBean mbean)
@@ -82,7 +83,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public void unregisterAnotatedObject(Object obj) {
+    public void unregisterAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             AnnotatedObject annoObj = new AnnotatedObject(obj);
@@ -102,5 +103,35 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     /** {@inheritDoc} */
     public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
         return ImmutableSet.copyOf(objects);
+    }
+
+    /**
+     * The set of registered Monitor objects.
+     *
+     * @return
+     */
+    @Override
+    public Set<Monitor> getRegisteredMonitors() {
+        return ImmutableSet.copyOf(monitors);
+    }
+
+    /**
+     * Register a new monitor in the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void register(Monitor monitor) {
+
+    }
+
+    /**
+     * Unregister a Monitor from the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void unregister(Monitor monitor) {
+
     }
 }

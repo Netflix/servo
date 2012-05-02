@@ -82,7 +82,7 @@ public class DefaultMonitorRegistryTest {
     @Test(expectedExceptions = NullPointerException.class)
     public void testUnRegisterNull() throws Exception {
         DefaultMonitorRegistry registry = newInstance();
-        registry.unregisterAnotatedObject(null);
+        registry.unregisterAnnotatedObject(null);
     }
 
     @Test
@@ -105,5 +105,39 @@ public class DefaultMonitorRegistryTest {
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(o1));
         assertTrue(objects.contains(o2));
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
+    public void testRegisterMonitorNull() throws Exception {
+        DefaultMonitorRegistry registry = newInstance();
+        registry.register(null);
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
+    public void testUnRegisterMonitorNull() throws Exception {
+        DefaultMonitorRegistry registry = newInstance();
+        registry.unregister(null);
+    }
+
+    @Test
+    public void testGetRegisteredMonitorsEmpty() throws Exception {
+        DefaultMonitorRegistry registry = newInstance();
+        Set<Monitor> monitors = registry.getRegisteredMonitors();
+        assertEquals(monitors.size(), 0);
+    }
+
+    @Test
+    public void testGetRegisteredMonitors() throws Exception {
+        DefaultMonitorRegistry registry = newInstance();
+        Monitor m1 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test1").build());
+        Monitor m2 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test2").build());
+
+        registry.register(m1);
+        registry.register(m2);
+
+        Set<Monitor> monitors = registry.getRegisteredMonitors();
+        assertEquals(monitors.size(), 2);
+        assertTrue(monitors.contains(m1));
+        assertTrue(monitors.contains(m2));
     }
 }

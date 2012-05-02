@@ -35,17 +35,11 @@ import java.util.Map;
 
 public final class MonitoredResource implements DynamicMBean {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(MonitoredResource.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoredResource.class);
     private final AnnotatedObject object;
-
     private final ObjectName name;
-
     private final MBeanInfo beanInfo;
-
-    private final Map<String,MonitoredAttribute> attrs;
-
+    private final Map<String, MonitoredAttribute> attrs;
     private final MetadataMBean metadataMBean;
 
     public MonitoredResource(AnnotatedObject obj) {
@@ -58,15 +52,15 @@ public final class MonitoredResource implements DynamicMBean {
         String className = object.getClassName();
         name = createObjectName(domain, className, object.getTags(), "value");
 
-        ImmutableMap.Builder<String,MonitoredAttribute> builder =
-            ImmutableMap.builder();
+        ImmutableMap.Builder<String, MonitoredAttribute> builder =
+                ImmutableMap.builder();
         List<AnnotatedAttribute> annotatedAttrs = obj.getAttributes();
 
         MBeanAttributeInfo[] attributes =
-            new MBeanAttributeInfo[annotatedAttrs.size()];
+                new MBeanAttributeInfo[annotatedAttrs.size()];
         for (int i = 0; i < annotatedAttrs.size(); ++i) {
             MonitoredAttribute attr = new MonitoredAttribute(
-                annotatedAttrs.get(i));
+                    annotatedAttrs.get(i));
             Monitor m = attr.getAnnotation();
             builder.put(m.name(), attr);
             attributes[i] = attr.getValueAttributeInfo();
@@ -74,32 +68,32 @@ public final class MonitoredResource implements DynamicMBean {
         attrs = builder.build();
 
         beanInfo = new MBeanInfo(
-            className,
-            "MonitoredResource MBean",
-            attributes,  // attributes
-            null,  // constructors
-            null,  // operations
-            null); // notifications
+                className,
+                "MonitoredResource MBean",
+                attributes,  // attributes
+                null,  // constructors
+                null,  // operations
+                null); // notifications
 
         ObjectName metadataName =
-            createObjectName(domain, className, object.getTags(), "metadata");
+                createObjectName(domain, className, object.getTags(), "metadata");
         MBeanInfo metadataInfo = new MBeanInfo(
-            className,
-            "MonitoredResource Metdata MBean",
-            attributes,  // attributes
-            null,  // constructors
-            null,  // operations
-            null); // notifications
+                className,
+                "MonitoredResource Metdata MBean",
+                attributes,  // attributes
+                null,  // constructors
+                null,  // operations
+                null); // notifications
         metadataMBean = new MetadataMBean(metadataName, metadataInfo, attrs);
     }
 
     private ObjectName createObjectName(String domain, String className, TagList tags, String field) {
         StringBuilder buf = new StringBuilder();
         buf.append((domain == null) ? getClass().getCanonicalName() : domain)
-           .append(":class=")
-           .append(className);
+                .append(":class=")
+                .append(className);
 
-        for(Tag t : tags){
+        for (Tag t : tags) {
             buf.append(",").append(t.tagString());
         }
 
@@ -153,16 +147,16 @@ public final class MonitoredResource implements DynamicMBean {
     public Object invoke(
             String actionName, Object[] params, String[] signature) {
         throw new UnsupportedOperationException(
-            "invoke(...) is not supported on this mbean");
+                "invoke(...) is not supported on this mbean");
     }
 
     public void setAttribute(Attribute attribute) {
         throw new UnsupportedOperationException(
-            "setAttribute(...) is not supported on this mbean");
+                "setAttribute(...) is not supported on this mbean");
     }
 
     public AttributeList setAttributes(AttributeList attributes) {
         throw new UnsupportedOperationException(
-            "setAttributes(...) is not supported on this mbean");
+                "setAttributes(...) is not supported on this mbean");
     }
 }

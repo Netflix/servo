@@ -39,7 +39,7 @@ public interface MonitorRegistry {
      * hold a reference to the object, and thus preventing garbage collection,
      * unless it is unregistered.
      */
-    void unregisterAnotatedObject(Object obj);
+    void unregisterAnnotatedObject(Object obj);
 
     /**
      * Returns a set of all registered objects.
