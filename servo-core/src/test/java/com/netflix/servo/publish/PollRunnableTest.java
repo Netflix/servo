@@ -33,7 +33,7 @@ public class PollRunnableTest {
     public void testRun() throws Exception {
         BasicCounter o1 = new BasicCounter("one");
         o1.increment();
-        DefaultMonitorRegistry.getInstance().registerObject(o1);
+        DefaultMonitorRegistry.getInstance().registerAnnotatedObject(o1);
         
         List<MetricObserver> observerList = new ArrayList<MetricObserver>(1);
         MemoryMetricObserver observer = new MemoryMetricObserver("test", 3);

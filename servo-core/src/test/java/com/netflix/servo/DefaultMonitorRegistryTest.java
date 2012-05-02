@@ -46,7 +46,7 @@ public class DefaultMonitorRegistryTest {
     }
 
     private Set<Object> getObjects(MonitorRegistry registry) {
-        Set<AnnotatedObject> annoObjs = registry.getRegisteredObjects();
+        Set<AnnotatedObject> annoObjs = registry.getRegisteredAnnotatedObjects();
         Set<Object> objects = Sets.newHashSet();
         for (AnnotatedObject annoObj : annoObjs) {
             objects.add(annoObj.getObject());
@@ -76,13 +76,13 @@ public class DefaultMonitorRegistryTest {
     @Test(expectedExceptions = NullPointerException.class)
     public void testRegisterNull() throws Exception {
         DefaultMonitorRegistry registry = newInstance();
-        registry.registerObject(null);
+        registry.registerAnnotatedObject(null);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testUnRegisterNull() throws Exception {
         DefaultMonitorRegistry registry = newInstance();
-        registry.unRegisterObject(null);
+        registry.unregisterAnotatedObject(null);
     }
 
     @Test
@@ -98,8 +98,8 @@ public class DefaultMonitorRegistryTest {
         Object o1 = new BasicCounter("one");
         Object o2 = new BasicCounter("two");
 
-        registry.registerObject(o1);
-        registry.registerObject(o2);
+        registry.registerAnnotatedObject(o1);
+        registry.registerAnnotatedObject(o2);
 
         Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 2);

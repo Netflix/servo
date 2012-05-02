@@ -96,7 +96,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter) {
         List<Metric> metrics = Lists.newArrayList();
-        for (AnnotatedObject obj : registry.getRegisteredObjects()) {
+        for (AnnotatedObject obj : registry.getRegisteredAnnotatedObjects()) {
             try {
                 getMetrics(metrics, filter, obj);
             } catch (Exception e) {

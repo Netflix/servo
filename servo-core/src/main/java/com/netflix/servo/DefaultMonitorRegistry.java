@@ -88,18 +88,18 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public void registerObject(Object obj) {
-        registry.registerObject(obj);
+    public void registerAnnotatedObject(Object obj) {
+        registry.registerAnnotatedObject(obj);
     }
 
     /** {@inheritDoc} */
-    public void unRegisterObject(Object obj) {
-        registry.unRegisterObject(obj);
+    public void unregisterAnotatedObject(Object obj) {
+        registry.unregisterAnotatedObject(obj);
     }
 
     /** {@inheritDoc} */
-    public Set<AnnotatedObject> getRegisteredObjects() {
-        return registry.getRegisteredObjects();
+    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
+        return registry.getRegisteredAnnotatedObjects();
     }
 
     /** Returns the inner registry that was created to service the requests. */

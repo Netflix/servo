@@ -65,7 +65,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public void registerObject(Object obj) {
+    public void registerAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             AnnotatedObject annoObj = new AnnotatedObject(obj);
@@ -82,7 +82,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public void unRegisterObject(Object obj) {
+    public void unregisterAnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             AnnotatedObject annoObj = new AnnotatedObject(obj);
@@ -100,7 +100,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     /** {@inheritDoc} */
-    public Set<AnnotatedObject> getRegisteredObjects() {
+    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
         return ImmutableSet.copyOf(objects);
     }
 }
