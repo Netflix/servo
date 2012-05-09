@@ -36,21 +36,17 @@ import java.util.Set;
  */
 public final class DefaultMonitorRegistry implements MonitorRegistry {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(DefaultMonitorRegistry.class);
-
-    private static final String CLASS_NAME =
-        DefaultMonitorRegistry.class.getCanonicalName();
-
-    private static final String REGISTRY_CLASS_PROP =
-        CLASS_NAME + ".registryClass";
-
-    private static final MonitorRegistry INSTANCE =
-        new DefaultMonitorRegistry();
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultMonitorRegistry.class);
+    private static final String CLASS_NAME = DefaultMonitorRegistry.class.getCanonicalName();
+    private static final String REGISTRY_CLASS_PROP = CLASS_NAME + ".registryClass";
+    private static final MonitorRegistry INSTANCE =new DefaultMonitorRegistry();
+    private static final String DEFAULT_REGISTRY_NAME = "Servo Default";
 
     private final MonitorRegistry registry;
 
-    /** Returns the instance of this registry. */
+    /**
+     * Returns the instance of this registry.
+     */
     public static MonitorRegistry getInstance() {
         return INSTANCE;
     }
@@ -74,30 +70,36 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
                 Class<?> c = Class.forName(className);
                 r = (MonitorRegistry) c.newInstance();
             } catch (Throwable t) {
-                LOGGER.error(
-                    "failed to create instance of class " + className + ", "
-                    + "using default class "
-                    + JmxMonitorRegistry.class.getName(),
-                    t);
-                r = new JmxMonitorRegistry();
+                LOG.error(
+                        "failed to create instance of class " + className + ", "
+                                + "using default class "
+                                + JmxMonitorRegistry.class.getName(),
+                        t);
+                r = new JmxMonitorRegistry(DEFAULT_REGISTRY_NAME);
             }
             registry = r;
         } else {
-            registry = new JmxMonitorRegistry();
+            registry = new JmxMonitorRegistry(DEFAULT_REGISTRY_NAME);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void registerAnnotatedObject(Object obj) {
         registry.registerAnnotatedObject(obj);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void unregisterAnnotatedObject(Object obj) {
         registry.unregisterAnnotatedObject(obj);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
         return registry.getRegisteredAnnotatedObjects();
     }
@@ -132,7 +134,9 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
         registry.unregister(monitor);
     }
 
-    /** Returns the inner registry that was created to service the requests. */
+    /**
+     * Returns the inner registry that was created to service the requests.
+     */
     MonitorRegistry getInnerRegistry() {
         return registry;
     }

@@ -1,5 +1,6 @@
 package com.netflix.servo.jmx;
 
+import com.google.common.base.Preconditions;
 import com.netflix.servo.Monitor;
 import com.netflix.servo.MonitorContext;
 import com.netflix.servo.tag.Tag;
@@ -16,8 +17,8 @@ class MonitorModelMBean {
     private final ObjectName objectName;
     private final ModelMBean mBean;
 
-    private MonitorModelMBean(Monitor monitor) {
-        this.objectName = createObjectName(monitor.getContext());
+    private MonitorModelMBean(String registry, Monitor monitor) {
+        this.objectName = createObjectName(registry, monitor.getContext());
         try {
             this.mBean = createModelMBean(monitor);
         } catch (Exception e) {
@@ -25,21 +26,24 @@ class MonitorModelMBean {
         }
     }
 
-    public static MonitorModelMBean newInstance(Monitor monitor) {
-        return new MonitorModelMBean(monitor);
+    static MonitorModelMBean newInstance(String registry, Monitor monitor) {
+        if (monitor == null) throw new IllegalArgumentException("Monitor cannot be null");
+        return new MonitorModelMBean(registry, monitor);
     }
 
-    public ObjectName getObjectName() {
+    ObjectName getObjectName() {
         return objectName;
     }
 
-    public ModelMBean getMBean() {
+    ModelMBean getMBean() {
         return mBean;
     }
 
-    static ObjectName createObjectName(MonitorContext context) {
+    static ObjectName createObjectName(String domain, MonitorContext context) {
+        Preconditions.checkNotNull(context, "MonitorContext cannot be null");
+
         StringBuilder builder = new StringBuilder();
-        builder.append("com.netflix.servo").append(":name=").append(context.getName());
+        builder.append(domain != null ? domain : "com.netflix.servo").append(":name=").append(context.getName());
 
         for (Tag t : context.getTags()) {
             builder.append(",").append(t.tagString());
@@ -47,36 +51,32 @@ class MonitorModelMBean {
 
         String name = builder.toString();
         try {
-            return new ObjectName(builder.toString());
+            return new ObjectName(name);
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("invalid ObjectName " + name, e);
         }
     }
 
-    private ModelMBean createModelMBean(Monitor monitor) throws IntrospectionException, NoSuchMethodException, MBeanException, InstanceNotFoundException, InvalidTargetObjectTypeException {
+    private ModelMBean createModelMBean(Monitor monitor) throws IntrospectionException, NoSuchMethodException,
+            MBeanException, InstanceNotFoundException, InvalidTargetObjectTypeException {
         RequiredModelMBean monitorMMBean = new RequiredModelMBean(createModelMBeanInfo(monitor));
         monitorMMBean.setManagedResource(monitor, "ObjectReference");
         return monitorMMBean;
     }
 
-    private ModelMBeanInfo createModelMBeanInfo(Monitor monitor) throws MBeanException, IntrospectionException, NoSuchMethodException {
+    private ModelMBeanInfo createModelMBeanInfo(Monitor monitor) throws MBeanException, IntrospectionException,
+            NoSuchMethodException {
         Class monitorClass = monitor.getClass();
-        Method m = monitorClass.getMethod("getValue", null);
-        System.out.println(m.getReturnType().getCanonicalName());
+        Method getValue = monitorClass.getMethod("getValue", null);
 
-
-        Descriptor monitorDescription = new DescriptorSupport("name=" + objectName,
-                "descriptorType=mbean",
-                "displayName=" + monitor.getContext().getName(),
-                "type=" + monitorClass.getCanonicalName(),
-                "log=T",
-                "logFile=jmxmain.log",
-                "currencyTimeLimit=10");
+        Descriptor monitorDescription = new DescriptorSupport("name=" + objectName, "descriptorType=mbean",
+                "displayName=" + monitor.getContext().getName(), "type=" + monitorClass.getCanonicalName(),
+                "log=T", "logFile=jmxmain.log", "currencyTimeLimit=10");
 
         ModelMBeanInfo info = new ModelMBeanInfoSupport("Monitor", "ModelMBean for Monitor objects",
-                createMonitorAttributes(monitorClass, m),
+                createMonitorAttributes(monitorClass, getValue),
                 null,
-                createMonitorOperations(monitorClass, m),
+                createMonitorOperations(monitorClass, getValue),
                 null);
 
         info.setMBeanDescriptor(monitorDescription);
@@ -84,29 +84,24 @@ class MonitorModelMBean {
         return info;
     }
 
+    /**
+     * This method only supports building operations for no arugment methods.
+     *
+     * @param monitorClass
+     * @param methods
+     * @return
+     */
     private ModelMBeanOperationInfo[] createMonitorOperations(Class monitorClass, Method... methods) {
-        ModelMBeanOperationInfo[] monitorOperations =
-                new ModelMBeanOperationInfo[methods.length];
+        ModelMBeanOperationInfo[] monitorOperations = new ModelMBeanOperationInfo[methods.length];
 
         MBeanParameterInfo[] getParms = new MBeanParameterInfo[0];
 
         for (int i = 0; i < methods.length; i++) {
-            //TODO dynamic naming
-            Descriptor getValueDesc =
-                    new DescriptorSupport(
-                            "name=" + methods[i].getName(),
-                            "descriptorType=operation",
-                            "class=" + monitorClass.getCanonicalName(),
-                            "role=operation");
+            Descriptor getValueDesc = new DescriptorSupport("name=" + methods[i].getName(), "descriptorType=operation",
+                    "class=" + monitorClass.getCanonicalName(), "role=operation");
 
-            monitorOperations[0] =
-                    new ModelMBeanOperationInfo(
-                            methods[i].getName(),
-                            methods[i].getName(),
-                            getParms,
-                            methods[i].getReturnType().getCanonicalName(),
-                            MBeanOperationInfo.INFO,
-                            getValueDesc);
+            monitorOperations[i] = new ModelMBeanOperationInfo(methods[i].getName(), methods[i].getName(), getParms,
+                    methods[i].getReturnType().getCanonicalName(), MBeanOperationInfo.INFO, getValueDesc);
         }
         return monitorOperations;
     }
@@ -115,13 +110,11 @@ class MonitorModelMBean {
         ModelMBeanAttributeInfo[] attributes = new ModelMBeanAttributeInfo[methods.length];
 
         for (int i = 0; i < methods.length; i++) {
-            //TODO Dynamic naming
-            Descriptor monitorValueDescription = new DescriptorSupport("name=MonitorValue",
-                    "descriptorType=attribute",
-                    "displayName=MonitorValue",
+            Descriptor monitorValueDescription = new DescriptorSupport("name=" + methods[i].getName(),
+                    "descriptorType=attribute", "displayName=" + methods[i].getName(),
                     "getMethod=" + methods[i].getName());
 
-            attributes[i] = new ModelMBeanAttributeInfo("MonitorValue", methods[i].getReturnType().getCanonicalName(),
+            attributes[i] = new ModelMBeanAttributeInfo(methods[i].getName(), methods[i].getReturnType().getCanonicalName(),
                     "Current value of the monitor", true, false, false, monitorValueDescription);
         }
         return attributes;

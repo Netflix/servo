@@ -74,7 +74,7 @@ public class BasicExample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        Counter counter = new BasicCounter(new MonitorContext.Builder("test1").build());
+        Counter counter = new BasicCounter(new MonitorContext.Builder("test1").withTags(tags).build());
 
 
         String id = null;

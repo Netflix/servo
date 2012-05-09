@@ -27,9 +27,9 @@ import com.netflix.servo.annotations.AnnotatedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
-import javax.management.modelmbean.InvalidTargetObjectTypeException;
-import javax.management.modelmbean.RequiredModelMBean;
+import javax.management.DynamicMBean;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,19 +42,22 @@ import java.util.Set;
  */
 public final class JmxMonitorRegistry implements MonitorRegistry {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(JmxMonitorRegistry.class);
+
     private final MBeanServer mBeanServer;
     private final Set<AnnotatedObject> objects;
     private final Set<Monitor> monitors;
+    private final String name;
 
     /**
      * Creates a new instance that registers metrics with the local mbean
      * server.
      */
-    public JmxMonitorRegistry() {
+    public JmxMonitorRegistry(String name) {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
         monitors = Collections.synchronizedSet(new HashSet<Monitor>());
+        this.name = name;
     }
 
     private void register(ObjectName name, DynamicMBean mbean)
@@ -79,8 +82,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             register(metadata.getObjectName(), metadata);
             objects.add(annoObj);
         } catch (Throwable t) {
-            logger.warn("could not register object of class "
-                    + obj.getClass().getCanonicalName(), t);
+            LOG.warn("could not register object of class " + obj.getClass().getCanonicalName(), t);
         }
     }
 
@@ -99,7 +101,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
             objects.remove(annoObj);
         } catch (Throwable t) {
-            logger.warn("could not un-register object of class "
+            LOG.warn("could not un-register object of class "
                     + obj.getClass().getCanonicalName(), t);
         }
     }
@@ -129,19 +131,13 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void register(Monitor monitor) {
 
-        MonitorModelMBean bean = MonitorModelMBean.newInstance(monitor);
+        MonitorModelMBean bean = MonitorModelMBean.newInstance(name, monitor);
         try {
             mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
-        } catch (InstanceAlreadyExistsException e) {
-            //TODO fix exception logging
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (MBeanRegistrationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (NotCompliantMBeanException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            monitors.add(monitor);
+        } catch (Exception e) {
+            LOG.warn("Unable to register Monitor:" + monitor.getContext(), e);
         }
-
-        monitors.add(monitor);
     }
 
     /**
@@ -152,12 +148,10 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void unregister(Monitor monitor) {
         try {
-            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(monitor.getContext()));
-        } catch (InstanceNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (MBeanRegistrationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(name, monitor.getContext()));
+            monitors.remove(monitor);
+        } catch (Exception e) {
+            LOG.warn("Unable to un-register Monitor:" + monitor.getContext(), e);
         }
-        monitors.remove(monitor);
     }
 }

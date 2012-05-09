@@ -34,7 +34,7 @@ import static org.testng.Assert.*;
 public class JmxMonitorRegistryTest {
 
     private JmxMonitorRegistry newInstance() {
-        return new JmxMonitorRegistry();
+        return new JmxMonitorRegistry("testRegistry");
     }
 
     private Set<Object> getObjects(MonitorRegistry registry) {
