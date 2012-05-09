@@ -38,7 +38,7 @@ public class MonitorRegistryMetricPollerTest {
     @Test
     public void testBasic() throws Exception {
         MonitorRegistry registry = new BasicMonitorRegistry();
-        registry.registerObject(new BasicCounter("foo"));
+        registry.registerAnnotatedObject(new BasicCounter("foo"));
 
         MetricPoller poller = new MonitorRegistryMetricPoller(registry);
         Metric metric = poller.poll(MATCH_ALL).get(0);

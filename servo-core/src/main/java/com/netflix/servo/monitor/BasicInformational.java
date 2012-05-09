@@ -24,7 +24,7 @@ import com.netflix.servo.MonitorContext;
  * Date: 4/9/12
  * Time: 6:53 PM
  */
-public class BasicInformational extends AbstractMonitor<String> implements Monitor<String> {
+public class BasicInformational extends AbstractMonitor<String> implements Informational {
     protected String info = "";
 
     public BasicInformational(MonitorContext context){

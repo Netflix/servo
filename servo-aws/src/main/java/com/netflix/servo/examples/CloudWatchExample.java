@@ -21,23 +21,16 @@ package com.netflix.servo.examples;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.netflix.servo.*;
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollCallable;
 import com.netflix.servo.publish.cloudwatch.CloudWatchMetricObserver;
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.InjectableTag;
 import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sample of publishing the SimpleSample to CloudWatch
@@ -59,7 +52,7 @@ public class CloudWatchExample {
 
         BasicExample example = new BasicExample(tags);
 
-        DefaultMonitorRegistry.getInstance().registerObject(example);
+        DefaultMonitorRegistry.getInstance().registerAnnotatedObject(example);
 
         PollCallable poller = new PollCallable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL);
 

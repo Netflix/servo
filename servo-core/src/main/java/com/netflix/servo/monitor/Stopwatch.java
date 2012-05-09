@@ -16,33 +16,35 @@
 
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.Monitor;
-
 import java.util.concurrent.TimeUnit;
 
-/**
- * User: gorzell
- * Date: 4/10/12
- * Time: 7:49 PM
- */
-public interface Timer extends Monitor<Long> {
+public interface Stopwatch {
 
     /**
-     * The TimeUnit that this timer is stored in.
+     * Start the stopwatch.
+     */
+    public void start();
+
+    /**
+     * Stop the stopwatch.
+     */
+    public void stop();
+
+    /**
+     * Reset the stopwatch so that it can be used again.
+     */
+    public void reset();
+
+    /**
+     * Get the duration of time the stopwatch was running.
+     * @param timeUnit
+     * @return duration in specified time unit.
+     */
+    public long getDuration(TimeUnit timeUnit);
+
+    /**
+     * Get the duration in the default TimeUnit which is nano-seconds.
      * @return
      */
-    public TimeUnit getTimeUnit();
-
-    /**
-     * Record a new value for this timer
-     * @param duration
-     */
-    public void record(long duration);
-
-    /**
-     * Record a new value that was collected with the given TimeUnit
-     * @param duration
-     * @param timeUnit
-     */
-    public void record(long duration, TimeUnit timeUnit);
+    public long getDuration();
 }

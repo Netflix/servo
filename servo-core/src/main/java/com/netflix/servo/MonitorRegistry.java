@@ -32,17 +32,35 @@ public interface MonitorRegistry {
      * Register the object so annotated fields can be made available for
      * querying.
      */
-    void registerObject(Object obj);
+    void registerAnnotatedObject(Object obj);
 
     /**
      * Un-register the object. It should be assumed that the registry will
      * hold a reference to the object, and thus preventing garbage collection,
-     * unless it is unregistered. 
+     * unless it is unregistered.
      */
-    void unRegisterObject(Object obj);
+    void unregisterAnnotatedObject(Object obj);
 
     /**
-     * Returns a list of all registered objects.
+     * Returns a set of all registered objects.
      */
-    Set<AnnotatedObject> getRegisteredObjects();
+    Set<AnnotatedObject> getRegisteredAnnotatedObjects();
+
+    /**
+     * The set of registered Monitor objects.
+     * @return
+     */
+    Set<Monitor> getRegisteredMonitors();
+
+    /**
+     * Register a new monitor in the registry.
+     * @param monitor
+     */
+    void register(Monitor monitor);
+
+    /**
+     * Unregister a Monitor from the registry.
+     * @param monitor
+     */
+    void unregister(Monitor monitor);
 }
