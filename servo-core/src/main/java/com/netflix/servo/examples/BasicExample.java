@@ -20,9 +20,11 @@
 package com.netflix.servo.examples;
 
 import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.MonitorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.tag.InjectableTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
@@ -71,6 +73,9 @@ public class BasicExample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
+        Counter m1 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test1").build());
+
+
         String id = null;
         if (args.length > 0) {
             id = args[0];
@@ -78,9 +83,12 @@ public class BasicExample {
         BasicExample example = new BasicExample(tags);
 
         DefaultMonitorRegistry.getInstance().registerAnnotatedObject(example);
+        DefaultMonitorRegistry.getInstance().register(m1);
+
 
         while(true) {
             example.counter.incrementAndGet();
+            m1.increment();
             example.setSampleGauge(Math.round(Math.random() * 1000));
             Thread.sleep(10000);
         }
