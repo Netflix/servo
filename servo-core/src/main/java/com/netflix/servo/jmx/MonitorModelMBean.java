@@ -91,6 +91,7 @@ class MonitorModelMBean {
         MBeanParameterInfo[] getParms = new MBeanParameterInfo[0];
 
         for (int i = 0; i < methods.length; i++) {
+            //TODO dynamic naming
             Descriptor getValueDesc =
                     new DescriptorSupport(
                             "name=" + methods[i].getName(),
@@ -114,6 +115,7 @@ class MonitorModelMBean {
         ModelMBeanAttributeInfo[] attributes = new ModelMBeanAttributeInfo[methods.length];
 
         for (int i = 0; i < methods.length; i++) {
+            //TODO Dynamic naming
             Descriptor monitorValueDescription = new DescriptorSupport("name=MonitorValue",
                     "descriptorType=attribute",
                     "displayName=MonitorValue",

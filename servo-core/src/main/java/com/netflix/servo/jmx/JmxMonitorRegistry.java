@@ -133,6 +133,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         try {
             mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
         } catch (InstanceAlreadyExistsException e) {
+            //TODO fix exception logging
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (MBeanRegistrationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

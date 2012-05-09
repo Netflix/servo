@@ -24,6 +24,7 @@ import com.netflix.servo.MonitorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
+import com.netflix.servo.monitor.BasicCounter;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.tag.InjectableTag;
 import com.netflix.servo.tag.SortedTagList;
@@ -73,7 +74,7 @@ public class BasicExample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        Counter m1 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test1").build());
+        Counter counter = new BasicCounter(new MonitorContext.Builder("test1").build());
 
 
         String id = null;
@@ -83,12 +84,12 @@ public class BasicExample {
         BasicExample example = new BasicExample(tags);
 
         DefaultMonitorRegistry.getInstance().registerAnnotatedObject(example);
-        DefaultMonitorRegistry.getInstance().register(m1);
+        DefaultMonitorRegistry.getInstance().register(counter);
 
 
         while(true) {
             example.counter.incrementAndGet();
-            m1.increment();
+            counter.increment();
             example.setSampleGauge(Math.round(Math.random() * 1000));
             Thread.sleep(10000);
         }
