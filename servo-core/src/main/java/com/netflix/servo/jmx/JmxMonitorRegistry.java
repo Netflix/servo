@@ -27,9 +27,9 @@ import com.netflix.servo.annotations.AnnotatedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.DynamicMBean;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
+import javax.management.*;
+import javax.management.modelmbean.InvalidTargetObjectTypeException;
+import javax.management.modelmbean.RequiredModelMBean;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,7 +65,9 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         mBeanServer.registerMBean(mbean, name);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void registerAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
@@ -78,11 +80,13 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             objects.add(annoObj);
         } catch (Throwable t) {
             logger.warn("could not register object of class "
-                + obj.getClass().getCanonicalName(), t);
+                    + obj.getClass().getCanonicalName(), t);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void unregisterAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
@@ -96,11 +100,13 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             objects.remove(annoObj);
         } catch (Throwable t) {
             logger.warn("could not un-register object of class "
-                + obj.getClass().getCanonicalName(), t);
+                    + obj.getClass().getCanonicalName(), t);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
         return ImmutableSet.copyOf(objects);
     }
@@ -123,6 +129,19 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void register(Monitor monitor) {
 
+        MonitorModelMBean bean = MonitorModelMBean.newInstance(monitor);
+        try {
+            mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
+        } catch (InstanceAlreadyExistsException e) {
+            //TODO fix exception logging
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (MBeanRegistrationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (NotCompliantMBeanException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        monitors.add(monitor);
     }
 
     /**
@@ -132,6 +151,13 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public void unregister(Monitor monitor) {
-
+        try {
+            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(monitor.getContext()));
+        } catch (InstanceNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (MBeanRegistrationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        monitors.remove(monitor);
     }
 }
