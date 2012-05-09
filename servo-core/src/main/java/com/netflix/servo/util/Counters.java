@@ -41,7 +41,7 @@ public final class Counters {
             @Override
             public BasicCounter load(MonitorContext key) {
                 BasicCounter counter = new BasicCounter(key);
-                DefaultMonitorRegistry.getInstance().registerObject(counter);
+                DefaultMonitorRegistry.getInstance().registerAnnotatedObject(counter);
                 return counter;
             }
         });

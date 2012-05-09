@@ -21,6 +21,7 @@ package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.netflix.servo.Monitor;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.annotations.AnnotatedObject;
 import org.slf4j.Logger;
@@ -41,19 +42,22 @@ import java.util.Set;
  */
 public final class JmxMonitorRegistry implements MonitorRegistry {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(JmxMonitorRegistry.class);
 
     private final MBeanServer mBeanServer;
-
     private final Set<AnnotatedObject> objects;
+    private final Set<Monitor> monitors;
+    private final String name;
 
     /**
      * Creates a new instance that registers metrics with the local mbean
      * server.
      */
-    public JmxMonitorRegistry() {
+    public JmxMonitorRegistry(String name) {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
+        monitors = Collections.synchronizedSet(new HashSet<Monitor>());
+        this.name = name;
     }
 
     private void register(ObjectName name, DynamicMBean mbean)
@@ -64,8 +68,10 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         mBeanServer.registerMBean(mbean, name);
     }
 
-    /** {@inheritDoc} */
-    public void registerObject(Object obj) {
+    /**
+     * {@inheritDoc}
+     */
+    public void registerAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             AnnotatedObject annoObj = new AnnotatedObject(obj);
@@ -76,13 +82,14 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             register(metadata.getObjectName(), metadata);
             objects.add(annoObj);
         } catch (Throwable t) {
-            logger.warn("could not register object of class "
-                + obj.getClass().getCanonicalName(), t);
+            LOG.warn("could not register object of class " + obj.getClass().getCanonicalName(), t);
         }
     }
 
-    /** {@inheritDoc} */
-    public void unRegisterObject(Object obj) {
+    /**
+     * {@inheritDoc}
+     */
+    public void unregisterAnnotatedObject(Object obj) {
         Preconditions.checkNotNull(obj, "obj cannot be null");
         try {
             AnnotatedObject annoObj = new AnnotatedObject(obj);
@@ -94,13 +101,57 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
             objects.remove(annoObj);
         } catch (Throwable t) {
-            logger.warn("could not un-register object of class "
-                + obj.getClass().getCanonicalName(), t);
+            LOG.warn("could not un-register object of class "
+                    + obj.getClass().getCanonicalName(), t);
         }
     }
 
-    /** {@inheritDoc} */
-    public Set<AnnotatedObject> getRegisteredObjects() {
+    /**
+     * {@inheritDoc}
+     */
+    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
         return ImmutableSet.copyOf(objects);
+    }
+
+    /**
+     * The set of registered Monitor objects.
+     *
+     * @return
+     */
+    @Override
+    public Set<Monitor> getRegisteredMonitors() {
+        return ImmutableSet.copyOf(monitors);
+    }
+
+    /**
+     * Register a new monitor in the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void register(Monitor monitor) {
+
+        MonitorModelMBean bean = MonitorModelMBean.newInstance(name, monitor);
+        try {
+            mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
+            monitors.add(monitor);
+        } catch (Exception e) {
+            LOG.warn("Unable to register Monitor:" + monitor.getContext(), e);
+        }
+    }
+
+    /**
+     * Unregister a Monitor from the registry.
+     *
+     * @param monitor
+     */
+    @Override
+    public void unregister(Monitor monitor) {
+        try {
+            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(name, monitor.getContext()));
+            monitors.remove(monitor);
+        } catch (Exception e) {
+            LOG.warn("Unable to un-register Monitor:" + monitor.getContext(), e);
+        }
     }
 }
