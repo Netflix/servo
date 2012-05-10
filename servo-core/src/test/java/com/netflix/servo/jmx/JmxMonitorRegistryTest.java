@@ -27,15 +27,14 @@ import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.util.BasicCounter;
 import org.testng.annotations.Test;
 
+import java.lang.management.ManagementFactory;
 import java.util.Set;
 
 import static org.testng.Assert.*;
 
 public class JmxMonitorRegistryTest {
 
-    private JmxMonitorRegistry newInstance() {
-        return new JmxMonitorRegistry("testRegistry");
-    }
+    private JmxMonitorRegistry jmxMonitorRegistry = new JmxMonitorRegistry("testRegistry");
 
     private Set<Object> getObjects(MonitorRegistry registry) {
         Set<AnnotatedObject> annoObjs = registry.getRegisteredAnnotatedObjects();
@@ -48,19 +47,19 @@ public class JmxMonitorRegistryTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testRegisterNull() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         registry.registerAnnotatedObject(null);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testUnRegisterNull() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         registry.unregisterAnnotatedObject(null);
     }
 
     @Test
     public void testUnRegisterObject() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Object o1 = new BasicCounter("one");
         Object o2 = new BasicCounter("two");
 
@@ -87,14 +86,14 @@ public class JmxMonitorRegistryTest {
 
     @Test
     public void testGetRegisteredObjectsEmpty() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Set<Object> objects = getObjects(registry);
         assertEquals(objects.size(), 0);
     }
 
     @Test
     public void testGetRegisteredObjects() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Object o1 = new BasicCounter("one");
         Object o2 = new BasicCounter("two");
 
@@ -105,23 +104,27 @@ public class JmxMonitorRegistryTest {
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(o1));
         assertTrue(objects.contains(o2));
+
+        //Must remove the test objects as the JMX registry is global
+        registry.unregisterAnnotatedObject(o1);
+        registry.unregisterAnnotatedObject(o2);
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testRegisterMonitorNull() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         registry.register(null);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testUnRegisterMonitorNull() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         registry.unregister(null);
     }
 
     @Test
     public void testUnRegisterMonitor() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Monitor m1 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test1").build());
         Monitor m2 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test2").build());
 
@@ -148,14 +151,14 @@ public class JmxMonitorRegistryTest {
 
     @Test
     public void testGetRegisteredMonitorssEmpty() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Set<Monitor> monitors = registry.getRegisteredMonitors();
         assertEquals(monitors.size(), 0);
     }
 
     @Test
     public void testGetRegisteredMonitors() throws Exception {
-        MonitorRegistry registry = newInstance();
+        MonitorRegistry registry = jmxMonitorRegistry;
         Monitor m1 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test1").build());
         Monitor m2 = new com.netflix.servo.monitor.BasicCounter(new MonitorContext.Builder("test2").build());
 
@@ -166,5 +169,9 @@ public class JmxMonitorRegistryTest {
         assertEquals(objects.size(), 2);
         assertTrue(objects.contains(m1));
         assertTrue(objects.contains(m2));
+
+        //Must remove the test objects as the JMX registry is global
+        registry.unregister(m1);
+        registry.unregister(m2);
     }
 }

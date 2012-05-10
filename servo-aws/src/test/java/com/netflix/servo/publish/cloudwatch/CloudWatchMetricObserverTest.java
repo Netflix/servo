@@ -48,7 +48,9 @@ public class CloudWatchMetricObserverTest {
 
         try{
             observer.update(metrics);
-        } catch (AmazonClientException e){}
+        } catch (AmazonClientException e){
+            e.printStackTrace();
+        }
     }
 
     @Test
