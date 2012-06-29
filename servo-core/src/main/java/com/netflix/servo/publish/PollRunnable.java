@@ -1,6 +1,6 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
  * Copyright (C) 2011 - 2012 Netflix
  * %%
@@ -37,6 +37,7 @@ public class PollRunnable implements Runnable {
 
     private final MetricPoller poller;
     private final MetricFilter filter;
+    private final boolean reset;
     private final List<MetricObserver> observers;
 
     /**
@@ -47,8 +48,21 @@ public class PollRunnable implements Runnable {
             MetricPoller poller,
             MetricFilter filter,
             Collection<MetricObserver> observers) {
+        this(poller, filter, false, observers);
+    }
+
+    /**
+     * Creates a new runnable instance that executes poll with the given filter
+     * and sends the metrics to all of the given observers.
+     */
+    public PollRunnable(
+            MetricPoller poller,
+            MetricFilter filter,
+            boolean reset,
+            Collection<MetricObserver> observers) {
         this.poller = Preconditions.checkNotNull(poller);
         this.filter = Preconditions.checkNotNull(filter);
+        this.reset = reset;
         this.observers = ImmutableList.copyOf(observers);
     }
 
@@ -60,14 +74,14 @@ public class PollRunnable implements Runnable {
             MetricPoller poller,
             MetricFilter filter,
             MetricObserver... observers) {
-        this(poller, filter, ImmutableList.copyOf(observers));
+        this(poller, filter, false, ImmutableList.copyOf(observers));
     }
 
     /** {@inheritDoc} */
     @Override
     public void run() {
         try {
-            List<Metric> metrics = poller.poll(filter);
+            List<Metric> metrics = poller.poll(filter, reset);
             for (MetricObserver o : observers) {
                 try {
                     o.update(metrics);

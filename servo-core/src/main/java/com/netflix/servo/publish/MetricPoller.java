@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,4 +38,17 @@ public interface MetricPoller {
      * @return        list of current metric values
      */
     List<Metric> poll(MetricFilter filter);
+
+    /**
+     * Fetch the current values for a set of metrics that match the provided
+     * filter. This method should be cheap, thread-safe, and interruptible so
+     * that it can be called frequently to collect metrics at a regular
+     * interval.
+     *
+     * @param filter  retricts the set of metrics
+     * @param reset   should this poller trigger a reset for
+     *                {@link com.netflix.servo.monitor.ResettableMonitor}
+     * @return        list of current metric values
+     */
+    List<Metric> poll(MetricFilter filter, boolean reset);
 }

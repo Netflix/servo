@@ -1,6 +1,6 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
  * Copyright (C) 2011 - 2012 Netflix
  * %%

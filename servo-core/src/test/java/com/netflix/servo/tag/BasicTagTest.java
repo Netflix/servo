@@ -1,6 +1,6 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
  * Copyright (C) 2011 - 2012 Netflix
  * %%
@@ -24,11 +24,6 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-/**
- * User: gorzell
- * Date: 1/7/12
- * Time: 10:28 PM
- */
 public class BasicTagTest {
     private final String testKey = "foo";
     private final String testValue = "bar";

@@ -19,6 +19,7 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
@@ -43,7 +44,7 @@ public class MetricTest {
     public void testNullTags() throws Exception {
         long now = System.currentTimeMillis();
         Metric m = new Metric("a", null, now, 42);
-        assertEquals(m.getConfig(), new MonitorContext.Builder("a").build());
+        assertEquals(m.getConfig(), new MonitorConfig.Builder("a").build());
     }
 
     @Test(expectedExceptions = NullPointerException.class)
@@ -56,7 +57,7 @@ public class MetricTest {
     public void testAccessors() throws Exception {
         long now = System.currentTimeMillis();
         Metric m1 = new Metric("a", tags1, now, 42);
-        assertEquals(m1.getConfig(), new MonitorContext.Builder("a").withTags(tags1).build());
+        assertEquals(m1.getConfig(), new MonitorConfig.Builder("a").withTags(tags1).build());
         assertEquals(m1.getTimestamp(), now);
         assertEquals(m1.getValue(), 42);
     }

@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public enum DataSourceType implements Tag {
     INFORMATIONAL;
 
     /** Key name used for the data source type tag. */
-    public static final String KEY = "DataSourceType";
+    public static final String KEY = "type";
 
     /** {@inheritDoc} */
     public String getKey() {

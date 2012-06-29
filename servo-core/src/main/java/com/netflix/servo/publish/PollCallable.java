@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ public final class PollCallable implements Callable<List<Metric>> {
 
     private final MetricPoller poller;
     private final MetricFilter filter;
+    private final boolean reset;
 
     /**
      * Creates a new instance.
@@ -39,12 +40,24 @@ public final class PollCallable implements Callable<List<Metric>> {
      * @param filter  filter to pass into the poller
      */
     public PollCallable(MetricPoller poller, MetricFilter filter) {
+        this(poller, filter, false);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param poller  poller to invoke
+     * @param filter  filter to pass into the poller
+     * @param reset   reset flag to pass into the poller
+     */
+    public PollCallable(MetricPoller poller, MetricFilter filter, boolean reset) {
         this.poller = poller;
         this.filter = filter;
+        this.reset = reset;
     }
 
     /** {@inheritDoc} */
     public List<Metric> call() {
-        return poller.poll(filter);
+        return poller.poll(filter, reset);
     }
 }

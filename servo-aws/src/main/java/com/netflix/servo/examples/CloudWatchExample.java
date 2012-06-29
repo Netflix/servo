@@ -21,6 +21,7 @@ package com.netflix.servo.examples;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.netflix.servo.*;
+import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollCallable;
@@ -52,7 +53,7 @@ public class CloudWatchExample {
 
         BasicExample example = new BasicExample(tags);
 
-        DefaultMonitorRegistry.getInstance().registerAnnotatedObject(example);
+        DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(example));
 
         PollCallable poller = new PollCallable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL);
 

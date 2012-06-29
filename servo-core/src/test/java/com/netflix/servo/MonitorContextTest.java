@@ -19,6 +19,7 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
@@ -35,27 +36,27 @@ public class MonitorContextTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {
-        new MonitorContext.Builder(null).withTags(tags1).build();
+        new MonitorConfig.Builder(null).withTags(tags1).build();
     }
 
     @Test
     public void testNullTags() throws Exception {
-        MonitorContext m = new MonitorContext.Builder("a").build();
-        assertEquals(m, new MonitorContext.Builder("a").build());
+        MonitorConfig m = new MonitorConfig.Builder("a").build();
+        assertEquals(m, new MonitorConfig.Builder("a").build());
     }
 
     @Test
     public void testAccessors() throws Exception {
-        MonitorContext m1 = new MonitorContext.Builder("a").withTags(tags1).build();
+        MonitorConfig m1 = new MonitorConfig.Builder("a").withTags(tags1).build();
         assertEquals(m1.getName(), "a");
         assertEquals(m1.getTags(), tags1);
     }
 
     @Test
     public void testEquals() throws Exception {
-        MonitorContext m1 = new MonitorContext.Builder("a").withTags(tags1).build();
-        MonitorContext m2 = new MonitorContext.Builder("a").withTags(tags2).build();
-        MonitorContext m3 = new MonitorContext.Builder("a").withTags(tags1).build();
+        MonitorConfig m1 = new MonitorConfig.Builder("a").withTags(tags1).build();
+        MonitorConfig m2 = new MonitorConfig.Builder("a").withTags(tags2).build();
+        MonitorConfig m3 = new MonitorConfig.Builder("a").withTags(tags1).build();
 
         assertFalse(m1.equals(null));
         assertFalse(m1.equals(m2.toString()));
@@ -66,9 +67,9 @@ public class MonitorContextTest {
 
     @Test
     public void testHashCode() throws Exception {
-        MonitorContext m1 = new MonitorContext.Builder("a").withTags(tags1).build();
-        MonitorContext m2 = new MonitorContext.Builder("a").withTags(tags2).build();
-        MonitorContext m3 = new MonitorContext.Builder("a").withTags(tags1).build();
+        MonitorConfig m1 = new MonitorConfig.Builder("a").withTags(tags1).build();
+        MonitorConfig m2 = new MonitorConfig.Builder("a").withTags(tags2).build();
+        MonitorConfig m3 = new MonitorConfig.Builder("a").withTags(tags1).build();
 
         assertTrue(m1.hashCode() == m1.hashCode());
         assertTrue(m1.hashCode() != m2.hashCode());
