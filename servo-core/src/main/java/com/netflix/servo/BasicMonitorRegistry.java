@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package com.netflix.servo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.netflix.servo.annotations.AnnotatedObject;
+import com.netflix.servo.monitor.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,64 +38,29 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Set<AnnotatedObject> objects;
-    private final Set<Monitor> monitors;
+    private final Set<Monitor<?>> monitors;
 
     /**
      * Creates a new instance.
      */
     public BasicMonitorRegistry() {
         objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
-        monitors = Collections.synchronizedSet(new HashSet<Monitor>());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void registerAnnotatedObject(Object obj) {
-        Preconditions.checkNotNull(obj, "obj cannot be null");
-        try {
-            objects.add(new AnnotatedObject(obj));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid object", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unregisterAnnotatedObject(Object obj) {
-        Preconditions.checkNotNull(obj, "obj cannot be null");
-        try {
-            objects.remove(new AnnotatedObject(obj));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid object", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
-        return ImmutableSet.copyOf(objects);
+        monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
     }
 
     /**
      * The set of registered Monitor objects.
-     *
-     * @return
      */
     @Override
-    public Set<Monitor> getRegisteredMonitors() {
+    public Set<Monitor<?>> getRegisteredMonitors() {
         return ImmutableSet.copyOf(monitors);
     }
 
     /**
      * Register a new monitor in the registry.
-     *
-     * @param monitor
      */
     @Override
-    public void register(Monitor monitor) {
+    public void register(Monitor<?> monitor) {
         Preconditions.checkNotNull(monitor, "monitor cannot be null");
         try {
             monitors.add(monitor);
@@ -105,11 +71,9 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
 
     /**
      * Unregister a Monitor from the registry.
-     *
-     * @param monitor
      */
     @Override
-    public void unregister(Monitor monitor) {
+    public void unregister(Monitor<?> monitor) {
         Preconditions.checkNotNull(monitor, "monitor cannot be null");
         try {
             monitors.remove(monitor);

@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 package com.netflix.servo;
 
-import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
+import com.netflix.servo.monitor.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,53 +84,26 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void registerAnnotatedObject(Object obj) {
-        registry.registerAnnotatedObject(obj);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unregisterAnnotatedObject(Object obj) {
-        registry.unregisterAnnotatedObject(obj);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<AnnotatedObject> getRegisteredAnnotatedObjects() {
-        return registry.getRegisteredAnnotatedObjects();
-    }
-
-    /**
      * The set of registered Monitor objects.
-     *
-     * @return
      */
     @Override
-    public Set<Monitor> getRegisteredMonitors() {
+    public Set<Monitor<?>> getRegisteredMonitors() {
         return registry.getRegisteredMonitors();
     }
 
     /**
      * Register a new monitor in the registry.
-     *
-     * @param monitor
      */
     @Override
-    public void register(Monitor monitor) {
+    public void register(Monitor<?> monitor) {
         registry.register(monitor);
     }
 
     /**
      * Unregister a Monitor from the registry.
-     *
-     * @param monitor
      */
     @Override
-    public void unregister(Monitor monitor) {
+    public void unregister(Monitor<?> monitor) {
         registry.unregister(monitor);
     }
 

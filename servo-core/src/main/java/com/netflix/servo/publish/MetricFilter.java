@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.MonitorContext;
+import com.netflix.servo.monitor.MonitorConfig;
 
 /**
  * A filter to restrict the set of metrics that are polled.
@@ -32,5 +32,5 @@ public interface MetricFilter {
      * @param config  config settings associated with the metric
      * @return        true if the metric should be selected
      */
-    boolean matches(MonitorContext config);
+    boolean matches(MonitorConfig config);
 }

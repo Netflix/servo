@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ package com.netflix.servo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.TagList;
 
 /**
  * Represents a metric value at a given point in time.
  */
 public final class Metric {
-    private final MonitorContext config;
+    private final MonitorConfig config;
     private final long timestamp;
     private final Number value;
 
@@ -40,7 +41,7 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(String name, TagList tags, long timestamp, Number value) {
-        this(new MonitorContext.Builder(name).withTags(tags).build(), timestamp, value);
+        this(new MonitorConfig.Builder(name).withTags(tags).build(), timestamp, value);
     }
 
     /**
@@ -50,7 +51,7 @@ public final class Metric {
      * @param timestamp  point in time when the metric value was sampled
      * @param value      value of the metric
      */
-    public Metric(MonitorContext config, long timestamp, Number value) {
+    public Metric(MonitorConfig config, long timestamp, Number value) {
         this.config = Preconditions.checkNotNull(
             config, "config cannot be null");
         this.timestamp = timestamp;
@@ -59,7 +60,7 @@ public final class Metric {
     }
 
     /** Returns the config settings associated with the metric. */
-    public MonitorContext getConfig() {
+    public MonitorConfig getConfig() {
         return config;
     }
 

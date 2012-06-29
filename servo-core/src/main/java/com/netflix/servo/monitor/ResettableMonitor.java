@@ -1,6 +1,6 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
  * Copyright (C) 2011 - 2012 Netflix
  * %%
@@ -17,7 +17,14 @@
  * limitations under the License.
  * #L%
  */
+package com.netflix.servo.monitor;
+
 /**
- * Helper classes for working with counters.
+ * Used to indicate a monitor that should be reset after sampling. If there
+ * are multiple pollers reading the value only one of them should be configured
+ * to reset the value. The {@link Monitor#getValue()} call will not reset
+ * the value so it can be sample many times.
  */
-package com.netflix.servo.util;
+public interface ResettableMonitor<T> extends Monitor<T> {
+    T getAndResetValue();
+}

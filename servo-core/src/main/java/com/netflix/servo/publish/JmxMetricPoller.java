@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ package com.netflix.servo.publish;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MonitorContext;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.*;
@@ -99,7 +99,7 @@ public final class JmxMetricPoller implements MetricPoller {
         long now = System.currentTimeMillis();
         Number num = AnnotationUtils.asNumber(value);
         if (num != null) {
-            TagList newTags = counters.matches(new MonitorContext.Builder(name).withTags(tags).build())
+            TagList newTags = counters.matches(new MonitorConfig.Builder(name).withTags(tags).build())
                 ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
                 : SortedTagList.builder().withTags(tags).withTag(DataSourceType.GAUGE).build();
             Metric m = new Metric(name, newTags, now, num);
@@ -147,7 +147,7 @@ public final class JmxMetricPoller implements MetricPoller {
         List<String> matchingNames = Lists.newArrayList();
         for (MBeanAttributeInfo attrInfo : attrInfos) {
             String attrName = attrInfo.getName();
-            if (filter.matches(new MonitorContext.Builder(attrName).withTags(tags).build())) {
+            if (filter.matches(new MonitorConfig.Builder(attrName).withTags(tags).build())) {
                 matchingNames.add(attrName);
             }
         }
@@ -165,7 +165,7 @@ public final class JmxMetricPoller implements MetricPoller {
                 for (Map.Entry<String,Object> e : values.entrySet()) {
                     String key = e.getKey();
                     TagList newTags = SortedTagList.builder().withTags(tags).withTag(COMPOSITE_PATH_KEY, key).build();
-                    if (filter.matches(new MonitorContext.Builder(attrName).withTags(newTags).build())) {
+                    if (filter.matches(new MonitorConfig.Builder(attrName).withTags(newTags).build())) {
                         addMetric(metrics, attrName, newTags, e.getValue());
                     }
                 }
@@ -177,6 +177,11 @@ public final class JmxMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter) {
+        return poll(filter, false);
+    }
+
+    /** {@inheritDoc} */
+    public List<Metric> poll(MetricFilter filter, boolean reset) {
         List<Metric> metrics = Lists.newArrayList();
         try {
             MBeanServerConnection con = connector.getConnection();
