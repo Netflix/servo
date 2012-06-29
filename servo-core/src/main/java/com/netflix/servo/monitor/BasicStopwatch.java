@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * servo
+ * %%
+ * Copyright (C) 2011 - 2012 Netflix
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package com.netflix.servo.monitor;
 
 import java.util.concurrent.TimeUnit;
@@ -7,14 +26,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class does not enforce starting or stopping once and only once without a reset.
  */
 public class BasicStopwatch implements Stopwatch {
-    private AtomicLong startTime = new AtomicLong(-1);
-    private AtomicLong endTime = new AtomicLong(-1);
+    private Timer timer;
+    private AtomicLong startTime = new AtomicLong(0L);
+    private AtomicLong endTime = new AtomicLong(0L);
 
     public BasicStopwatch() {
+        this.timer = null;
     }
 
-    public BasicStopwatch(boolean started) {
-        if (started) start();
+    public BasicStopwatch(Timer timer) {
+        this.timer = timer;
     }
 
     /**
@@ -31,6 +52,9 @@ public class BasicStopwatch implements Stopwatch {
     @Override
     public void stop() {
         endTime.set(System.nanoTime());
+        if (timer != null) {
+            timer.record(getDuration(timer.getTimeUnit()));
+        }
     }
 
     /**
@@ -38,8 +62,8 @@ public class BasicStopwatch implements Stopwatch {
      */
     @Override
     public void reset() {
-        startTime = new AtomicLong(-1);
-        endTime = new AtomicLong(-1);
+        startTime = new AtomicLong(0L);
+        endTime = new AtomicLong(0L);
     }
 
     /**
@@ -60,6 +84,6 @@ public class BasicStopwatch implements Stopwatch {
      */
     @Override
     public long getDuration() {
-        return (endTime.get() < 0 || startTime.get() < 0) ? -1 : endTime.get() - startTime.get();
+        return endTime.get() - startTime.get();
     }
 }

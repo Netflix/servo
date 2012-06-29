@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MonitorContext;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -54,7 +54,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
     private final MetricObserver observer;
-    private final Cache<MonitorContext,CounterValue> cache;
+    private final Cache<MonitorConfig,CounterValue> cache;
 
     /**
      * Creates a new instance with the specified heartbeat interval. The

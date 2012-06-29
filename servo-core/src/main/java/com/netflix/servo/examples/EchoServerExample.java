@@ -1,6 +1,6 @@
 /*
  * #%L
- * servo-core
+ * servo
  * %%
  * Copyright (C) 2011 - 2012 Netflix
  * %%
@@ -27,8 +27,6 @@ import com.netflix.servo.publish.*;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.Counters;
-import com.netflix.servo.util.TaggingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +86,7 @@ public class EchoServerExample {
                     LOGGER.info("received connection from {} with tags {}",
                         s.getRemoteSocketAddress(), tags);
 
-                    Counters.increment("RequestCount", tags);
+                    //Counters.increment("RequestCount", tags);
                     ClientTask task = new ClientTask(tags, s);
                     Thread t = new Thread(task, "ClientTask");
                     t.start();
@@ -115,8 +113,8 @@ public class EchoServerExample {
                 input = new CountingInputStream(s.getInputStream());
                 output = new CountingOutputStream(s.getOutputStream());
                 ByteStreams.copy(input, output);
-                Counters.increment("BytesIn", input.getCount());
-                Counters.increment("BytesOut", output.getCount());
+                //Counters.increment("BytesIn", input.getCount());
+                //Counters.increment("BytesOut", output.getCount());
             } finally {
                 Closeables.closeQuietly(input);
                 Closeables.closeQuietly(output);
@@ -126,7 +124,7 @@ public class EchoServerExample {
         public void run() {
             // Setup context so all counters increments in this thread will get
             // tagged
-            TaggingContext.setTags(tags);
+            //TaggingContext.setTags(tags);
 
             try {
                 doWork();

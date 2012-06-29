@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ package com.netflix.servo.publish;
 import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
-import com.netflix.servo.MonitorContext;
+import com.netflix.servo.monitor.CompositeMonitor;
+import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.NumericMonitor;
+import com.netflix.servo.monitor.ResettableMonitor;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.annotations.AnnotatedAttribute;
-import com.netflix.servo.annotations.AnnotatedObject;
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
@@ -63,45 +63,45 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         this.registry = registry;
     }
 
+    private Number getValue(Monitor<?> monitor, boolean reset) {
+        if (reset && monitor instanceof ResettableMonitor<?>) {
+            return (Number) ((ResettableMonitor<?>) monitor).getAndResetValue();
+        } else {
+            return (Number) monitor.getValue();
+        }
+    }
+
     private void getMetrics(
             List<Metric> metrics,
             MetricFilter filter,
-            AnnotatedObject obj)
+            boolean reset,
+            Monitor<?> monitor)
             throws Exception {
 
-        List<AnnotatedAttribute> attrs = obj.getAttributes();
-        for (AnnotatedAttribute attr : attrs) {
-            // Skip informational annotations
-            Monitor anno = attr.getAnnotation();
-            TagList tags = SortedTagList.builder().withTags(attr.getTags()).withTag(anno.type()).build();
-            if (anno.type() == DataSourceType.INFORMATIONAL) {
-                continue;
+        if (monitor instanceof CompositeMonitor<?>) {
+            for (Monitor<?> m : ((CompositeMonitor<?>) monitor).getMonitors()) {
+                getMetrics(metrics, filter, reset, m);
             }
-
-            // Create config and add metric if filter matches 
-            MonitorContext config = new MonitorContext.Builder(anno.name()).withTags(tags).build();
-            if (filter.matches(config)) {
-                Number num = attr.getNumber();
-                if (num != null) {
-                    long now = System.currentTimeMillis();
-                    metrics.add(new Metric(config, now, num));
-                } else {
-                    LOGGER.debug("expected number but found {}, metric {}",
-                        attr.getValue(), config);
-                }
-            }
+        } else if (monitor instanceof NumericMonitor<?> && filter.matches(monitor.getConfig())) {
+            Number n = getValue(monitor, reset);
+            long now = System.currentTimeMillis();
+            metrics.add(new Metric(monitor.getConfig(), now, n));
         }
     }
 
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter) {
+        return poll(filter, false);
+    }
+
+    /** {@inheritDoc} */
+    public List<Metric> poll(MetricFilter filter, boolean reset) {
         List<Metric> metrics = Lists.newArrayList();
-        for (AnnotatedObject obj : registry.getRegisteredAnnotatedObjects()) {
+        for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
             try {
-                getMetrics(metrics, filter, obj);
+                getMetrics(metrics, filter, reset, monitor);
             } catch (Exception e) {
-                LOGGER.warn("failed to extract metrics from class {}", e,
-                    obj.getClass().getCanonicalName());
+                LOGGER.warn("failed to get values for {}", e, monitor.getConfig());
             }
         }
         return metrics;

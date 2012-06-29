@@ -1,24 +1,39 @@
+/*
+ * #%L
+ * servo
+ * %%
+ * Copyright (C) 2011 - 2012 Netflix
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package com.netflix.servo.jmx;
 
 import com.google.common.base.Preconditions;
-import com.netflix.servo.Monitor;
-import com.netflix.servo.MonitorContext;
+import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
 
 import javax.management.*;
 import javax.management.modelmbean.*;
 import java.lang.reflect.Method;
 
-/**
- * User: gorzell
- * Date: 5/8/12
- */
 class MonitorModelMBean {
     private final ObjectName objectName;
     private final ModelMBean mBean;
 
     private MonitorModelMBean(String registry, Monitor monitor) {
-        this.objectName = createObjectName(registry, monitor.getContext());
+        this.objectName = createObjectName(registry, monitor.getConfig());
         try {
             this.mBean = createModelMBean(monitor);
         } catch (Exception e) {
@@ -39,13 +54,13 @@ class MonitorModelMBean {
         return mBean;
     }
 
-    static ObjectName createObjectName(String domain, MonitorContext context) {
-        Preconditions.checkNotNull(context, "MonitorContext cannot be null");
+    static ObjectName createObjectName(String domain, MonitorConfig config) {
+        Preconditions.checkNotNull(config, "MonitorConfig cannot be null");
 
         StringBuilder builder = new StringBuilder();
-        builder.append(domain != null ? domain : "com.netflix.servo").append(":name=").append(context.getName());
+        builder.append(domain != null ? domain : "com.netflix.servo").append(":name=").append(config.getName());
 
-        for (Tag t : context.getTags()) {
+        for (Tag t : config.getTags()) {
             builder.append(",").append(t.tagString());
         }
 
@@ -70,7 +85,7 @@ class MonitorModelMBean {
         Method getValue = monitorClass.getMethod("getValue", null);
 
         Descriptor monitorDescription = new DescriptorSupport("name=" + objectName, "descriptorType=mbean",
-                "displayName=" + monitor.getContext().getName(), "type=" + monitorClass.getCanonicalName(),
+                "displayName=" + monitor.getConfig().getName(), "type=" + monitorClass.getCanonicalName(),
                 "log=T", "logFile=jmxmain.log", "currencyTimeLimit=10");
 
         ModelMBeanInfo info = new ModelMBeanInfoSupport("Monitor", "ModelMBean for Monitor objects",

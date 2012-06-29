@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.Counters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +70,8 @@ public class CompositeMetricPoller implements MetricPoller {
     }
 
     private void increment(Throwable t, String name) {
-        TagList tags = SortedTagList.builder().withTag(new BasicTag(POLLER_KEY, name)).build();
-        Counters.increment(t.getClass().getSimpleName() + "Count", tags);
+        //TagList tags = SortedTagList.builder().withTag(new BasicTag(POLLER_KEY, name)).build();
+        //Counters.increment(t.getClass().getSimpleName() + "Count", tags);
     }
 
     private List<Metric> getMetrics(String name, Future<List<Metric>> future) {
@@ -94,9 +93,14 @@ public class CompositeMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public final List<Metric> poll(MetricFilter filter) {
+        return poll(filter, false);
+    }
+
+    /** {@inheritDoc} */
+    public final List<Metric> poll(MetricFilter filter, boolean reset) {
         Map<String,Future<List<Metric>>> futures = Maps.newHashMap();
         for (Map.Entry<String,MetricPoller> e : pollers.entrySet()) {
-            PollCallable task = new PollCallable(e.getValue(), filter);
+            PollCallable task = new PollCallable(e.getValue(), filter, reset);
             futures.put(e.getKey(), executor.submit(task));
         }
 

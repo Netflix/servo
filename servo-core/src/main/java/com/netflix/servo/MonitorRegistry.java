@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package com.netflix.servo;
 
 import com.netflix.servo.annotations.AnnotatedObject;
+import com.netflix.servo.monitor.Monitor;
 
 import java.util.Set;
 
@@ -29,38 +30,17 @@ import java.util.Set;
  */
 public interface MonitorRegistry {
     /**
-     * Register the object so annotated fields can be made available for
-     * querying.
-     */
-    void registerAnnotatedObject(Object obj);
-
-    /**
-     * Un-register the object. It should be assumed that the registry will
-     * hold a reference to the object, and thus preventing garbage collection,
-     * unless it is unregistered.
-     */
-    void unregisterAnnotatedObject(Object obj);
-
-    /**
-     * Returns a set of all registered objects.
-     */
-    Set<AnnotatedObject> getRegisteredAnnotatedObjects();
-
-    /**
      * The set of registered Monitor objects.
-     * @return
      */
-    Set<Monitor> getRegisteredMonitors();
+    Set<Monitor<?>> getRegisteredMonitors();
 
     /**
      * Register a new monitor in the registry.
-     * @param monitor
      */
-    void register(Monitor monitor);
+    void register(Monitor<?> monitor);
 
     /**
      * Unregister a Monitor from the registry.
-     * @param monitor
      */
-    void unregister(Monitor monitor);
+    void unregister(Monitor<?> monitor);
 }

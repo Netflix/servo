@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.netflix.servo;
+package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Configuration settings associated with a metric.
  */
-public final class MonitorContext {
+public final class MonitorConfig {
 
     public static class Builder {
         private final String name;
@@ -45,6 +45,11 @@ public final class MonitorContext {
 
         public Builder withTag(String key, String val) {
             tags.add(new BasicTag(key, val));
+            return this;
+        }
+
+        public Builder withTag(Tag tag) {
+            tags.add(new BasicTag(tag.getKey(), tag.getValue()));
             return this;
         }
 
@@ -62,9 +67,13 @@ public final class MonitorContext {
             return this;
         }
 
-        public MonitorContext build() {
-            return new MonitorContext(this);
+        public MonitorConfig build() {
+            return new MonitorConfig(this);
         }
+    }
+
+    public static final Builder builder(String name) {
+        return new Builder(name);
     }
 
     private final String name;
@@ -74,7 +83,7 @@ public final class MonitorContext {
      * Creates a new instance with a given name and tags. If {@code tags} is
      * null an empty tag list will be used.
      */
-    private MonitorContext(Builder builder) {
+    private MonitorConfig(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
         this.tags = (builder.tags.isEmpty()) ? SortedTagList.EMPTY : SortedTagList.builder()
                 .withTags(builder.tags).build();
@@ -99,10 +108,10 @@ public final class MonitorContext {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof MonitorContext)) {
+        if (obj == null || !(obj instanceof MonitorConfig)) {
             return false;
         }
-        MonitorContext m = (MonitorContext) obj;
+        MonitorConfig m = (MonitorConfig) obj;
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
@@ -123,5 +132,19 @@ public final class MonitorContext {
                 .add("name", name)
                 .add("tags", tags)
                 .toString();
+    }
+
+    /**
+     * Returns a copy of the monitor config with an additional tag.
+     */
+    public MonitorConfig withAdditionalTag(Tag tag) {
+        return MonitorConfig.builder(name).withTags(tags).withTag(tag).build();
+    }
+
+    /**
+     * Returns a copy of the monitor config with additional tags.
+     */
+    public MonitorConfig withAdditionalTags(TagList newTags) {
+        return MonitorConfig.builder(name).withTags(tags).withTags(newTags).build();
     }
 }

@@ -2,7 +2,7 @@
  * #%L
  * servo
  * %%
- * Copyright (C) 2011 Netflix
+ * Copyright (C) 2011 - 2012 Netflix
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,17 @@ public abstract class BaseMetricPoller implements MetricPoller {
     /**
      * Return a list of all current metrics for this poller.
      */
-    public abstract List<Metric> pollImpl();
+    public abstract List<Metric> pollImpl(boolean reset);
 
     /** {@inheritDoc} */
     public final List<Metric> poll(MetricFilter filter) {
+        return poll(filter, false);
+    }
+
+    /** {@inheritDoc} */
+    public final List<Metric> poll(MetricFilter filter, boolean reset) {
         Preconditions.checkNotNull(filter, "filter cannot be null");
-        List<Metric> metrics = pollImpl();
+        List<Metric> metrics = pollImpl(reset);
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();
         for (Metric m : metrics) {
             if (filter.matches(m.getConfig())) {

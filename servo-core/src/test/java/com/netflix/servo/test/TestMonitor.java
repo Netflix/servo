@@ -29,11 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * User: gorzell
- * Date: 1/6/12
- * Time: 12:30 PM
- */
 public class TestMonitor {
 
     @Monitor(name="testCounter", type = DataSourceType.COUNTER,
