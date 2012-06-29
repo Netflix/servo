@@ -26,6 +26,10 @@ subprojects
     }
 
     artifacts {
+        add('sources', sourcesJar) {
+            classifier 'sources'
+            type 'sources'
+        }
         archives sourcesJar
         archives javadocJar
     }
