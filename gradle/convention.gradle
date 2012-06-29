@@ -25,6 +25,11 @@ subprojects
         from javadoc.destinationDir
     }
 
+    configurations {
+        sources
+        javadoc
+    }
+
     artifacts {
         add('sources', sourcesJar) {
             classifier 'sources'
