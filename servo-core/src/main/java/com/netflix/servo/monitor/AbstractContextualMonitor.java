@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Base class used to simplify creation of contextual monitors.
+ */
 public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
         implements CompositeMonitor<T> {
 

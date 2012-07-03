@@ -27,9 +27,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Wraps an annotated field and exposes it as a monitor object.
+ * Wraps an annotated field and exposes it as a numeric monitor object.
  */
-class AnnotatedNumberMonitor extends AbstractMonitor<Number> {
+class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericMonitor<Number> {
 
     private final Object obj;
     private final AccessibleObject field;

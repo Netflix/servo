@@ -21,13 +21,20 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Base type for implementing monitors.
+ */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
     protected final MonitorConfig config;
 
+    /**
+     * Create a new instance with the specified configuration.
+     */
     AbstractMonitor(MonitorConfig config){
         this.config = Preconditions.checkNotNull(config);
     }
 
+    /** {@inheritDoc} */
     @Override
     public MonitorConfig getConfig() {
         return config;
