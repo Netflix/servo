@@ -19,5 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+/**
+ * A monitor type that has a numeric value.
+ */
 public interface NumericMonitor<T extends Number> extends Monitor<T> {
 }

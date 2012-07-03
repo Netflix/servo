@@ -81,8 +81,8 @@ class MonitorModelMBean {
 
     private ModelMBeanInfo createModelMBeanInfo(Monitor monitor) throws MBeanException, IntrospectionException,
             NoSuchMethodException {
-        Class monitorClass = monitor.getClass();
-        Method getValue = monitorClass.getMethod("getValue", null);
+        Class<?> monitorClass = monitor.getClass();
+        Method getValue = monitorClass.getMethod("getValue");
 
         Descriptor monitorDescription = new DescriptorSupport("name=" + objectName, "descriptorType=mbean",
                 "displayName=" + monitor.getConfig().getName(), "type=" + monitorClass.getCanonicalName(),

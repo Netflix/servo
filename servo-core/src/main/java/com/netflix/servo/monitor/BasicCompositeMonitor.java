@@ -30,7 +30,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Simple composite monitor type with a static list of sub-monitors.
+ * Simple composite monitor type with a static list of sub-monitors. The value for the composite
+ * is the number of sub-monitors.
  */
 public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
 
@@ -42,14 +43,20 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
         this.monitors = ImmutableList.copyOf(monitors);
     }
 
+    /** {@inheritDoc} */
+    @Override
     public Integer getValue() {
         return monitors.size();
     }
 
+    /** {@inheritDoc} */
+    @Override
     public MonitorConfig getConfig() {
         return config;
     }
 
+    /** {@inheritDoc} */
+    @Override
     public List<Monitor<?>> getMonitors() {
         return monitors;
     }
@@ -74,9 +81,7 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
         return Objects.hashCode(config, monitors);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

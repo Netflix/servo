@@ -12,7 +12,10 @@ subprojects {
     findbugs {
         ignoreFailures = true // remove when project conforms
     }
-    //tasks.withType(Findbugs) { reports.html.enabled true }
+    [findbugsMain, findbugsTest]*.reports {
+       xml.enabled false
+       html.enabled true
+    }
 
     // PMD
     apply plugin: 'pmd'

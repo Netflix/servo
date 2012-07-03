@@ -35,6 +35,9 @@ import java.util.List;
 
 public final class Monitors {
 
+    /** Name used for composite objects that do not have an explicit id. */
+    private static final String DEFAULT_ID = "default";
+
     /** Function to create basic timers. */
     private static class TimerFactory implements Function<MonitorConfig,Timer> {
         public Timer apply(MonitorConfig config) {
@@ -101,7 +104,8 @@ public final class Monitors {
         addMonitorFields(monitors, id, obj);
         addAnnotatedFields(monitors, id, obj);
 
-        return new BasicCompositeMonitor(MonitorConfig.builder(id).build(), monitors);
+        final String objectId = (id == null) ? DEFAULT_ID : id;
+        return new BasicCompositeMonitor(MonitorConfig.builder(objectId).build(), monitors);
     }
 
     static final void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
