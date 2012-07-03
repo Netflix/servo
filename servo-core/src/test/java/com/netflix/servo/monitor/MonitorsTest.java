@@ -48,4 +48,12 @@ public class MonitorsTest {
         //System.out.println(monitors);
         assertEquals(monitors.size(), 6);
     }
+
+    @Test
+    public void testNewObjectMonitor() throws Exception {
+        ClassWithMonitors obj = new ClassWithMonitors();
+        List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
+        System.out.println(monitors);
+        assertEquals(monitors.size(), 7);
+    }
 }
