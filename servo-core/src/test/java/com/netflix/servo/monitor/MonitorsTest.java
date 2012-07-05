@@ -53,7 +53,7 @@ public class MonitorsTest {
     public void testNewObjectMonitor() throws Exception {
         ClassWithMonitors obj = new ClassWithMonitors();
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
-        System.err.println(monitors);
+        //System.err.println(monitors);
         assertEquals(monitors.size(), 7);
     }
 }
