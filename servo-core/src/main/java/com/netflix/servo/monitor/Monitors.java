@@ -25,8 +25,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TaggingContext;
+import com.netflix.servo.tag.TagList;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -108,14 +109,32 @@ public final class Monitors {
         return new BasicCompositeMonitor(MonitorConfig.builder(objectId).build(), monitors);
     }
 
+    /**
+     * Returns a new monitor that adds the provided tags to the configuration returned by the
+     * wrapped monitor.
+     */
+    static final <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
+        return (monitor instanceof CompositeMonitor<?>)
+            ? new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor)
+            : new MonitorWrapper<T>(tags, monitor);
+    }
+
     static final void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
         try {
             Class<?> c = obj.getClass();
+
+            SortedTagList.Builder builder = SortedTagList.builder();
+            builder.withTag("class", c.getClass().getSimpleName());
+            if (id != null) {
+                builder.withTag("id", id);
+            }
+            TagList tags = builder.build();
+
             Field[] fields = c.getDeclaredFields();
             for (Field field : fields) {
                 if (isMonitorType(field.getType())) {
                     field.setAccessible(true);
-                    monitors.add((Monitor<?>) field.get(obj));
+                    monitors.add(wrap(tags, (Monitor<?>) field.get(obj)));
                 }
             }
         } catch (Exception e) {
