@@ -113,10 +113,17 @@ public final class Monitors {
      * Returns a new monitor that adds the provided tags to the configuration returned by the
      * wrapped monitor.
      */
+    @SuppressWarnings("unchecked")
     static final <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
-        return (monitor instanceof CompositeMonitor<?>)
-            ? new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor)
-            : new MonitorWrapper<T>(tags, monitor);
+        Monitor<T> m = null;
+        if (monitor instanceof CompositeMonitor<?>) {
+            m = new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor);
+        } else if (monitor instanceof NumericMonitor<?>) {
+            m = (Monitor<T>) new NumericMonitorWrapper(tags, (NumericMonitor<?>) monitor);
+        } else {
+            m = new MonitorWrapper<T>(tags, monitor);
+        }
+        return m;
     }
 
     static final void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
