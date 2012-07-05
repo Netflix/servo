@@ -51,6 +51,10 @@ subprojects {
 
     group = 'com.netflix.servo' // TEMPLATE: Set to organization of project
 
+    tasks.withType(Compile) { 
+        options.compilerArgs << "-Xlint:unchecked" 
+    } 
+
     test {
         useTestNG()
         options.excludeGroups = ['aws']

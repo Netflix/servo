@@ -50,7 +50,7 @@ public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
         this.context = context;
         this.newMonitor = newMonitor;
 
-        monitors = new ConcurrentHashMap();
+        monitors = new ConcurrentHashMap<MonitorConfig,M>();
     }
 
     protected M getMonitorForCurrentContext() {

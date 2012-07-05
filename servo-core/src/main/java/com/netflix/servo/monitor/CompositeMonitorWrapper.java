@@ -64,6 +64,7 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
         if (obj == null || !(obj instanceof CompositeMonitorWrapper<?>)) {
             return false;
         }
+        @SuppressWarnings("unchecked")
         CompositeMonitorWrapper<T> m = (CompositeMonitorWrapper<T>) obj;
         return config.equals(m.getConfig()) && monitor.equals(m.monitor);
     }

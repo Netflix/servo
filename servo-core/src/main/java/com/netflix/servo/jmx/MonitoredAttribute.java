@@ -50,11 +50,13 @@ public final class MonitoredAttribute {
 
     static {
         try {
+            @SuppressWarnings("unchecked")
+            ArrayType<?> tagsType = new ArrayType(1, SimpleType.STRING);
             ITEM_TYPES = new OpenType<?>[] {
-                SimpleType.STRING,                   // Name
-                SimpleType.STRING,                   // Type
-                SimpleType.STRING,                   // Description
-                new ArrayType(1, SimpleType.STRING)  // Tags
+                SimpleType.STRING,   // Name
+                SimpleType.STRING,   // Type
+                SimpleType.STRING,   // Description
+                tagsType             // Tags
             };
 
             METADATA_TYPE = new CompositeType(
