@@ -124,7 +124,7 @@ public final class Monitors {
             Class<?> c = obj.getClass();
 
             SortedTagList.Builder builder = SortedTagList.builder();
-            builder.withTag("class", c.getClass().getSimpleName());
+            builder.withTag("class", c.getSimpleName());
             if (id != null) {
                 builder.withTag("id", id);
             }

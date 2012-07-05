@@ -37,6 +37,9 @@ public class MonitorsTest {
         Monitors.addMonitorFields(monitors, "foo", obj);
         //System.out.println(monitors);
         assertEquals(monitors.size(), 8);
+
+        Monitor<?> m = monitors.get(0);
+        assertEquals(m.getConfig().getTags().getTag("class").getValue(), "ClassWithMonitors");
     }
 
     @Test
@@ -53,7 +56,7 @@ public class MonitorsTest {
     public void testNewObjectMonitor() throws Exception {
         ClassWithMonitors obj = new ClassWithMonitors();
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
-        //System.err.println(monitors);
+        System.err.println(monitors);
         assertEquals(monitors.size(), 7);
     }
 }
