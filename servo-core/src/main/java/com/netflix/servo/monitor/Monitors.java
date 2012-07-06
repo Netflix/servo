@@ -34,6 +34,9 @@ import java.lang.reflect.Method;
 
 import java.util.List;
 
+/**
+ * Some helper functions for creating monitor objects.
+ */
 public final class Monitors {
 
     /** Name used for composite objects that do not have an explicit id. */
@@ -59,19 +62,33 @@ public final class Monitors {
     private Monitors() {
     }
 
+    /**
+     * Create a new timer with only the name specified.
+     */
     public static final Timer newTimer(String name) {
         return new BasicTimer(MonitorConfig.builder(name).build());
     }
 
+    /**
+     * Create a new timer with a name and context. The returned timer will maintain separate
+     * sub-monitors for each distinct set of tags returned from the context on an update operation.
+     */
     public static final Timer newTimer(String name, TaggingContext context) {
         final MonitorConfig config = MonitorConfig.builder(name).build();
         return new ContextualTimer(config, context, TIMER_FUNCTION);
     }
 
+    /**
+     * Create a new counter instance.
+     */
     public static final Counter newCounter(String name) {
         return new BasicCounter(MonitorConfig.builder(name).build());
     }
 
+    /**
+     * Create a new counter with a name and context. The returned counter will maintain separate
+     * sub-monitors for each distinct set of tags returned from the context on an update operation.
+     */
     public static final Counter newCounter(String name, TaggingContext context) {
         final MonitorConfig config = MonitorConfig.builder(name).build();
         return new ContextualCounter(config, context, COUNTER_FUNCTION);
@@ -99,6 +116,8 @@ public final class Monitors {
      *             {@link com.netflix.servo.annotations.Monitor} annotation
      *             will be extracted and returned using
      *             {@link CompositeMonitor#getMonitors()}.
+     *
+     * @return     composite monitor based on the fields of the class
      */
     public static final CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
         List<Monitor<?>> monitors = Lists.newArrayList();
@@ -126,6 +145,10 @@ public final class Monitors {
         return m;
     }
 
+    /**
+     * Extract all fields of {@code obj} that are of type {@link Monitor} and add them to
+     * {@code monitors}.
+     */
     static final void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
         try {
             Class<?> c = obj.getClass();
@@ -149,6 +172,10 @@ public final class Monitors {
         }
     }
 
+    /**
+     * Extract all fields/methods of {@code obj} that have a monitor annotation and add them to
+     * {@code monitors}.
+     */
     static final void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj) {
         final Class<com.netflix.servo.annotations.Monitor> annoClass =
             com.netflix.servo.annotations.Monitor.class;
@@ -186,6 +213,7 @@ public final class Monitors {
         }
     }
 
+    /** Verify that the type for the annotated field is numeric. */
     private static final void checkType(
             com.netflix.servo.annotations.Monitor anno, Class<?> type, Class<?> container) {
         if (!isNumericType(type)) {
@@ -196,14 +224,17 @@ public final class Monitors {
         }
     }
 
+    /** Returns true if {@code c} can be assigned to a number. */
     private static final boolean isNumericType(Class<?> c) {
         return Number.class.isAssignableFrom(c);
     }
 
+    /** Returns true if {@code c} can be assigned to a monitor. */
     private static final boolean isMonitorType(Class<?> c) {
         return Monitor.class.isAssignableFrom(c);
     }
 
+    /** Creates a monitor config based on an annotation. */
     private static final MonitorConfig newConfig(
             Class<?> c, String id, com.netflix.servo.annotations.Monitor anno) {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
