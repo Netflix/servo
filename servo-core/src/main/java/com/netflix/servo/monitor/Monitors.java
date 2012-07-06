@@ -81,7 +81,7 @@ public final class Monitors {
      * Helper function to easily create a composite for all monitor fields and
      * annotated attributes of a given object. 
      */
-    public static final CompositeMonitor newObjectMonitor(Object obj) {
+    public static final CompositeMonitor<?> newObjectMonitor(Object obj) {
         return newObjectMonitor(null, obj);
     }
 
@@ -100,7 +100,7 @@ public final class Monitors {
      *             will be extracted and returned using
      *             {@link CompositeMonitor#getMonitors()}.
      */
-    public static final CompositeMonitor newObjectMonitor(String id, Object obj) {
+    public static final CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
         List<Monitor<?>> monitors = Lists.newArrayList();
         addMonitorFields(monitors, id, obj);
         addAnnotatedFields(monitors, id, obj);

@@ -63,7 +63,7 @@ public class BasicGaugeTest extends AbstractMonitorTest<BasicGauge<Long>> {
 
     public BasicGauge<Long> newInstance(String name) {
         long v = Long.parseLong(name);
-        return new BasicGauge(MonitorConfig.builder(name).build(), new TestFunc(v));
+        return new BasicGauge<Long>(MonitorConfig.builder(name).build(), new TestFunc(v));
     }
 
     @Test
