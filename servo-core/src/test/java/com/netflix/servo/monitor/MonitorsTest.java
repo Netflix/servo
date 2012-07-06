@@ -59,4 +59,10 @@ public class MonitorsTest {
         //System.err.println(monitors);
         assertEquals(monitors.size(), 7);
     }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testNewObjectMonitorWithBadAnnotation() throws Exception {
+        ClassWithBadAnnotation obj = new ClassWithBadAnnotation();
+        Monitors.newObjectMonitor(obj);
+    }
 }

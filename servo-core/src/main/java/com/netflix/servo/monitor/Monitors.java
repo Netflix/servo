@@ -162,6 +162,7 @@ public final class Monitors {
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, field));
                     } else {
+                        checkType(anno, field.getType(), c);
                         monitors.add(new AnnotatedNumberMonitor(config, obj, field));
                     }
                 }
@@ -175,6 +176,7 @@ public final class Monitors {
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, method));
                     } else {
+                        checkType(anno, method.getReturnType(), c);
                         monitors.add(new AnnotatedNumberMonitor(config, obj, method));
                     }
                 }
@@ -182,6 +184,20 @@ public final class Monitors {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    private static final void checkType(
+            com.netflix.servo.annotations.Monitor anno, Class<?> type, Class<?> container) {
+        if (!isNumericType(type)) {
+            final String msg = "annotation of type " + anno.type().name() + " can only be used" +
+                " with numeric values, " + anno.name() + " in class " + container.getName() +
+                " is applied to a field or method of type " + type.getName();
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+    private static final boolean isNumericType(Class<?> c) {
+        return Number.class.isAssignableFrom(c);
     }
 
     private static final boolean isMonitorType(Class<?> c) {
