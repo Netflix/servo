@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,7 +52,7 @@ public class RegexMetricFilterTest {
         Pattern pattern = Pattern.compile("^a\\.b\\.c.*");
         MetricFilter filter = new RegexMetricFilter("c", pattern, false, false);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get(0), mkList().get(1));
@@ -63,7 +63,7 @@ public class RegexMetricFilterTest {
         Pattern pattern = Pattern.compile("^a\\.b\\.c.*");
         MetricFilter filter = new RegexMetricFilter("c", pattern, true, false);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 4);
         assertEquals(metrics.get(0), mkList().get(0));
@@ -74,7 +74,7 @@ public class RegexMetricFilterTest {
         Pattern pattern = Pattern.compile("^a\\.b\\.c.*");
         MetricFilter filter = new RegexMetricFilter("c", pattern, true, true);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 1);
         assertEquals(metrics.get(0), mkList().get(4));
@@ -85,7 +85,7 @@ public class RegexMetricFilterTest {
         Pattern pattern = Pattern.compile("m[13]");
         MetricFilter filter = new RegexMetricFilter(null, pattern, false, false);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 2);
         assertEquals(metrics.get(0), mkList().get(0));
