@@ -22,6 +22,7 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 
 import com.netflix.servo.annotations.DataSourceType;
@@ -139,6 +140,17 @@ public final class Monitors {
      */
     public static final CompositeMonitor<?> newThreadPoolMonitor(String id, ThreadPoolExecutor pool) {
         return newObjectMonitor(id, new MonitoredThreadPool(pool));
+    }
+
+    /**
+     * Creates a new monitor for a cache with standard metrics for the hits, misses, and loads.
+     *
+     * @param id     id to differentiate metrics for this cache from others.
+     * @param cache  cache instance to monitor.
+     * @return       composite monitor based on stats provided for the cache
+     */
+    public static final CompositeMonitor<?> newCacheMonitor(String id, Cache<?,?> cache) {
+        return newObjectMonitor(id, new MonitoredCache(cache));
     }
 
     /**
