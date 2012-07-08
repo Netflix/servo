@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Some helper functions for creating monitor objects.
@@ -126,6 +127,18 @@ public final class Monitors {
 
         final String objectId = (id == null) ? DEFAULT_ID : id;
         return new BasicCompositeMonitor(MonitorConfig.builder(objectId).build(), monitors);
+    }
+
+    /**
+     * Creates a new monitor for a thread pool with standard metrics for the pool size, queue size,
+     * task counts, etc.
+     *
+     * @param id    id to differentiate metrics for this pool from others.
+     * @param pool  thread pool instance to monitor.
+     * @return      composite monitor based on stats provided for the pool
+     */
+    public static final CompositeMonitor<?> newThreadPoolMonitor(String id, ThreadPoolExecutor pool) {
+        return newObjectMonitor(id, new MonitoredThreadPool(pool));
     }
 
     /**
