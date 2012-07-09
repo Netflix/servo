@@ -49,7 +49,7 @@ public class MonitorsTest {
         Monitors.addAnnotatedFields(monitors, null, obj);
         Monitors.addAnnotatedFields(monitors, "foo", obj);
         //System.out.println(monitors);
-        assertEquals(monitors.size(), 6);
+        assertEquals(monitors.size(), 8);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class MonitorsTest {
         ClassWithMonitors obj = new ClassWithMonitors();
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
         //System.err.println(monitors);
-        assertEquals(monitors.size(), 7);
+        assertEquals(monitors.size(), 8);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

@@ -251,7 +251,13 @@ public final class Monitors {
 
     /** Returns true if {@code c} can be assigned to a number. */
     private static final boolean isNumericType(Class<?> c) {
-        return Number.class.isAssignableFrom(c);
+        return Number.class.isAssignableFrom(c)
+            || double.class == c
+            || float.class == c
+            || long.class == c
+            || int.class == c
+            || short.class == c
+            || byte.class == c;
     }
 
     /** Returns true if {@code c} can be assigned to a monitor. */

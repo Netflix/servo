@@ -36,6 +36,9 @@ public class ClassWithMonitors {
     @com.netflix.servo.annotations.Monitor(name = "annoCounter", type = COUNTER)
     public final AtomicLong a2 = new AtomicLong(0L);
 
+    @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = GAUGE)
+    public final long a3 = 0L;
+
     @com.netflix.servo.annotations.Monitor(name = "annoInfo", type = INFORMATIONAL)
     private String getInfo() {
         return "foo";
