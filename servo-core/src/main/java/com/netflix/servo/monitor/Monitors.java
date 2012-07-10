@@ -270,9 +270,7 @@ public final class Monitors {
             Class<?> c, String id, com.netflix.servo.annotations.Monitor anno) {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
         builder.withTag("class", c.getSimpleName());
-        if (anno.type() == DataSourceType.COUNTER) {
-            builder.withTag(DataSourceType.COUNTER);
-        }
+        builder.withTag(anno.type());
         if (id != null) {
             builder.withTag("id", id);
         }
