@@ -85,8 +85,9 @@ public final class MonitorConfig {
      */
     private MonitorConfig(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
-        this.tags = (builder.tags.isEmpty()) ? SortedTagList.EMPTY : SortedTagList.builder()
-                .withTags(builder.tags).build();
+        this.tags = (builder.tags.isEmpty())
+            ? SortedTagList.EMPTY
+            : SortedTagList.builder().withTags(builder.tags).build();
     }
 
     /**

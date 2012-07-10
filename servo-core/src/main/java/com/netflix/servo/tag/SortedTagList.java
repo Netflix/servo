@@ -22,7 +22,7 @@ package com.netflix.servo.tag;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.Maps;
 
 import java.util.*;
 
@@ -30,29 +30,28 @@ public final class SortedTagList implements TagList {
 
     public static final SortedTagList EMPTY = new Builder().build();
 
-    private final SortedMap<String, Tag> tagSortedMap;
+    private final SortedMap<String,Tag> tagSortedMap;
     private final int size;
 
     public static final class Builder {
-        private final ImmutableSortedMap.Builder<String, Tag> mapBuilder =
-                new ImmutableSortedMap.Builder<String, Tag>(Ordering.natural());
+        private final Map<String,Tag> data = Maps.newHashMap();
 
         public Builder withTags(Collection<Tag> tagsCollection) {
             for (Tag t : tagsCollection) {
-                mapBuilder.put(t.getKey(), t);
+                data.put(t.getKey(), t);
             }
             return this;
         }
 
         public Builder withTags(TagList tags){
             for (Tag t : tags) {
-                mapBuilder.put(t.getKey(), t);
+                data.put(t.getKey(), t);
             }
             return this;
         }
 
         public Builder withTag(Tag t) {
-            mapBuilder.put(t.getKey(), t);
+            data.put(t.getKey(), t);
             return this;
         }
 
@@ -66,7 +65,7 @@ public final class SortedTagList implements TagList {
     }
 
     private SortedTagList(Builder builder) {
-        this.tagSortedMap = builder.mapBuilder.build();
+        this.tagSortedMap = ImmutableSortedMap.copyOf(builder.data);
         this.size = tagSortedMap.size();
     }
 
