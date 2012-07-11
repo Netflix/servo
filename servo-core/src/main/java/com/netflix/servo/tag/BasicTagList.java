@@ -60,6 +60,12 @@ public final class BasicTagList implements TagList {
     }
 
     /** {@inheritDoc} */
+    public String getValue(String key) {
+        final Tag t = tagMap.get(key);
+        return (t == null) ? null : t.getValue();
+    }
+
+    /** {@inheritDoc} */
     public boolean containsKey(String key) {
         return tagMap.containsKey(key);
     }

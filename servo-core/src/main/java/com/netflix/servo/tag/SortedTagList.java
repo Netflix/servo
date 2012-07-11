@@ -69,49 +69,43 @@ public final class SortedTagList implements TagList {
         this.size = tagSortedMap.size();
     }
 
-    /**
-     * Returns the tag matching a given key or null if not match is found.
-     */
+    /** {@inheritDoc} */
     @Override
     public Tag getTag(String key) {
         return tagSortedMap.get(key);
     }
 
-    /**
-     * Returns true if this list has a tag with the given key.
-     */
+    /** {@inheritDoc} */
+    public String getValue(String key) {
+        final Tag t = tagSortedMap.get(key);
+        return (t == null) ? null : t.getValue();
+    }
+
+    /** {@inheritDoc} */
     @Override
     public boolean containsKey(String key) {
         return tagSortedMap.containsKey(key);
     }
 
-    /**
-     * Returns true if this list is emtpy.
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isEmpty() {
         return tagSortedMap.isEmpty();
     }
 
-    /**
-     * Returns the number of tags in this list.
-     */
+    /** {@inheritDoc} */
     @Override
     public int size() {
         return size;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Iterator<Tag> iterator() {
         return tagSortedMap.values().iterator();
     }
 
-    /**
-     * Returns a map containing a copy of the tags in this list.
-     */
+    /** {@inheritDoc} */
     @Override
     public Map<String, String> asMap() {
         Map<String, String> stringMap = new HashMap<String, String>(size());
