@@ -23,13 +23,14 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Monitors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -48,8 +49,8 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    @Monitor(name = "expiredUpdateCount", type = DataSourceType.COUNTER)
-    private final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
+    /** The number of updates that have been expired and dropped. */
+    private final Counter expiredUpdateCount = Monitors.newCounter("expiredUpdateCount");
 
     /**
      * Creates a new instance.
@@ -107,10 +108,17 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     public void updateImpl(List<Metric> metrics) {
         long now = System.currentTimeMillis();
         TimestampedUpdate update = new TimestampedUpdate(now, metrics);
+
         boolean result = updateQueue.offer(update);
-        while (!result) {
+        int maxAttempts = 5;
+        while (!result && maxAttempts > 0) {
             updateQueue.remove();
             result = updateQueue.offer(update);
+            --maxAttempts;
+        }
+
+        if (!result) {
+            incrementFailedCount();
         }
     }
 
@@ -121,7 +129,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
 
             long cutoff = System.currentTimeMillis() - expireTime;
             if (update.getTimestamp() < cutoff) {
-                expiredUpdateCount.incrementAndGet();
+                expiredUpdateCount.increment();
                 return;
             }
 
