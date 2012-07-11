@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
+import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -56,6 +58,8 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private final MetricObserver observer;
     private final Cache<MonitorConfig,CounterValue> cache;
 
+    private final Monitor<?> cacheMonitor;
+
     /**
      * Creates a new instance with the specified heartbeat interval. The
      * heartbeat should be some multiple of the sampling interval used when
@@ -67,11 +71,12 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         this.cache = CacheBuilder.newBuilder()
             .expireAfterWrite(heartbeat, unit)
             .build();
+        cacheMonitor = Monitors.newCacheMonitor(observer.getName(), cache);
     }
 
     /** {@inheritDoc} */
     public String getName() {
-        return getClass().getSimpleName() + "-" + observer.getName();
+        return observer.getName();
     }
 
     /** {@inheritDoc} */

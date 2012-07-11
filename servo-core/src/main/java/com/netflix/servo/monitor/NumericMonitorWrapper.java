@@ -19,24 +19,18 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Objects;
+
+import com.netflix.servo.tag.TagList;
 
 /**
- * Base type for implementing monitors.
+ * Wraps another monitor object providing an alternative configuration.
  */
-public abstract class AbstractMonitor<T> implements Monitor<T> {
-    protected final MonitorConfig config;
+class NumericMonitorWrapper<T extends Number> extends MonitorWrapper<T>
+        implements NumericMonitor<T> {
 
-    /**
-     * Create a new instance with the specified configuration.
-     */
-    AbstractMonitor(MonitorConfig config){
-        this.config = Preconditions.checkNotNull(config);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
+    /** Creates a new instance of the wrapper. */
+    public NumericMonitorWrapper(TagList tags, NumericMonitor<T> monitor) {
+        super(tags, monitor);
     }
 }
