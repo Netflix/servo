@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class BasicTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
 
     private static final String STATISTIC = "statistic";
+    private static final String UNIT = "unit";
 
     private static final Tag STAT_TOTAL = new BasicTag(STATISTIC, "totalTime");
     private static final Tag STAT_COUNT = new BasicTag(STATISTIC, "count");
@@ -64,11 +65,15 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
      */
     public BasicTimer(MonitorConfig config, TimeUnit unit) {
         super(config);
+
+        final Tag unitTag = new BasicTag(UNIT, unit.name());
+        final MonitorConfig unitConfig = config.withAdditionalTag(unitTag);
         timeUnit = unit;
-        totalTime = new ResettableCounter(config.withAdditionalTag(STAT_TOTAL));
-        count = new ResettableCounter(config.withAdditionalTag(STAT_COUNT));
-        min = new MinGauge(config.withAdditionalTag(STAT_MIN));
-        max = new MaxGauge(config.withAdditionalTag(STAT_MAX));
+
+        totalTime = new ResettableCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
+        count = new ResettableCounter(unitConfig.withAdditionalTag(STAT_COUNT));
+        min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
+        max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
         monitors = ImmutableList.<Monitor<?>>of(totalTime, count, min, max);
     }
 
