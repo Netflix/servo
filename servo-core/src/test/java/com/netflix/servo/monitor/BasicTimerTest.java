@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,14 +46,14 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
         assertEquals(c.getCount().longValue(), 1L);
         assertEquals(c.getMin().longValue(), 42L);
         assertEquals(c.getMax().longValue(), 42L);
-        
+
         c.record(21);
         assertEquals(c.getValue().longValue(), 31L);
         assertEquals(c.getTotalTime().longValue(), 63L);
         assertEquals(c.getCount().longValue(), 2L);
         assertEquals(c.getMin().longValue(), 21L);
         assertEquals(c.getMax().longValue(), 42L);
-        
+
         c.record(84);
         assertEquals(c.getValue().longValue(), 49L);
         assertEquals(c.getTotalTime().longValue(), 147L);

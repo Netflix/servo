@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,7 @@ public class PrefixMetricFilterTest {
         filters.put("a.b.c", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 3);
     }
@@ -68,7 +68,7 @@ public class PrefixMetricFilterTest {
         filters.put("a.b.c.c", MATCH_NONE);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 2);
     }
@@ -79,7 +79,7 @@ public class PrefixMetricFilterTest {
         filters.put("m", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter(null, MATCH_NONE, filters);
         MetricPoller poller = newPoller();
-      
+
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 5);
     }

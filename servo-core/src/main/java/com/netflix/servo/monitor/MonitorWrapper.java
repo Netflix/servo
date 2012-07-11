@@ -21,58 +21,48 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 
-import java.util.concurrent.atomic.AtomicLong;
+import com.netflix.servo.tag.TagList;
 
 /**
- * Counter implementation that keeps track of updates since the last reset.
+ * Wraps another monitor object providing an alternative configuration.
  */
-public class ResettableCounter extends AbstractMonitor<Long>
-        implements Counter, ResettableMonitor<Long> {
-    protected final AtomicLong count = new AtomicLong(0L);
+class MonitorWrapper<T> extends AbstractMonitor<T> implements ResettableMonitor<T> {
+    private final Monitor<T> monitor;
 
-    /** Create a new instance of the counter. */
-    public ResettableCounter(MonitorConfig config) {
-        super(config);
+    /** Creates a new instance of the wrapper. */
+    public MonitorWrapper(TagList tags, Monitor<T> monitor) {
+        super(monitor.getConfig().withAdditionalTags(tags));
+        this.monitor = monitor;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void increment() {
-        count.incrementAndGet();
+    public T getValue() {
+        return monitor.getValue();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void increment(long amount) {
-        count.getAndAdd(amount);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Long getValue() {
-        return count.get();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Long getAndResetValue() {
-        return count.getAndSet(0L);
+    public T getAndResetValue() {
+        return (monitor instanceof ResettableMonitor<?>)
+            ? ((ResettableMonitor<T>) monitor).getAndResetValue()
+            : monitor.getValue();
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ResettableCounter)) {
+        if (obj == null || !(obj instanceof MonitorWrapper<?>)) {
             return false;
         }
-        ResettableCounter m = (ResettableCounter) obj;
-        return config.equals(m.getConfig()) && count.get() == m.count.get();
+        MonitorWrapper m = (MonitorWrapper) obj;
+        return config.equals(m.getConfig()) && monitor.equals(m.monitor);
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, count.get());
+        return Objects.hashCode(config, monitor);
     }
 
     /** {@inheritDoc} */
@@ -80,7 +70,7 @@ public class ResettableCounter extends AbstractMonitor<Long>
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("config", config)
-                .add("count", count.get())
+                .add("monitor", monitor)
                 .toString();
     }
 }

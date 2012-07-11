@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,13 +23,14 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Monitors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -41,17 +42,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(AsyncMetricObserver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncMetricObserver.class);
 
     private final MetricObserver wrappedObserver;
 
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    @Monitor(name="UpdateExpiredCount", type=DataSourceType.COUNTER,
-             description="Number of updates that expire in queue.")
-    private final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
+    private volatile boolean stopUpdateThread = false;
+
+    private final Thread processingThread;
+
+    /** The number of updates that have been expired and dropped. */
+    private final Counter expiredUpdateCount = Monitors.newCounter("expiredUpdateCount");
 
     /**
      * Creates a new instance.
@@ -77,7 +80,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
         String threadName = getClass().getSimpleName() + "-" + name;
-        Thread processingThread = new Thread(new UpdateProcessor(), threadName);
+        processingThread = new Thread(new UpdateProcessor(), threadName);
         processingThread.setDaemon(true);
         processingThread.start();
     }
@@ -109,11 +112,26 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     public void updateImpl(List<Metric> metrics) {
         long now = System.currentTimeMillis();
         TimestampedUpdate update = new TimestampedUpdate(now, metrics);
+
         boolean result = updateQueue.offer(update);
-        while (!result) {
+        int maxAttempts = 5;
+        while (!result && maxAttempts > 0) {
             updateQueue.remove();
             result = updateQueue.offer(update);
+            --maxAttempts;
         }
+
+        if (!result) {
+            incrementFailedCount();
+        }
+    }
+
+    /**
+     * Stop the background thread that pushes updates to the wrapped observer. 
+     */
+    public void stop() {
+        stopUpdateThread = true;
+        processingThread.interrupt(); // in case it is blocked on an empty queue
     }
 
     private void processUpdate() {
@@ -123,7 +141,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
 
             long cutoff = System.currentTimeMillis() - expireTime;
             if (update.getTimestamp() < cutoff) {
-                expiredUpdateCount.incrementAndGet();
+                expiredUpdateCount.increment();
                 return;
             }
 
@@ -139,7 +157,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
 
     private class UpdateProcessor implements Runnable {
         public void run() {
-            while (true) {
+            while (!stopUpdateThread) {
                 processUpdate();
             }
         }

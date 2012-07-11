@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,11 +63,11 @@ public class JvmMetricExample {
         // no match is found so that by default metrics will be GAUGEs
         MetricFilter counterFilter = new PrefixMetricFilter(
             null,                         // Tag key, null means use metric name
-            BasicMetricFilter.MATCH_NONE, // Root filter if no better match  
+            BasicMetricFilter.MATCH_NONE, // Root filter if no better match
             counters);                    // Specific filters
 
         // Create a new poller for the local JMX server that queries all
-        // metrics from the java.lang domain 
+        // metrics from the java.lang domain
         MetricPoller poller = new JmxMetricPoller(
             new LocalJmxConnector(),
             new ObjectName("java.lang:type=*,*"),

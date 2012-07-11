@@ -19,24 +19,23 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
+import static com.netflix.servo.annotations.DataSourceType.*;
 
-/**
- * Base type for implementing monitors.
- */
-public abstract class AbstractMonitor<T> implements Monitor<T> {
-    protected final MonitorConfig config;
+import java.util.concurrent.atomic.AtomicLong;
 
-    /**
-     * Create a new instance with the specified configuration.
-     */
-    AbstractMonitor(MonitorConfig config){
-        this.config = Preconditions.checkNotNull(config);
-    }
+public class ClassWithBadAnnotation {
 
-    /** {@inheritDoc} */
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
+    @com.netflix.servo.annotations.Monitor(name = "badGauge", type = GAUGE)
+    private final String badGauge = "foo";
+
+    @com.netflix.servo.annotations.Monitor(name = "annoGauge", type = GAUGE)
+    private final AtomicLong a1 = new AtomicLong(0L);
+
+    @com.netflix.servo.annotations.Monitor(name = "annoCounter", type = COUNTER)
+    public final AtomicLong a2 = new AtomicLong(0L);
+
+    @com.netflix.servo.annotations.Monitor(name = "annoInfo", type = INFORMATIONAL)
+    private String getInfo() {
+        return "foo";
     }
 }

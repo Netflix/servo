@@ -15,7 +15,7 @@
  */
 
 // Establish version and status
-ext.releaseVersion = '0.4.3' // TEMPLATE: Set to latest release
+ext.releaseVersion = '0.4.5' // TEMPLATE: Set to latest release
 ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
 
 buildscript {
@@ -51,9 +51,14 @@ subprojects {
 
     group = 'com.netflix.servo' // TEMPLATE: Set to organization of project
 
+    tasks.withType(Compile) { 
+        options.compilerArgs << "-Xlint:unchecked" 
+    } 
+
     test {
         useTestNG()
         options.excludeGroups = ['aws']
+        testLogging.showStandardStreams = true
     }
 
     task(testWithCloud, type: Test) {
@@ -66,6 +71,12 @@ subprojects {
         compile 'org.slf4j:slf4j-api:1.6.3'
         compile 'com.google.guava:guava:11.0.1'
         testCompile 'org.testng:testng:6.1.1'
+        //testRuntime 'org.slf4j:slf4j-jdk14:1.6.3'
+    }
+
+    task(run, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.BasicExample'
+        classpath = sourceSets.main.runtimeClasspath
     }
 }
 
