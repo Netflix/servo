@@ -49,6 +49,10 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
+    private volatile boolean stopUpdateThread = false;
+
+    private final Thread processingThread;
+
     /** The number of updates that have been expired and dropped. */
     private final Counter expiredUpdateCount = Monitors.newCounter("expiredUpdateCount");
 
@@ -76,7 +80,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
         String threadName = getClass().getSimpleName() + "-" + name;
-        Thread processingThread = new Thread(new UpdateProcessor(), threadName);
+        processingThread = new Thread(new UpdateProcessor(), threadName);
         processingThread.setDaemon(true);
         processingThread.start();
     }
@@ -122,6 +126,14 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         }
     }
 
+    /**
+     * Stop the background thread that pushes updates to the wrapped observer. 
+     */
+    public void stop() {
+        stopUpdateThread = true;
+        processingThread.interrupt(); // in case it is blocked on an empty queue
+    }
+
     private void processUpdate() {
         TimestampedUpdate update;
         try {
@@ -145,7 +157,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
 
     private class UpdateProcessor implements Runnable {
         public void run() {
-            while (true) {
+            while (!stopUpdateThread) {
                 processUpdate();
             }
         }

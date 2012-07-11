@@ -38,7 +38,7 @@ public class AsyncMetricObserverTest {
     @Test
     public void testUpdate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("mem", 50);
-        MetricObserver amo = new AsyncMetricObserver("async", mmo, 50);
+        AsyncMetricObserver amo = new AsyncMetricObserver("async", mmo, 50);
         amo.update(mkList(1));
         amo.update(mkList(2));
         amo.update(mkList(3));
@@ -46,13 +46,14 @@ public class AsyncMetricObserverTest {
         Thread.sleep(1000);
         assertEquals(mmo.getObservations(),
             ImmutableList.of(mkList(1), mkList(2), mkList(3), mkList(4)));
+        amo.stop();
     }
 
     @Test
     public void testExceedQueueSize() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("mem", 50);
         MetricObserver smo = new SlowMetricObserver(mmo, 500L);
-        MetricObserver amo = new AsyncMetricObserver("async", smo, 2);
+        AsyncMetricObserver amo = new AsyncMetricObserver("async", smo, 2);
         amo.update(mkList(1));
         amo.update(mkList(2));
         amo.update(mkList(3));
@@ -68,13 +69,14 @@ public class AsyncMetricObserverTest {
         int last = observations.size() - 1;
         assertEquals(observations.get(last - 1), mkList(3));
         assertEquals(observations.get(last), mkList(4));
+        amo.stop();
     }
 
     @Test
     public void testExpiration() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("mem", 50);
         MetricObserver smo = new SlowMetricObserver(mmo, 500L);
-        MetricObserver amo = new AsyncMetricObserver("async", smo, 50, 250);
+        AsyncMetricObserver amo = new AsyncMetricObserver("async", smo, 50, 250);
         amo.update(mkList(1));
         amo.update(mkList(2));
         amo.update(mkList(3));
@@ -85,13 +87,14 @@ public class AsyncMetricObserverTest {
         List<List<Metric>> observations = mmo.getObservations();
         assertEquals(observations.size(), 1);
         assertEquals(observations.get(0), mkList(1));
+        amo.stop();
     }
 
     @Test
     public void testFailedUpdate() throws Exception {
         // Just making sure exception does not propagate
         MetricObserver fmo = new FailingMetricObserver();
-        MetricObserver amo = new AsyncMetricObserver("async", fmo, 50, 250);
+        AsyncMetricObserver amo = new AsyncMetricObserver("async", fmo, 50, 250);
         amo.update(mkList(1));
         amo.update(mkList(1));
         amo.update(mkList(1));
@@ -99,5 +102,6 @@ public class AsyncMetricObserverTest {
         amo.update(mkList(1));
         amo.update(mkList(1));
         Thread.sleep(1000);
+        amo.stop();
     }
 }
