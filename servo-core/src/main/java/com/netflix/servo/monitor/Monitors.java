@@ -271,6 +271,7 @@ public final class Monitors {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
         builder.withTag("class", c.getSimpleName());
         builder.withTag(anno.type());
+        builder.withTag(anno.level());
         if (id != null) {
             builder.withTag("id", id);
         }

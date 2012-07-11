@@ -45,6 +45,12 @@ public @interface Monitor {
     DataSourceType type() default DataSourceType.INFORMATIONAL;
 
     /**
+     * Level of the value that is annotated, for more information see
+     * {@link DataSourceLevel}.
+     */
+    DataSourceLevel level() default DataSourceLevel.INFO;
+
+    /**
      * A human readable description of the annotated attribute.
      */
     String description() default "";
