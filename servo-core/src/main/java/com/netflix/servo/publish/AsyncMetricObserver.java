@@ -41,16 +41,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(AsyncMetricObserver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncMetricObserver.class);
 
     private final MetricObserver wrappedObserver;
 
     private final long expireTime;
     private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    @Monitor(name="UpdateExpiredCount", type=DataSourceType.COUNTER,
-             description="Number of updates that expire in queue.")
+    @Monitor(name = "expiredUpdateCount", type = DataSourceType.COUNTER)
     private final AtomicInteger expiredUpdateCount = new AtomicInteger(0);
 
     /**
