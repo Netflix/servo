@@ -70,8 +70,8 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         final MonitorConfig unitConfig = config.withAdditionalTag(unitTag);
         timeUnit = unit;
 
-        totalTime = new ResettableCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
-        count = new ResettableCounter(unitConfig.withAdditionalTag(STAT_COUNT));
+        totalTime = new BasicCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
+        count = new BasicCounter(unitConfig.withAdditionalTag(STAT_COUNT));
         min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
         max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
         monitors = ImmutableList.<Monitor<?>>of(totalTime, count, min, max);
