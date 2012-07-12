@@ -25,6 +25,7 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 
+import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TaggingContext;
@@ -151,6 +152,22 @@ public final class Monitors {
      */
     public static final CompositeMonitor<?> newCacheMonitor(String id, Cache<?,?> cache) {
         return newObjectMonitor(id, new MonitoredCache(cache));
+    }
+
+    /**
+     * Register an object with the default registry. Equivalent to
+     * {@code DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(obj))}.
+     */
+    public static final void registerObject(Object obj) {
+        registerObject(null, obj);
+    }
+
+    /**
+     * Register an object with the default registry. Equivalent to
+     * {@code DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(id, obj))}.
+     */
+    public static final void registerObject(String id, Object obj) {
+        DefaultMonitorRegistry.getInstance().register(newObjectMonitor(id, obj));
     }
 
     /**
