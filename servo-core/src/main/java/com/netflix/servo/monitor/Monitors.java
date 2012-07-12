@@ -127,8 +127,9 @@ public final class Monitors {
         addMonitorFields(monitors, id, obj);
         addAnnotatedFields(monitors, id, obj);
 
+        final Class<?> c = obj.getClass();
         final String objectId = (id == null) ? DEFAULT_ID : id;
-        return new BasicCompositeMonitor(MonitorConfig.builder(objectId).build(), monitors);
+        return new BasicCompositeMonitor(newObjectConfig(c, objectId), monitors);
     }
 
     /**
@@ -280,6 +281,13 @@ public final class Monitors {
     /** Returns true if {@code c} can be assigned to a monitor. */
     private static final boolean isMonitorType(Class<?> c) {
         return Monitor.class.isAssignableFrom(c);
+    }
+
+    /** Creates a monitor config for a composite object. */
+    private static final MonitorConfig newObjectConfig(Class<?> c, String id) {
+        MonitorConfig.Builder builder = MonitorConfig.builder(id);
+        builder.withTag("class", c.getSimpleName());
+        return builder.build();
     }
 
     /** Creates a monitor config based on an annotation. */
