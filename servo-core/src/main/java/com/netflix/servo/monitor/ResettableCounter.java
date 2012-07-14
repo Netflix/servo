@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import com.google.common.base.Objects;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,7 +34,10 @@ public class ResettableCounter extends AbstractMonitor<Long>
 
     /** Create a new instance of the counter. */
     public ResettableCounter(MonitorConfig config) {
-        super(config);
+        // This class will reset the value so it is not a monotonically increasing value as
+        // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
+        // the publishing pipeline receiving the value.
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
     }
 
     /** {@inheritDoc} */

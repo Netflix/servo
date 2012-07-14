@@ -22,6 +22,8 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,7 +37,7 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
      * Creates a new instance of the gauge.
      */
     public BasicGauge(MonitorConfig config, Callable<T> function) {
-        super(config);
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
         this.function = function;
     }
 
