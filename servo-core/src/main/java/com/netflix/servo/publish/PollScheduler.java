@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Basic scheduler for polling metrics and reporting them to observers. You
@@ -43,15 +44,16 @@ public final class PollScheduler {
     private PollScheduler() {
     }
 
-    private ScheduledExecutorService executor = null;
-    private boolean started = false;
+    private final AtomicReference<ScheduledExecutorService> executor =
+        new AtomicReference<ScheduledExecutorService>();
 
     /**
      * Add a tasks to execute at a fixed rate based on the provided delay.
      */
     public void addPoller(PollRunnable task, long delay, TimeUnit timeUnit) {
-        if (started) {
-            executor.scheduleAtFixedRate(task, 0, delay, timeUnit);
+        ScheduledExecutorService service = executor.get();
+        if (service != null) {
+            service.scheduleAtFixedRate(task, 0, delay, timeUnit);
         } else {
             throw new IllegalStateException(
                 "you must start the scheduler before tasks can be submitted");
@@ -74,31 +76,26 @@ public final class PollScheduler {
     /**
      * Start the poller with the given executor service.
      */
-    public synchronized void start(ScheduledExecutorService service) {
-        if (!started) {
-            executor = service;
-            started = true;
-        } else {
-            throw new IllegalStateException(
-                "cannot start scheduler again without stopping it");
+    public void start(ScheduledExecutorService service) {
+        if (!executor.compareAndSet(null, service)) {
+            throw new IllegalStateException("cannot start scheduler again without stopping it");
         }
     }
 
     /**
      * Stop the poller, shutting down the current executor service.
      */
-    public synchronized void stop() {
-        if (started) {
-            executor.shutdown();
-            started = false;
+    public void stop() {
+        ScheduledExecutorService service = executor.get();
+        if (service != null && executor.compareAndSet(service, null)) {
+            service.shutdown();
         } else {
-            throw new IllegalStateException(
-                "scheduler must be started before you stop it");
+            throw new IllegalStateException("scheduler must be started before you stop it");
         }
     }
 
     /** Returns true if this scheduler is currently started. */
-    public synchronized boolean isStarted() {
-        return started;
+    public boolean isStarted() {
+        return executor.get() != null;
     }
 }

@@ -79,14 +79,13 @@ public class BasicExample {
 
         Counter counter = new BasicCounter(MonitorConfig.builder("test1").withTags(tags).build());
 
-
         String id = null;
         if (args.length > 0) {
             id = args[0];
         }
         BasicExample example = new BasicExample(tags);
 
-        DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(example));
+        Monitors.registerObject(id, example);
         DefaultMonitorRegistry.getInstance().register(counter);
 
         final int max = 1000;
