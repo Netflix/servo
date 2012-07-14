@@ -36,11 +36,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Simple Sample Code for getting a monitor into JMX.
  */
 public class BasicExample {
+
+    @Monitor(name = "sampleInformational", type = DataSourceType.INFORMATIONAL)
+    public final AtomicReference<String> info = new AtomicReference<String>("test");
 
     @Monitor(name = "sampleCounter", type = DataSourceType.COUNTER)
     public final AtomicInteger counter = new AtomicInteger(0);
