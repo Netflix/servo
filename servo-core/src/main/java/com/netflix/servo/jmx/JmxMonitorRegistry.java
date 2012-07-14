@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.annotations.AnnotatedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

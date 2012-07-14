@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.annotations.AnnotationUtils;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.*;
 import org.slf4j.Logger;
@@ -97,7 +96,7 @@ public final class JmxMetricPoller implements MetricPoller {
             TagList tags,
             Object value) {
         long now = System.currentTimeMillis();
-        Number num = AnnotationUtils.asNumber(value);
+        Number num = asNumber(value);
         if (num != null) {
             TagList newTags = counters.matches(new MonitorConfig.Builder(name).withTags(tags).build())
                 ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
@@ -173,6 +172,23 @@ public final class JmxMetricPoller implements MetricPoller {
                 addMetric(metrics, attrName, tags, obj);
             }
         }
+    }
+
+    /**
+     * Try to convert an object into a number. Boolean values will return 1 if
+     * true and 0 if false. If the value is null or an unknown data type null
+     * will be returned.
+     */
+    private static Number asNumber(Object value) {
+        Number num = null;
+        if (value == null) {
+            num = null;
+        } else if (value instanceof Number) {
+            num = (Number) value;
+        } else if (value instanceof Boolean) {
+            num = ((Boolean) value) ? 1 : 0;
+        }
+        return num;
     }
 
     /** {@inheritDoc} */
