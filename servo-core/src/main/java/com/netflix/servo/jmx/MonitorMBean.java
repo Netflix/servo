@@ -123,13 +123,11 @@ class MonitorMBean implements DynamicMBean {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(domain).append(':');
+            builder.append("name=").append(monitor.getConfig().getName());
 
-            boolean first = true;
             TagList tags = monitor.getConfig().getTags();
             for (Tag tag : tags) {
-                if (!first) builder.append(',');
-                builder.append(tag.getKey()).append('=').append(tag.getValue());
-                first = false;
+                builder.append(',').append(tag.getKey()).append('=').append(tag.getValue());
             }
             return new ObjectName(builder.toString());
         } catch (Exception e) {
@@ -152,7 +150,7 @@ class MonitorMBean implements DynamicMBean {
 
     private MBeanAttributeInfo createAttributeInfo(Monitor<?> m) {
         return new MBeanAttributeInfo(
-            m.getConfig().getName(),
+            "value",
             "java.lang.Number",
             m.getConfig().toString(),
             true,   // isReadable
