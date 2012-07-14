@@ -59,7 +59,6 @@ public class CloudWatchExample {
 
 
         while(true){
-            example.counter.incrementAndGet();
             example.setSampleGauge(Math.round(Math.random() * 1000));
             observer.update(poller.call());
             Thread.sleep(60000);
