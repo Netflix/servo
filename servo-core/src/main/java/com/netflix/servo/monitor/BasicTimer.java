@@ -107,8 +107,8 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     /** {@inheritDoc} */
     @Override
-    public void record(long duration, TimeUnit timeUnit) {
-        record(this.timeUnit.convert(duration, timeUnit));
+    public void record(long duration, TimeUnit unit) {
+        record(this.timeUnit.convert(duration, unit));
     }
 
     /** {@inheritDoc} */

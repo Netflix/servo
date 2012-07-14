@@ -149,17 +149,23 @@ public class EchoServerExample {
         // Schedule collection of monitor registry metrics every 10 seconds
         PollScheduler scheduler = PollScheduler.getInstance();
         scheduler.start();
+
+        final int heartbeatInterval = 20;
         MetricObserver transform = new CounterToRateMetricTransform(
             new FileMetricObserver("serverstat", new File(".")),
-            20, TimeUnit.SECONDS);
+            heartbeatInterval, TimeUnit.SECONDS);
+
         PollRunnable task = new PollRunnable(
             new MonitorRegistryMetricPoller(),
             BasicMetricFilter.MATCH_ALL,
             transform);
-        scheduler.addPoller(task, 10, TimeUnit.SECONDS);
+
+        final int samplingInterval = 10;
+        scheduler.addPoller(task, samplingInterval, TimeUnit.SECONDS);
 
         // Run server
-        int port = 54321;
+        final int defaultPort = 54321;
+        int port = defaultPort;
         if (args.length > 0) {
             port = Integer.valueOf(args[0]);
         }

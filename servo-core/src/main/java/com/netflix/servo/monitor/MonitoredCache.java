@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
  */
 class MonitoredCache {
 
+    private static final int CACHE_TIME = 10;
+
     private final Supplier<CacheStats> statsSupplier;
 
     MonitoredCache(final Cache<?, ?> cache) {
@@ -41,7 +43,7 @@ class MonitoredCache {
                 return cache.stats();
             }
         };
-        statsSupplier = Suppliers.memoizeWithExpiration(supplier, 10, TimeUnit.SECONDS);
+        statsSupplier = Suppliers.memoizeWithExpiration(supplier, CACHE_TIME, TimeUnit.SECONDS);
     }
 
     @com.netflix.servo.annotations.Monitor(name = "averageLoadPenalty", type = GAUGE)

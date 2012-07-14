@@ -31,15 +31,16 @@ import java.util.List;
  */
 public final class MemoryMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(MemoryMetricObserver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MemoryMetricObserver.class);
+
+    private static final int DEFAULT_N = 10;
 
     private final List<Metric>[] observations;
     private int next;
 
     /** Creates a new instance that keeps 10 copies in memory. */
     public MemoryMetricObserver() {
-        this("unamed observer", 10);
+        this("unamed observer", DEFAULT_N);
     }
 
     /** Creates a new instance that keeps {@code num} copies in memory. */

@@ -129,7 +129,8 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         }
 
         public double computeRate(CounterValue prev) {
-            double duration = (timestamp - prev.timestamp) / 1000.0;
+            final double millisPerSecond = 1000.0;
+            double duration = (timestamp - prev.timestamp) / millisPerSecond;
             double delta = value - prev.value;
             return (duration <= 0.0 || delta <= 0.0) ? 0.0 : delta / duration;
         }

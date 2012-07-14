@@ -69,7 +69,7 @@ class MonitorMBean implements DynamicMBean {
     }
 
     /**
-     * Returns the object name built from the {@link com.netflix.servo.monitor.MonitorConfig}. 
+     * Returns the object name built from the {@link com.netflix.servo.monitor.MonitorConfig}.
      */
     public ObjectName getObjectName() {
         return objectName;

@@ -61,12 +61,12 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
     }
 
-    private void register(ObjectName name, DynamicMBean mbean)
+    private void register(ObjectName objectName, DynamicMBean mbean)
             throws Exception {
-        if (mBeanServer.isRegistered(name)) {
-            mBeanServer.unregisterMBean(name);
+        if (mBeanServer.isRegistered(objectName)) {
+            mBeanServer.unregisterMBean(objectName);
         }
-        mBeanServer.registerMBean(mbean, name);
+        mBeanServer.registerMBean(mbean, objectName);
     }
 
     /**
@@ -85,7 +85,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         try {
             List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
             for (MonitorMBean bean : beans) {
-                mBeanServer.registerMBean(bean, bean.getObjectName());
+                register(bean.getObjectName(), bean);
             }
             monitors.add(monitor);
         } catch (Exception e) {

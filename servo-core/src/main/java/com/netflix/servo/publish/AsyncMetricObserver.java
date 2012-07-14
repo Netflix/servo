@@ -113,11 +113,12 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         TimestampedUpdate update = new TimestampedUpdate(now, metrics);
 
         boolean result = updateQueue.offer(update);
-        int maxAttempts = 5;
-        while (!result && maxAttempts > 0) {
+        final int maxAttempts = 5;
+        int attempts = 0;
+        while (!result && attempts < maxAttempts) {
             updateQueue.remove();
             result = updateQueue.offer(update);
-            --maxAttempts;
+            ++attempts;
         }
 
         if (!result) {
@@ -126,7 +127,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     }
 
     /**
-     * Stop the background thread that pushes updates to the wrapped observer. 
+     * Stop the background thread that pushes updates to the wrapped observer.
      */
     public void stop() {
         stopUpdateThread = true;
