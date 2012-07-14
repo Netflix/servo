@@ -23,14 +23,12 @@ import com.google.common.base.Function;
 
 import com.netflix.servo.tag.TaggingContext;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-public class ContextualCounter extends AbstractContextualMonitor<Long,Counter> implements Counter {
+public class ContextualCounter extends AbstractContextualMonitor<Long, Counter> implements Counter {
 
     public ContextualCounter(
             MonitorConfig config,
             TaggingContext context,
-            Function<MonitorConfig,Counter> newMonitor) {
+            Function<MonitorConfig, Counter> newMonitor) {
         super(config, context, newMonitor);
     }
 

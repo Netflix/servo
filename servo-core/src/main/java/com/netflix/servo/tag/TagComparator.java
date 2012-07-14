@@ -24,11 +24,11 @@ import java.util.Comparator;
 /**
  * Comparator for ordering tags based on the key then the value.
  */
-public class TagComparator implements Comparator<Tag>{
+public class TagComparator implements Comparator<Tag> {
     /** {@inheritDoc} */
     @Override
     public int compare(Tag tag, Tag tag1) {
-        if(tag.getKey().equals(tag1.getKey())){
+        if (tag.getKey().equals(tag1.getKey())) {
             return tag.getValue().compareTo(tag1.getValue());
         }
 

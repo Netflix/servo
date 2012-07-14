@@ -33,24 +33,24 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Base class used to simplify creation of contextual monitors.
  */
-public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
+public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
         implements CompositeMonitor<T> {
 
     protected final MonitorConfig baseConfig;
     protected final TaggingContext context;
-    protected final Function<MonitorConfig,M> newMonitor;
+    protected final Function<MonitorConfig, M> newMonitor;
 
-    protected final ConcurrentMap<MonitorConfig,M> monitors;
+    protected final ConcurrentMap<MonitorConfig, M> monitors;
 
     AbstractContextualMonitor(
             MonitorConfig baseConfig,
             TaggingContext context,
-            Function<MonitorConfig,M> newMonitor) {
+            Function<MonitorConfig, M> newMonitor) {
         this.baseConfig = baseConfig;
         this.context = context;
         this.newMonitor = newMonitor;
 
-        monitors = new ConcurrentHashMap<MonitorConfig,M>();
+        monitors = new ConcurrentHashMap<MonitorConfig, M>();
     }
 
     protected M getMonitorForCurrentContext() {

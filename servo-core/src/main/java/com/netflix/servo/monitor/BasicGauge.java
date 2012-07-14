@@ -25,7 +25,6 @@ import com.google.common.base.Throwables;
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A gauge implementation that invokes a specified callable to get the current value.

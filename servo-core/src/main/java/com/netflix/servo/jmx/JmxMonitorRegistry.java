@@ -19,21 +19,24 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.MonitorRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.management.DynamicMBean;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.management.DynamicMBean;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
@@ -53,9 +56,9 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      * server.
      */
     public JmxMonitorRegistry(String name) {
+        this.name = name;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
-        this.name = name;
     }
 
     private void register(ObjectName name, DynamicMBean mbean)

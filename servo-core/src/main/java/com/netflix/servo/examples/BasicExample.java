@@ -44,16 +44,15 @@ import java.util.concurrent.atomic.AtomicReference;
 public class BasicExample {
 
     @Monitor(name = "sampleInformational", type = DataSourceType.INFORMATIONAL)
-    public final AtomicReference<String> info = new AtomicReference<String>("test");
+    private final AtomicReference<String> info = new AtomicReference<String>("test");
 
     @Monitor(name = "sampleCounter", type = DataSourceType.COUNTER)
-    public final AtomicInteger counter = new AtomicInteger(0);
+    private final AtomicInteger counter = new AtomicInteger(0);
 
-    @Monitor(name = "sampleGauge", type = DataSourceType.GAUGE)
     private long sampleGuage = 0;
 
     @MonitorTags
-    public final TagList tags;
+    private final TagList tags;
 
     public BasicExample() {
         this.tags = SortedTagList.EMPTY;
@@ -64,11 +63,12 @@ public class BasicExample {
     }
 
 
-    public synchronized void setSampleGauge(long val){
+    public synchronized void setSampleGauge(long val) {
         sampleGuage = val;
     }
 
-    public synchronized long getSampleGauge(){
+    @Monitor(name = "sampleGauge", type = DataSourceType.GAUGE)
+    public synchronized long getSampleGauge() {
         return sampleGuage;
     }
 
@@ -89,12 +89,13 @@ public class BasicExample {
         DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(example));
         DefaultMonitorRegistry.getInstance().register(counter);
 
-
-        while(true) {
+        final int max = 1000;
+        final long delay = 10000L;
+        while (true) {
             example.counter.incrementAndGet();
             counter.increment();
-            example.setSampleGauge(Math.round(Math.random() * 1000));
-            Thread.sleep(10000);
+            example.setSampleGauge(Math.round(Math.random() * max));
+            Thread.sleep(delay);
         }
     }
 }

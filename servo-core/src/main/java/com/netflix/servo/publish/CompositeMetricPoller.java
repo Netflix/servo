@@ -23,30 +23,28 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import com.netflix.servo.Metric;
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.TagList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Combines results from a list of metric pollers. This clas
  */
 public class CompositeMetricPoller implements MetricPoller {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(CompositeMetricPoller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompositeMetricPoller.class);
 
     private static final List<Metric> EMPTY = ImmutableList.of();
 
     private static final String POLLER_KEY = "PollerName";
 
-    private final Map<String,MetricPoller> pollers;
+    private final Map<String, MetricPoller> pollers;
     private final ExecutorService executor;
     private final long timeout;
 
@@ -61,9 +59,7 @@ public class CompositeMetricPoller implements MetricPoller {
      *                  from the future
      */
     public CompositeMetricPoller(
-            Map<String,MetricPoller> pollers,
-            ExecutorService executor,
-            long timeout) {
+            Map<String, MetricPoller> pollers, ExecutorService executor, long timeout) {
         this.pollers = ImmutableMap.copyOf(pollers);
         this.executor = executor;
         this.timeout = timeout;
@@ -98,14 +94,14 @@ public class CompositeMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public final List<Metric> poll(MetricFilter filter, boolean reset) {
-        Map<String,Future<List<Metric>>> futures = Maps.newHashMap();
-        for (Map.Entry<String,MetricPoller> e : pollers.entrySet()) {
+        Map<String, Future<List<Metric>>> futures = Maps.newHashMap();
+        for (Map.Entry<String, MetricPoller> e : pollers.entrySet()) {
             PollCallable task = new PollCallable(e.getValue(), filter, reset);
             futures.put(e.getKey(), executor.submit(task));
         }
 
         List<Metric> allMetrics = Lists.newArrayList();
-        for (Map.Entry<String,Future<List<Metric>>> e : futures.entrySet()) {
+        for (Map.Entry<String, Future<List<Metric>>> e : futures.entrySet()) {
             allMetrics.addAll(getMetrics(e.getKey(), e.getValue()));
         }
         return allMetrics;

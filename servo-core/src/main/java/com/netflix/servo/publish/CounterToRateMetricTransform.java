@@ -56,7 +56,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
     private final MetricObserver observer;
-    private final Cache<MonitorConfig,CounterValue> cache;
+    private final Cache<MonitorConfig, CounterValue> cache;
 
     private final Monitor<?> cacheMonitor;
 
@@ -65,8 +65,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * heartbeat should be some multiple of the sampling interval used when
      * collecting the metrics.
      */
-    public CounterToRateMetricTransform(
-            MetricObserver observer, long heartbeat, TimeUnit unit) {
+    public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
         this.cache = CacheBuilder.newBuilder()
             .expireAfterWrite(heartbeat, unit)

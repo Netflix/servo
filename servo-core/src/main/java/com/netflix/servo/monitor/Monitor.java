@@ -20,7 +20,7 @@
 package com.netflix.servo.monitor;
 
 public interface Monitor<T> {
-    public T getValue();
+    T getValue();
 
-    public MonitorConfig getConfig();
+    MonitorConfig getConfig();
 }

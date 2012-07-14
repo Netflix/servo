@@ -27,7 +27,6 @@ import com.netflix.servo.tag.Tag;
 
 import java.util.List;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.TimeUnit;
 
 /**

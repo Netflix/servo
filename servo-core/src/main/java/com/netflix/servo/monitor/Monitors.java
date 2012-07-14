@@ -20,7 +20,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
@@ -46,14 +45,14 @@ public final class Monitors {
     private static final String DEFAULT_ID = "default";
 
     /** Function to create basic timers. */
-    private static class TimerFactory implements Function<MonitorConfig,Timer> {
+    private static class TimerFactory implements Function<MonitorConfig, Timer> {
         public Timer apply(MonitorConfig config) {
             return new BasicTimer(config);
         }
     }
 
     /** Function to create basic counters. */
-    private static class CounterFactory implements Function<MonitorConfig,Counter> {
+    private static class CounterFactory implements Function<MonitorConfig, Counter> {
         public Counter apply(MonitorConfig config) {
             return new BasicCounter(config);
         }
@@ -68,7 +67,7 @@ public final class Monitors {
     /**
      * Create a new timer with only the name specified.
      */
-    public static final Timer newTimer(String name) {
+    public static Timer newTimer(String name) {
         return new BasicTimer(MonitorConfig.builder(name).build());
     }
 
@@ -76,7 +75,7 @@ public final class Monitors {
      * Create a new timer with a name and context. The returned timer will maintain separate
      * sub-monitors for each distinct set of tags returned from the context on an update operation.
      */
-    public static final Timer newTimer(String name, TaggingContext context) {
+    public static Timer newTimer(String name, TaggingContext context) {
         final MonitorConfig config = MonitorConfig.builder(name).build();
         return new ContextualTimer(config, context, TIMER_FUNCTION);
     }
@@ -84,7 +83,7 @@ public final class Monitors {
     /**
      * Create a new counter instance.
      */
-    public static final Counter newCounter(String name) {
+    public static Counter newCounter(String name) {
         return new BasicCounter(MonitorConfig.builder(name).build());
     }
 
@@ -92,7 +91,7 @@ public final class Monitors {
      * Create a new counter with a name and context. The returned counter will maintain separate
      * sub-monitors for each distinct set of tags returned from the context on an update operation.
      */
-    public static final Counter newCounter(String name, TaggingContext context) {
+    public static Counter newCounter(String name, TaggingContext context) {
         final MonitorConfig config = MonitorConfig.builder(name).build();
         return new ContextualCounter(config, context, COUNTER_FUNCTION);
     }
@@ -101,7 +100,7 @@ public final class Monitors {
      * Helper function to easily create a composite for all monitor fields and
      * annotated attributes of a given object.
      */
-    public static final CompositeMonitor<?> newObjectMonitor(Object obj) {
+    public static CompositeMonitor<?> newObjectMonitor(Object obj) {
         return newObjectMonitor(null, obj);
     }
 
@@ -122,7 +121,7 @@ public final class Monitors {
      *
      * @return     composite monitor based on the fields of the class
      */
-    public static final CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
+    public static CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
         List<Monitor<?>> monitors = Lists.newArrayList();
         addMonitorFields(monitors, id, obj);
         addAnnotatedFields(monitors, id, obj);
@@ -140,7 +139,7 @@ public final class Monitors {
      * @param pool  thread pool instance to monitor.
      * @return      composite monitor based on stats provided for the pool
      */
-    public static final CompositeMonitor<?> newThreadPoolMonitor(String id, ThreadPoolExecutor pool) {
+    public static CompositeMonitor<?> newThreadPoolMonitor(String id, ThreadPoolExecutor pool) {
         return newObjectMonitor(id, new MonitoredThreadPool(pool));
     }
 
@@ -151,7 +150,7 @@ public final class Monitors {
      * @param cache  cache instance to monitor.
      * @return       composite monitor based on stats provided for the cache
      */
-    public static final CompositeMonitor<?> newCacheMonitor(String id, Cache<?,?> cache) {
+    public static CompositeMonitor<?> newCacheMonitor(String id, Cache<?, ?> cache) {
         return newObjectMonitor(id, new MonitoredCache(cache));
     }
 
@@ -159,7 +158,7 @@ public final class Monitors {
      * Register an object with the default registry. Equivalent to
      * {@code DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(obj))}.
      */
-    public static final void registerObject(Object obj) {
+    public static void registerObject(Object obj) {
         registerObject(null, obj);
     }
 
@@ -167,7 +166,7 @@ public final class Monitors {
      * Register an object with the default registry. Equivalent to
      * {@code DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(id, obj))}.
      */
-    public static final void registerObject(String id, Object obj) {
+    public static void registerObject(String id, Object obj) {
         DefaultMonitorRegistry.getInstance().register(newObjectMonitor(id, obj));
     }
 
@@ -176,7 +175,7 @@ public final class Monitors {
      * wrapped monitor.
      */
     @SuppressWarnings("unchecked")
-    static final <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
+    static <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
         Monitor<T> m = null;
         if (monitor instanceof CompositeMonitor<?>) {
             m = new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor);
@@ -192,7 +191,7 @@ public final class Monitors {
      * Extract all fields of {@code obj} that are of type {@link Monitor} and add them to
      * {@code monitors}.
      */
-    static final void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
+    static void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
         try {
             Class<?> c = obj.getClass();
 
@@ -219,7 +218,7 @@ public final class Monitors {
      * Extract all fields/methods of {@code obj} that have a monitor annotation and add them to
      * {@code monitors}.
      */
-    static final void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj) {
+    static void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj) {
         final Class<com.netflix.servo.annotations.Monitor> annoClass =
             com.netflix.servo.annotations.Monitor.class;
         try {
@@ -257,18 +256,18 @@ public final class Monitors {
     }
 
     /** Verify that the type for the annotated field is numeric. */
-    private static final void checkType(
+    private static void checkType(
             com.netflix.servo.annotations.Monitor anno, Class<?> type, Class<?> container) {
         if (!isNumericType(type)) {
-            final String msg = "annotation of type " + anno.type().name() + " can only be used" +
-                " with numeric values, " + anno.name() + " in class " + container.getName() +
-                " is applied to a field or method of type " + type.getName();
+            final String msg = "annotation of type " + anno.type().name() + " can only be used"
+                + " with numeric values, " + anno.name() + " in class " + container.getName()
+                + " is applied to a field or method of type " + type.getName();
             throw new IllegalArgumentException(msg);
         }
     }
 
     /** Returns true if {@code c} can be assigned to a number. */
-    private static final boolean isNumericType(Class<?> c) {
+    private static boolean isNumericType(Class<?> c) {
         return Number.class.isAssignableFrom(c)
             || double.class == c
             || float.class == c
@@ -279,19 +278,19 @@ public final class Monitors {
     }
 
     /** Returns true if {@code c} can be assigned to a monitor. */
-    private static final boolean isMonitorType(Class<?> c) {
+    private static boolean isMonitorType(Class<?> c) {
         return Monitor.class.isAssignableFrom(c);
     }
 
     /** Creates a monitor config for a composite object. */
-    private static final MonitorConfig newObjectConfig(Class<?> c, String id) {
+    private static MonitorConfig newObjectConfig(Class<?> c, String id) {
         MonitorConfig.Builder builder = MonitorConfig.builder(id);
         builder.withTag("class", c.getSimpleName());
         return builder.build();
     }
 
     /** Creates a monitor config based on an annotation. */
-    private static final MonitorConfig newConfig(
+    private static MonitorConfig newConfig(
             Class<?> c, String id, com.netflix.servo.annotations.Monitor anno) {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
         builder.withTag("class", c.getSimpleName());

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * If you stop the instance and then start it again all of the prior tasks
  * will be thrown away.
  */
-public class PollScheduler {
+public final class PollScheduler {
     private static final PollScheduler INSTANCE = new PollScheduler();
 
     /** Return the instance of this scheduler. */
@@ -98,7 +98,7 @@ public class PollScheduler {
     }
 
     /** Returns true if this scheduler is currently started. */
-    public synchronized boolean isStarted(){
+    public synchronized boolean isStarted() {
         return started;
     }
 }

@@ -41,12 +41,12 @@ public abstract class BaseMetricObserver implements MetricObserver {
 
     private final String name;
 
-    @Monitor(name="UpdateCount", type= DataSourceType.COUNTER,
-             description="Total number of times update has been called.")
+    /** Total number of times update has been called. */
+    @Monitor(name = "updateCount", type = DataSourceType.COUNTER)
     private final AtomicInteger updateCount = new AtomicInteger(0);
 
-    @Monitor(name="UpdateFailureCount", type= DataSourceType.COUNTER,
-             description="Number of times update failed with an exception.")
+    /** Number of times update failed with an exception. */
+    @Monitor(name = "updateFailureCount", type = DataSourceType.COUNTER)
     private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
 
     /** Creates a new instance with a given name. */
@@ -76,7 +76,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
     }
 
     /** {@inheritDoc} */
-    public final String getName(){
+    public final String getName() {
         return name;
     }
 

@@ -50,7 +50,7 @@ public enum InjectableTag implements Tag {
         return value;
     }
 
-    public String tagString(){
+    public String tagString() {
         return key + "=" + value;
     }
 

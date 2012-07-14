@@ -75,10 +75,9 @@ public final class JmxMetricPoller implements MetricPoller {
      * Creates a tag list from an object name.
      */
     private TagList createTagList(ObjectName name) {
-        Map<String,String> props =
-            (Map<String,String>) name.getKeyPropertyList();
+        Map<String, String> props = (Map<String, String>) name.getKeyPropertyList();
         List<Tag> tags = Lists.newArrayList();
-        for (Map.Entry<String,String> e : props.entrySet()) {
+        for (Map.Entry<String, String> e : props.entrySet()) {
             String key = PROP_KEY_PREFIX + "." + e.getKey();
             tags.add(new BasicTag(key, e.getValue()));
         }
@@ -111,8 +110,7 @@ public final class JmxMetricPoller implements MetricPoller {
      * The map {@code values} will be populated with a path to the value as
      * the key and the simple object as the value.
      */
-    private void extractValues(
-            String path, Map<String,Object> values, CompositeData obj) {
+    private void extractValues(String path, Map<String, Object> values, CompositeData obj) {
         for (String key : obj.getCompositeType().keySet()) {
             String newPath = (path == null) ? key : path + "." + key;
             Object value = obj.get(key);
@@ -159,9 +157,9 @@ public final class JmxMetricPoller implements MetricPoller {
             String attrName = attr.getName();
             Object obj = attr.getValue();
             if (obj instanceof CompositeData) {
-                Map<String,Object> values = Maps.newHashMap();
+                Map<String, Object> values = Maps.newHashMap();
                 extractValues(null, values, (CompositeData) obj);
-                for (Map.Entry<String,Object> e : values.entrySet()) {
+                for (Map.Entry<String, Object> e : values.entrySet()) {
                     String key = e.getKey();
                     TagList newTags = SortedTagList.builder().withTags(tags).withTag(COMPOSITE_PATH_KEY, key).build();
                     if (filter.matches(new MonitorConfig.Builder(attrName).withTags(newTags).build())) {

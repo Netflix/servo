@@ -35,7 +35,7 @@ class MonitoredCache {
 
     private final Supplier<CacheStats> statsSupplier;
 
-    MonitoredCache(final Cache<?,?> cache) {
+    MonitoredCache(final Cache<?, ?> cache) {
         final Supplier<CacheStats> supplier = new Supplier<CacheStats>() {
             public CacheStats get() {
                 return cache.stats();

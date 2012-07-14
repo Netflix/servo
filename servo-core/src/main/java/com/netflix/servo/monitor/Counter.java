@@ -20,7 +20,7 @@
 package com.netflix.servo.monitor;
 
 public interface Counter extends NumericMonitor<Long> {
-    public void increment();
+    void increment();
 
-    public void increment(long amount);
+    void increment(long amount);
 }

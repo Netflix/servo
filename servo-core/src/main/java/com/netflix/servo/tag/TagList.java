@@ -46,5 +46,5 @@ public interface TagList extends Iterable<Tag> {
     Iterator<Tag> iterator();
 
     /** Returns a map containing a copy of the tags in this list. */
-    Map<String,String> asMap();
+    Map<String, String> asMap();
 }

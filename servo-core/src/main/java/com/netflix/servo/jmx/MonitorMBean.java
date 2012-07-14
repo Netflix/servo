@@ -18,8 +18,6 @@ import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -54,7 +52,7 @@ class MonitorMBean implements DynamicMBean {
 
     private final Monitor<?> monitor;
 
-    private final ObjectName name;
+    private final ObjectName objectName;
 
     private final MBeanInfo beanInfo;
 
@@ -66,7 +64,7 @@ class MonitorMBean implements DynamicMBean {
      */
     MonitorMBean(String domain, Monitor<?> monitor) {
         this.monitor = monitor;
-        this.name = createObjectName(domain);
+        this.objectName = createObjectName(domain);
         this.beanInfo = createBeanInfo();
     }
 
@@ -74,7 +72,7 @@ class MonitorMBean implements DynamicMBean {
      * Returns the object name built from the {@link com.netflix.servo.monitor.MonitorConfig}. 
      */
     public ObjectName getObjectName() {
-        return name;
+        return objectName;
     }
 
     /** {@inheritDoc} */

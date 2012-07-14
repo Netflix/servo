@@ -66,7 +66,7 @@ public class JmxClientExample {
 
         MBeanAttributeInfo[] attrs = con.getMBeanInfo(objName).getAttributes();
         if (attrs != null) {
-            String attrNames[] = new String[attrs.length];
+            String[] attrNames = new String[attrs.length];
             for (int i = 0; i < attrNames.length; ++i) {
                 attrNames[i] = attrs[i].getName();
             }

@@ -21,11 +21,7 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList;
-
-import java.lang.reflect.Field;
 
 import java.util.List;
 

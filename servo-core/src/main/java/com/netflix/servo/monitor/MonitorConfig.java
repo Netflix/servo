@@ -72,7 +72,7 @@ public final class MonitorConfig {
         }
     }
 
-    public static final Builder builder(String name) {
+    public static Builder builder(String name) {
         return new Builder(name);
     }
 

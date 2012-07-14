@@ -30,7 +30,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     /**
      * Create a new instance with the specified configuration.
      */
-    AbstractMonitor(MonitorConfig config){
+    AbstractMonitor(MonitorConfig config) {
         this.config = Preconditions.checkNotNull(config);
     }
 

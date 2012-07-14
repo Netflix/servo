@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ResettableCounter extends AbstractMonitor<Long>
         implements Counter, ResettableMonitor<Long> {
-    protected final AtomicLong count = new AtomicLong(0L);
+    private final AtomicLong count = new AtomicLong(0L);
 
     /** Create a new instance of the counter. */
     public ResettableCounter(MonitorConfig config) {

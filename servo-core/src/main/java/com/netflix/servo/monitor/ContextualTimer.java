@@ -24,15 +24,14 @@ import com.google.common.base.Function;
 import com.netflix.servo.tag.TaggingContext;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
-public class ContextualTimer extends AbstractContextualMonitor<Long,Timer>
+public class ContextualTimer extends AbstractContextualMonitor<Long, Timer>
         implements Timer {
 
     public ContextualTimer(
             MonitorConfig config,
             TaggingContext context,
-            Function<MonitorConfig,Timer> newMonitor) {
+            Function<MonitorConfig, Timer> newMonitor) {
         super(config, context, newMonitor);
     }
 
