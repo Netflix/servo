@@ -33,6 +33,7 @@ import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -79,10 +80,11 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public void register(Monitor<?> monitor) {
-
-        MonitorModelMBean bean = MonitorModelMBean.newInstance(name, monitor);
         try {
-            mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            for (MonitorMBean bean : beans) {
+                mBeanServer.registerMBean(bean, bean.getObjectName());
+            }
             monitors.add(monitor);
         } catch (Exception e) {
             LOG.warn("Unable to register Monitor:" + monitor.getConfig(), e);
@@ -95,7 +97,10 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void unregister(Monitor<?> monitor) {
         try {
-            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(name, monitor.getConfig()));
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            for (MonitorMBean bean : beans) {
+                mBeanServer.unregisterMBean(bean.getObjectName());
+            }
             monitors.remove(monitor);
         } catch (Exception e) {
             LOG.warn("Unable to un-register Monitor:" + monitor.getConfig(), e);
