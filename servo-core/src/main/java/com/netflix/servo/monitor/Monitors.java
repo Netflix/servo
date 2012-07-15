@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TaggingContext;
 import com.netflix.servo.tag.TagList;
@@ -122,13 +123,15 @@ public final class Monitors {
      * @return     composite monitor based on the fields of the class
      */
     public static CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
+        final TagList tags = getMonitorTags(obj);
+
         List<Monitor<?>> monitors = Lists.newArrayList();
-        addMonitorFields(monitors, id, obj);
-        addAnnotatedFields(monitors, id, obj);
+        addMonitorFields(monitors, id, obj, tags);
+        addAnnotatedFields(monitors, id, obj, tags);
 
         final Class<?> c = obj.getClass();
         final String objectId = (id == null) ? DEFAULT_ID : id;
-        return new BasicCompositeMonitor(newObjectConfig(c, objectId), monitors);
+        return new BasicCompositeMonitor(newObjectConfig(c, objectId, tags), monitors);
     }
 
     /**
@@ -191,22 +194,25 @@ public final class Monitors {
      * Extract all fields of {@code obj} that are of type {@link Monitor} and add them to
      * {@code monitors}.
      */
-    static void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj) {
+    static void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj, TagList tags) {
         try {
             Class<?> c = obj.getClass();
 
             SortedTagList.Builder builder = SortedTagList.builder();
             builder.withTag("class", c.getSimpleName());
+            if (tags != null) {
+                builder.withTags(tags);
+            }
             if (id != null) {
                 builder.withTag("id", id);
             }
-            TagList tags = builder.build();
+            TagList classTags = builder.build();
 
             Field[] fields = c.getDeclaredFields();
             for (Field field : fields) {
                 if (isMonitorType(field.getType())) {
                     field.setAccessible(true);
-                    monitors.add(wrap(tags, (Monitor<?>) field.get(obj)));
+                    monitors.add(wrap(classTags, (Monitor<?>) field.get(obj)));
                 }
             }
         } catch (Exception e) {
@@ -218,7 +224,7 @@ public final class Monitors {
      * Extract all fields/methods of {@code obj} that have a monitor annotation and add them to
      * {@code monitors}.
      */
-    static void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj) {
+    static void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj, TagList tags) {
         final Class<com.netflix.servo.annotations.Monitor> annoClass =
             com.netflix.servo.annotations.Monitor.class;
         try {
@@ -227,7 +233,7 @@ public final class Monitors {
             for (Field field : fields) {
                 final com.netflix.servo.annotations.Monitor anno = field.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(c, id, anno);
+                    final MonitorConfig config = newConfig(c, id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, field));
                     } else {
@@ -241,7 +247,7 @@ public final class Monitors {
             for (Method method : methods) {
                 final com.netflix.servo.annotations.Monitor anno = method.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(c, id, anno);
+                    final MonitorConfig config = newConfig(c, id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, method));
                     } else {
@@ -253,6 +259,34 @@ public final class Monitors {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    /** Get tags from annotation. */
+    private static TagList getMonitorTags(Object obj) {
+        try {
+            Class<?> c = obj.getClass();
+            Field[] fields = c.getDeclaredFields();
+            for (Field field : fields) {
+                final MonitorTags anno = field.getAnnotation(MonitorTags.class);
+                if (anno != null) {
+                    field.setAccessible(true);
+                    return (TagList) field.get(obj);
+                }
+            }
+
+            Method[] methods = c.getDeclaredMethods();
+            for (Method method : methods) {
+                final MonitorTags anno = method.getAnnotation(MonitorTags.class);
+                if (anno != null) {
+                    method.setAccessible(true);
+                    return (TagList) method.invoke(obj);
+                }
+            }
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+
+        return null;
     }
 
     /** Verify that the type for the annotated field is numeric. */
@@ -283,19 +317,25 @@ public final class Monitors {
     }
 
     /** Creates a monitor config for a composite object. */
-    private static MonitorConfig newObjectConfig(Class<?> c, String id) {
+    private static MonitorConfig newObjectConfig(Class<?> c, String id, TagList tags) {
         MonitorConfig.Builder builder = MonitorConfig.builder(id);
         builder.withTag("class", c.getSimpleName());
+        if (tags != null) {
+            builder.withTags(tags);
+        }
         return builder.build();
     }
 
     /** Creates a monitor config based on an annotation. */
     private static MonitorConfig newConfig(
-            Class<?> c, String id, com.netflix.servo.annotations.Monitor anno) {
+            Class<?> c, String id, com.netflix.servo.annotations.Monitor anno, TagList tags) {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
         builder.withTag("class", c.getSimpleName());
         builder.withTag(anno.type());
         builder.withTag(anno.level());
+        if (tags != null) {
+            builder.withTags(tags);
+        }
         if (id != null) {
             builder.withTag("id", id);
         }
