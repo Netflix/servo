@@ -56,7 +56,8 @@ public class MinGauge extends AbstractMonitor<Long>
     /** {@inheritDoc} */
     @Override
     public Long getAndResetValue() {
-        return min.getAndSet(Long.MAX_VALUE);
+        long v = min.getAndSet(Long.MAX_VALUE);
+        return (v == Long.MAX_VALUE) ? 0L : v;
     }
 
     /** {@inheritDoc} */
