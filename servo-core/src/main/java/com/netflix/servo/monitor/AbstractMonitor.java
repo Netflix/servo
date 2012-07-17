@@ -22,7 +22,7 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Preconditions;
 
 /**
- * Base type for implementing monitors.
+ * Base type to simplify implementing monitors.
  */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
     protected final MonitorConfig config;
@@ -30,7 +30,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     /**
      * Create a new instance with the specified configuration.
      */
-    public AbstractMonitor(MonitorConfig config) {
+    protected AbstractMonitor(MonitorConfig config) {
         this.config = Preconditions.checkNotNull(config);
     }
 

@@ -25,9 +25,19 @@ import com.netflix.servo.tag.TaggingContext;
 
 import java.util.concurrent.TimeUnit;
 
-public class ContextualTimer extends AbstractContextualMonitor<Long, Timer>
-        implements Timer {
+/**
+ * Composite that maintains separate simple timers for each distinct set of tags returned by the
+ * tagging context.
+ */
+public class ContextualTimer extends AbstractContextualMonitor<Long, Timer> implements Timer {
 
+    /**
+     * Create a new instance of the timer.
+     *
+     * @param config      shared configuration
+     * @param context     provider for context specific tags
+     * @param newMonitor  function to create new timers
+     */
     public ContextualTimer(
             MonitorConfig config,
             TaggingContext context,

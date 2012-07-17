@@ -21,6 +21,9 @@ package com.netflix.servo.monitor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Monitor type for tracking how much time something is taking.
+ */
 public interface Timer extends NumericMonitor<Long> {
 
     /**
@@ -30,7 +33,7 @@ public interface Timer extends NumericMonitor<Long> {
     Stopwatch start();
 
     /**
-     * The TimeUnit that this timer is stored in.
+     * The time unit reported by this timer.
      */
     TimeUnit getTimeUnit();
 

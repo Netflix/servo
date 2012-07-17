@@ -118,12 +118,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return (cnt == 0) ? 0L : totalTime.getValue() / cnt;
     }
 
-    /** Get the total time for all updates since the last reset. */
+    /** Get the total time for all updates. */
     public Long getTotalTime() {
         return totalTime.getValue();
     }
 
-    /** Get the number of updates since the last reset. */
+    /** Get the total number of updates. */
     public Long getCount() {
         return count.getValue();
     }

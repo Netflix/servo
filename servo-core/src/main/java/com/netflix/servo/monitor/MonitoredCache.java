@@ -35,6 +35,12 @@ class MonitoredCache {
 
     private static final int CACHE_TIME = 10;
 
+    /**
+     * When polling metrics each monitor gets called independently. If we call cache.stats directly
+     * each monitor call will create a new stats object. This supplier is used to control the calls
+     * for updated stats so that typically it will only need to be done once per sampling interval
+     * for all exposed monitors.
+     */
     private final Supplier<CacheStats> statsSupplier;
 
     MonitoredCache(final Cache<?, ?> cache) {

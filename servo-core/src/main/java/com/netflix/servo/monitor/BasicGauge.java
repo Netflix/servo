@@ -34,6 +34,9 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
 
     /**
      * Creates a new instance of the gauge.
+     *
+     * @param config    configuration for this monitor
+     * @param function  a function used to fetch the value on demand
      */
     public BasicGauge(MonitorConfig config, Callable<T> function) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));

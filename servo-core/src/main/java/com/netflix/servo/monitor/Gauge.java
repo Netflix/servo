@@ -19,5 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+/**
+ * Monitor type that provides the current value, e.g., the percentage of disk space used.
+ */
 public interface Gauge<T extends Number> extends NumericMonitor<T> {
 }

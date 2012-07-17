@@ -19,8 +19,12 @@
  */
 package com.netflix.servo.monitor;
 
+/** Provides a way to sample a value tied to a particular configuration. */
 public interface Monitor<T> {
+
+    /** Returns the current value for the monitor. */
     T getValue();
 
+    /** Configuration used to identify a monitor and provide metadata used in aggregations. */
     MonitorConfig getConfig();
 }
