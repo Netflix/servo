@@ -31,7 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Configuration settings associated with a metric.
+ * Configuration settings associated with a monitor. A config consists of a name that is required
+ * and an optional set of tags.
  */
 public final class MonitorConfig {
 
@@ -72,7 +73,7 @@ public final class MonitorConfig {
         }
     }
 
-    public static final Builder builder(String name) {
+    public static Builder builder(String name) {
         return new Builder(name);
     }
 
@@ -104,9 +105,7 @@ public final class MonitorConfig {
         return tags;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof MonitorConfig)) {
@@ -116,17 +115,13 @@ public final class MonitorConfig {
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(name, tags);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

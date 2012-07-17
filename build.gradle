@@ -15,7 +15,7 @@
  */
 
 // Establish version and status
-ext.releaseVersion = '0.4.5' // TEMPLATE: Set to latest release
+ext.releaseVersion = '0.4.7' // TEMPLATE: Set to latest release
 ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
 
 buildscript {

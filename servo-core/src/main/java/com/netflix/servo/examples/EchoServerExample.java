@@ -23,18 +23,29 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.CountingOutputStream;
-import com.netflix.servo.publish.*;
+
+import com.netflix.servo.publish.BasicMetricFilter;
+import com.netflix.servo.publish.CounterToRateMetricTransform;
+import com.netflix.servo.publish.FileMetricObserver;
+import com.netflix.servo.publish.MetricObserver;
+import com.netflix.servo.publish.MonitorRegistryMetricPoller;
+import com.netflix.servo.publish.PollRunnable;
+import com.netflix.servo.publish.PollScheduler;
+
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -44,8 +55,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class EchoServerExample {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(EchoServerExample.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EchoServerExample.class);
 
     private final int port;
 
@@ -139,17 +149,23 @@ public class EchoServerExample {
         // Schedule collection of monitor registry metrics every 10 seconds
         PollScheduler scheduler = PollScheduler.getInstance();
         scheduler.start();
+
+        final int heartbeatInterval = 20;
         MetricObserver transform = new CounterToRateMetricTransform(
             new FileMetricObserver("serverstat", new File(".")),
-            20, TimeUnit.SECONDS);
+            heartbeatInterval, TimeUnit.SECONDS);
+
         PollRunnable task = new PollRunnable(
             new MonitorRegistryMetricPoller(),
             BasicMetricFilter.MATCH_ALL,
             transform);
-        scheduler.addPoller(task, 10, TimeUnit.SECONDS);
+
+        final int samplingInterval = 10;
+        scheduler.addPoller(task, samplingInterval, TimeUnit.SECONDS);
 
         // Run server
-        int port = 54321;
+        final int defaultPort = 54321;
+        int port = defaultPort;
         if (args.length > 0) {
             port = Integer.valueOf(args[0]);
         }

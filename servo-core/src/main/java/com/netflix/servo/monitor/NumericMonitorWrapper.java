@@ -19,8 +19,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-
 import com.netflix.servo.tag.TagList;
 
 /**

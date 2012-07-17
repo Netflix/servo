@@ -21,29 +21,29 @@ package com.netflix.servo.monitor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Monitor type for tracking how much time something is taking.
+ */
 public interface Timer extends NumericMonitor<Long> {
 
     /**
      * Returns a stopwatch that has been started and will automatically
      * record its result to this timer when stopped.
      */
-    public Stopwatch start();
+    Stopwatch start();
 
     /**
-     * The TimeUnit that this timer is stored in.
+     * The time unit reported by this timer.
      */
-    public TimeUnit getTimeUnit();
+    TimeUnit getTimeUnit();
 
     /**
-     * Record a new value for this timer
-     * @param duration
+     * Record a new value for this timer.
      */
-    public void record(long duration);
+    void record(long duration);
 
     /**
-     * Record a new value that was collected with the given TimeUnit
-     * @param duration
-     * @param timeUnit
+     * Record a new value that was collected with the given TimeUnit.
      */
-    public void record(long duration, TimeUnit timeUnit);
+    void record(long duration, TimeUnit timeUnit);
 }

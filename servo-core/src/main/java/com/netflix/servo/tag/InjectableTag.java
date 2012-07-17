@@ -33,7 +33,8 @@ public enum InjectableTag implements Tag {
     HOSTNAME("hostname", getHostName()),
     IP("ip", getIp());
 
-    private static final Logger log = LoggerFactory.getLogger(InjectableTag.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InjectableTag.class);
+
     private final String key;
     private final String value;
 
@@ -50,7 +51,7 @@ public enum InjectableTag implements Tag {
         return value;
     }
 
-    public String tagString(){
+    public String tagString() {
         return key + "=" + value;
     }
 
@@ -66,7 +67,7 @@ public enum InjectableTag implements Tag {
         try {
             return InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            log.warn("Unable to load INET info.", e);
+            LOGGER.warn("Unable to load INET info.", e);
             return null;
         }
     }

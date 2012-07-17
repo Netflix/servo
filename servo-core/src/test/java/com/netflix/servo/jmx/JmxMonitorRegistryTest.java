@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.annotations.AnnotatedObject;
 import org.testng.annotations.Test;
 
 import java.util.Set;

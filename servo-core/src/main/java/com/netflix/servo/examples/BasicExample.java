@@ -36,20 +36,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Simple Sample Code for getting a monitor into JMX.
  */
 public class BasicExample {
 
-    @Monitor(name = "sampleCounter", type = DataSourceType.COUNTER)
-    public final AtomicInteger counter = new AtomicInteger(0);
+    @Monitor(name = "sampleInformational", type = DataSourceType.INFORMATIONAL)
+    private final AtomicReference<String> info = new AtomicReference<String>("test");
 
-    @Monitor(name = "sampleGauge", type = DataSourceType.GAUGE)
+    @Monitor(name = "sampleCounter", type = DataSourceType.COUNTER)
+    private final AtomicInteger counter = new AtomicInteger(0);
+
     private long sampleGuage = 0;
 
     @MonitorTags
-    public final TagList tags;
+    private final TagList tags;
 
     public BasicExample() {
         this.tags = SortedTagList.EMPTY;
@@ -60,11 +63,12 @@ public class BasicExample {
     }
 
 
-    public synchronized void setSampleGauge(long val){
+    public synchronized void setSampleGauge(long val) {
         sampleGuage = val;
     }
 
-    public synchronized long getSampleGauge(){
+    @Monitor(name = "sampleGauge", type = DataSourceType.GAUGE)
+    public synchronized long getSampleGauge() {
         return sampleGuage;
     }
 
@@ -73,8 +77,7 @@ public class BasicExample {
         tags.add(InjectableTag.HOSTNAME);
         tags.add(InjectableTag.IP);
 
-        Counter counter = new BasicCounter(new MonitorConfig.Builder("test1").withTags(tags).build());
-
+        Counter counter = new BasicCounter(MonitorConfig.builder("test1").withTags(tags).build());
 
         String id = null;
         if (args.length > 0) {
@@ -82,15 +85,16 @@ public class BasicExample {
         }
         BasicExample example = new BasicExample(tags);
 
-        DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(example));
+        Monitors.registerObject(id, example);
         DefaultMonitorRegistry.getInstance().register(counter);
 
-
-        while(true) {
+        final int max = 1000;
+        final long delay = 10000L;
+        while (true) {
             example.counter.incrementAndGet();
             counter.increment();
-            example.setSampleGauge(Math.round(Math.random() * 1000));
-            Thread.sleep(10000);
+            example.setSampleGauge(Math.round(Math.random() * max));
+            Thread.sleep(delay);
         }
     }
 }

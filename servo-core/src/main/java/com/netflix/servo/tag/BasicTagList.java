@@ -39,7 +39,7 @@ public final class BasicTagList implements TagList {
     public static final TagList EMPTY =
         new BasicTagList(ImmutableSet.<Tag>of());
 
-    private final Map<String,Tag> tagMap;
+    private final Map<String, Tag> tagMap;
 
     /**
      * Creates a new instance with a fixed set of tags.
@@ -47,7 +47,7 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        Map<String,Tag> tags = Maps.newHashMap();
+        Map<String, Tag> tags = Maps.newHashMap();
         for (Tag tag : entries) {
             tags.put(tag.getKey(), tag);
         }
@@ -57,6 +57,12 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     public Tag getTag(String key) {
         return tagMap.get(key);
+    }
+
+    /** {@inheritDoc} */
+    public String getValue(String key) {
+        final Tag t = tagMap.get(key);
+        return (t == null) ? null : t.getValue();
     }
 
     /** {@inheritDoc} */
@@ -80,8 +86,8 @@ public final class BasicTagList implements TagList {
     }
 
     /** {@inheritDoc} */
-    public Map<String,String> asMap() {
-        ImmutableMap.Builder<String,String> builder = ImmutableMap.builder();
+    public Map<String, String> asMap() {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         for (Tag tag : tagMap.values()) {
             builder.put(tag.getKey(), tag.getValue());
         }
@@ -172,9 +178,9 @@ public final class BasicTagList implements TagList {
     /**
      * Returns a tag list that has a copy of {@code tags}.
      */
-    public static BasicTagList copyOf(Map<String,String> tags) {
+    public static BasicTagList copyOf(Map<String, String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
-        for (Map.Entry<String,String> tag : tags.entrySet()) {
+        for (Map.Entry<String, String> tag : tags.entrySet()) {
             builder.add(new BasicTag(tag.getKey(), tag.getValue()));
         }
         return new BasicTagList(builder.build());

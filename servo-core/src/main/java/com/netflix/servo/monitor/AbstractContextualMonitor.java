@@ -33,26 +33,43 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Base class used to simplify creation of contextual monitors.
  */
-public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
+public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
         implements CompositeMonitor<T> {
 
+    /** Base configuration shared across all contexts. */
     protected final MonitorConfig baseConfig;
+
+    /** Context to query when accessing a monitor. */
     protected final TaggingContext context;
-    protected final Function<MonitorConfig,M> newMonitor;
 
-    protected final ConcurrentMap<MonitorConfig,M> monitors;
+    /** Factory funtion used to create a new instance of a monitor. */
+    protected final Function<MonitorConfig, M> newMonitor;
 
-    AbstractContextualMonitor(
+    /** Thread-safe map keeping track of the distinct monitors that have been created so far. */
+    protected final ConcurrentMap<MonitorConfig, M> monitors;
+
+    /**
+     * Create a new instance of the monitor.
+     *
+     * @param baseConfig  shared configuration
+     * @param context     provider for context specific tags
+     * @param newMonitor  function to create new monitors
+     */
+    protected AbstractContextualMonitor(
             MonitorConfig baseConfig,
             TaggingContext context,
-            Function<MonitorConfig,M> newMonitor) {
+            Function<MonitorConfig, M> newMonitor) {
         this.baseConfig = baseConfig;
         this.context = context;
         this.newMonitor = newMonitor;
 
-        monitors = new ConcurrentHashMap<MonitorConfig,M>();
+        monitors = new ConcurrentHashMap<MonitorConfig, M>();
     }
 
+    /**
+     * Returns a monitor instance for the current context. If no monitor exists for the current
+     * context then a new one will be created.
+     */
     protected M getMonitorForCurrentContext() {
         MonitorConfig contextConfig = getConfig();
         M monitor = monitors.get(contextConfig);
@@ -66,6 +83,7 @@ public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
         return monitor;
     }
 
+    /** {@inheritDoc} */
     @Override
     public MonitorConfig getConfig() {
         TagList contextTags = context.getTags();
@@ -75,6 +93,7 @@ public abstract class AbstractContextualMonitor<T,M extends Monitor<T>>
             .build();
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Monitor<?>> getMonitors() {
         return ImmutableList.<Monitor<?>>copyOf(monitors.values());

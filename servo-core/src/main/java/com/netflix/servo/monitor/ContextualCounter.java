@@ -23,14 +23,23 @@ import com.google.common.base.Function;
 
 import com.netflix.servo.tag.TaggingContext;
 
-import java.util.concurrent.atomic.AtomicLong;
+/**
+ * Composite that maintains separate simple counters for each distinct set of tags returned by the
+ * tagging context.
+ */
+public class ContextualCounter extends AbstractContextualMonitor<Long, Counter> implements Counter {
 
-public class ContextualCounter extends AbstractContextualMonitor<Long,Counter> implements Counter {
-
+    /**
+     * Create a new instance of the counter.
+     *
+     * @param config      shared configuration
+     * @param context     provider for context specific tags
+     * @param newMonitor  function to create new counters
+     */
     public ContextualCounter(
             MonitorConfig config,
             TaggingContext context,
-            Function<MonitorConfig,Counter> newMonitor) {
+            Function<MonitorConfig, Counter> newMonitor) {
         super(config, context, newMonitor);
     }
 

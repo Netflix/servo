@@ -22,6 +22,9 @@ package com.netflix.servo.monitor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.SortedTagList;
+
 import java.util.List;
 
 import org.testng.annotations.*;
@@ -33,21 +36,25 @@ public class MonitorsTest {
     public void testAddMonitorFields() throws Exception {
         List<Monitor<?>> monitors = Lists.newArrayList();
         ClassWithMonitors obj = new ClassWithMonitors();
-        Monitors.addMonitorFields(monitors, null, obj);
-        Monitors.addMonitorFields(monitors, "foo", obj);
+
+        TagList tags = SortedTagList.builder().withTag("abc", "def").build();
+
+        Monitors.addMonitorFields(monitors, null, obj, tags);
+        Monitors.addMonitorFields(monitors, "foo", obj, null);
         //System.out.println(monitors);
         assertEquals(monitors.size(), 8);
 
         Monitor<?> m = monitors.get(0);
         assertEquals(m.getConfig().getTags().getTag("class").getValue(), "ClassWithMonitors");
+        assertEquals(m.getConfig().getTags().getTag("abc").getValue(), "def");
     }
 
     @Test
     public void testAddAnnotatedFields() throws Exception {
         List<Monitor<?>> monitors = Lists.newArrayList();
         ClassWithMonitors obj = new ClassWithMonitors();
-        Monitors.addAnnotatedFields(monitors, null, obj);
-        Monitors.addAnnotatedFields(monitors, "foo", obj);
+        Monitors.addAnnotatedFields(monitors, null, obj, null);
+        Monitors.addAnnotatedFields(monitors, "foo", obj, null);
         //System.out.println(monitors);
         assertEquals(monitors.size(), 8);
     }

@@ -39,8 +39,8 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultMonitorRegistry.class);
     private static final String CLASS_NAME = DefaultMonitorRegistry.class.getCanonicalName();
     private static final String REGISTRY_CLASS_PROP = CLASS_NAME + ".registryClass";
-    private static final MonitorRegistry INSTANCE =new DefaultMonitorRegistry();
-    private static final String DEFAULT_REGISTRY_NAME = "Servo Default";
+    private static final MonitorRegistry INSTANCE = new DefaultMonitorRegistry();
+    private static final String DEFAULT_REGISTRY_NAME = "com.netflix.servo";
 
     private final MonitorRegistry registry;
 

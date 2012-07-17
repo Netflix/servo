@@ -44,7 +44,7 @@
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <module name="JavadocMethod">
-          <property name="scope" value="package"/>
+          <property name="scope" value="public"/>
           <property name="allowMissingParamTags" value="true"/>
           <property name="allowMissingThrowsTags" value="true"/>
           <property name="allowMissingReturnTag" value="true"/>
@@ -76,7 +76,9 @@
 
         <!-- Checks for imports                              -->
         <!-- See http://checkstyle.sf.net/config_import.html -->
-        <module name="AvoidStarImport"/>
+        <module name="AvoidStarImport">
+          <property name="allowStaticMemberImports" value="true"/>
+        </module>
         <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
@@ -86,7 +88,7 @@
         <!-- See http://checkstyle.sf.net/config_sizes.html -->
         <module name="LineLength">
           <!-- what is a good max value? -->
-          <property name="max" value="120"/>
+          <property name="max" value="100"/>
           <!-- ignore lines like "$File: //depot/... $" -->
           <property name="ignorePattern" value="\$File.*\$"/>
           <property name="severity" value="info"/>
@@ -157,7 +159,9 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier"/>
+        <module name="VisibilityModifier">
+          <property name="protectedAllowed" value="true"/>
+        </module>
 
 
         <!-- Miscellaneous other checks.                   -->

@@ -21,7 +21,6 @@ package com.netflix.servo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.monitor.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +36,12 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Set<AnnotatedObject> objects;
     private final Set<Monitor<?>> monitors;
 
     /**
      * Creates a new instance.
      */
     public BasicMonitorRegistry() {
-        objects = Collections.synchronizedSet(new HashSet<AnnotatedObject>());
         monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
     }
 

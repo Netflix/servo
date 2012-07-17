@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import com.google.common.base.Objects;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,7 +36,7 @@ public class MinGauge extends AbstractMonitor<Long>
 
     /** Creates a new instance of the gauge. */
     public MinGauge(MonitorConfig config) {
-        super(config);
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
     }
 
     /** Update the min if the provided value is smaller than the current min. */
@@ -54,7 +56,8 @@ public class MinGauge extends AbstractMonitor<Long>
     /** {@inheritDoc} */
     @Override
     public Long getAndResetValue() {
-        return min.getAndSet(Long.MAX_VALUE);
+        long v = min.getAndSet(Long.MAX_VALUE);
+        return (v == Long.MAX_VALUE) ? 0L : v;
     }
 
     /** {@inheritDoc} */

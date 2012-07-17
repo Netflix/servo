@@ -36,7 +36,7 @@ public final class BasicCounter extends AbstractMonitor<Long> implements Counter
     /**
      * Creates a new instance of the counter.
      */
-    public BasicCounter(MonitorConfig config){
+    public BasicCounter(MonitorConfig config) {
         super(config.withAdditionalTag(DataSourceType.COUNTER));
     }
 

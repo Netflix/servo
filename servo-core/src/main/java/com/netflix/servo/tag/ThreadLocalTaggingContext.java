@@ -29,7 +29,14 @@ public final class ThreadLocalTaggingContext implements TaggingContext {
 
     private final ThreadLocal<TagList> context = new ThreadLocal<TagList>();
 
-    public ThreadLocalTaggingContext() {
+    private static final ThreadLocalTaggingContext INSTANCE = new ThreadLocalTaggingContext();
+
+    /** Get the instance. */
+    public static ThreadLocalTaggingContext getInstance() {
+        return INSTANCE;
+    }
+
+    private ThreadLocalTaggingContext() {
     }
 
     /** Set the tags to be associated with the current thread. */
