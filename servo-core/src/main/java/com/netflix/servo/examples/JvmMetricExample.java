@@ -20,7 +20,19 @@
 package com.netflix.servo.examples;
 
 import com.google.common.collect.Maps;
-import com.netflix.servo.publish.*;
+
+import com.netflix.servo.publish.BasicMetricFilter;
+import com.netflix.servo.publish.CounterToRateMetricTransform;
+import com.netflix.servo.publish.FileMetricObserver;
+import com.netflix.servo.publish.JmxMetricPoller;
+import com.netflix.servo.publish.LocalJmxConnector;
+import com.netflix.servo.publish.MetricFilter;
+import com.netflix.servo.publish.MetricObserver;
+import com.netflix.servo.publish.MetricPoller;
+import com.netflix.servo.publish.PollRunnable;
+import com.netflix.servo.publish.PollScheduler;
+import com.netflix.servo.publish.PrefixMetricFilter;
+import com.netflix.servo.publish.RegexMetricFilter;
 
 import javax.management.ObjectName;
 import java.io.File;
@@ -32,10 +44,14 @@ import java.util.regex.Pattern;
  * Example of collecting arbitrary JMX metrics, in this case the standard
  * metrics exposed under java.lang by the JVM.
  */
-public class JvmMetricExample {
+public final class JvmMetricExample {
+
+    private JvmMetricExample() {
+    }
+
     public static void main(String[] args) throws Exception {
         // Filter used to identify metrics that are counters
-        NavigableMap<String,MetricFilter> counters = Maps.newTreeMap();
+        NavigableMap<String, MetricFilter> counters = Maps.newTreeMap();
 
         // ClassLoadingMXBean
         counters.put("LoadedClassCount", BasicMetricFilter.MATCH_ALL);
@@ -89,7 +105,7 @@ public class JvmMetricExample {
             "jvmstats", new File("."));
 
         // Sampling interval
-        long samplingInterval = 10;
+        final long samplingInterval = 10;
         TimeUnit samplingUnit = TimeUnit.SECONDS;
 
         // Transform used to convert counter metrics into a rate per second

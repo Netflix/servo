@@ -24,11 +24,11 @@ package com.netflix.servo.tag;
  */
 public interface Tag {
     /** Returns the key corresponding to this tag. */
-    public String getKey();
+    String getKey();
 
     /** Returns the value corresponding to this tag. */
-    public String getValue();
+    String getValue();
 
     /** Returns the string representation of this tag. */
-    public String tagString();
+    String tagString();
 }

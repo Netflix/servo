@@ -30,6 +30,9 @@ public interface TagList extends Iterable<Tag> {
     /** Returns the tag matching a given key or null if not match is found. */
     Tag getTag(String key);
 
+    /** Returns the value matching a given key or null if not match is found. */
+    String getValue(String key);
+
     /** Returns true if this list has a tag with the given key. */
     boolean containsKey(String key);
 
@@ -43,5 +46,5 @@ public interface TagList extends Iterable<Tag> {
     Iterator<Tag> iterator();
 
     /** Returns a map containing a copy of the tags in this list. */
-    Map<String,String> asMap();
+    Map<String, String> asMap();
 }

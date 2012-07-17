@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import com.google.common.base.Objects;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,7 +35,7 @@ public class MaxGauge extends AbstractMonitor<Long>
 
     /** Creates a new instance of the gauge. */
     public MaxGauge(MonitorConfig config) {
-        super(config);
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
     }
 
     /** Update the max if the provided value is larger than the current max. */

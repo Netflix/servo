@@ -19,7 +19,11 @@
  */
 package com.netflix.servo.examples;
 
-import javax.management.*;
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -29,7 +33,10 @@ import java.util.Set;
 /**
  * JMX client that grabs the MonitoredResources.
  */
-public class JmxClientExample {
+public final class JmxClientExample {
+
+    private JmxClientExample() {
+    }
 
     private static final int INDENT_SPACES = 4;
 
@@ -66,7 +73,7 @@ public class JmxClientExample {
 
         MBeanAttributeInfo[] attrs = con.getMBeanInfo(objName).getAttributes();
         if (attrs != null) {
-            String attrNames[] = new String[attrs.length];
+            String[] attrNames = new String[attrs.length];
             for (int i = 0; i < attrNames.length; ++i) {
                 attrNames[i] = attrs[i].getName();
             }

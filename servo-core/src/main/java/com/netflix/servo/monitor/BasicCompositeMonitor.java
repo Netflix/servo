@@ -21,11 +21,7 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList;
-
-import java.lang.reflect.Field;
 
 import java.util.List;
 
@@ -38,6 +34,13 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
     private final MonitorConfig config;
     private final List<Monitor<?>> monitors;
 
+    /**
+     * Create a new composite.
+     *
+     * @param config    configuration for the composite. It is recommended that the configuration
+     *                  shares common tags with the sub-monitors, but it is not enforced.
+     * @param monitors  list of sub-monitors
+     */
     public BasicCompositeMonitor(MonitorConfig config, List<Monitor<?>> monitors) {
         this.config = Preconditions.checkNotNull(config);
         this.monitors = ImmutableList.copyOf(monitors);
@@ -61,9 +64,7 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
         return monitors;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof BasicCompositeMonitor)) {
@@ -73,9 +74,7 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
         return config.equals(m.getConfig()) && monitors.equals(m.getMonitors());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(config, monitors);

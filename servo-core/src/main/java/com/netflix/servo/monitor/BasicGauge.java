@@ -22,8 +22,9 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A gauge implementation that invokes a specified callable to get the current value.
@@ -33,9 +34,12 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
 
     /**
      * Creates a new instance of the gauge.
+     *
+     * @param config    configuration for this monitor
+     * @param function  a function used to fetch the value on demand
      */
     public BasicGauge(MonitorConfig config, Callable<T> function) {
-        super(config);
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
         this.function = function;
     }
 

@@ -24,17 +24,21 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
 
 public final class SortedTagList implements TagList {
 
     public static final SortedTagList EMPTY = new Builder().build();
 
-    private final SortedMap<String,Tag> tagSortedMap;
+    private final SortedMap<String, Tag> tagSortedMap;
     private final int size;
 
     public static final class Builder {
-        private final Map<String,Tag> data = Maps.newHashMap();
+        private final Map<String, Tag> data = Maps.newHashMap();
 
         public Builder withTags(Collection<Tag> tagsCollection) {
             for (Tag t : tagsCollection) {
@@ -43,7 +47,7 @@ public final class SortedTagList implements TagList {
             return this;
         }
 
-        public Builder withTags(TagList tags){
+        public Builder withTags(TagList tags) {
             for (Tag t : tags) {
                 data.put(t.getKey(), t);
             }
@@ -69,49 +73,43 @@ public final class SortedTagList implements TagList {
         this.size = tagSortedMap.size();
     }
 
-    /**
-     * Returns the tag matching a given key or null if not match is found.
-     */
+    /** {@inheritDoc} */
     @Override
     public Tag getTag(String key) {
         return tagSortedMap.get(key);
     }
 
-    /**
-     * Returns true if this list has a tag with the given key.
-     */
+    /** {@inheritDoc} */
+    public String getValue(String key) {
+        final Tag t = tagSortedMap.get(key);
+        return (t == null) ? null : t.getValue();
+    }
+
+    /** {@inheritDoc} */
     @Override
     public boolean containsKey(String key) {
         return tagSortedMap.containsKey(key);
     }
 
-    /**
-     * Returns true if this list is emtpy.
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isEmpty() {
         return tagSortedMap.isEmpty();
     }
 
-    /**
-     * Returns the number of tags in this list.
-     */
+    /** {@inheritDoc} */
     @Override
     public int size() {
         return size;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Iterator<Tag> iterator() {
         return tagSortedMap.values().iterator();
     }
 
-    /**
-     * Returns a map containing a copy of the tags in this list.
-     */
+    /** {@inheritDoc} */
     @Override
     public Map<String, String> asMap() {
         Map<String, String> stringMap = new HashMap<String, String>(size());
@@ -121,7 +119,7 @@ public final class SortedTagList implements TagList {
         return stringMap;
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 

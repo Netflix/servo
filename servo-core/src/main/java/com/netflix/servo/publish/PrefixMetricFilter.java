@@ -35,7 +35,7 @@ public final class PrefixMetricFilter implements MetricFilter {
 
     private final String tagKey;
     private final MetricFilter root;
-    private final NavigableMap<String,MetricFilter> filters;
+    private final NavigableMap<String, MetricFilter> filters;
 
     /**
      * Creates a new prefix filter.
@@ -49,7 +49,7 @@ public final class PrefixMetricFilter implements MetricFilter {
     public PrefixMetricFilter(
             String tagKey,
             MetricFilter root,
-            NavigableMap<String,MetricFilter> filters) {
+            NavigableMap<String, MetricFilter> filters) {
         this.tagKey = tagKey;
         this.root = root;
         this.filters = filters;
@@ -71,12 +71,12 @@ public final class PrefixMetricFilter implements MetricFilter {
             return root.matches(config);
         } else {
             String start = value.substring(0, 1);
-            NavigableMap<String,MetricFilter> candidates =
+            NavigableMap<String, MetricFilter> candidates =
                 filters.subMap(start, true, value, true).descendingMap();
             if (candidates.isEmpty()) {
                 return root.matches(config);
             } else {
-                for (Map.Entry<String,MetricFilter> e : candidates.entrySet()) {
+                for (Map.Entry<String, MetricFilter> e : candidates.entrySet()) {
                     if (value.startsWith(e.getKey())) {
                         return e.getValue().matches(config);
                     }

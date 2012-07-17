@@ -20,16 +20,15 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
+
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
+import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
-import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.NumericMonitor;
 import com.netflix.servo.monitor.ResettableMonitor;
-import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.TagList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +40,7 @@ import java.util.List;
  */
 public final class MonitorRegistryMetricPoller implements MetricPoller {
 
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(MonitorRegistryMetricPoller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorRegistryMetricPoller.class);
 
     private final MonitorRegistry registry;
 

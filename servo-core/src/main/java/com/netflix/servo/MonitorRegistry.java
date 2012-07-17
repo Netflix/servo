@@ -19,7 +19,6 @@
  */
 package com.netflix.servo;
 
-import com.netflix.servo.annotations.AnnotatedObject;
 import com.netflix.servo.monitor.Monitor;
 
 import java.util.Set;

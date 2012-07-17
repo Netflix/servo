@@ -19,21 +19,24 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.annotations.AnnotatedObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.lang.management.ManagementFactory;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
@@ -53,17 +56,17 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      * server.
      */
     public JmxMonitorRegistry(String name) {
+        this.name = name;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
-        this.name = name;
     }
 
-    private void register(ObjectName name, DynamicMBean mbean)
+    private void register(ObjectName objectName, DynamicMBean mbean)
             throws Exception {
-        if (mBeanServer.isRegistered(name)) {
-            mBeanServer.unregisterMBean(name);
+        if (mBeanServer.isRegistered(objectName)) {
+            mBeanServer.unregisterMBean(objectName);
         }
-        mBeanServer.registerMBean(mbean, name);
+        mBeanServer.registerMBean(mbean, objectName);
     }
 
     /**
@@ -79,10 +82,11 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public void register(Monitor<?> monitor) {
-
-        MonitorModelMBean bean = MonitorModelMBean.newInstance(name, monitor);
         try {
-            mBeanServer.registerMBean(bean.getMBean(), bean.getObjectName());
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            for (MonitorMBean bean : beans) {
+                register(bean.getObjectName(), bean);
+            }
             monitors.add(monitor);
         } catch (Exception e) {
             LOG.warn("Unable to register Monitor:" + monitor.getConfig(), e);
@@ -95,7 +99,10 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void unregister(Monitor<?> monitor) {
         try {
-            mBeanServer.unregisterMBean(MonitorModelMBean.createObjectName(name, monitor.getConfig()));
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            for (MonitorMBean bean : beans) {
+                mBeanServer.unregisterMBean(bean.getObjectName());
+            }
             monitors.remove(monitor);
         } catch (Exception e) {
             LOG.warn("Unable to un-register Monitor:" + monitor.getConfig(), e);

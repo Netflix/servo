@@ -30,25 +30,27 @@ public class BasicStopwatch implements Stopwatch {
     private AtomicLong startTime = new AtomicLong(0L);
     private AtomicLong endTime = new AtomicLong(0L);
 
+    /** Create a new stopwatch with no associated timer. */
     public BasicStopwatch() {
-        this.timer = null;
+        this(null);
     }
 
+    /**
+     * Create a new stopwatch with no associated timer.
+     *
+     * @param timer  associated timer to record the duration when stopped
+     */
     public BasicStopwatch(Timer timer) {
         this.timer = timer;
     }
 
-    /**
-     * Start the stopwatch.
-     */
+    /** {@inheritDoc} */
     @Override
     public void start() {
         startTime.set(System.nanoTime());
     }
 
-    /**
-     * Stop the stopwatch.
-     */
+    /** {@inheritDoc} */
     @Override
     public void stop() {
         endTime.set(System.nanoTime());
@@ -57,30 +59,22 @@ public class BasicStopwatch implements Stopwatch {
         }
     }
 
-    /**
-     * Reset the stopwatch so that it can be used again.
-     */
+    /** {@inheritDoc} */
     @Override
     public void reset() {
         startTime = new AtomicLong(0L);
         endTime = new AtomicLong(0L);
     }
 
-    /**
-     * Get the duration of time the stopwatch was running.
-     *
-     * @param timeUnit
-     * @return duration in specified time unit.
-     */
+    /** {@inheritDoc} */
     @Override
     public long getDuration(TimeUnit timeUnit) {
         return timeUnit.convert(getDuration(), TimeUnit.NANOSECONDS);
     }
 
     /**
-     * Get the duration in the default TimeUnit which is nano-seconds.
-     *
-     * @return
+     * Returns the duration in nanoseconds. No checks are performed to ensure that the stopwatch
+     * has been properly started and stopped before executing this method.
      */
     @Override
     public long getDuration() {

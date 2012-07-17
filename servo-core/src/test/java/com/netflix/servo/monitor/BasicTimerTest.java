@@ -62,13 +62,15 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
         assertEquals(c.getMax().longValue(), 84L);
 
         for (Monitor<?> m : c.getMonitors()) {
-            long v = (Long) ((ResettableMonitor<?>) m).getAndResetValue();
-            assertNotEquals(v, 0L);
+            if (m instanceof ResettableMonitor<?>) {
+                long v = (Long) ((ResettableMonitor<?>) m).getAndResetValue();
+                assertNotEquals(v, 0L);
+            }
         }
 
-        assertEquals(c.getValue().longValue(), 0L);
-        assertEquals(c.getTotalTime().longValue(), 0L);
-        assertEquals(c.getCount().longValue(), 0L);
+        assertEquals(c.getValue().longValue(), 49L);
+        assertEquals(c.getTotalTime().longValue(), 147L);
+        assertEquals(c.getCount().longValue(), 3L);
         assertEquals(c.getMin().longValue(), 0L);
         assertEquals(c.getMax().longValue(), 0L);
     }

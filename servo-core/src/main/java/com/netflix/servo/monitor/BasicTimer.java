@@ -27,7 +27,6 @@ import com.netflix.servo.tag.Tag;
 
 import java.util.List;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,8 +69,8 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         final MonitorConfig unitConfig = config.withAdditionalTag(unitTag);
         timeUnit = unit;
 
-        totalTime = new ResettableCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
-        count = new ResettableCounter(unitConfig.withAdditionalTag(STAT_COUNT));
+        totalTime = new BasicCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
+        count = new BasicCounter(unitConfig.withAdditionalTag(STAT_COUNT));
         min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
         max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
         monitors = ImmutableList.<Monitor<?>>of(totalTime, count, min, max);
@@ -108,8 +107,8 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     /** {@inheritDoc} */
     @Override
-    public void record(long duration, TimeUnit timeUnit) {
-        record(this.timeUnit.convert(duration, timeUnit));
+    public void record(long duration, TimeUnit unit) {
+        record(this.timeUnit.convert(duration, unit));
     }
 
     /** {@inheritDoc} */
@@ -119,12 +118,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return (cnt == 0) ? 0L : totalTime.getValue() / cnt;
     }
 
-    /** Get the total time for all updates since the last reset. */
+    /** Get the total time for all updates. */
     public Long getTotalTime() {
         return totalTime.getValue();
     }
 
-    /** Get the number of updates since the last reset. */
+    /** Get the total number of updates. */
     public Long getCount() {
         return count.getValue();
     }

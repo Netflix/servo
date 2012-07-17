@@ -33,15 +33,23 @@ import java.util.concurrent.TimeUnit;
  */
 class MonitoredCache {
 
+    private static final int CACHE_TIME = 10;
+
+    /**
+     * When polling metrics each monitor gets called independently. If we call cache.stats directly
+     * each monitor call will create a new stats object. This supplier is used to control the calls
+     * for updated stats so that typically it will only need to be done once per sampling interval
+     * for all exposed monitors.
+     */
     private final Supplier<CacheStats> statsSupplier;
 
-    MonitoredCache(final Cache<?,?> cache) {
+    MonitoredCache(final Cache<?, ?> cache) {
         final Supplier<CacheStats> supplier = new Supplier<CacheStats>() {
             public CacheStats get() {
                 return cache.stats();
             }
         };
-        statsSupplier = Suppliers.memoizeWithExpiration(supplier, 10, TimeUnit.SECONDS);
+        statsSupplier = Suppliers.memoizeWithExpiration(supplier, CACHE_TIME, TimeUnit.SECONDS);
     }
 
     @com.netflix.servo.annotations.Monitor(name = "averageLoadPenalty", type = GAUGE)

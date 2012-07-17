@@ -31,12 +31,12 @@ import java.lang.reflect.Method;
  */
 class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericMonitor<Number> {
 
-    private final Object obj;
+    private final Object object;
     private final AccessibleObject field;
 
-    AnnotatedNumberMonitor(MonitorConfig config, Object obj, AccessibleObject field) {
+    AnnotatedNumberMonitor(MonitorConfig config, Object object, AccessibleObject field) {
         super(config);
-        this.obj = obj;
+        this.object = object;
         this.field = field;
     }
 
@@ -46,9 +46,9 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericM
         try {
             field.setAccessible(true);
             if (field instanceof Field) {
-                return (Number) ((Field) field).get(obj);
+                return (Number) ((Field) field).get(object);
             } else {
-                return (Number) ((Method) field).invoke(obj);
+                return (Number) ((Method) field).invoke(object);
             }
         } catch (Exception e) {
             throw Throwables.propagate(e);

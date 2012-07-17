@@ -31,12 +31,12 @@ import java.lang.reflect.Method;
  */
 class AnnotatedStringMonitor extends AbstractMonitor<String> {
 
-    private final Object obj;
+    private final Object object;
     private final AccessibleObject field;
 
-    AnnotatedStringMonitor(MonitorConfig config, Object obj, AccessibleObject field) {
+    AnnotatedStringMonitor(MonitorConfig config, Object object, AccessibleObject field) {
         super(config);
-        this.obj = obj;
+        this.object = object;
         this.field = field;
     }
 
@@ -47,9 +47,9 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
         try {
             field.setAccessible(true);
             if (field instanceof Field) {
-                v =  ((Field) field).get(obj);
+                v =  ((Field) field).get(object);
             } else {
-                v = ((Method) field).invoke(obj);
+                v = ((Method) field).invoke(object);
             }
         } catch (Exception e) {
             throw Throwables.propagate(e);

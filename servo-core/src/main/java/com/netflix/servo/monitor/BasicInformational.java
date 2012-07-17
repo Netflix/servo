@@ -19,6 +19,8 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import com.google.common.base.Objects;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,12 +34,12 @@ public final class BasicInformational extends AbstractMonitor<String> implements
     /**
      * Creates a new instance of the counter.
      */
-    public BasicInformational(MonitorConfig config){
-        super(config);
+    public BasicInformational(MonitorConfig config) {
+        super(config.withAdditionalTag(DataSourceType.INFORMATIONAL));
     }
 
     /** Set the value to show for this monitor. */
-    public void setValue(String value){
+    public void setValue(String value) {
         info.set(value);
     }
 

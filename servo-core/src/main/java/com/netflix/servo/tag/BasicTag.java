@@ -100,7 +100,7 @@ public final class BasicTag implements Tag {
         return new BasicTag(k, v);
     }
 
-    public String tagString(){
+    public String tagString() {
         return toString();
     }
 }

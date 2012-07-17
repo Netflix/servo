@@ -20,17 +20,17 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
+
 import com.netflix.servo.Metric;
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -103,8 +103,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
      * @param queueSize   maximum size of the update queue, if the queue fills
      *                    up older entries will be dropped
      */
-    public AsyncMetricObserver(
-            String name, MetricObserver observer, int queueSize) {
+    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
         this(name, observer, queueSize, Long.MAX_VALUE);
     }
 
@@ -114,11 +113,12 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
         TimestampedUpdate update = new TimestampedUpdate(now, metrics);
 
         boolean result = updateQueue.offer(update);
-        int maxAttempts = 5;
-        while (!result && maxAttempts > 0) {
+        final int maxAttempts = 5;
+        int attempts = 0;
+        while (!result && attempts < maxAttempts) {
             updateQueue.remove();
             result = updateQueue.offer(update);
-            --maxAttempts;
+            ++attempts;
         }
 
         if (!result) {
@@ -127,7 +127,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     }
 
     /**
-     * Stop the background thread that pushes updates to the wrapped observer. 
+     * Stop the background thread that pushes updates to the wrapped observer.
      */
     public void stop() {
         stopUpdateThread = true;
@@ -146,7 +146,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
             }
 
             wrappedObserver.update(update.getMetrics());
-        } catch (InterruptedException ie){
+        } catch (InterruptedException ie) {
             LOGGER.warn("interrupted while adding to queue, update dropped");
             incrementFailedCount();
         } catch (Throwable t) {
