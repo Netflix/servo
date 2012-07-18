@@ -39,8 +39,8 @@ public class MonitorsTest {
 
         TagList tags = SortedTagList.builder().withTag("abc", "def").build();
 
-        Monitors.addMonitorFields(monitors, null, obj, tags);
-        Monitors.addMonitorFields(monitors, "foo", obj, null);
+        Monitors.addMonitorFields(monitors, null, tags, obj, obj.getClass());
+        Monitors.addMonitorFields(monitors, "foo", null, obj, obj.getClass());
         //System.out.println(monitors);
         assertEquals(monitors.size(), 8);
 
@@ -53,8 +53,8 @@ public class MonitorsTest {
     public void testAddAnnotatedFields() throws Exception {
         List<Monitor<?>> monitors = Lists.newArrayList();
         ClassWithMonitors obj = new ClassWithMonitors();
-        Monitors.addAnnotatedFields(monitors, null, obj, null);
-        Monitors.addAnnotatedFields(monitors, "foo", obj, null);
+        Monitors.addAnnotatedFields(monitors, null, null, obj, obj.getClass());
+        Monitors.addAnnotatedFields(monitors, "foo", null, obj, obj.getClass());
         //System.out.println(monitors);
         assertEquals(monitors.size(), 8);
     }
@@ -71,5 +71,13 @@ public class MonitorsTest {
     public void testNewObjectMonitorWithBadAnnotation() throws Exception {
         ClassWithBadAnnotation obj = new ClassWithBadAnnotation();
         Monitors.newObjectMonitor(obj);
+    }
+
+    @Test
+    public void testNewObjectMonitorWithParentClass() throws Exception {
+        ParentHasMonitors obj = new ParentHasMonitors();
+        List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
+        //System.err.println(monitors);
+        assertEquals(monitors.size(), 10);
     }
 }
