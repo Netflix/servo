@@ -126,8 +126,7 @@ public final class Monitors {
         final TagList tags = getMonitorTags(obj);
 
         List<Monitor<?>> monitors = Lists.newArrayList();
-        addMonitorFields(monitors, id, obj, tags);
-        addAnnotatedFields(monitors, id, obj, tags);
+        addMonitors(monitors, id, tags, obj);
 
         final Class<?> c = obj.getClass();
         final String objectId = (id == null) ? DEFAULT_ID : id;
@@ -190,16 +189,23 @@ public final class Monitors {
         return m;
     }
 
+    /** Extract all monitors across class heirarchy. */
+    static void addMonitors(List<Monitor<?>> monitors, String id, TagList tags, Object obj) {
+        for (Class<?> c = obj.getClass(); c != null; c = c.getSuperclass()) {
+            addMonitorFields(monitors, id, tags, obj, c);
+            addAnnotatedFields(monitors, id, tags, obj, c);
+        }
+    }
+
     /**
      * Extract all fields of {@code obj} that are of type {@link Monitor} and add them to
      * {@code monitors}.
      */
-    static void addMonitorFields(List<Monitor<?>> monitors, String id, Object obj, TagList tags) {
+    static void addMonitorFields(
+            List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
         try {
-            Class<?> c = obj.getClass();
-
             SortedTagList.Builder builder = SortedTagList.builder();
-            builder.withTag("class", c.getSimpleName());
+            builder.withTag("class", obj.getClass().getSimpleName());
             if (tags != null) {
                 builder.withTags(tags);
             }
@@ -224,16 +230,16 @@ public final class Monitors {
      * Extract all fields/methods of {@code obj} that have a monitor annotation and add them to
      * {@code monitors}.
      */
-    static void addAnnotatedFields(List<Monitor<?>> monitors, String id, Object obj, TagList tags) {
+    static void addAnnotatedFields(
+            List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
         final Class<com.netflix.servo.annotations.Monitor> annoClass =
             com.netflix.servo.annotations.Monitor.class;
         try {
-            Class<?> c = obj.getClass();
             Field[] fields = c.getDeclaredFields();
             for (Field field : fields) {
                 final com.netflix.servo.annotations.Monitor anno = field.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(c, id, anno, tags);
+                    final MonitorConfig config = newConfig(obj.getClass(), id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, field));
                     } else {
@@ -247,7 +253,7 @@ public final class Monitors {
             for (Method method : methods) {
                 final com.netflix.servo.annotations.Monitor anno = method.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(c, id, anno, tags);
+                    final MonitorConfig config = newConfig(obj.getClass(), id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, method));
                     } else {
