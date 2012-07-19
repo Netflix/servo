@@ -91,11 +91,14 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         int batchCount = 1;
 
         while (metrics.size() > 0) {
-            batch.add(metrics.remove(0));
-
-            if (batchCount++ % batchSize == 0) {
-                cloudWatch.putMetricData(createPutRequest(batch));
-                batch.clear();
+            Metric m = metrics.remove(0);
+            if (m.hasNumberValue()) {
+                batch.add(m);
+    
+                if (batchCount++ % batchSize == 0) {
+                    cloudWatch.putMetricData(createPutRequest(batch));
+                    batch.clear();
+                }
             }
         }
 
@@ -122,7 +125,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                 .withDimensions(createDimensions(metric.getConfig().getTags()))
                 .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
                 .withTimestamp(new Date(metric.getTimestamp()))
-                .withValue(Double.valueOf(metric.getValue().doubleValue()));
+                .withValue(Double.valueOf(metric.getNumberValue().doubleValue()));
         //TODO Need to convert into reasonable units based on DataType
     }
 

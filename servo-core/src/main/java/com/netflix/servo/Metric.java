@@ -30,7 +30,7 @@ import com.netflix.servo.tag.TagList;
 public final class Metric {
     private final MonitorConfig config;
     private final long timestamp;
-    private final Number value;
+    private final Object value;
 
     /**
      * Creates a new instance.
@@ -40,7 +40,7 @@ public final class Metric {
      * @param timestamp  point in time when the metric value was sampled
      * @param value      value of the metric
      */
-    public Metric(String name, TagList tags, long timestamp, Number value) {
+    public Metric(String name, TagList tags, long timestamp, Object value) {
         this(new MonitorConfig.Builder(name).withTags(tags).build(), timestamp, value);
     }
 
@@ -51,7 +51,7 @@ public final class Metric {
      * @param timestamp  point in time when the metric value was sampled
      * @param value      value of the metric
      */
-    public Metric(MonitorConfig config, long timestamp, Number value) {
+    public Metric(MonitorConfig config, long timestamp, Object value) {
         this.config = Preconditions.checkNotNull(config, "config cannot be null");
         this.timestamp = timestamp;
         this.value = Preconditions.checkNotNull(value, "value cannot be null (config=%s)", config);
@@ -68,8 +68,20 @@ public final class Metric {
     }
 
     /** Returns the value of the metric. */
-    public Number getValue() {
+    public Object getValue() {
         return value;
+    }
+
+    /**
+     * Returns the value of the metric as a number.
+     */
+    public Number getNumberValue() {
+        return (Number) value;
+    }
+
+    /** Returns true if the value for this metric is numeric. */
+    public boolean hasNumberValue() {
+        return (value instanceof Number);
     }
 
     /** {@inheritDoc} */

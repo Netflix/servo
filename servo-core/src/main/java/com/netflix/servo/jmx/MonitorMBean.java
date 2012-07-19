@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.NumericMonitor;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
@@ -147,9 +148,12 @@ class MonitorMBean implements DynamicMBean {
     }
 
     private MBeanAttributeInfo createAttributeInfo(Monitor<?> m) {
+        final String type = (m instanceof NumericMonitor<?>)
+            ? Number.class.getName()
+            : String.class.getName();
         return new MBeanAttributeInfo(
             "value",
-            "java.lang.Number",
+            type,
             m.getConfig().toString(),
             true,   // isReadable
             false,  // isWritable
