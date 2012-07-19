@@ -89,9 +89,9 @@ project(':servo-aws') {
         compile project(':servo-core')
         // HACK: module name is wrong in internal cache, using wrong name
         // here to temporarily unblock
-        compile 'com.amazon:aws-java-sdk:1.3.11'
+        //compile 'com.amazon:aws-java-sdk:1.3.11'
         // correct dependency to use once repo mess is sorted out
-        //compile 'com.amazonaws:aws-java-sdk:1.3.11'
+        compile 'com.amazonaws:aws-java-sdk:1.3.11'
     }
 }
 
