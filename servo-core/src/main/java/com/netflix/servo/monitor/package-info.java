@@ -19,7 +19,7 @@
  */
 
 /**
- * Subinterfaces and implementations for {@link Monitor}.
+ * Subinterfaces and implementations for {@link com.netflix.servo.monitor.Monitor}.
  */
 package com.netflix.servo.monitor;
 

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
  * objects will be used to export the data to JMX. For details about the
- * representation in JMX see {@link MonitoredResource}.
+ * representation in JMX see {@link MonitorMBean}.
  */
 public final class JmxMonitorRegistry implements MonitorRegistry {
 
