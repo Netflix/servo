@@ -36,6 +36,7 @@ import java.lang.reflect.Method;
 
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Some helper functions for creating monitor objects.
@@ -47,8 +48,14 @@ public final class Monitors {
 
     /** Function to create basic timers. */
     private static class TimerFactory implements Function<MonitorConfig, Timer> {
+        private final TimeUnit unit;
+
+        public TimerFactory(TimeUnit unit) {
+            this.unit = unit;
+        }
+
         public Timer apply(MonitorConfig config) {
-            return new BasicTimer(config);
+            return new BasicTimer(config, unit);
         }
     }
 
@@ -59,7 +66,6 @@ public final class Monitors {
         }
     }
 
-    private static final TimerFactory TIMER_FUNCTION = new TimerFactory();
     private static final CounterFactory COUNTER_FUNCTION = new CounterFactory();
 
     private Monitors() {
@@ -69,7 +75,7 @@ public final class Monitors {
      * Create a new timer with only the name specified.
      */
     public static Timer newTimer(String name) {
-        return new BasicTimer(MonitorConfig.builder(name).build());
+        return newTimer(name, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -77,8 +83,23 @@ public final class Monitors {
      * sub-monitors for each distinct set of tags returned from the context on an update operation.
      */
     public static Timer newTimer(String name, TaggingContext context) {
+        return newTimer(name, TimeUnit.MILLISECONDS, context);
+    }
+
+    /**
+     * Create a new timer with only the name specified.
+     */
+    public static Timer newTimer(String name, TimeUnit unit) {
+        return new BasicTimer(MonitorConfig.builder(name).build(), unit);
+    }
+
+    /**
+     * Create a new timer with a name and context. The returned timer will maintain separate
+     * sub-monitors for each distinct set of tags returned from the context on an update operation.
+     */
+    public static Timer newTimer(String name, TimeUnit unit, TaggingContext context) {
         final MonitorConfig config = MonitorConfig.builder(name).build();
-        return new ContextualTimer(config, context, TIMER_FUNCTION);
+        return new ContextualTimer(config, context, new TimerFactory(unit));
     }
 
     /**
