@@ -61,11 +61,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         this.registry = registry;
     }
 
-    private Number getValue(Monitor<?> monitor, boolean reset) {
+    private Object getValue(Monitor<?> monitor, boolean reset) {
         if (reset && monitor instanceof ResettableMonitor<?>) {
-            return (Number) ((ResettableMonitor<?>) monitor).getAndResetValue();
+            return ((ResettableMonitor<?>) monitor).getAndResetValue();
         } else {
-            return (Number) monitor.getValue();
+            return monitor.getValue();
         }
     }
 
@@ -80,10 +80,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             for (Monitor<?> m : ((CompositeMonitor<?>) monitor).getMonitors()) {
                 getMetrics(metrics, filter, reset, m);
             }
-        } else if (monitor instanceof NumericMonitor<?> && filter.matches(monitor.getConfig())) {
-            Number n = getValue(monitor, reset);
+        } else if (filter.matches(monitor.getConfig())) {
+            Object v = getValue(monitor, reset);
             long now = System.currentTimeMillis();
-            metrics.add(new Metric(monitor.getConfig(), now, n));
+            metrics.add(new Metric(monitor.getConfig(), now, v));
         }
     }
 
