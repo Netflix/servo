@@ -50,7 +50,7 @@ public class CounterToRateMetricTransformTest {
     private Map<String,Double> mkMap(List<List<Metric>> updates) {
         Map<String,Double> map = Maps.newHashMap();
         for (Metric m : updates.get(0)) {
-            map.put(m.getConfig().getName(), m.getValue().doubleValue());
+            map.put(m.getConfig().getName(), m.getNumberValue().doubleValue());
         }
         return map;
     }

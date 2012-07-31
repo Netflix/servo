@@ -125,7 +125,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         }
 
         public CounterValue(Metric m) {
-            this(m.getTimestamp(), m.getValue().doubleValue());
+            this(m.getTimestamp(), m.getNumberValue().doubleValue());
         }
 
         public double computeRate(CounterValue prev) {
