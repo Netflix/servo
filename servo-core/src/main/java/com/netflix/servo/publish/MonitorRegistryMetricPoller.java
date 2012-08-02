@@ -62,10 +62,15 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     }
 
     private Object getValue(Monitor<?> monitor, boolean reset) {
-        if (reset && monitor instanceof ResettableMonitor<?>) {
-            return ((ResettableMonitor<?>) monitor).getAndResetValue();
-        } else {
-            return monitor.getValue();
+        try {
+            if (reset && monitor instanceof ResettableMonitor<?>) {
+                return ((ResettableMonitor<?>) monitor).getAndResetValue();
+            } else {
+                return monitor.getValue();
+            }
+        } catch (Exception e) {
+            LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
+            return null;
         }
     }
 
@@ -82,8 +87,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             }
         } else if (filter.matches(monitor.getConfig())) {
             Object v = getValue(monitor, reset);
-            long now = System.currentTimeMillis();
-            metrics.add(new Metric(monitor.getConfig(), now, v));
+            if (v != null) {
+                long now = System.currentTimeMillis();
+                metrics.add(new Metric(monitor.getConfig(), now, v));
+            }
         }
     }
 
@@ -99,7 +106,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             try {
                 getMetrics(metrics, filter, reset, monitor);
             } catch (Exception e) {
-                LOGGER.warn("failed to get values for {}", e, monitor.getConfig());
+                LOGGER.warn("failed to get values for " + monitor.getConfig(), e);
             }
         }
         return metrics;
