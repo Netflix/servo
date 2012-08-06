@@ -123,9 +123,12 @@ class MonitorMBean implements DynamicMBean {
 
     private ObjectName createObjectName(String domain) {
         try {
+            final String name = monitor.getConfig().getName();
+            final String sanitizedDomain = INVALID_CHARS.matcher(domain).replaceAll("_");
+            final String sanitizedName = INVALID_CHARS.matcher(name).replaceAll("_");
             StringBuilder builder = new StringBuilder();
-            builder.append(domain).append(':');
-            builder.append("name=").append(monitor.getConfig().getName());
+            builder.append(sanitizedDomain).append(':');
+            builder.append("name=").append(sanitizedName);
 
             TagList tags = monitor.getConfig().getTags();
             for (Tag tag : tags) {
