@@ -30,14 +30,20 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         String domain = cleanValue(tags.getTag( JMX_DOMAIN_KEY ), true);
         String type = cleanValue(tags.getTag("Jmx.type"), false);
         String name = cleanValue(tags.getTag("Jmx.name"), false);
+        String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
         String fieldName = cleanupIllegalCharacters(config.getName(), false);
 
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append( domain ).append( "." );
         if(type != null){
-            nameBuilder.append( type ).append(".");}
-        if(name != null)
+            nameBuilder.append( type ).append(".");
+        }
+        if(instanceName != null){
+            nameBuilder.append( instanceName ).append( "." );
+        }
+        if(name != null){
             nameBuilder.append( name ).append( "." );
+        }
         if(fieldName != null){
             nameBuilder.append( fieldName );
         }
