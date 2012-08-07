@@ -66,6 +66,7 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             {
                 socket.close();
                 socket = null;
+                LOGGER.info("Disconnected from graphite server: {}", graphiteServerURI);
             }
         }
         catch ( IOException e )
@@ -99,6 +100,7 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
                 socket.close();
             }
             socket = socketFactory.createSocket(graphiteServerURI.getHost(), graphiteServerURI.getPort());
+            LOGGER.info("Connected to graphite server: {}", graphiteServerURI);
         }
         return socket.isConnected();
     }
@@ -107,15 +109,18 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
     {
         PrintWriter writer = new PrintWriter( socket.getOutputStream() );
 
-        writeMetrics(metrics, writer);
+        int count = writeMetrics(metrics, writer);
 
         writer.flush();
 
         checkNoReturnedData(socket);
+
+        LOGGER.debug("Wrote {} metrics to graphite", count);
     }
 
-    private void writeMetrics(Iterable<Metric> metrics, PrintWriter writer)
+    private int writeMetrics(Iterable<Metric> metrics, PrintWriter writer)
     {
+        int count = 0;
         for ( Metric metric : metrics )
         {
             String publishedName = namingConvention.getName(metric);
@@ -126,9 +131,12 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             }
             sb.append( publishedName ).append( " " );
             sb.append(metric.getValue().toString()).append(" ");
-            sb.append( metric.getTimestamp() / 1000 ).append("\n");
-            writer.write( sb.toString() );
+            sb.append( metric.getTimestamp() / 1000 );
+            LOGGER.debug("{}", sb);
+            writer.write( sb.append("\n").toString() );
+            count++;
         }
+        return count;
     }
 
     /**
