@@ -80,7 +80,9 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             boolean reset,
             Monitor<?> monitor)
             throws Exception {
-        LOGGER.debug("get metrics for: " + monitor);
+        // string generation for metric is slow, should work with placeholders but commenting out
+        // for now until I have time to test
+        //LOGGER.debug("get metrics for: " + monitor);
         if (monitor instanceof CompositeMonitor<?>) {
             for (Monitor<?> m : ((CompositeMonitor<?>) monitor).getMonitors()) {
                 getMetrics(metrics, filter, reset, m);
