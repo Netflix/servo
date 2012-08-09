@@ -22,8 +22,8 @@ package com.netflix.servo.publish;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
-import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.StandardTagKeys;
@@ -33,12 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
-import javax.management.AttributeList;
+import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
 import java.io.IOException;
 import java.util.List;
@@ -158,12 +159,9 @@ public final class JmxMetricPoller implements MetricPoller {
                 matchingNames.add(attrName);
             }
         }
+        List<Attribute> attributeList = safelyLoadAttributes(con, name, matchingNames);
 
-        // Get values for matching attributes
-        int size = matchingNames.size();
-        String[] attrNames = matchingNames.toArray(new String[size]);
-        AttributeList attrs = con.getAttributes(name, attrNames);
-        for (Attribute attr : attrs.asList()) {
+        for (Attribute attr : attributeList) {
             String attrName = attr.getName();
             Object obj = attr.getValue();
             if (obj instanceof CompositeData) {
@@ -224,5 +222,52 @@ public final class JmxMetricPoller implements MetricPoller {
             LOGGER.warn("failed to collect jmx metrics matching: " + query, e);
         }
         return metrics;
+    }
+
+    /**
+     * there are issues loading some JMX attributes on some systems. This protects us from a single bad attribute stopping us
+     * reading any metrics (or just a random sampling) out of the system.
+     */
+    private static List<Attribute> safelyLoadAttributes(MBeanServerConnection server, ObjectName objectName, List<String> matchingNames)
+    {
+        try
+        {
+            // first try batch loading all attributes as this is faster
+            return batchLoadAttributes( server, objectName, matchingNames );
+        }
+        catch ( Exception e )
+        {
+            // JBOSS ticket: https://issues.jboss.org/browse/AS7-4404
+
+            LOGGER.info( "Error batch loading attributes for {} : {}", objectName, e.getMessage() );
+            // some contains (jboss I am looking at you) fail the entire getAttributes request if one is broken
+            // we can get the working attributes if we ask for them individually
+            return individuallyLoadAttributes( server, objectName, matchingNames );
+        }
+    }
+
+    private static List<Attribute> batchLoadAttributes( MBeanServerConnection server, ObjectName objectName,  List<String> matchingNames )
+            throws InstanceNotFoundException, ReflectionException, IOException
+    {
+        return server.getAttributes( objectName, matchingNames.toArray(new String[matchingNames.size()]) ).asList();
+    }
+
+    private static List<Attribute> individuallyLoadAttributes( MBeanServerConnection server, ObjectName objectName, List<String> matchingNames)
+    {
+        List<Attribute> attributes = Lists.newArrayList();
+        for ( String attrName : matchingNames )
+        {
+            try
+            {
+                Object value = server.getAttribute( objectName, attrName );
+                attributes.add( new Attribute( attrName, value ) );
+
+            }
+            catch ( Exception e )
+            {
+                LOGGER.info( "Couldn't load attribute {} for {} : {}", new Object[]{attrName, objectName, e.getMessage()}, e );
+            }
+        }
+        return attributes;
     }
 }
