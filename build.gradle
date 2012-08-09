@@ -91,4 +91,10 @@ project(':servo-aws') {
     }
 }
 
+project(':servo-graphite') {
+    dependencies {
+        compile project(':servo-core')
+    }
+}
+
 
