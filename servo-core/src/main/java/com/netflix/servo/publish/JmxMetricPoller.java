@@ -62,7 +62,7 @@ public final class JmxMetricPoller implements MetricPoller {
     private static final String PROP_KEY_PREFIX = "Jmx";
 
     private final JmxConnector connector;
-    private final ObjectName query;
+    private final List<ObjectName> queries;
     private final MetricFilter counters;
 
     /**
@@ -77,7 +77,24 @@ public final class JmxMetricPoller implements MetricPoller {
     public JmxMetricPoller(
             JmxConnector connector, ObjectName query, MetricFilter counters) {
         this.connector = connector;
-        this.query = query;
+        this.queries = Lists.newArrayList();
+        queries.add(query);
+        this.counters = counters;
+    }
+
+    /**
+     * Creates a new instance that polls mbeans matching the provided object
+     * name patterns.
+     *
+     * @param connector  used to get a connection to an MBeanServer
+     * @param queries    object name patterns for selecting mbeans
+     * @param counters   metrics matching this filter will be treated as
+     *                   counters, all others will be gauges
+     */
+    public JmxMetricPoller(
+            JmxConnector connector, List<ObjectName> queries, MetricFilter counters){
+        this.connector = connector;
+        this.queries = queries;
         this.counters = counters;
     }
 
@@ -212,16 +229,18 @@ public final class JmxMetricPoller implements MetricPoller {
         List<Metric> metrics = Lists.newArrayList();
         try {
             MBeanServerConnection con = connector.getConnection();
-            Set<ObjectName> names = con.queryNames(query, null);
-            for (ObjectName name : names) {
-                try {
-                    getMetrics(con, filter, metrics, name);
-                } catch (JMException e) {
-                    LOGGER.warn("failed to get metrics for: " + name, e);
+            for(ObjectName query : queries){
+                Set<ObjectName> names = con.queryNames(query, null);
+                for (ObjectName name : names) {
+                    try {
+                        getMetrics(con, filter, metrics, name);
+                    } catch (Exception e) {
+                        LOGGER.warn("failed to get metrics for: " + name, e);
+                    }
                 }
             }
-        } catch (IOException e) {
-            LOGGER.warn("failed to collect jmx metrics matching: " + query, e);
+        } catch (Exception e) {
+            LOGGER.warn("failed to collect jmx metrics.", e);
         }
         return metrics;
     }
