@@ -10,6 +10,7 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -50,6 +51,8 @@ class MonitorMBean implements DynamicMBean {
             mbeans.add(new MonitorMBean(domain, monitor));
         }
     }
+
+    private static final Pattern INVALID_CHARS = Pattern.compile("[^a-zA-Z0-9_\\-\\.]");
 
     private final Monitor<?> monitor;
 
@@ -120,13 +123,18 @@ class MonitorMBean implements DynamicMBean {
 
     private ObjectName createObjectName(String domain) {
         try {
+            final String name = monitor.getConfig().getName();
+            final String sanitizedDomain = INVALID_CHARS.matcher(domain).replaceAll("_");
+            final String sanitizedName = INVALID_CHARS.matcher(name).replaceAll("_");
             StringBuilder builder = new StringBuilder();
-            builder.append(domain).append(':');
-            builder.append("name=").append(monitor.getConfig().getName());
+            builder.append(sanitizedDomain).append(':');
+            builder.append("name=").append(sanitizedName);
 
             TagList tags = monitor.getConfig().getTags();
             for (Tag tag : tags) {
-                builder.append(',').append(tag.getKey()).append('=').append(tag.getValue());
+                final String sanitizedKey = INVALID_CHARS.matcher(tag.getKey()).replaceAll("_");
+                final String sanitizedValue = INVALID_CHARS.matcher(tag.getValue()).replaceAll("_");
+                builder.append(',').append(sanitizedKey).append('=').append(sanitizedValue);
             }
             return new ObjectName(builder.toString());
         } catch (Exception e) {
