@@ -28,7 +28,6 @@ import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

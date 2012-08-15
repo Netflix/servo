@@ -227,7 +227,7 @@ public final class JmxMetricPoller implements MetricPoller {
         List<Metric> metrics = Lists.newArrayList();
         try {
             MBeanServerConnection con = connector.getConnection();
-            for(ObjectName query : queries){
+            for (ObjectName query : queries) {
                 Set<ObjectName> names = con.queryNames(query, null);
                 for (ObjectName name : names) {
                     try {
@@ -244,47 +244,42 @@ public final class JmxMetricPoller implements MetricPoller {
     }
 
     /**
-     * there are issues loading some JMX attributes on some systems. This protects us from a single bad attribute stopping us
-     * reading any metrics (or just a random sampling) out of the system.
+     * There are issues loading some JMX attributes on some systems. This protects us from a
+     * single bad attribute stopping us reading any metrics (or just a random sampling) out of
+     * the system.
      */
-    private static List<Attribute> safelyLoadAttributes(MBeanServerConnection server, ObjectName objectName, List<String> matchingNames)
-    {
-        try
-        {
+    private static List<Attribute> safelyLoadAttributes(
+            MBeanServerConnection server, ObjectName objectName, List<String> matchingNames) {
+        try {
             // first try batch loading all attributes as this is faster
-            return batchLoadAttributes( server, objectName, matchingNames );
-        }
-        catch ( Exception e )
-        {
+            return batchLoadAttributes(server, objectName, matchingNames);
+        } catch (Exception e) {
             // JBOSS ticket: https://issues.jboss.org/browse/AS7-4404
 
-            LOGGER.info( "Error batch loading attributes for {} : {}", objectName, e.getMessage() );
-            // some contains (jboss I am looking at you) fail the entire getAttributes request if one is broken
-            // we can get the working attributes if we ask for them individually
-            return individuallyLoadAttributes( server, objectName, matchingNames );
+            LOGGER.info("Error batch loading attributes for {} : {}", objectName, e.getMessage());
+            // some containers (jboss I am looking at you) fail the entire getAttributes request
+            // if one is broken we can get the working attributes if we ask for them individually
+            return individuallyLoadAttributes(server, objectName, matchingNames);
         }
     }
 
-    private static List<Attribute> batchLoadAttributes( MBeanServerConnection server, ObjectName objectName,  List<String> matchingNames )
-            throws InstanceNotFoundException, ReflectionException, IOException
-    {
-        return server.getAttributes( objectName, matchingNames.toArray(new String[matchingNames.size()]) ).asList();
+    private static List<Attribute> batchLoadAttributes(
+            MBeanServerConnection server, ObjectName objectName,  List<String> matchingNames)
+            throws InstanceNotFoundException, ReflectionException, IOException {
+        final String[] namesArray = matchingNames.toArray(new String[matchingNames.size()]);
+        return server.getAttributes(objectName, namesArray).asList();
     }
 
-    private static List<Attribute> individuallyLoadAttributes( MBeanServerConnection server, ObjectName objectName, List<String> matchingNames)
-    {
+    private static List<Attribute> individuallyLoadAttributes(
+            MBeanServerConnection server, ObjectName objectName, List<String> matchingNames) {
         List<Attribute> attributes = Lists.newArrayList();
-        for ( String attrName : matchingNames )
-        {
-            try
-            {
-                Object value = server.getAttribute( objectName, attrName );
-                attributes.add( new Attribute( attrName, value ) );
-
-            }
-            catch ( Exception e )
-            {
-                LOGGER.info( "Couldn't load attribute {} for {} : {}", new Object[]{attrName, objectName, e.getMessage()}, e );
+        for (String attrName : matchingNames) {
+            try {
+                Object value = server.getAttribute(objectName, attrName);
+                attributes.add(new Attribute(attrName, value));
+            } catch (Exception e) {
+                LOGGER.info("Couldn't load attribute {} for {} : {}",
+                    new Object[] {attrName, objectName, e.getMessage()}, e);
             }
         }
         return attributes;

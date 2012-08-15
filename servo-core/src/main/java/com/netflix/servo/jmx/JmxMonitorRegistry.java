@@ -29,7 +29,6 @@ import com.netflix.servo.monitor.MonitorConfig;
 import java.lang.management.ManagementFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import java.util.concurrent.ConcurrentMap;

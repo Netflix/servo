@@ -23,20 +23,12 @@ import com.google.common.collect.Lists;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.annotations.Monitor;
-import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.monitor.BasicCounter;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.monitor.Stopwatch;
 import com.netflix.servo.monitor.Timer;
-import com.netflix.servo.tag.InjectableTag;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
 
-import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.CounterToRateMetricTransform;
 import com.netflix.servo.publish.MemoryMetricObserver;
 import com.netflix.servo.publish.MetricFilter;
@@ -45,16 +37,9 @@ import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Random;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Registers a lot of metrics and configures a poller to query them once a second. Mostly used
@@ -62,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ManyMetricsExample {
 
-    public ManyMetricsExample() {
+    private ManyMetricsExample() {
     }
 
     private static Counter newCounter(int tagsPerMetric, int i) {

@@ -26,7 +26,6 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
-import com.netflix.servo.monitor.NumericMonitor;
 import com.netflix.servo.monitor.ResettableMonitor;
 
 import org.slf4j.Logger;
