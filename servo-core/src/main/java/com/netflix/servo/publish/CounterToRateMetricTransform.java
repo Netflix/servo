@@ -70,7 +70,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
         this.cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(heartbeat, unit)
+            .expireAfterAccess(heartbeat, unit)
             .build();
         cacheMonitor = Monitors.newCacheMonitor(observer.getName(), cache);
     }
@@ -83,6 +83,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
+        LOGGER.debug("received {} metrics", metrics.size());
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
@@ -98,6 +99,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
                 newMetrics.add(m);
             }
         }
+        LOGGER.debug("writing {} metrics to downstream observer", newMetrics.size());
         observer.update(newMetrics);
     }
 
