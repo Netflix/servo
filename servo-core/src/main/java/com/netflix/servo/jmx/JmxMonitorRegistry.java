@@ -20,18 +20,19 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.MapMaker;
 
-import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.MonitorConfig;
 
 import java.lang.management.ManagementFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,7 +53,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(JmxMonitorRegistry.class);
 
     private final MBeanServer mBeanServer;
-    private final Set<Monitor<?>> monitors;
+    private final ConcurrentMap<MonitorConfig, Monitor<?>> monitors;
     private final String name;
 
     private final AtomicBoolean updatePending = new AtomicBoolean(false);
@@ -66,7 +67,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public JmxMonitorRegistry(String name) {
         this.name = name;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
+        monitors = (new MapMaker()).<MonitorConfig, Monitor<?>>makeMap();
     }
 
     private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {
@@ -82,7 +83,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public Collection<Monitor<?>> getRegisteredMonitors() {
         if (updatePending.getAndSet(false)) {
-            monitorList.set(ImmutableList.copyOf(monitors));
+            monitorList.set(ImmutableList.copyOf(monitors.values()));
         }
         return monitorList.get();
     }
@@ -97,7 +98,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             for (MonitorMBean bean : beans) {
                 register(bean.getObjectName(), bean);
             }
-            monitors.add(monitor);
+            monitors.put(monitor.getConfig(), monitor);
             updatePending.set(true);
         } catch (Exception e) {
             LOG.warn("Unable to register Monitor:" + monitor.getConfig(), e);
@@ -114,7 +115,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             for (MonitorMBean bean : beans) {
                 mBeanServer.unregisterMBean(bean.getObjectName());
             }
-            monitors.remove(monitor);
+            monitors.remove(monitor.getConfig());
             updatePending.set(true);
         } catch (Exception e) {
             LOG.warn("Unable to un-register Monitor:" + monitor.getConfig(), e);
