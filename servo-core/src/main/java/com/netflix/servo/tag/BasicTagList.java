@@ -36,8 +36,7 @@ import java.util.Map;
 public final class BasicTagList implements TagList {
 
     /** An empty tag list. */
-    public static final TagList EMPTY =
-        new BasicTagList(ImmutableSet.<Tag>of());
+    public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
 
     private final Map<String, Tag> tagMap;
 
@@ -47,7 +46,7 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        Map<String, Tag> tags = Maps.newHashMap();
+        Map<String, Tag> tags = Maps.newTreeMap();
         for (Tag tag : entries) {
             tags.put(tag.getKey(), tag);
         }
