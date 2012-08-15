@@ -80,6 +80,9 @@ public final class MonitorConfig {
     private final String name;
     private final TagList tags;
 
+    /** Config is immutable, cache the hash code to improve performance. */
+    private final int cachedHashCode;
+
     /**
      * Creates a new instance with a given name and tags. If {@code tags} is
      * null an empty tag list will be used.
@@ -89,6 +92,7 @@ public final class MonitorConfig {
         this.tags = (builder.tags.isEmpty())
             ? SortedTagList.EMPTY
             : SortedTagList.builder().withTags(builder.tags).build();
+        cachedHashCode = Objects.hashCode(name, tags);
     }
 
     /**
@@ -118,7 +122,7 @@ public final class MonitorConfig {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, tags);
+        return cachedHashCode;
     }
 
     /** {@inheritDoc} */

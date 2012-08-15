@@ -20,11 +20,12 @@
 package com.netflix.servo;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.netflix.servo.monitor.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,8 +50,8 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
      * The set of registered Monitor objects.
      */
     @Override
-    public Set<Monitor<?>> getRegisteredMonitors() {
-        return ImmutableSet.copyOf(monitors);
+    public Collection<Monitor<?>> getRegisteredMonitors() {
+        return ImmutableList.copyOf(monitors);
     }
 
     /**

@@ -45,8 +45,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     private final MonitorRegistry registry;
 
     /**
-     * Creates a new instance using
-     * {@link com.netflix.servo.DefaultMonitorRegistry}.
+     * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
      */
     public MonitorRegistryMetricPoller() {
         this(DefaultMonitorRegistry.getInstance());

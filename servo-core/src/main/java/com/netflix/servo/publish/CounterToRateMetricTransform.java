@@ -55,6 +55,8 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
+    private static final String COUNTER_VALUE = DataSourceType.COUNTER.name();
+
     private final MetricObserver observer;
     private final Cache<MonitorConfig, CounterValue> cache;
 
@@ -81,19 +83,17 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
-        List<Metric> newMetrics = Lists.newArrayList();
+        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
-                CounterValue current = new CounterValue(m);
-                CounterValue prev = cache.getIfPresent(m.getConfig());
+                final CounterValue prev = cache.getIfPresent(m.getConfig());
                 if (prev != null) {
-                    Metric rate = new Metric(
-                        m.getConfig(),
-                        m.getTimestamp(),
-                        current.computeRate(prev));
-                    newMetrics.add(rate);
+                    final double rate = prev.computeRate(m);
+                    newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
+                } else {
+                    CounterValue current = new CounterValue(m);
+                    cache.put(m.getConfig(), current);
                 }
-                cache.put(m.getConfig(), current);
             } else {
                 newMetrics.add(m);
             }
@@ -109,15 +109,14 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     }
 
     private boolean isCounter(Metric m) {
-        TagList tags = m.getConfig().getTags();
-        Tag type = tags.getTag(DataSourceType.KEY);
-        String counter = DataSourceType.COUNTER.name();
-        return (type != null && counter.equals(type.getValue()));
+        final TagList tags = m.getConfig().getTags();
+        final String value = tags.getValue(DataSourceType.KEY);
+        return value != null && COUNTER_VALUE.equals(value);
     }
 
     private static class CounterValue {
-        private final long timestamp;
-        private final double value;
+        private long timestamp;
+        private double value;
 
         public CounterValue(long timestamp, double value) {
             this.timestamp = timestamp;
@@ -128,10 +127,17 @@ public final class CounterToRateMetricTransform implements MetricObserver {
             this(m.getTimestamp(), m.getNumberValue().doubleValue());
         }
 
-        public double computeRate(CounterValue prev) {
+        public double computeRate(Metric m) {
+            final long currentTimestamp = m.getTimestamp();
+            final double currentValue = m.getNumberValue().doubleValue();
+
             final double millisPerSecond = 1000.0;
-            double duration = (timestamp - prev.timestamp) / millisPerSecond;
-            double delta = value - prev.value;
+            final double duration = (currentTimestamp - timestamp) / millisPerSecond;
+            final double delta = currentValue - value;
+
+            timestamp = currentTimestamp;
+            value = currentValue;
+
             return (duration <= 0.0 || delta <= 0.0) ? 0.0 : delta / duration;
         }
     }

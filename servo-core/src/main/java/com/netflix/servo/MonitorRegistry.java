@@ -21,7 +21,7 @@ package com.netflix.servo;
 
 import com.netflix.servo.monitor.Monitor;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Registry to keep track of objects with
@@ -31,7 +31,7 @@ public interface MonitorRegistry {
     /**
      * The set of registered Monitor objects.
      */
-    Set<Monitor<?>> getRegisteredMonitors();
+    Collection<Monitor<?>> getRegisteredMonitors();
 
     /**
      * Register a new monitor in the registry.

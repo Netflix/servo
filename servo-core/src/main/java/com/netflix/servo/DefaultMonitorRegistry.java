@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Default registry that delegates all actions to a class specified by the
@@ -87,7 +87,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
      * The set of registered Monitor objects.
      */
     @Override
-    public Set<Monitor<?>> getRegisteredMonitors() {
+    public Collection<Monitor<?>> getRegisteredMonitors() {
         return registry.getRegisteredMonitors();
     }
 

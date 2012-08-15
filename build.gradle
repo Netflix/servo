@@ -74,9 +74,10 @@ subprojects {
         //testRuntime 'org.slf4j:slf4j-jdk14:1.6.3'
     }
 
-    task(run, dependsOn: 'classes', type: JavaExec) {
-        main = 'com.netflix.servo.examples.BasicExample'
+    task(pollLoop, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.ManyMetricsExample'
         classpath = sourceSets.main.runtimeClasspath
+        args = ['10', '25000']
     }
 }
 
