@@ -28,6 +28,7 @@ import com.google.common.collect.Maps;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -50,7 +51,7 @@ public final class BasicTagList implements TagList {
         for (Tag tag : entries) {
             tags.put(tag.getKey(), tag);
         }
-        tagMap = ImmutableMap.copyOf(tags);
+        tagMap = new LinkedHashMap<String, Tag>(tags);
     }
 
     /** {@inheritDoc} */
