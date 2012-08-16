@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Poller for fetching {@link com.netflix.servo.annotations.Monitor} metrics
  * from a monitor registry.
@@ -43,11 +46,18 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     private final MonitorRegistry registry;
 
+    private final long cacheTTL;
+
+    private final AtomicReference<List<Monitor<?>>> cachedMonitors =
+        new AtomicReference<List<Monitor<?>>>();
+
+    private final AtomicLong cacheLastUpdateTime = new AtomicLong(0L);
+
     /**
      * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
      */
     public MonitorRegistryMetricPoller() {
-        this(DefaultMonitorRegistry.getInstance());
+        this(DefaultMonitorRegistry.getInstance(), 0L);
     }
 
     /**
@@ -56,7 +66,18 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param registry  registry to query for annotated objects
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry) {
+        this(registry, 0L);
+    }
+
+    /**
+     * Creates a new instance using the specified registry.
+     *
+     * @param registry  registry to query for annotated objects
+     * @param cacheTTL  how long to cache the filtered monitor list from the registry
+     */
+    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL) {
         this.registry = registry;
+        this.cacheTTL = cacheTTL;
     }
 
     private Object getValue(Monitor<?> monitor, boolean reset) {
@@ -72,22 +93,29 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         }
     }
 
-    private void getMetrics(
-            List<Metric> metrics,
-            MetricFilter filter,
-            boolean reset,
-            Monitor<?> monitor)
-            throws Exception {
+    private void getMonitors(List<Monitor<?>> monitors, MetricFilter filter, Monitor<?> monitor) {
         if (monitor instanceof CompositeMonitor<?>) {
             for (Monitor<?> m : ((CompositeMonitor<?>) monitor).getMonitors()) {
-                getMetrics(metrics, filter, reset, m);
+                getMonitors(monitors, filter, m);
             }
         } else if (filter.matches(monitor.getConfig())) {
-            Object v = getValue(monitor, reset);
-            if (v != null) {
-                long now = System.currentTimeMillis();
-                metrics.add(new Metric(monitor.getConfig(), now, v));
+            monitors.add(monitor);
+        }
+    }
+
+    private void refreshMonitorCache(MetricFilter filter) {
+        final long age = System.currentTimeMillis() - cacheLastUpdateTime.get();
+        if (age > cacheTTL) {
+            List<Monitor<?>> monitors = Lists.newArrayList();
+            for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
+                try {
+                    getMonitors(monitors, filter, monitor);
+                } catch (Exception e) {
+                    LOGGER.warn("failed to get monitors for composite " + monitor.getConfig(), e);
+                }
             }
+            cacheLastUpdateTime.set(System.currentTimeMillis());
+            cachedMonitors.set(monitors);
         }
     }
 
@@ -98,12 +126,14 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter, boolean reset) {
-        List<Metric> metrics = Lists.newArrayList();
-        for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
-            try {
-                getMetrics(metrics, filter, reset, monitor);
-            } catch (Exception e) {
-                LOGGER.warn("failed to get values for " + monitor.getConfig(), e);
+        refreshMonitorCache(filter);
+        List<Monitor<?>> monitors = cachedMonitors.get();
+        List<Metric> metrics = Lists.newArrayListWithCapacity(monitors.size());
+        for (Monitor<?> monitor : monitors) {
+            Object v = getValue(monitor, reset);
+            if (v != null) {
+                long now = System.currentTimeMillis();
+                metrics.add(new Metric(monitor.getConfig(), now, v));
             }
         }
         return metrics;
