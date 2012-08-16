@@ -116,6 +116,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             }
             cacheLastUpdateTime.set(System.currentTimeMillis());
             cachedMonitors.set(monitors);
+            LOGGER.info("cache refreshed, {} monitors matched filter, previous age {} seconds",
+                monitors.size(), age / 1000);
+        } else {
+            LOGGER.debug("cache age of {} seconds is within ttl of {} seconds",
+                age / 1000, cacheTTL / 1000);
         }
     }
 

@@ -32,7 +32,9 @@ import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,6 +50,9 @@ import java.util.concurrent.TimeUnit;
  * decreases from one sample to the next, then we will assume the counter value
  * was reset and send a rate of 0. This is similar to the RRD concept of
  * type DERIVE with a min of 0.
+ *
+ * <p>This class is not thread safe and should generally be wrapped by an async
+ * observer to prevent issues.
  */
 public final class CounterToRateMetricTransform implements MetricObserver {
 
@@ -57,9 +62,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private static final String COUNTER_VALUE = DataSourceType.COUNTER.name();
 
     private final MetricObserver observer;
-    private final Cache<MonitorConfig, CounterValue> cache;
-
-    private final Monitor<?> cacheMonitor;
+    private final Map<MonitorConfig, CounterValue> cache;
 
     /**
      * Creates a new instance with the specified heartbeat interval. The
@@ -68,10 +71,19 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      */
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
-        this.cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(heartbeat, unit)
-            .build();
-        cacheMonitor = Monitors.newCacheMonitor(observer.getName(), cache);
+
+        final long heartbeatMillis = TimeUnit.MILLISECONDS.convert(heartbeat, unit);
+        this.cache = new LinkedHashMap<MonitorConfig, CounterValue>(16, 0.75f, true) {
+            protected boolean removeEldestEntry(Map.Entry<MonitorConfig, CounterValue> eldest) {
+                final long now = System.currentTimeMillis();
+                final long lastMod = eldest.getValue().getTimestamp();
+                final boolean expired = (now - lastMod > heartbeatMillis);
+                if (expired) {
+                    LOGGER.debug("heartbeat interval exceeded, expiring {}", eldest.getKey());
+                }
+                return expired;
+            }
+        };
     }
 
     /** {@inheritDoc} */
@@ -86,7 +98,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
-                final CounterValue prev = cache.getIfPresent(m.getConfig());
+                final CounterValue prev = cache.get(m.getConfig());
                 if (prev != null) {
                     final double rate = prev.computeRate(m);
                     newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
@@ -106,7 +118,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * Clear all cached state of previous counter values.
      */
     public void reset() {
-        cache.invalidateAll();
+        cache.clear();
     }
 
     private boolean isCounter(Metric m) {
@@ -126,6 +138,10 @@ public final class CounterToRateMetricTransform implements MetricObserver {
 
         public CounterValue(Metric m) {
             this(m.getTimestamp(), m.getNumberValue().doubleValue());
+        }
+
+        public long getTimestamp() {
+            return timestamp;
         }
 
         public double computeRate(Metric m) {
