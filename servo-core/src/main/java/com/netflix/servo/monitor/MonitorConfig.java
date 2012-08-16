@@ -29,6 +29,7 @@ import com.netflix.servo.tag.TagList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Configuration settings associated with a monitor. A config consists of a name that is required
@@ -81,7 +82,7 @@ public final class MonitorConfig {
     private final TagList tags;
 
     /** Config is immutable, cache the hash code to improve performance. */
-    private final int cachedHashCode;
+    private final AtomicInteger cachedHashCode = new AtomicInteger(0);
 
     /**
      * Creates a new instance with a given name and tags. If {@code tags} is
@@ -92,7 +93,6 @@ public final class MonitorConfig {
         this.tags = (builder.tags.isEmpty())
             ? BasicTagList.EMPTY
             : new BasicTagList(builder.tags);
-        cachedHashCode = Objects.hashCode(name, tags);
     }
 
     /**
@@ -122,10 +122,20 @@ public final class MonitorConfig {
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * This class is immutable so we cache the hash code after the first time it is computed. The
+     * value 0 is used as an indicator that the hash code has not yet been computed, this means the
+     * cache won't work for a small set of inputs, but the impact should be minimal for a decent
+     * hash function. Similar technique is used for java String class.
+     */
     @Override
     public int hashCode() {
-        return cachedHashCode;
+        int hash = cachedHashCode.get();
+        if (hash == 0) {
+            hash = Objects.hashCode(name, tags);
+            cachedHashCode.set(hash);
+        }
+        return hash;
     }
 
     /** {@inheritDoc} */
