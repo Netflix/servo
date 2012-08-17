@@ -161,6 +161,10 @@ public final class ThreadCpuStats {
 
         writer.printf("Time: %s%n%n", new java.util.Date());
 
+        final long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+        final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
+        writer.printf("Uptime: %s%n%n", toDuration(uptimeNanos));
+
         writer.println("JVM Usage Time: ");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
             "1-min", "5-min", "15-min", "overall", "id", "name");
@@ -173,8 +177,6 @@ public final class ThreadCpuStats {
             "jvm");
         writer.println();
 
-        final long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
-        final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
         final int numProcs = Runtime.getRuntime().availableProcessors();
         writer.println("JVM Usage Percent: ");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
