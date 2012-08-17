@@ -323,7 +323,7 @@ public final class ThreadCpuStats {
                 case 2: cmp = u2.getFifteenMinute() - u1.getFifteenMinute(); break;
                 default: cmp = u2.getOverall() - u1.getOverall(); break;
             }
-            return (int) cmp;
+            return (cmp < 0) ? -1 : ((cmp > 0) ? 1 : 0);
         }
     }
 }
