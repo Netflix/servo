@@ -37,6 +37,9 @@ import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
 
+import com.netflix.servo.util.ThreadCpuStats;
+import com.netflix.servo.util.ThreadCpuStats.CpuUsage;
+
 import java.util.concurrent.TimeUnit;
 
 import java.util.List;
@@ -103,17 +106,29 @@ public class ManyMetricsExample {
 
         startPolling();
 
+        final ThreadCpuStats stats = ThreadCpuStats.getInstance();
+        stats.start();
+
         // Update the counters once in a while
         final Timer t = Monitors.newTimer("updateCounts");
         DefaultMonitorRegistry.getInstance().register(t);
         final long delay = 500L;
+        final int report = 120;
+        int count = 0;
         while (true) {
             final Stopwatch s = t.start();
             try {
                 for (Counter c : counters) {
                     c.increment();
                 }
+
+                if (count % report == 0) {
+                    System.out.println(new java.util.Date());
+                    stats.printThreadCpuUsages();
+                }
+
                 Thread.sleep(delay);
+                ++count;
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
