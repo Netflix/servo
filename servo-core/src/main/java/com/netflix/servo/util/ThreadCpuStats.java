@@ -303,6 +303,7 @@ public final class ThreadCpuStats {
         }
     }
 
+    /** Comparator for sorting cpu usage based on one of the columns. */
     public static enum CpuUsageComparator implements Comparator<CpuUsage> {
         ONE_MINUTE(0),
         FIVE_MINUTE(1),
@@ -315,6 +316,7 @@ public final class ThreadCpuStats {
             this.col = col;
         }
 
+        /** {@inheritDoc} */
         public int compare(CpuUsage u1, CpuUsage u2) {
             long cmp = 0;
             switch (col) {
