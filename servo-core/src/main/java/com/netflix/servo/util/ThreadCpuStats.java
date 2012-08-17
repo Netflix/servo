@@ -73,10 +73,12 @@ public final class ThreadCpuStats {
     }
 
     /** Start collecting cpu stats for the threads. */
-    public void start() {
-        running = true;
-        Thread t = new Thread(new CpuStatRunnable(), "ThreadCpuStatsCollector");
-        t.start();
+    public synchronized void start() {
+        if (!running) {
+            running = true;
+            Thread t = new Thread(new CpuStatRunnable(), "ThreadCpuStatsCollector");
+            t.start();
+        }
     }
 
     /** Stop collecting cpu stats for the threads. */
