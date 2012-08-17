@@ -123,7 +123,6 @@ public class ManyMetricsExample {
                 }
 
                 if (count % report == 0) {
-                    System.out.println(new java.util.Date());
                     stats.printThreadCpuUsages();
                 }
 

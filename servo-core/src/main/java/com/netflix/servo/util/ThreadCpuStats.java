@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
@@ -51,6 +52,10 @@ public final class ThreadCpuStats {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadCpuStats.class);
 
     private static final ThreadCpuStats INSTANCE = new ThreadCpuStats();
+
+    private static final long ONE_MINUTE_NANOS = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MINUTES);
+    private static final long FIVE_MINUTE_NANOS = 5 * ONE_MINUTE_NANOS;
+    private static final long FIFTEEN_MINUTE_NANOS = 15 * ONE_MINUTE_NANOS;
 
     private volatile boolean running = false;
 
@@ -101,6 +106,38 @@ public final class ThreadCpuStats {
         return (total > 0) ? 100.0 * value / total : 0.0;
     }
 
+    private static long append(StringBuilder buf, char label, long unit, long time) {
+        if (time > unit) {
+            long multiple = time / unit;
+            buf.append(multiple).append(label);
+            return time % unit;
+        } else {
+            return time;
+        }
+    }
+
+    /**
+     * Convert time in nanoseconds to a duration string. This is used to provide a more human
+     * readable order of magnitude for the duration. We assume standard fixed size quantites for
+     * all units.
+     */
+    public static String toDuration(long time) {
+        final long second = 1000000000L;
+        final long minute = 60 * second;
+        final long hour = 60 * minute;
+        final long day = 24 * hour;
+        final long week = 7 * day;
+        final StringBuilder buf = new StringBuilder();
+        buf.append('P');
+        time = append(buf, 'W', week, time);
+        time = append(buf, 'D', day, time);
+        buf.append('T');
+        time = append(buf, 'H', week, time);
+        time = append(buf, 'M', minute, time);
+        time = append(buf, 'S', second, time);
+        return buf.toString();
+    }
+
     /**
      * Utility function that dumps the cpu usages for the threads to stdout. Output will be sorted
      * based on the 1-minute usage from highest to lowest.
@@ -121,15 +158,49 @@ public final class ThreadCpuStats {
         final CpuUsage overall = getOverallCpuUsage();
         final List<CpuUsage> usages = getThreadCpuUsages();
         Collections.sort(usages, cmp);
-        writer.printf("%10s %10s %10s %10s   %s%n", "1-min", "5-min", "15-min", "overall", "name");
+
+        writer.printf("Time: %s%n%n", new java.util.Date());
+
+        writer.println("JVM Usage Time: ");
+        writer.printf("%11s %11s %11s %11s   %7s   %s%n",
+            "1-min", "5-min", "15-min", "overall", "id", "name");
+        writer.printf("%11s %11s %11s %11s   %7s   %s%n",
+            toDuration(overall.getOneMinute()),
+            toDuration(overall.getFiveMinute()),
+            toDuration(overall.getFifteenMinute()),
+            toDuration(overall.getOverall()),
+            "-",
+            "jvm");
+        writer.println();
+
+        final long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+        final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
+        final int numProcs = Runtime.getRuntime().availableProcessors();
+        writer.println("JVM Usage Percent: ");
+        writer.printf("%11s %11s %11s %11s   %7s   %s%n",
+            "1-min", "5-min", "15-min", "overall", "id", "name");
+        writer.printf("%10.2f%% %10.2f%% %10.2f%% %10.2f%%   %7s   %s%n",
+            toPercent(overall.getOneMinute(), ONE_MINUTE_NANOS * numProcs),
+            toPercent(overall.getFiveMinute(), FIVE_MINUTE_NANOS * numProcs),
+            toPercent(overall.getFifteenMinute(), FIFTEEN_MINUTE_NANOS * numProcs),
+            toPercent(overall.getOverall(), uptimeNanos * numProcs),
+            "-",
+            "jvm");
+        writer.println();
+
+        writer.println("Breakdown by thread (100% = total cpu usage for jvm):");
+        writer.printf("%11s %11s %11s %11s   %7s   %s%n",
+            "1-min", "5-min", "15-min", "overall", "id", "name");
         for (CpuUsage usage : usages) {
-            writer.printf("%10.2f %10.2f %10.2f %10.2f   %s%n",
+            writer.printf("%10.2f%% %10.2f%% %10.2f%% %10.2f%%   %7d   %s%n",
                 toPercent(usage.getOneMinute(), overall.getOneMinute()),
                 toPercent(usage.getFiveMinute(), overall.getFiveMinute()),
                 toPercent(usage.getFifteenMinute(), overall.getFifteenMinute()),
                 toPercent(usage.getOverall(), overall.getOverall()),
+                usage.getThreadId(),
                 usage.getName());
         }
+        writer.println();
         writer.flush();
     }
 
