@@ -25,6 +25,7 @@ import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.Tags;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -46,12 +47,12 @@ public final class MonitorConfig {
         }
 
         public Builder withTag(String key, String val) {
-            tags.add(new BasicTag(key, val));
+            tags.add(Tags.newTag(key, val));
             return this;
         }
 
         public Builder withTag(Tag tag) {
-            tags.add(new BasicTag(tag.getKey(), tag.getValue()));
+            tags.add(tag);
             return this;
         }
 

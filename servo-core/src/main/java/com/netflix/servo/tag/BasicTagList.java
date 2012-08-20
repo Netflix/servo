@@ -27,6 +27,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,11 +48,12 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        Map<String, Tag> tags = Maps.newTreeMap();
+        final Map<String, Tag> tags = Maps.newHashMap();
         for (Tag tag : entries) {
-            tags.put(tag.getKey(), tag);
+            final Tag t = Tags.internCustom(tag);
+            tags.put(t.getKey(), t);
         }
-        tagMap = new LinkedHashMap<String, Tag>(tags);
+        tagMap = Collections.unmodifiableMap(tags);
     }
 
     /** {@inheritDoc} */
@@ -114,8 +116,11 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof BasicTagList)
-            && tagMap.equals(((BasicTagList) obj).tagMap);
+        if (this == obj) {
+            return true;
+        } else {
+            return (obj instanceof BasicTagList) && tagMap.equals(((BasicTagList) obj).tagMap);
+        }
     }
 
     /** {@inheritDoc} */

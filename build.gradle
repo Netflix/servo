@@ -79,6 +79,12 @@ subprojects {
         classpath = sourceSets.main.runtimeClasspath
         args = ['10', '25000']
     }
+
+    task(createTags, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.TagListExample'
+        classpath = sourceSets.main.runtimeClasspath
+        args = ['10000', '20000']
+    }
 }
 
 project(':servo-core') {

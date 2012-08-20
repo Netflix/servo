@@ -22,6 +22,8 @@ package com.netflix.servo.tag;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Immutable tag.
  */
@@ -29,6 +31,8 @@ public final class BasicTag implements Tag {
 
     private final String key;
     private final String value;
+
+    private final AtomicInteger cachedHashCode = new AtomicInteger(0);
 
     /**
      * Creates a new instance with the specified key and value.
@@ -58,7 +62,9 @@ public final class BasicTag implements Tag {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof BasicTag) {
+        if (this == o) {
+            return true;
+        } else if (o instanceof BasicTag) {
             BasicTag t = (BasicTag) o;
             return key.equals(t.getKey()) && value.equals(t.getValue());
         } else {
@@ -69,7 +75,12 @@ public final class BasicTag implements Tag {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(key, value);
+        int hash = cachedHashCode.get();
+        if (hash == 0) {
+            hash = Objects.hashCode(key, value);
+            cachedHashCode.set(hash);
+        }
+        return hash;
     }
 
     /** {@inheritDoc} */
@@ -79,25 +90,16 @@ public final class BasicTag implements Tag {
     }
 
     /**
-     * Parse a string representing a tag. A tag string should have the format
-     * {@code key=value}. Whitespace at the ends of the key and value will be
-     * removed. Both the key and value must have at least one character.
+     * Parse a string representing a tag. A tag string should have the format {@code key=value}.
+     * Whitespace at the ends of the key and value will be removed. Both the key and value must
+     * have at least one character.
      *
      * @param tagString  string with encoded tag
      * @return           tag parsed from the string
+     * @deprecated       Use Tags.parseTag instead.
      */
     public static BasicTag parseTag(String tagString) {
-        String k, v;
-        int eqIndex = tagString.indexOf("=");
-
-        if (eqIndex < 0) {
-            throw new IllegalArgumentException(
-                "key and value must be separated by '='");
-        }
-
-        k = tagString.substring(0, eqIndex).trim();
-        v = tagString.substring(eqIndex + 1, tagString.length()).trim();
-        return new BasicTag(k, v);
+        return (BasicTag) Tags.parseTag(tagString);
     }
 
     public String tagString() {
