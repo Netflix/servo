@@ -32,9 +32,9 @@ import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
 
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.Tags;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class EchoServerExample {
 
         public TagList getTags(Socket s) {
             String country = COUNTRIES[r.nextInt(COUNTRIES.length)];
-            return SortedTagList.builder().withTag(new BasicTag("Country", country)).build();
+            return SortedTagList.builder().withTag(Tags.newTag("Country", country)).build();
         }
 
         public void run() {

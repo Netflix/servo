@@ -29,6 +29,7 @@ import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.Tags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public final class JmxMetricPoller implements MetricPoller {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(JmxMetricPoller.class);
 
-    private static final Tag CLASS_TAG = new BasicTag(
+    private static final Tag CLASS_TAG = Tags.newTag(
         StandardTagKeys.CLASS_NAME.getKeyName(),
         JmxMetricPoller.class.getCanonicalName());
 
@@ -107,9 +108,9 @@ public final class JmxMetricPoller implements MetricPoller {
         List<Tag> tags = Lists.newArrayList();
         for (Map.Entry<String, String> e : props.entrySet()) {
             String key = PROP_KEY_PREFIX + "." + e.getKey();
-            tags.add(new BasicTag(key, e.getValue()));
+            tags.add(Tags.newTag(key, e.getValue()));
         }
-        tags.add(new BasicTag(DOMAIN_KEY, name.getDomain()));
+        tags.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
         tags.add(CLASS_TAG);
         return SortedTagList.builder().withTags(tags).build();
     }
