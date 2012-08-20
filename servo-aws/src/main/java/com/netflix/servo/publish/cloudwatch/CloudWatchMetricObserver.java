@@ -129,7 +129,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         //TODO Need to convert into reasonable units based on DataType
     }
 
-    List<Dimension> createDimensions(TagList tags) {
+    protected List<Dimension> createDimensions(TagList tags) {
         List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
 
         for (Tag tag : tags) {
