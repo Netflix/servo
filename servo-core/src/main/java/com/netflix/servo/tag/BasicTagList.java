@@ -48,12 +48,12 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        final Map<String, Tag> tags = Maps.newHashMap();
+        final Map<String, Tag> tags = Maps.newTreeMap();
         for (Tag tag : entries) {
             final Tag t = Tags.internCustom(tag);
             tags.put(t.getKey(), t);
         }
-        tagMap = Collections.unmodifiableMap(tags);
+        tagMap = Collections.unmodifiableMap(new LinkedHashMap<String, Tag>(tags));
     }
 
     /** {@inheritDoc} */
