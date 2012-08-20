@@ -90,7 +90,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
         File file = new File(dir, fileFormat.format(new Date()));
         Writer out = null;
         try {
-            LOGGER.debug("writing %d metrics to file %s", metrics.size(), file);
+            LOGGER.debug(String.format("writing %d metrics to file %s", metrics.size(), file));
             OutputStream fileOut = new FileOutputStream(file, true);
             out = new OutputStreamWriter(fileOut, "UTF-8");
             for (Metric m : metrics) {
