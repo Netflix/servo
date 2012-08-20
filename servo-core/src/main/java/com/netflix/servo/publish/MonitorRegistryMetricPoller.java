@@ -20,6 +20,8 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.TimeLimiter;
+import com.google.common.util.concurrent.SimpleTimeLimiter;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
@@ -32,6 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,6 +59,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         new AtomicReference<List<Monitor<?>>>();
 
     private final AtomicLong cacheLastUpdateTime = new AtomicLong(0L);
+
+    // Put limit on fetching the monitor value in-case someone does something silly like call a
+    // remote service inline
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
+    private final TimeLimiter limiter = new SimpleTimeLimiter(service);
 
     /**
      * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
@@ -85,7 +97,8 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             if (reset && monitor instanceof ResettableMonitor<?>) {
                 return ((ResettableMonitor<?>) monitor).getAndResetValue();
             } else {
-                return monitor.getValue();
+                final MonitorValueCallable c = new MonitorValueCallable(monitor);
+                return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
             }
         } catch (Exception e) {
             LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
@@ -142,5 +155,18 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             }
         }
         return metrics;
+    }
+
+    private static class MonitorValueCallable implements Callable<Object> {
+
+        private final Monitor<?> monitor;
+
+        public MonitorValueCallable(Monitor<?> monitor) {
+            this.monitor = monitor;
+        }
+
+        public Object call() throws Exception {
+            return monitor.getValue();
+        }
     }
 }
