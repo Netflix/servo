@@ -20,6 +20,7 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -62,7 +64,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     // Put limit on fetching the monitor value in-case someone does something silly like call a
     // remote service inline
-    private final ExecutorService service = Executors.newSingleThreadExecutor();
+    private final ThreadFactory factory = new ThreadFactoryBuilder()
+            .setDaemon(true)
+            .setNameFormat("ServoMonitorGetValueLimiter-%d")
+            .build();
+    private final ExecutorService service = Executors.newSingleThreadExecutor(factory);
     private final TimeLimiter limiter = new SimpleTimeLimiter(service);
 
     /**
