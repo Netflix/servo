@@ -41,26 +41,29 @@ public final class SortedTagList implements TagList {
         private final Map<String, Tag> data = Maps.newHashMap();
 
         public Builder withTags(Collection<Tag> tagsCollection) {
-            for (Tag t : tagsCollection) {
+            for (Tag tag : tagsCollection) {
+                final Tag t = Tags.internCustom(tag);
                 data.put(t.getKey(), t);
             }
             return this;
         }
 
         public Builder withTags(TagList tags) {
-            for (Tag t : tags) {
+            for (Tag tag : tags) {
+                final Tag t = Tags.internCustom(tag);
                 data.put(t.getKey(), t);
             }
             return this;
         }
 
-        public Builder withTag(Tag t) {
+        public Builder withTag(Tag tag) {
+            final Tag t = Tags.internCustom(tag);
             data.put(t.getKey(), t);
             return this;
         }
 
         public Builder withTag(String key, String value) {
-            return withTag(new BasicTag(key, value));
+            return withTag(Tags.newTag(key, value));
         }
 
         public SortedTagList build() {

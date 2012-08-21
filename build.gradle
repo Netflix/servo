@@ -15,7 +15,7 @@
  */
 
 // Establish version and status
-ext.releaseVersion = '0.4.12' // TEMPLATE: Set to latest release
+ext.releaseVersion = '0.4.14' // TEMPLATE: Set to latest release
 ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
 
 buildscript {
@@ -74,9 +74,16 @@ subprojects {
         testRuntime 'org.slf4j:slf4j-log4j12:1.6.1'
     }
 
-    task(run, dependsOn: 'classes', type: JavaExec) {
-        main = 'com.netflix.servo.examples.BasicExample'
+    task(pollLoop, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.ManyMetricsExample'
         classpath = sourceSets.main.runtimeClasspath
+        args = ['10', '25000']
+    }
+
+    task(createTags, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.TagListExample'
+        classpath = sourceSets.main.runtimeClasspath
+        args = ['10000', '20000']
     }
 }
 

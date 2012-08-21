@@ -22,8 +22,8 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.Tags;
 
 import java.util.List;
 
@@ -38,10 +38,10 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     private static final String STATISTIC = "statistic";
     private static final String UNIT = "unit";
 
-    private static final Tag STAT_TOTAL = new BasicTag(STATISTIC, "totalTime");
-    private static final Tag STAT_COUNT = new BasicTag(STATISTIC, "count");
-    private static final Tag STAT_MIN = new BasicTag(STATISTIC, "min");
-    private static final Tag STAT_MAX = new BasicTag(STATISTIC, "max");
+    private static final Tag STAT_TOTAL = Tags.newTag(STATISTIC, "totalTime");
+    private static final Tag STAT_COUNT = Tags.newTag(STATISTIC, "count");
+    private static final Tag STAT_MIN = Tags.newTag(STATISTIC, "min");
+    private static final Tag STAT_MAX = Tags.newTag(STATISTIC, "max");
 
     private final TimeUnit timeUnit;
 
@@ -65,7 +65,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     public BasicTimer(MonitorConfig config, TimeUnit unit) {
         super(config);
 
-        final Tag unitTag = new BasicTag(UNIT, unit.name());
+        final Tag unitTag = Tags.newTag(UNIT, unit.name());
         final MonitorConfig unitConfig = config.withAdditionalTag(unitTag);
         timeUnit = unit;
 

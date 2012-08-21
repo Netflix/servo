@@ -22,13 +22,15 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.Tags;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Configuration settings associated with a monitor. A config consists of a name that is required
@@ -45,12 +47,12 @@ public final class MonitorConfig {
         }
 
         public Builder withTag(String key, String val) {
-            tags.add(new BasicTag(key, val));
+            tags.add(Tags.newTag(key, val));
             return this;
         }
 
         public Builder withTag(Tag tag) {
-            tags.add(new BasicTag(tag.getKey(), tag.getValue()));
+            tags.add(tag);
             return this;
         }
 
@@ -80,6 +82,9 @@ public final class MonitorConfig {
     private final String name;
     private final TagList tags;
 
+    /** Config is immutable, cache the hash code to improve performance. */
+    private final AtomicInteger cachedHashCode = new AtomicInteger(0);
+
     /**
      * Creates a new instance with a given name and tags. If {@code tags} is
      * null an empty tag list will be used.
@@ -87,8 +92,8 @@ public final class MonitorConfig {
     private MonitorConfig(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
         this.tags = (builder.tags.isEmpty())
-            ? SortedTagList.EMPTY
-            : SortedTagList.builder().withTags(builder.tags).build();
+            ? BasicTagList.EMPTY
+            : new BasicTagList(builder.tags);
     }
 
     /**
@@ -108,6 +113,9 @@ public final class MonitorConfig {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null || !(obj instanceof MonitorConfig)) {
             return false;
         }
@@ -115,10 +123,20 @@ public final class MonitorConfig {
         return name.equals(m.getName()) && tags.equals(m.getTags());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * This class is immutable so we cache the hash code after the first time it is computed. The
+     * value 0 is used as an indicator that the hash code has not yet been computed, this means the
+     * cache won't work for a small set of inputs, but the impact should be minimal for a decent
+     * hash function. Similar technique is used for java String class.
+     */
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, tags);
+        int hash = cachedHashCode.get();
+        if (hash == 0) {
+            hash = Objects.hashCode(name, tags);
+            cachedHashCode.set(hash);
+        }
+        return hash;
     }
 
     /** {@inheritDoc} */

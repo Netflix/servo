@@ -80,13 +80,13 @@ public class CompositeMetricPoller implements MetricPoller {
             metrics = future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
             increment(e, name);
-            LOGGER.warn("uncaught exception from poll method for {}", e, name);
+            LOGGER.warn("uncaught exception from poll method for " + name, e);
         } catch (TimeoutException e) {
             increment(e, name);
-            LOGGER.warn("timeout executing poll method for {}", e, name);
+            LOGGER.warn("timeout executing poll method for " + name, e);
         } catch (InterruptedException e) {
             increment(e, name);
-            LOGGER.warn("interrupted while doing get for {}", e, name);
+            LOGGER.warn("interrupted while doing get for " + name, e);
         }
         return metrics;
     }
