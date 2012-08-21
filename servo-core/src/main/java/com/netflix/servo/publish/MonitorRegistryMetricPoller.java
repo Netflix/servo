@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
@@ -107,10 +108,12 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
                 final MonitorValueCallable c = new MonitorValueCallable(monitor);
                 return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
             }
+        } catch (UncheckedTimeoutException e) {
+            LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
         } catch (Exception e) {
             LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
-            return null;
         }
+        return null;
     }
 
     private void getMonitors(List<Monitor<?>> monitors, MetricFilter filter, Monitor<?> monitor) {
