@@ -53,7 +53,7 @@ public final class PollScheduler {
     public void addPoller(PollRunnable task, long delay, TimeUnit timeUnit) {
         ScheduledExecutorService service = executor.get();
         if (service != null) {
-            service.scheduleAtFixedRate(task, 0, delay, timeUnit);
+            service.scheduleWithFixedDelay(task, 0, delay, timeUnit);
         } else {
             throw new IllegalStateException(
                 "you must start the scheduler before tasks can be submitted");

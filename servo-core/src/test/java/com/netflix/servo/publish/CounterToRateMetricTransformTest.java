@@ -58,36 +58,38 @@ public class CounterToRateMetricTransformTest {
     @Test
     public void testSimpleRate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
-        MetricObserver transform =
-            new CounterToRateMetricTransform(mmo, 120, TimeUnit.SECONDS);
+        MetricObserver transform = new CounterToRateMetricTransform(mmo, 120, TimeUnit.SECONDS);
         Map<String,Double> metrics = null;
 
+        // Make time look like the future to avoid expirations
+        long baseTime = System.currentTimeMillis() + 100000L;
+
         // First sample
-        transform.update(mkList(0, 0));
+        transform.update(mkList(baseTime + 0, 0));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 2);
         assertEquals(metrics.get("m3"), null);
 
         // Delta of 5 in 5 seconds
-        transform.update(mkList(5000, 5));
+        transform.update(mkList(baseTime + 5000, 5));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get("m3"), 1.0, 0.00001);
 
         // Delta of 15 in 5 seconds
-        transform.update(mkList(10000, 20));
+        transform.update(mkList(baseTime + 10000, 20));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get("m3"), 3.0, 0.00001);
 
         // No change from previous sample
-        transform.update(mkList(15000, 20));
+        transform.update(mkList(baseTime + 15000, 20));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get("m3"), 0.0, 0.00001);
 
         // Decrease from previous sample
-        transform.update(mkList(20000, 19));
+        transform.update(mkList(baseTime + 20000, 19));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get("m3"), 0.0, 0.00001);

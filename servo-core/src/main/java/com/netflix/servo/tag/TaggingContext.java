@@ -25,5 +25,6 @@ package com.netflix.servo.tag;
  * for all contextual monitors in a given execution flow.
  */
 public interface TaggingContext {
+    /** Returns the tags for the current execution context. */
     TagList getTags();
 }

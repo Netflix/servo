@@ -28,12 +28,13 @@ import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,16 +50,19 @@ import java.util.concurrent.TimeUnit;
  * decreases from one sample to the next, then we will assume the counter value
  * was reset and send a rate of 0. This is similar to the RRD concept of
  * type DERIVE with a min of 0.
+ *
+ * <p>This class is not thread safe and should generally be wrapped by an async
+ * observer to prevent issues.
  */
 public final class CounterToRateMetricTransform implements MetricObserver {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
-    private final MetricObserver observer;
-    private final Cache<MonitorConfig, CounterValue> cache;
+    private static final String COUNTER_VALUE = DataSourceType.COUNTER.name();
 
-    private final Monitor<?> cacheMonitor;
+    private final MetricObserver observer;
+    private final Map<MonitorConfig, CounterValue> cache;
 
     /**
      * Creates a new instance with the specified heartbeat interval. The
@@ -67,10 +71,19 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      */
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
-        this.cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(heartbeat, unit)
-            .build();
-        cacheMonitor = Monitors.newCacheMonitor(observer.getName(), cache);
+
+        final long heartbeatMillis = TimeUnit.MILLISECONDS.convert(heartbeat, unit);
+        this.cache = new LinkedHashMap<MonitorConfig, CounterValue>(16, 0.75f, true) {
+            protected boolean removeEldestEntry(Map.Entry<MonitorConfig, CounterValue> eldest) {
+                final long now = System.currentTimeMillis();
+                final long lastMod = eldest.getValue().getTimestamp();
+                final boolean expired = (now - lastMod > heartbeatMillis);
+                if (expired) {
+                    LOGGER.debug("heartbeat interval exceeded, expiring {}", eldest.getKey());
+                }
+                return expired;
+            }
+        };
     }
 
     /** {@inheritDoc} */
@@ -81,23 +94,23 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
-        List<Metric> newMetrics = Lists.newArrayList();
+        LOGGER.debug("received {} metrics", metrics.size());
+        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
-                CounterValue current = new CounterValue(m);
-                CounterValue prev = cache.getIfPresent(m.getConfig());
+                final CounterValue prev = cache.get(m.getConfig());
                 if (prev != null) {
-                    Metric rate = new Metric(
-                        m.getConfig(),
-                        m.getTimestamp(),
-                        current.computeRate(prev));
-                    newMetrics.add(rate);
+                    final double rate = prev.computeRate(m);
+                    newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
+                } else {
+                    CounterValue current = new CounterValue(m);
+                    cache.put(m.getConfig(), current);
                 }
-                cache.put(m.getConfig(), current);
             } else {
                 newMetrics.add(m);
             }
         }
+        LOGGER.debug("writing {} metrics to downstream observer", newMetrics.size());
         observer.update(newMetrics);
     }
 
@@ -105,19 +118,18 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * Clear all cached state of previous counter values.
      */
     public void reset() {
-        cache.invalidateAll();
+        cache.clear();
     }
 
     private boolean isCounter(Metric m) {
-        TagList tags = m.getConfig().getTags();
-        Tag type = tags.getTag(DataSourceType.KEY);
-        String counter = DataSourceType.COUNTER.name();
-        return (type != null && counter.equals(type.getValue()));
+        final TagList tags = m.getConfig().getTags();
+        final String value = tags.getValue(DataSourceType.KEY);
+        return value != null && COUNTER_VALUE.equals(value);
     }
 
     private static class CounterValue {
-        private final long timestamp;
-        private final double value;
+        private long timestamp;
+        private double value;
 
         public CounterValue(long timestamp, double value) {
             this.timestamp = timestamp;
@@ -128,10 +140,21 @@ public final class CounterToRateMetricTransform implements MetricObserver {
             this(m.getTimestamp(), m.getNumberValue().doubleValue());
         }
 
-        public double computeRate(CounterValue prev) {
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public double computeRate(Metric m) {
+            final long currentTimestamp = m.getTimestamp();
+            final double currentValue = m.getNumberValue().doubleValue();
+
             final double millisPerSecond = 1000.0;
-            double duration = (timestamp - prev.timestamp) / millisPerSecond;
-            double delta = value - prev.value;
+            final double duration = (currentTimestamp - timestamp) / millisPerSecond;
+            final double delta = currentValue - value;
+
+            timestamp = currentTimestamp;
+            value = currentValue;
+
             return (duration <= 0.0 || delta <= 0.0) ? 0.0 : delta / duration;
         }
     }
