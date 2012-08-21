@@ -69,7 +69,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
      */
     public MonitorRegistryMetricPoller() {
-        this(DefaultMonitorRegistry.getInstance(), 0L);
+        this(DefaultMonitorRegistry.getInstance(), 0L, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -78,7 +78,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param registry  registry to query for annotated objects
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry) {
-        this(registry, 0L);
+        this(registry, 0L, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -86,10 +86,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      *
      * @param registry  registry to query for annotated objects
      * @param cacheTTL  how long to cache the filtered monitor list from the registry
+     * @param unit      time unit for the cache ttl
      */
-    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL) {
+    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit) {
         this.registry = registry;
-        this.cacheTTL = cacheTTL;
+        this.cacheTTL = TimeUnit.MILLISECONDS.convert(cacheTTL, unit);
     }
 
     private Object getValue(Monitor<?> monitor, boolean reset) {
