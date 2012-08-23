@@ -1,5 +1,8 @@
 
 // For Artifactory
+ext.performingRelease = project.hasProperty('release') && Boolean.parseBoolean(project.release)
+def versionPostfix = performingRelease?'':'-SNAPSHOT'
+rootProject.version = "${version}${versionPostfix}"
 rootProject.status = version.contains('-SNAPSHOT')?'snapshot':'release'
 
 subprojects { project ->
