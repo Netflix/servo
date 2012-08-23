@@ -167,6 +167,15 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         return metrics;
     }
 
+    /**
+     * Shutsdown the thread executor used for time limiting the get value calls. It is a good idea
+     * to call this and explicitly cleanup the thread. In most cases the threads will be cleaned
+     * up when the executor is garbage collected if shutdown is not called explicitly.
+     */
+    public void shutdown() {
+        service.shutdownNow();
+    }
+
     private static class MonitorValueCallable implements Callable<Object> {
 
         private final Monitor<?> monitor;
