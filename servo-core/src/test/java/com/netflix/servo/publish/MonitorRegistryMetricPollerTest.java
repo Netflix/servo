@@ -32,6 +32,10 @@ import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
@@ -75,6 +79,51 @@ public class MonitorRegistryMetricPollerTest {
             .withTag(DataSourceType.COUNTER)
             .build();
         assertEquals(metric.getConfig(), expected);
+    }
+
+    @Test
+    public void testShutdown() throws Exception {
+        MonitorRegistry registry = new BasicMonitorRegistry();
+        registry.register(Monitors.newCounter("test"));
+
+        final String threadPrefix = "ServoMonitorGetValueLimiter";
+
+        int baseCount = countThreadsWithName(threadPrefix);
+        MonitorRegistryMetricPoller[] pollers = new MonitorRegistryMetricPoller[10];
+        for (int i = 0; i < pollers.length; ++i) {
+            pollers[i] = new MonitorRegistryMetricPoller(registry);
+            pollers[i].poll(MATCH_ALL);
+        }
+        assertTrue(countThreadsWithName(threadPrefix) >= 10 + baseCount);
+
+        for (int i = 0; i < pollers.length; ++i) {
+            pollers[i].shutdown();
+        }
+        Thread.sleep(1000);
+        assertTrue(countThreadsWithName(threadPrefix) <= baseCount);
+
+        // Verify threads will be cleanup up by gc
+        /*System.err.println("pre-gc: " + countThreadsWithName("ServoMonitorGetValueLimiter"));
+        for (int i = 0; i < pollers.length; ++i) {
+            pollers[i] = null;
+        }
+        System.gc();
+        Thread.sleep(1000);
+        System.err.println("post-gc: " + countThreadsWithName("ServoMonitorGetValueLimiter"));*/
+
+    }
+
+    private int countThreadsWithName(String prefix) {
+        final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+        final long[] ids = bean.getAllThreadIds();
+        final ThreadInfo[] infos = bean.getThreadInfo(ids);
+        int count = 0;
+        for (int i = 0; i < infos.length; ++i) {
+            if (infos[i] != null && infos[i].getThreadName().startsWith(prefix)) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     private static class SlowCounter extends AbstractMonitor<Long> implements Counter {
