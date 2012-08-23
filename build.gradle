@@ -20,17 +20,18 @@ ext.githubProjectName = rootProject.name // TEMPLATE: change to match github pro
 
 buildscript {
     repositories { mavenCentral() }
+    apply from: file('gradle/buildscript.gradle'), to: buildscript 
 }
 
 allprojects {
     repositories { mavenCentral() }
 }
 
-//apply from: file('gradle/release.gradle') // Not fully tested
 apply from: file('gradle/convention.gradle')
 apply from: file('gradle/maven.gradle')
 apply from: file('gradle/check.gradle')
-//apply from: file('gradle/license.gradle') // Waiting for re-release
+apply from: file('gradle/license.gradle')
+apply from: file('gradle/release.gradle')
 
 subprojects {
     // Closure to configure all the POM with extra info, common to all projects
