@@ -1,11 +1,11 @@
 
+// For Artifactory
 ext.performingRelease = project.hasProperty('release') && Boolean.parseBoolean(project.release)
 def versionPostfix = performingRelease?'':'-SNAPSHOT'
-version = "${releaseVersion}${versionPostfix}"
-status = performingRelease?'release':'snapshot'
+rootProject.version = "${version}${versionPostfix}"
+rootProject.status = version.contains('-SNAPSHOT')?'snapshot':'release'
 
-subprojects
-{
+subprojects { project ->
     apply plugin: 'java' // Plugin as major conventions
 
     version = rootProject.version
@@ -13,7 +13,7 @@ subprojects
     sourceCompatibility = 1.6
 
     // GRADLE-2087 workaround, perform after java plugin
-    status = rootProject.status
+    status = version.contains('-SNAPSHOT')?'snapshot':'release'
 
     task sourcesJar(type: Jar, dependsOn:classes) {
         classifier = 'sources'
@@ -49,5 +49,5 @@ task aggregateJavadoc(type: Javadoc) {
 
 // Generate wrapper, which is distributed as part of source to alleviate the need of installing gradle
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-9'
+    gradleVersion = '1.1'
 }
