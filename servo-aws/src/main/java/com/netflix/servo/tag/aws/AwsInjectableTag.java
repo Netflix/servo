@@ -19,7 +19,9 @@
  */
 package com.netflix.servo.tag.aws;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
@@ -40,10 +42,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 /**
- *
  * Group of Tags who's values will be dynamically set at runtime
  * based on amazon api calls.
- *
+ * <p/>
  * The keys for and values of these Tags are consistent with AWS naming.
  */
 public enum AwsInjectableTag implements Tag {
@@ -70,7 +71,6 @@ public enum AwsInjectableTag implements Tag {
     }
 
     /**
-     *
      * @return Amazon compliant string representation of the key.
      */
     public String getKey() {
@@ -78,21 +78,28 @@ public enum AwsInjectableTag implements Tag {
     }
 
     /**
-     *
      * @return value as determined at runtime for the key.
      */
     public String getValue() {
         return value;
     }
 
-    public String tagString(){
+    public String tagString() {
         return key + "=" + value;
     }
 
     static String getAutoScaleGroup() {
         try {
-            File credFile = new File(System.getProperties().getProperty(AwsPropertyKeys.awsCredentialsFile));
-            AmazonAutoScaling autoScalingClient = new AmazonAutoScalingClient(new PropertiesCredentials(credFile));
+            String credFileProperty = System.getProperties().getProperty(AwsPropertyKeys.awsCredentialsFile);
+            AWSCredentials credentials;
+
+            if (credFileProperty != null) {
+                credentials = new PropertiesCredentials(new File(credFileProperty));
+            } else {
+                credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+            }
+
+            AmazonAutoScaling autoScalingClient = new AmazonAutoScalingClient(credentials);
 
             return autoScalingClient.describeAutoScalingInstances(
                     new DescribeAutoScalingInstancesRequest().withInstanceIds(getInstanceId()))
@@ -112,16 +119,9 @@ public enum AwsInjectableTag implements Tag {
         try {
             URL url = new URL(metaDataUrl + path);
             reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line  = null;
-            StringBuilder stringBuilder = new StringBuilder();
-            String ls = System.getProperty("line.separator");
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-            return stringBuilder.toString();
+            return reader.readLine();
         } catch (Exception e) {
-            log.warn("", e);
+            log.warn("Unable to read value from AWS metadata URL", e);
             return undefined;
         } finally {
             Closeables.closeQuietly(reader);
@@ -132,27 +132,27 @@ public enum AwsInjectableTag implements Tag {
         return getUrlValue("/placement/availability-zone");
     }
 
-    static String getAmiId(){
+    static String getAmiId() {
         return getUrlValue("/ami-id");
     }
 
-    static String getInstanceType(){
+    static String getInstanceType() {
         return getUrlValue("/instance-type");
     }
 
-    static String getLocalHostname(){
+    static String getLocalHostname() {
         return getUrlValue("/local-hostname");
     }
 
-    static String getLocalIpv4(){
+    static String getLocalIpv4() {
         return getUrlValue("/local-ipv4");
     }
 
-    static String getPublicHostname(){
+    static String getPublicHostname() {
         return getUrlValue("/public-hostname");
     }
 
-    static String getPublicIpv4(){
+    static String getPublicIpv4() {
         return getUrlValue("/public-ipv4");
     }
 }
