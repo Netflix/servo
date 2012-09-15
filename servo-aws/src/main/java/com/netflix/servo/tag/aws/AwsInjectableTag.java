@@ -40,6 +40,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 /**
  * Group of Tags who's values will be dynamically set at runtime
@@ -118,7 +119,7 @@ public enum AwsInjectableTag implements Tag {
         BufferedReader reader = null;
         try {
             URL url = new URL(metaDataUrl + path);
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            reader = new BufferedReader(new InputStreamReader(url.openStream(), Charset.forName("UTF-8")));
             return reader.readLine();
         } catch (Exception e) {
             log.warn("Unable to read value from AWS metadata URL", e);
