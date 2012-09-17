@@ -20,29 +20,23 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
-import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
-
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.ResettableMonitor;
-
+import com.netflix.servo.tag.StandardTagKeys;
+import com.netflix.servo.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -160,8 +154,14 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         for (Monitor<?> monitor : monitors) {
             Object v = getValue(monitor, reset);
             if (v != null) {
-                long now = System.currentTimeMillis();
-                metrics.add(new Metric(monitor.getConfig(), now, v));
+                long timestamp;
+                Tag timestampTag = monitor.getConfig().getTags().getTag(StandardTagKeys.TIMESTAMP.getKeyName());
+                if (timestampTag != null) {
+                    timestamp = Long.decode(timestampTag.getValue());
+                } else {
+                    timestamp = System.currentTimeMillis();
+                }
+                metrics.add(new Metric(monitor.getConfig(), timestamp, v));
             }
         }
         return metrics;
