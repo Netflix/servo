@@ -27,7 +27,9 @@ public enum StandardTagKeys {
     CLASS_NAME("ClassName"),
 
     /** Monitor id if one is provided via the annotation. */
-    MONITOR_ID("MonitorId");
+    MONITOR_ID("MonitorId"),
+
+    TIMESTAMP("Timestamp");
 
     private String keyName;
 

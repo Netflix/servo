@@ -24,23 +24,11 @@ import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.StandardTagKeys;
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
-import com.netflix.servo.tag.Tags;
+import com.netflix.servo.tag.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.Attribute;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
+import javax.management.*;
 import javax.management.openmbean.CompositeData;
 import java.io.IOException;
 import java.util.List;
@@ -123,9 +111,16 @@ public final class JmxMetricPoller implements MetricPoller {
             String name,
             TagList tags,
             Object value) {
-        long now = System.currentTimeMillis();
         Number num = asNumber(value);
         if (num != null) {
+            long now = 0;
+            Tag timestampTag = tags.getTag(StandardTagKeys.TIMESTAMP.getKeyName());
+            if (timestampTag != null) {
+                now = Long.decode(timestampTag.getValue());
+            } else {
+                now = System.currentTimeMillis();
+            }
+
             TagList newTags = counters.matches(MonitorConfig.builder(name).withTags(tags).build())
                 ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
                 : SortedTagList.builder().withTags(tags).withTag(DataSourceType.GAUGE).build();

@@ -29,6 +29,7 @@ import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 
 import com.google.common.base.Preconditions;
 
+import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
@@ -167,7 +168,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
 
         for (Tag tag : tags) {
-            dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));
+            // Filter out timestamp tags since that will result in unique dimensions for each
+            // datapoint in the AWS console
+            if (!tag.getKey().equals(StandardTagKeys.TIMESTAMP.getKeyName())) {
+                dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));
+            }
         }
 
         return dimensionList;
