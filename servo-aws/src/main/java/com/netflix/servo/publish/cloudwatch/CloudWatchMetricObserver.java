@@ -126,7 +126,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                     try {
                          cloudWatch.putMetricData(createPutRequest(batch));
                     } catch (Exception e) {
-                         log.error("Error while submitting data for metrics : " + Arrays.toString(batch.toArray()), e);
+                         log.error("Error while submitting data for metrics : " batch, e);
                     }
                     batch.clear();
                 }
@@ -137,7 +137,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
             try {
                  cloudWatch.putMetricData(createPutRequest(batch));
             } catch (Exception e) {
-                 log.error("Error while submitting data for metrics : " + Arrays.toString(batch.toArray()), e);
+                 log.error("Error while submitting data for metrics : " + batch, e);
             }
         }
     }
