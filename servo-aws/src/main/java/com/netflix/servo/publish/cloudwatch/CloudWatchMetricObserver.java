@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -61,11 +62,9 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param cloudWatchNamespace Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials) {
-        super(name);
-        cloudWatch = new AmazonCloudWatchClient(credentials);
-        this.cloudWatchNamespace = cloudWatchNamespace;
-        batchSize = 20;
+    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials)
+    {
+        this(name, cloudWatchNamespace, new AmazonCloudWatchClient(credentials));
     }
 
     /**
@@ -75,8 +74,36 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param credentials Amazon credentials.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials, int batchSize) {
+    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials, int batchSize)
+    {
         this(name, cloudWatchNamespace, credentials);
+        this.batchSize = batchSize;
+    }
+
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param cloudwatch AWS cloudwatch.
+     */
+    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AmazonCloudWatch cloudWatch)
+    {
+        super(name);
+        this.cloudWatch = cloudWatch;
+        this.cloudWatchNamespace = cloudWatchNamespace;
+        batchSize = 20;
+    }
+
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param cloudwatch AWS cloudwatch.
+     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+     */
+    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AmazonCloudWatch cloudWatch, int batchSize)
+    {
+        this(name, cloudWatchNamespace, cloudWatch);
         this.batchSize = batchSize;
     }
 
@@ -96,14 +123,22 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                 batch.add(m);
 
                 if (batchCount++ % batchSize == 0) {
-                    cloudWatch.putMetricData(createPutRequest(batch));
+                    try {
+                         cloudWatch.putMetricData(createPutRequest(batch));
+                    } catch (Exception e) {
+                         log.error("Error while submitting data for metrics : " + Arrays.toString(batch.toArray()), e);
+                    }
                     batch.clear();
                 }
             }
         }
 
         if (!batch.isEmpty()) {
-            cloudWatch.putMetricData(createPutRequest(batch));
+            try {
+                 cloudWatch.putMetricData(createPutRequest(batch));
+            } catch (Exception e) {
+                 log.error("Error while submitting data for metrics : " + Arrays.toString(batch.toArray()), e);
+            }
         }
     }
 
