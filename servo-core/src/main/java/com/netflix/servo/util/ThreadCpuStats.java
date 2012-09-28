@@ -121,20 +121,22 @@ public final class ThreadCpuStats {
      * readable order of magnitude for the duration. We assume standard fixed size quantites for
      * all units.
      */
-    public static String toDuration(long time) {
+    public static String toDuration(long inputTime) {
         final long second = 1000000000L;
         final long minute = 60 * second;
         final long hour = 60 * minute;
         final long day = 24 * hour;
         final long week = 7 * day;
+
+        long time = inputTime;
         final StringBuilder buf = new StringBuilder();
         buf.append('P');
         time = append(buf, 'W', week, time);
         time = append(buf, 'D', day, time);
         buf.append('T');
-        time = append(buf, 'H', week, time);
+        time = append(buf, 'H', hour, time);
         time = append(buf, 'M', minute, time);
-        time = append(buf, 'S', second, time);
+        append(buf, 'S', second, time);
         return buf.toString();
     }
 
