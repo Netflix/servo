@@ -52,7 +52,7 @@ subprojects {
     group = 'com.netflix.servo' // TEMPLATE: Set to organization of project
 
     tasks.withType(Compile) { 
-        options.compilerArgs << "-Xlint:unchecked" 
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
     } 
 
     test {
