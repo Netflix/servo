@@ -22,12 +22,18 @@ package com.netflix.servo.aws;
 import com.netflix.servo.annotations.DataSourceType;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
+
 /**
+ * DataSourceTypeToAwsUnit tests.
  * User: gorzell
  * Date: 1/9/12
  * Time: 6:44 PM
  */
 public class DataSourceTypeToAwsUnitTest {
+
+    /**
+     * GetUnit returns the correct unit.
+     */
     @Test
     public void testGetUnit() throws Exception {
         String cs = "Count/Second";

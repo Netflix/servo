@@ -32,37 +32,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * CloudWatchMetricObserver tests.
  * User: gorzell
  * Date: 1/9/12
  * Time: 2:24 PM
  */
 public class CloudWatchMetricObserverTest {
-    private CloudWatchMetricObserver observer = new CloudWatchMetricObserver("testObserver", "testDomain", new BasicAWSCredentials("", ""));
+    private CloudWatchMetricObserver observer = new CloudWatchMetricObserver(
+            "testObserver", "testDomain", new BasicAWSCredentials("", ""));
 
+    private static final int NUM_METRICS = 33;
+    private static final int VALUE = 10;
+
+    /**
+     * Update.
+     */
     @Test
     public void testUpdate() throws Exception {
-        List<Metric> metrics = new ArrayList<Metric>(33);
-        for (int i = 0; i < 33; i++) {
-            metrics.add(new Metric("test", BasicTagList.EMPTY, System.currentTimeMillis(), 10));
+        List<Metric> metrics = new ArrayList<Metric>(NUM_METRICS);
+        for (int i = 0; i < NUM_METRICS; i++) {
+            metrics.add(new Metric("test", BasicTagList.EMPTY, System.currentTimeMillis(), VALUE));
         }
 
-        try{
+        try {
             observer.update(metrics);
-        } catch (AmazonClientException e){
+        } catch (AmazonClientException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * create dimensions.
+     */
     @Test
     public void testCreateDimensions() throws Exception {
 
     }
 
+    /**
+     * create metric datum.
+     */
     @Test
     public void testCreateMetricDatum() throws Exception {
 
     }
 
+    /**
+     * create put request.
+     */
     @Test
     public void testCreatePutRequest() throws Exception {
 
