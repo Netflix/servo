@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Assert;
+
 /**
  * User: gorzell
  * Date: 1/9/12
@@ -66,5 +68,19 @@ public class CloudWatchMetricObserverTest {
     @Test
     public void testCreatePutRequest() throws Exception {
 
+    }
+
+    @Test
+    public void testTruncate() throws Exception {
+        observer.withTruncateEnabled(true);
+        Assert.assertEquals(CloudWatchMetricObserver.LARGEST_SENDABLE, observer.truncate(Double.MAX_VALUE));
+        Assert.assertEquals(- CloudWatchMetricObserver.LARGEST_SENDABLE, observer.truncate(- Double.MAX_VALUE));
+        Assert.assertEquals(0.0, observer.truncate(Double.MIN_VALUE));
+        Assert.assertEquals(0.0, observer.truncate(- Double.MIN_VALUE));
+
+        Assert.assertEquals(1.0, observer.truncate(1.0));
+        Assert.assertEquals(10000.0, observer.truncate(10000.0));
+        Assert.assertEquals(0.0, observer.truncate(0.0));
+        observer.withTruncateEnabled(false);
     }
 }

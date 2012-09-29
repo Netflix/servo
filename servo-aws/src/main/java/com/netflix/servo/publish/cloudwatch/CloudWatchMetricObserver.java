@@ -53,15 +53,16 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * Amazon's docs say they don't accept values smaller than 1E-130, but
      * experimentally 1E-108 is the smallest accepted value.
      */
-    private static final double SMALLEST_SENDABLE = 1E-108;
+    static final double SMALLEST_SENDABLE = 1E-108;
 
     /**
      * Amazon's docs say they don't accept values larger than 1E116, but
      * experimentally 1E108 is the largest accepted value.
      */
-    private static final double LARGEST_SENDABLE = 1E108;
+    static final double LARGEST_SENDABLE = 1E108;
 
     private int batchSize;
+    private boolean truncateEnabled = false;
 
     private final AmazonCloudWatch cloudWatch;
     private final String cloudWatchNamespace;
@@ -177,17 +178,35 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                 .withValue(truncate(metric.getNumberValue()));
         //TODO Need to convert into reasonable units based on DataType
     }
-    
-    private Double truncate(Number numberValue) {
+
+    Double truncate(Number numberValue)
+    {
         // http://docs.amazonwebservices.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html
         Double doubleValue = Double.valueOf(numberValue.doubleValue());
-        if (doubleValue > LARGEST_SENDABLE)
+        if (truncateEnabled)
         {
-            doubleValue = LARGEST_SENDABLE;
-        }
-        else if (doubleValue < SMALLEST_SENDABLE)
-        {
-            doubleValue = SMALLEST_SENDABLE;
+            if (doubleValue >= 0.0)
+            {
+                if (doubleValue > LARGEST_SENDABLE)
+                {
+                    doubleValue = LARGEST_SENDABLE;
+                }
+                else if (doubleValue < SMALLEST_SENDABLE)
+                {
+                    doubleValue = 0.0;
+                }
+            }
+            else
+            {
+                if (doubleValue < -LARGEST_SENDABLE)
+                {
+                    doubleValue = -LARGEST_SENDABLE;
+                }
+                else if (doubleValue > -SMALLEST_SENDABLE)
+                {
+                    doubleValue = 0.0;
+                }
+            }
         }
         return doubleValue;
     }
@@ -200,6 +219,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         }
 
         return dimensionList;
+    }
+    
+    public CloudWatchMetricObserver withTruncateEnabled(boolean truncateEnabled) {
+        this.truncateEnabled = truncateEnabled;
+        return this;
     }
 
 
