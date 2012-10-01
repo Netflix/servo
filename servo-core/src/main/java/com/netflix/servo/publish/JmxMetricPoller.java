@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;

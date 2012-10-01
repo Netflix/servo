@@ -31,11 +31,11 @@ import static org.testng.Assert.assertTrue;
 
 public class SortedTagListTest {
 
-    public static Tag a;
-    public static Tag b;
-    public static Tag c;
+    static final Tag a = new BasicTag("a", "a");
+    static final Tag b = new BasicTag("b", "b");
+    static final Tag c = new BasicTag("c", "c");
 
-    public static Tag[] tagArray = new Tag[3];
+    static final Tag[] tagArray = new Tag[3];
 
     public TagList testListFromStrings;
     public TagList testListFromCollection;
@@ -44,10 +44,6 @@ public class SortedTagListTest {
 
     @BeforeClass
     public void setup() throws Exception {
-        a = new BasicTag("a", "a");
-        b = new BasicTag("b", "b");
-        c = new BasicTag("c", "c");
-
         tagArray[0] = a;
         tagArray[1] = b;
         tagArray[2] = c;

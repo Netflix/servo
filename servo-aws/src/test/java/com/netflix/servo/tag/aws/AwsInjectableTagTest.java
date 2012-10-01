@@ -69,6 +69,7 @@ public class AwsInjectableTagTest {
     @Test(groups = { "aws" })
     public void testGetInstanceType() throws Exception {
         String instanceType = AwsInjectableTag.getInstanceType();
+        assertTrue(instanceType != null);
     }
 
     /**

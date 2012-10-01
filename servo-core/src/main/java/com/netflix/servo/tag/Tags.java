@@ -78,4 +78,7 @@ public final class Tags {
         v = tagString.substring(eqIndex + 1, tagString.length()).trim();
         return newTag(k, v);
     }
+
+    /* Utility class */
+    private Tags() {}
 }

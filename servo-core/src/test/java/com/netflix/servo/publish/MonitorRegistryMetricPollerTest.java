@@ -27,9 +27,6 @@ import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.lang.management.ManagementFactory;
@@ -42,7 +39,6 @@ import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
 import static org.testng.Assert.*;
 
 public class MonitorRegistryMetricPollerTest {
-
     private static final long TEN_SECONDS = 10 * 1000;
     private static final long ONE_MINUTE = 60 * 1000;
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
@@ -145,7 +141,11 @@ public class MonitorRegistryMetricPollerTest {
     
         @Override
         public Long getValue() {
-            try { Thread.sleep(ONE_HOUR); } catch (Exception e) { }
+            try {
+                Thread.sleep(ONE_HOUR); }
+            catch (Exception e) {
+                System.err.println("Ignoring exception " + e.getMessage());
+            }
             return count.get();
         }
     }

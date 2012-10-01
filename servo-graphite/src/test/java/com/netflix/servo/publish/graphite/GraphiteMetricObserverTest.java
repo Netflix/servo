@@ -22,6 +22,8 @@ package com.netflix.servo.publish.graphite;
 import com.netflix.servo.Metric;
 import org.testng.annotations.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +31,13 @@ import static org.testng.Assert.assertEquals;
 
 
 public class GraphiteMetricObserverTest {
+    private String getLocalHostIp() throws UnknownHostException {
+        return InetAddress.getLocalHost().getHostAddress();
+    }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testBadAddress1() throws Exception
-    {
-        new GraphiteMetricObserver( "serverA", "127.0.0.1" );
+    public void testBadAddress1() throws Exception {
+        new GraphiteMetricObserver( "serverA", getLocalHostIp() );
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -43,9 +47,8 @@ public class GraphiteMetricObserverTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testBadAddress3() throws Exception
-    {
-        new GraphiteMetricObserver( "serverA", "socket://127.0.0.1:808" );
+    public void testBadAddress3() throws Exception {
+        new GraphiteMetricObserver( "serverA", "socket://" + getLocalHostIp() + ":808" );
     }
 
     @Test
@@ -54,7 +57,7 @@ public class GraphiteMetricObserverTest {
         SocketReceiverTester receiver = new SocketReceiverTester( 8082 );
         receiver.start();
 
-        GraphiteMetricObserver gw = new GraphiteMetricObserver( "serverA", "127.0.0.1:8082" );
+        GraphiteMetricObserver gw = new GraphiteMetricObserver( "serverA", getLocalHostIp() + ":8082" );
 
         try
         {

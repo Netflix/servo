@@ -48,22 +48,17 @@ public class SocketReceiverTester implements Runnable
     }
 
     @Override
-    public void run()
-    {
-        while ( running )
-        {
-            try
-            {
+    public void run() {
+        while ( running ) {
+            try {
                 s = acceptor.accept();
-                synchronized ( this )
-                {
+                synchronized ( this ) {
                     connected = true;
                     notify();
                 }
-                BufferedReader stream = new BufferedReader( new InputStreamReader( s.getInputStream() ) );
+                BufferedReader stream = new BufferedReader( new InputStreamReader( s.getInputStream(), "UTF-8" ) );
 
-                while ( running )
-                {
+                while ( running ) {
                     String line = stream.readLine();
                     synchronized ( this )
                     {
@@ -72,10 +67,8 @@ public class SocketReceiverTester implements Runnable
                     }
                 }
             }
-            catch ( Exception e )
-            {
-                synchronized ( this )
-                {
+            catch ( IOException e ) {
+                synchronized ( this ) {
                     connected = false;
                     linesWritten = 0;
                     linesRead = 0;
@@ -87,17 +80,14 @@ public class SocketReceiverTester implements Runnable
 
     Thread thread;
 
-    public void start()
-    {
+    public void start() {
         thread = new Thread( this );
         thread.start();
     }
 
-    public void stop() throws Exception
-    {
+    public void stop() throws Exception {
         running = false;
-        if ( s != null )
-        {
+        if ( s != null ) {
             s.close();
         }
         acceptor.close();
@@ -105,17 +95,13 @@ public class SocketReceiverTester implements Runnable
         thread.join();
     }
 
-    public String[] waitForLines( int waitingFor ) throws Exception
-    {
+    public String[] waitForLines( int waitingFor ) throws Exception {
         long start = System.currentTimeMillis();
-        synchronized ( this )
-        {
-            while ( linesWritten < linesRead + waitingFor )
-            {
+        synchronized ( this ) {
+            while ( linesWritten < linesRead + waitingFor ) {
                 if ( !connected )
                     throw new IllegalArgumentException( "Not connected!" );
-                if ( System.currentTimeMillis() - start > 1000 )
-                {
+                if ( System.currentTimeMillis() - start > 1000 ) {
                     throw new InterruptedException( "Timed out!" );
                 }
                 wait( 100 );
@@ -124,15 +110,11 @@ public class SocketReceiverTester implements Runnable
         }
     }
 
-    public void waitForConnected() throws Exception
-    {
+    public void waitForConnected() throws Exception {
         long start = System.currentTimeMillis();
-        synchronized ( this )
-        {
-            while ( !connected )
-            {
-                if ( System.currentTimeMillis() - start > 1000 )
-                {
+        synchronized ( this ) {
+            while ( !connected ) {
+                if ( System.currentTimeMillis() - start > 1000 ) {
                     throw new InterruptedException( "Timed out!" );
                 }
                 wait( 100 );
