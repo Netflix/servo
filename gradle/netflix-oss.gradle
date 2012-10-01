@@ -8,13 +8,10 @@ rootProject {
         }
         def deps = compileConf.dependencies
         def realDep = deps.find { it.group == 'com.amazonaws' && it.name == 'aws-java-sdk' }
-        if (realDep == null) {
-            return
+        if (realDep != null) {
+            def version = realDep.version
+            deps.remove(realDep)
+            project.dependencies.add('compile', "com.amazon:aws-java-sdk:${version}")
         }
-        def version = realDep.version
-        deps.remove(realDep)
-
-        // Add the netflix version
-        project.dependencies.add('compile', "com.amazon:aws-java-sdk:${version}")
     }
 }
