@@ -99,7 +99,7 @@ public class BasicTagListTest {
         assertTrue(!t1.isEmpty());
         assertEquals(t1.size(), 1);
         assertEquals(t1.getTag("foo"), new BasicTag("foo", "bar"));
-        assertEquals(t1.getTag("dee"), null);
+        assertTrue(t1.getTag("dee") == null, "dee is not a tag");
         assertTrue(t1.containsKey("foo"));
         assertTrue(!t1.containsKey("dee"));
     }

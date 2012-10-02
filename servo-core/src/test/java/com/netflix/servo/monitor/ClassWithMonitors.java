@@ -19,10 +19,12 @@
  */
 package com.netflix.servo.monitor;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.netflix.servo.annotations.DataSourceType.*;
+
+@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SS_SHOULD_BE_STATIC",
+        justification = "Values used through reflection")
 public class ClassWithMonitors {
 
     public final Counter c1 = Monitors.newCounter("publicCounter");

@@ -19,30 +19,24 @@
  */
 package com.netflix.servo.util;
 
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Keep track of the cpu usage for threads in the jvm.
@@ -121,20 +115,22 @@ public final class ThreadCpuStats {
      * readable order of magnitude for the duration. We assume standard fixed size quantites for
      * all units.
      */
-    public static String toDuration(long time) {
+    public static String toDuration(long inputTime) {
         final long second = 1000000000L;
         final long minute = 60 * second;
         final long hour = 60 * minute;
         final long day = 24 * hour;
         final long week = 7 * day;
+
+        long time = inputTime;
         final StringBuilder buf = new StringBuilder();
         buf.append('P');
         time = append(buf, 'W', week, time);
         time = append(buf, 'D', day, time);
         buf.append('T');
-        time = append(buf, 'H', week, time);
+        time = append(buf, 'H', hour, time);
         time = append(buf, 'M', minute, time);
-        time = append(buf, 'S', second, time);
+        append(buf, 'S', second, time);
         return buf.toString();
     }
 
@@ -146,6 +142,17 @@ public final class ThreadCpuStats {
         printThreadCpuUsages(System.out, CpuUsageComparator.ONE_MINUTE);
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DM_DEFAULT_ENCODING",
+            justification = "The default encoding is used if UTF-8 is not available.")
+    private static PrintWriter getPrintWriter(OutputStream out) {
+        try {
+            return new PrintWriter(new OutputStreamWriter(out, "UTF-8"), true);
+        } catch (UnsupportedEncodingException e) {
+            // should never happen
+            return new PrintWriter(out, true);
+        }
+    }
+
     /**
      * Utility function that dumps the cpu usages for the threads to stdout. Output will be sorted
      * based on the 1-minute usage from highest to lowest.
@@ -154,12 +161,13 @@ public final class ThreadCpuStats {
      * @param cmp  order to use for the results
      */
     public void printThreadCpuUsages(OutputStream out, CpuUsageComparator cmp) {
-        final PrintWriter writer = new PrintWriter(out, true);
+        final PrintWriter writer = getPrintWriter(out);
         final CpuUsage overall = getOverallCpuUsage();
         final List<CpuUsage> usages = getThreadCpuUsages();
         Collections.sort(usages, cmp);
 
-        writer.printf("Time: %s%n%n", new java.util.Date());
+        final Date now = new Date();
+        writer.printf("Time: %s%n%n", now);
 
         final long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
         final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
@@ -206,7 +214,13 @@ public final class ThreadCpuStats {
         writer.flush();
     }
 
+
+    /** Remove entries if the last update time is over this value */
+    private final static long AGE_LIMIT = 15 * 60 * 1000;
+
     /** Update the stats for all threads and the jvm. */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "REC_CATCH_EXCEPTION",
+            justification = "findBugs wants explicit catch clauses for each of the exceptions thrown. Too verbose until j7.")
     private void updateStats() {
         final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         if (bean.isThreadCpuTimeEnabled()) {
@@ -214,15 +228,15 @@ public final class ThreadCpuStats {
             final long[] ids = bean.getAllThreadIds();
             Arrays.sort(ids);
             long totalCpuTime = 0L;
-            for (int i = 0; i < ids.length; ++i) {
-                long cpuTime = bean.getThreadCpuTime(ids[i]);
+            for (long id : ids) {
+                long cpuTime = bean.getThreadCpuTime(id);
                 if (cpuTime != -1) {
                     totalCpuTime += cpuTime;
-                    CpuUsage usage = threadCpuUsages.get(ids[i]);
+                    CpuUsage usage = threadCpuUsages.get(id);
                     if (usage == null) {
-                        final ThreadInfo info = bean.getThreadInfo(ids[i]);
-                        usage = new CpuUsage(ids[i], info.getThreadName());
-                        threadCpuUsages.put(ids[i], usage);
+                        final ThreadInfo info = bean.getThreadInfo(id);
+                        usage = new CpuUsage(id, info.getThreadName());
+                        threadCpuUsages.put(id, usage);
                     }
                     usage.update(cpuTime);
                 }
@@ -247,16 +261,15 @@ public final class ThreadCpuStats {
             }
 
             // Handle ids in the map that no longer exist:
-            // * Remove old entries if the last update time is over 15 minutes old
+            // * Remove old entries if the last update time is over AGE_LIMIT
             // * Otherwise, update usage so rolling window is correct
-            final long ageLimit = 15 * 60 * 1000;
             final long now = System.currentTimeMillis();
             final Iterator<Map.Entry<Long, CpuUsage>> iter = threadCpuUsages.entrySet().iterator();
             while (iter.hasNext()) {
                 final Map.Entry<Long, CpuUsage> entry = iter.next();
                 final long id = entry.getKey();
                 final CpuUsage usage = entry.getValue();
-                if (now - usage.getLastUpdateTime() > ageLimit) {
+                if (now - usage.getLastUpdateTime() > AGE_LIMIT) {
                     iter.remove();
                 } else if (Arrays.binarySearch(ids, id) < 0) {
                     usage.updateNoValue();
@@ -290,7 +303,7 @@ public final class ThreadCpuStats {
     }
 
     /** Keeps track of the cpu usage for a single thread. */
-    public static class CpuUsage {
+    public static final class CpuUsage {
 
         private static final int BUFFER_SIZE = 16;
 
@@ -391,7 +404,7 @@ public final class ThreadCpuStats {
 
         /** {@inheritDoc} */
         public int compare(CpuUsage u1, CpuUsage u2) {
-            long cmp = 0;
+            long cmp;
             switch (col) {
                 case 0: cmp = u2.getOneMinute() - u1.getOneMinute(); break;
                 case 1: cmp = u2.getFiveMinute() - u1.getFiveMinute(); break;

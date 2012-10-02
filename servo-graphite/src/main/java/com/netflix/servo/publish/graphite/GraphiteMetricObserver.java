@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.net.SocketFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URI;
@@ -124,14 +125,10 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
         return socket.isConnected();
     }
 
-    private void write( Socket socket, Iterable<Metric> metrics ) throws IOException
-    {
-        PrintWriter writer = new PrintWriter( socket.getOutputStream() );
-
+    private void write( Socket socket, Iterable<Metric> metrics ) throws IOException {
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
         int count = writeMetrics(metrics, writer);
-
         writer.flush();
-
         checkNoReturnedData(socket);
 
         LOGGER.debug("Wrote {} metrics to graphite", count);
@@ -177,7 +174,7 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             {
                 LOGGER.warn( "Data returned by graphite server when expecting no response! Probably aimed at "
                         + "wrong socket or server. Make sure you are publishing to the data port, not the dashboard port. " +
-                        "First {} bytes of response: {}", read, new String( buffer, 0, read ) );
+                        "First {} bytes of response: {}", read, new String( buffer, 0, read, "UTF-8" ) );
             }
         }
     }

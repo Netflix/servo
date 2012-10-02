@@ -27,10 +27,7 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -72,14 +69,14 @@ public class FileMetricObserverTest {
         assertEquals(parts[0], "m");
         for (Tag tag : TAGS) {
             String tagStr = tag.getKey() + "=" + tag.getValue();
-            assertTrue(parts[1].indexOf(tagStr) != -1, "missing " + tagStr);
+            assertTrue(parts[1].contains(tagStr), "missing " + tagStr);
         }
         assertEquals(parts[2], "1970-01-01T00:00:00.000");
         assertEquals(Integer.parseInt(parts[3]), i);
     }
 
     private void checkFile(File f) throws IOException {
-        BufferedReader in = new BufferedReader(new FileReader(f));
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
         try {
             int i = 0;
             String line;
