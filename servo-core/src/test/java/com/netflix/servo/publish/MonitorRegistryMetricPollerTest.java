@@ -142,8 +142,8 @@ public class MonitorRegistryMetricPollerTest {
         @Override
         public Long getValue() {
             try {
-                Thread.sleep(ONE_HOUR); }
-            catch (Exception e) {
+                Thread.sleep(ONE_HOUR);
+            } catch (Exception e) {
                 System.err.println("Ignoring exception " + e.getMessage());
             }
             return count.get();

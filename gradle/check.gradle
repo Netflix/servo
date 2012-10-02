@@ -10,7 +10,7 @@ subprojects {
     // FindBugs
     apply plugin: 'findbugs'
     findbugs {
-        ignoreFailures = false // remove when project conforms
+        ignoreFailures = false 
     }
     [findbugsMain, findbugsTest]*.reports {
        xml.enabled false
