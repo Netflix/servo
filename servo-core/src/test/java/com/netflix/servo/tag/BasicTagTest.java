@@ -25,8 +25,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class BasicTagTest {
-    private final String testKey = "foo";
-    private final String testValue = "bar";
+    private final static String testKey = "foo";
+    private final static String testValue = "bar";
     private final BasicTag testTag = new BasicTag(testKey, testValue);
 
     @Test

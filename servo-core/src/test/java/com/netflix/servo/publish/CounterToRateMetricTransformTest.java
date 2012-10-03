@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class CounterToRateMetricTransformTest {
 
@@ -59,7 +60,7 @@ public class CounterToRateMetricTransformTest {
     public void testSimpleRate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
         MetricObserver transform = new CounterToRateMetricTransform(mmo, 120, TimeUnit.SECONDS);
-        Map<String,Double> metrics = null;
+        Map<String,Double> metrics;
 
         // Make time look like the future to avoid expirations
         long baseTime = System.currentTimeMillis() + 100000L;
@@ -68,7 +69,7 @@ public class CounterToRateMetricTransformTest {
         transform.update(mkList(baseTime + 0, 0));
         metrics = mkMap(mmo.getObservations());
         assertEquals(metrics.size(), 2);
-        assertEquals(metrics.get("m3"), null);
+        assertTrue(metrics.get("m3") == null);
 
         // Delta of 5 in 5 seconds
         transform.update(mkList(baseTime + 5000, 5));

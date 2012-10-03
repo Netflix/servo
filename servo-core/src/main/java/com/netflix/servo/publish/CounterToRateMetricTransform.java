@@ -20,14 +20,10 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
-import com.netflix.servo.monitor.Monitor;
-import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +65,8 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * heartbeat should be some multiple of the sampling interval used when
      * collecting the metrics.
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SE_BAD_FIELD_INNER_CLASS",
+            justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
 
