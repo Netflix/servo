@@ -34,18 +34,20 @@ Thumbs.db
 # Editor Files #
 ################
 *~
+*.swp
 
 # Gradle Files #
 ################
 .gradle
+.m2
 
 # Build output directies
 /target
 */target
 /build
 */build
-#
-# # IntelliJ specific files/directories
+
+# IntelliJ specific files/directories
 out
 .idea
 *.ipr

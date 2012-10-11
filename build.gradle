@@ -33,40 +33,6 @@ apply from: file('gradle/license.gradle')
 apply from: file('gradle/release.gradle')
 
 subprojects {
-    // Closure to configure all the POM with extra info, common to all projects
-    pom {
-        project {
-            url "https://github.com/Netflix/${rootProject.githubProjectName}"
-            scm {
-                connection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
-                url "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
-                developerConnection "scm:git:git@github.com:Netflix/${rootProject.githubProjectName}.git"
-            }
-            issueManagement {
-                system 'github'
-                url "https://github.com/Netflix/${rootProject.githubProjectName}/issues"
-            }
-        }
-    }
-
-    group = 'com.netflix.servo' // TEMPLATE: Set to organization of project
-
-    tasks.withType(Compile) { 
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
-    } 
-
-    test {
-        useTestNG()
-        options.excludeGroups = ['aws']
-        testLogging.showStandardStreams = true
-    }
-
-    task(testWithCloud, type: Test) {
-        useTestNG()
-        group = 'verification'
-        options.excludeGroups = [] as Set
-    }
-
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
         compile 'com.google.guava:guava:11.0.1'
