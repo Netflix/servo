@@ -33,7 +33,7 @@ apply from: file('gradle/license.gradle')
 apply from: file('gradle/release.gradle')
 
 subprojects {
-    group = "com.netflix.${githubProjectName}" 
+    group = "com.netflix.servo" 
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
