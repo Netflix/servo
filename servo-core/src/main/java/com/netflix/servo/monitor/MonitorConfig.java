@@ -21,7 +21,6 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -41,6 +40,7 @@ public final class MonitorConfig {
     public static class Builder {
         private final String name;
         private final List<Tag> tags = new LinkedList<Tag>();
+        private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
         public Builder(String name) {
             this.name = name;
@@ -70,6 +70,11 @@ public final class MonitorConfig {
             return this;
         }
 
+        public Builder withPublishingPolicy(PublishingPolicy policy) {
+            this.policy = policy;
+            return this;
+        }
+
         public MonitorConfig build() {
             return new MonitorConfig(this);
         }
@@ -81,6 +86,7 @@ public final class MonitorConfig {
 
     private final String name;
     private final TagList tags;
+    private final PublishingPolicy policy;
 
     /** Config is immutable, cache the hash code to improve performance. */
     private final AtomicInteger cachedHashCode = new AtomicInteger(0);
@@ -94,6 +100,7 @@ public final class MonitorConfig {
         this.tags = (builder.tags.isEmpty())
             ? BasicTagList.EMPTY
             : new BasicTagList(builder.tags);
+        this.policy = builder.policy;
     }
 
     /**
@@ -110,6 +117,13 @@ public final class MonitorConfig {
         return tags;
     }
 
+    /**
+     * Returns the publishing policy
+     */
+    public PublishingPolicy getPublishingPolicy() {
+        return policy;
+    }
+
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
@@ -120,7 +134,7 @@ public final class MonitorConfig {
             return false;
         }
         MonitorConfig m = (MonitorConfig) obj;
-        return name.equals(m.getName()) && tags.equals(m.getTags());
+        return name.equals(m.getName()) && tags.equals(m.getTags()) && policy.equals(m.getPublishingPolicy());
     }
 
     /**
@@ -133,7 +147,7 @@ public final class MonitorConfig {
     public int hashCode() {
         int hash = cachedHashCode.get();
         if (hash == 0) {
-            hash = Objects.hashCode(name, tags);
+            hash = Objects.hashCode(name, tags, policy);
             cachedHashCode.set(hash);
         }
         return hash;
@@ -145,20 +159,28 @@ public final class MonitorConfig {
         return Objects.toStringHelper(this)
                 .add("name", name)
                 .add("tags", tags)
+                .add("policy", policy)
                 .toString();
+    }
+
+    /**
+     * Returns a copy of the current MonitorConfig
+     */
+    private MonitorConfig.Builder copy() {
+        return MonitorConfig.builder(name).withTags(tags).withPublishingPolicy(policy);
     }
 
     /**
      * Returns a copy of the monitor config with an additional tag.
      */
     public MonitorConfig withAdditionalTag(Tag tag) {
-        return MonitorConfig.builder(name).withTags(tags).withTag(tag).build();
+        return copy().withTag(tag).build();
     }
 
     /**
      * Returns a copy of the monitor config with additional tags.
      */
     public MonitorConfig withAdditionalTags(TagList newTags) {
-        return MonitorConfig.builder(name).withTags(tags).withTags(newTags).build();
+        return copy().withTags(newTags).build();
     }
 }
