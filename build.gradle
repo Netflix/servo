@@ -33,7 +33,23 @@ apply from: file('gradle/license.gradle')
 apply from: file('gradle/release.gradle')
 
 subprojects {
-    group = "com.netflix.servo" 
+    group = 'com.netflix.servo' 
+
+    tasks.withType(Compile) { 
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
+    } 
+
+    test {
+        useTestNG()
+        options.excludeGroups = ['aws']
+        testLogging.showStandardStreams = true
+    }
+
+    task(testWithCloud, type: Test) {
+        useTestNG()
+        group = 'verification'
+        options.excludeGroups = [] as Set
+    }
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
