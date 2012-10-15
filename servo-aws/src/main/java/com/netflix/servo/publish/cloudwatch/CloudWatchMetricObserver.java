@@ -73,51 +73,47 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     /**
      *
      * @param name Unique name of the observer.
-     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param namespace Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials)
-    {
-        this(name, cloudWatchNamespace, new AmazonCloudWatchClient(credentials));
+    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials) {
+        this(name, namespace, new AmazonCloudWatchClient(credentials));
     }
 
     /**
      *
      * @param name Unique name of the observer.
-     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param namespace Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AWSCredentials credentials, int batchSize)
-    {
-        this(name, cloudWatchNamespace, credentials);
+    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials, int batchSize) {
+        this(name, namespace, credentials);
         this.batchSize = batchSize;
     }
 
     /**
      *
      * @param name Unique name of the observer.
-     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param namespace Namespace to use in CloudWatch.
      * @param cloudwatch AWS cloudwatch.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AmazonCloudWatch cloudWatch)
-    {
+    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch) {
         super(name);
         this.cloudWatch = cloudWatch;
-        this.cloudWatchNamespace = cloudWatchNamespace;
+        this.cloudWatchNamespace = namespace;
         batchSize = 20;
     }
 
     /**
      *
      * @param name Unique name of the observer.
-     * @param cloudWatchNamespace Namespace to use in CloudWatch.
+     * @param namespace Namespace to use in CloudWatch.
      * @param cloudwatch AWS cloudwatch.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
      */
-    public CloudWatchMetricObserver(String name, String cloudWatchNamespace, AmazonCloudWatch cloudWatch, int batchSize)
-    {
-        this(name, cloudWatchNamespace, cloudWatch);
+    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch, int batchSize) {
+        this(name, namespace, cloudWatch);
         this.batchSize = batchSize;
     }
 
@@ -148,14 +144,10 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         }
     }
 
-    private void putMetricData(List<Metric> batch)
-    {
-        try
-        {
+    private void putMetricData(List<Metric> batch) {
+        try {
             cloudWatch.putMetricData(createPutRequest(batch));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error("Error while submitting data for metrics : " + batch, e);
         }
     }
