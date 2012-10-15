@@ -46,16 +46,23 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     private static final Logger log = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
     /**
-     * Amazon's docs say they don't accept values smaller than 1E-130, but
-     * experimentally 1E-108 is the smallest accepted value.
+     * Experimentally derived value for the largest expononent that can be sent to cloudwatch
+     * without trigger an InvalidParameterValue exception. See CloudWatchValueTest for the test
+     * program that was used.
      */
-    static final double SMALLEST_SENDABLE = 1E-108;
+    private static final int MAX_EXPONENT = 360;
 
     /**
-     * Amazon's docs say they don't accept values larger than 1E116, but
-     * experimentally 1E108 is the largest accepted value.
+     * Experimentally derived value for the smallest expononent that can be sent to cloudwatch
+     * without trigger an InvalidParameterValue exception. See CloudWatchValueTest for the test
+     * program that was used.
      */
-    static final double LARGEST_SENDABLE = 1E108;
+    private static final int MIN_EXPONENT = -360;
+
+    /**
+     * Maximum value that can be represented in cloudwatch.
+     */
+    static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
 
     private int batchSize;
     private boolean truncateEnabled = false;
@@ -175,36 +182,25 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         //TODO Need to convert into reasonable units based on DataType
     }
 
-    Double truncate(Number numberValue)
-    {
+    /**
+     * Adjust a double value so it can be successfully written to cloudwatch. This involves capping
+     * values with large exponents to an experimentally determined max value and converting values
+     * with large negative exponents to 0. In addition, NaN values will be converted to 0.
+     */
+    Double truncate(Number numberValue) {
         // http://docs.amazonwebservices.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html
-        Double doubleValue = Double.valueOf(numberValue.doubleValue());
-        if (truncateEnabled)
-        {
-            if (doubleValue >= 0.0)
-            {
-                if (doubleValue > LARGEST_SENDABLE)
-                {
-                    doubleValue = LARGEST_SENDABLE;
-                }
-                else if (doubleValue < SMALLEST_SENDABLE)
-                {
-                    doubleValue = 0.0;
-                }
-            }
-            else
-            {
-                if (doubleValue < -LARGEST_SENDABLE)
-                {
-                    doubleValue = -LARGEST_SENDABLE;
-                }
-                else if (doubleValue > -SMALLEST_SENDABLE)
-                {
-                    doubleValue = 0.0;
-                }
+        double doubleValue = numberValue.doubleValue();
+        if (truncateEnabled) {
+            final int exponent = Math.getExponent(doubleValue);
+            if (Double.isNaN(doubleValue)) {
+                doubleValue = 0.0;
+            } else if (exponent >= MAX_EXPONENT) {
+                doubleValue = (doubleValue < 0.0) ? -MAX_VALUE : MAX_VALUE;
+            } else if (exponent <= MIN_EXPONENT) {
+                doubleValue = 0.0;
             }
         }
-        return doubleValue;
+        return Double.valueOf(doubleValue);
     }
 
     List<Dimension> createDimensions(TagList tags) {
