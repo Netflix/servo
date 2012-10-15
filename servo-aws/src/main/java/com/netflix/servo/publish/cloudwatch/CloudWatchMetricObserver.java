@@ -47,14 +47,14 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
 
     /**
      * Experimentally derived value for the largest expononent that can be sent to cloudwatch
-     * without trigger an InvalidParameterValue exception. See CloudWatchValueTest for the test
+     * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
      * program that was used.
      */
     private static final int MAX_EXPONENT = 360;
 
     /**
      * Experimentally derived value for the smallest expononent that can be sent to cloudwatch
-     * without trigger an InvalidParameterValue exception. See CloudWatchValueTest for the test
+     * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
      * program that was used.
      */
     private static final int MIN_EXPONENT = -360;

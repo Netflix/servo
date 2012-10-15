@@ -26,14 +26,14 @@ import java.util.*;
  *
  * <pre>
  * ERROR NaN 1024 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value ? for parameter MetricData.member.1.Value is invalid.
-ERROR -Infinity 1024 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -∞ for parameter MetricData.member.1.Value is invalid.
-ERROR Infinity 1024 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value ∞ for parameter MetricData.member.1.Value is invalid.
-ERROR 4.900000e-324 -1023 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 0 for parameter MetricData.member.1.Value is invalid.
-ERROR 1.797693e+308 1023 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 179,769,313,486,231,570,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
-ERROR 4.697085e+108 361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 4,697,085,165,547,666,500,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
-ERROR 2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 0 for parameter MetricData.member.1.Value is invalid.
-ERROR -4.697085e+108 361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -4,697,085,165,547,666,500,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
-ERROR -2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -0 for parameter MetricData.member.1.Value is invalid.
+ * ERROR -Infinity 1024 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -∞ for parameter MetricData.member.1.Value is invalid.
+ * ERROR Infinity 1024 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value ∞ for parameter MetricData.member.1.Value is invalid.
+ * ERROR 4.900000e-324 -1023 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 0 for parameter MetricData.member.1.Value is invalid.
+ * ERROR 1.797693e+308 1023 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 179,769,313,486,231,570,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
+ * ERROR 4.697085e+108 361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 4,697,085,165,547,666,500,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
+ * ERROR 2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 0 for parameter MetricData.member.1.Value is invalid.
+ * ERROR -4.697085e+108 361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -4,697,085,165,547,666,500,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
+ * ERROR -2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -0 for parameter MetricData.member.1.Value is invalid.
  * </pre> 
  */
 public class CloudWatchValueTest {
