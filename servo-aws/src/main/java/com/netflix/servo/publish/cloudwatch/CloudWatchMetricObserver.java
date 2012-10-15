@@ -43,10 +43,22 @@ import java.util.List;
  */
 public class CloudWatchMetricObserver extends BaseMetricObserver {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(CloudWatchMetricObserver.class);
+    private static final Logger log = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
+
+    /**
+     * Amazon's docs say they don't accept values smaller than 1E-130, but
+     * experimentally 1E-108 is the smallest accepted value.
+     */
+    static final double SMALLEST_SENDABLE = 1E-108;
+
+    /**
+     * Amazon's docs say they don't accept values larger than 1E116, but
+     * experimentally 1E108 is the largest accepted value.
+     */
+    static final double LARGEST_SENDABLE = 1E108;
 
     private int batchSize;
+    private boolean truncateEnabled = false;
 
     private final AmazonCloudWatch cloudWatch;
     private final String cloudWatchNamespace;
@@ -118,22 +130,26 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                 batch.add(m);
 
                 if (batchCount++ % batchSize == 0) {
-                    try {
-                         cloudWatch.putMetricData(createPutRequest(batch));
-                    } catch (Exception e) {
-                         log.error("Error while submitting data for metrics : " + batch, e);
-                    }
+                    putMetricData(batch);
                     batch.clear();
                 }
             }
         }
 
         if (!batch.isEmpty()) {
-            try {
-                 cloudWatch.putMetricData(createPutRequest(batch));
-            } catch (Exception e) {
-                 log.error("Error while submitting data for metrics : " + batch, e);
-            }
+            putMetricData(batch);
+        }
+    }
+
+    private void putMetricData(List<Metric> batch)
+    {
+        try
+        {
+            cloudWatch.putMetricData(createPutRequest(batch));
+        }
+        catch (Exception e)
+        {
+            log.error("Error while submitting data for metrics : " + batch, e);
         }
     }
 
@@ -155,8 +171,40 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
                 .withDimensions(createDimensions(metric.getConfig().getTags()))
                 .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
                 .withTimestamp(new Date(metric.getTimestamp()))
-                .withValue(Double.valueOf(metric.getNumberValue().doubleValue()));
+                .withValue(truncate(metric.getNumberValue()));
         //TODO Need to convert into reasonable units based on DataType
+    }
+
+    Double truncate(Number numberValue)
+    {
+        // http://docs.amazonwebservices.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html
+        Double doubleValue = Double.valueOf(numberValue.doubleValue());
+        if (truncateEnabled)
+        {
+            if (doubleValue >= 0.0)
+            {
+                if (doubleValue > LARGEST_SENDABLE)
+                {
+                    doubleValue = LARGEST_SENDABLE;
+                }
+                else if (doubleValue < SMALLEST_SENDABLE)
+                {
+                    doubleValue = 0.0;
+                }
+            }
+            else
+            {
+                if (doubleValue < -LARGEST_SENDABLE)
+                {
+                    doubleValue = -LARGEST_SENDABLE;
+                }
+                else if (doubleValue > -SMALLEST_SENDABLE)
+                {
+                    doubleValue = 0.0;
+                }
+            }
+        }
+        return doubleValue;
     }
 
     List<Dimension> createDimensions(TagList tags) {
@@ -167,6 +215,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         }
 
         return dimensionList;
+    }
+    
+    public CloudWatchMetricObserver withTruncateEnabled(boolean truncateEnabled) {
+        this.truncateEnabled = truncateEnabled;
+        return this;
     }
 
 
