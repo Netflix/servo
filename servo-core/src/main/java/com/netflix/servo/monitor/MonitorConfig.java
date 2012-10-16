@@ -38,6 +38,12 @@ public final class MonitorConfig {
         private final List<Tag> tags = new LinkedList<Tag>();
         private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
+        public Builder(MonitorConfig config) {
+            this(config.getName());
+            withTags(config.getTags());
+            withPublishingPolicy(config.getPublishingPolicy());
+        }
+
         public Builder(String name) {
             this.name = name;
         }
