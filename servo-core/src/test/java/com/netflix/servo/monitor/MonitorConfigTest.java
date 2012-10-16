@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
-public class MonitorContextTest {
+public class MonitorConfigTest {
 
     private final TagList tags1 = new BasicTagList(SortedTagList.builder().withTag("cluster", "foo")
             .withTag("asg", "foo-v000").build());
@@ -33,7 +33,7 @@ public class MonitorContextTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testNullName() throws Exception {
-        new MonitorConfig.Builder(null).withTags(tags1).build();
+        new MonitorConfig.Builder((String) null).withTags(tags1).build();
     }
 
     @Test
@@ -71,5 +71,18 @@ public class MonitorContextTest {
         assertTrue(m1.hashCode() == m1.hashCode());
         assertTrue(m1.hashCode() != m2.hashCode());
         assertTrue(m1.hashCode() == m3.hashCode());
+    }
+
+    @Test
+    public void testBuilderMonitorConfig() throws Exception {
+        MonitorConfig m1 = new MonitorConfig.Builder("a").build();
+        MonitorConfig m2 = new MonitorConfig.Builder(m1).build();
+        assertEquals(m1, m2);
+
+        MonitorConfig m3 = new MonitorConfig.Builder(m1).withTag("k", "v").build();
+        assertNotEquals(m1, m3);
+        assertEquals(m1.getName(), m3.getName());
+        assertNotEquals(m1.getTags(), m3.getTags());
+        assertEquals(m1.getPublishingPolicy(), m3.getPublishingPolicy());
     }
 }
