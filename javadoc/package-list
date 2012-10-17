@@ -1,11 +1,8 @@
 com.netflix.servo
 com.netflix.servo.annotations
-com.netflix.servo.aws
-com.netflix.servo.aws.constants
 com.netflix.servo.examples
 com.netflix.servo.jmx
+com.netflix.servo.monitor
 com.netflix.servo.publish
-com.netflix.servo.publish.cloudwatch
 com.netflix.servo.tag
-com.netflix.servo.tag.aws
 com.netflix.servo.util
