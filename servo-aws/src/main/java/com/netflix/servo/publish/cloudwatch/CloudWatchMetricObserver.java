@@ -96,7 +96,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      *
      * @param name Unique name of the observer.
      * @param namespace Namespace to use in CloudWatch.
-     * @param cloudwatch AWS cloudwatch.
+     * @param cloudWatch AWS cloudwatch.
      */
     public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch) {
         super(name);
@@ -109,7 +109,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      *
      * @param name Unique name of the observer.
      * @param namespace Namespace to use in CloudWatch.
-     * @param cloudwatch AWS cloudwatch.
+     * @param cloudWatch AWS cloudwatch.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
      */
     public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch, int batchSize) {
