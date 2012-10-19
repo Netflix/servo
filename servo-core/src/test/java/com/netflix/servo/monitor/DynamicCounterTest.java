@@ -47,7 +47,7 @@ public class DynamicCounterTest {
         return getInstance().getMonitors();
     }
 
-    private TagList tagList = new BasicTagList(ImmutableList.of((Tag)new BasicTag("PLATFORM", "true")));
+    private final TagList tagList = new BasicTagList(ImmutableList.of((Tag)new BasicTag("PLATFORM", "true")));
 
     private Counter getByName(String name) throws Exception {
         List<Monitor<?>> counters = getCounters();

@@ -38,24 +38,32 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DynamicCounter implements CompositeMonitor<Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounter.class);
-    private static final long DEFAULT_EXPIRATION = 15L;
-    private static final TimeUnit DEFAULT_EXPIRATION_UNIT = TimeUnit.MINUTES;
+    private static final String DEFAULT_EXPIRATION = "15";
+    private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
+    private static final String CLASS_NAME = DynamicCounter.class.getCanonicalName();
+    private static final String EXPIRATION_PROP = CLASS_NAME + ".expiration";
+    private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
     private static final MonitorConfig baseConfig = new MonitorConfig.Builder("servo").build();
 
-    private static DynamicCounter INSTANCE = new DynamicCounter();
+    private static final DynamicCounter INSTANCE = new DynamicCounter();
+
+    private final LoadingCache<MonitorConfig, Counter> counters;
 
     private DynamicCounter() {
+        final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
+        final String expirationUnit = System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+        final long expirationValue = Long.valueOf(expiration);
+        final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
+        counters = CacheBuilder.newBuilder()
+                .expireAfterAccess(expirationValue, expirationUnitValue)
+                .build(new CacheLoader<MonitorConfig, Counter>() {
+                    @Override
+                    public Counter load(final MonitorConfig config) throws Exception {
+                        return new BasicCounter(config);
+                    }
+                });
         DefaultMonitorRegistry.getInstance().register(this);
     }
-
-    private final LoadingCache<MonitorConfig, Counter> counters = CacheBuilder.newBuilder()
-            .expireAfterAccess(DEFAULT_EXPIRATION, DEFAULT_EXPIRATION_UNIT)
-            .build(new CacheLoader<MonitorConfig, Counter>() {
-                @Override
-                public Counter load(final MonitorConfig config) throws Exception {
-                    return new BasicCounter(config);
-                }
-            });
     private final AtomicLong totalCount = new AtomicLong(0L);
 
     private Counter get(MonitorConfig config) {
