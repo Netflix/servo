@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MaxGauge extends AbstractMonitor<Long>
         implements Gauge<Long>, ResettableMonitor<Long> {
-    private AtomicLong max = new AtomicLong(0L);
+    private final AtomicLong max = new AtomicLong(0L);
 
     /** Creates a new instance of the gauge. */
     public MaxGauge(MonitorConfig config) {

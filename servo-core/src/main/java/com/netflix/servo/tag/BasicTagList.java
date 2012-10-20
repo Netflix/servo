@@ -171,7 +171,7 @@ public final class BasicTagList implements TagList {
     public static BasicTagList copyOf(Iterable<String> tags) {
         ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
         for (String tag : tags) {
-            builder.add(BasicTag.parseTag(tag));
+            builder.add(Tags.parseTag(tag));
         }
         return new BasicTagList(builder.build());
     }

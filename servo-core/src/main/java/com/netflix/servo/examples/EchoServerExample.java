@@ -160,8 +160,7 @@ public class EchoServerExample {
         scheduler.addPoller(task, samplingInterval, TimeUnit.SECONDS);
 
         // Run server
-        final int defaultPort = 54321;
-        int port = defaultPort;
+        int port = 54321;
         if (args.length > 0) {
             port = Integer.valueOf(args[0]);
         }

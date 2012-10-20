@@ -88,8 +88,8 @@ public class MonitorRegistryMetricPollerTest {
         }
         assertTrue(countThreadsWithName(threadPrefix) >= 10 + baseCount);
 
-        for (int i = 0; i < pollers.length; ++i) {
-            pollers[i].shutdown();
+        for (MonitorRegistryMetricPoller poller : pollers) {
+            poller.shutdown();
         }
         Thread.sleep(1000);
         assertTrue(countThreadsWithName(threadPrefix) <= baseCount);
@@ -110,8 +110,8 @@ public class MonitorRegistryMetricPollerTest {
         final long[] ids = bean.getAllThreadIds();
         final ThreadInfo[] infos = bean.getThreadInfo(ids);
         int count = 0;
-        for (int i = 0; i < infos.length; ++i) {
-            if (infos[i] != null && infos[i].getThreadName().startsWith(prefix)) {
+        for (ThreadInfo info : infos) {
+            if (info != null && info.getThreadName().startsWith(prefix)) {
                 ++count;
             }
         }

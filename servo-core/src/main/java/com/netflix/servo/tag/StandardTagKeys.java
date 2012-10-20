@@ -25,7 +25,7 @@ public enum StandardTagKeys {
     /** Monitor id if one is provided via the annotation. */
     MONITOR_ID("MonitorId");
 
-    private String keyName;
+    private final String keyName;
 
     private StandardTagKeys(String keyName) {
         this.keyName = keyName;

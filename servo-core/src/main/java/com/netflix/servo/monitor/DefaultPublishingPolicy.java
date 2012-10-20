@@ -20,7 +20,7 @@ package com.netflix.servo.monitor;
  * associated with a {@link Monitor} uses this policy.
  */
 public class DefaultPublishingPolicy implements PublishingPolicy {
-    private static DefaultPublishingPolicy INSTANCE = new DefaultPublishingPolicy();
+    private static final DefaultPublishingPolicy INSTANCE = new DefaultPublishingPolicy();
     private DefaultPublishingPolicy() {}
 
     public static DefaultPublishingPolicy getInstance() {

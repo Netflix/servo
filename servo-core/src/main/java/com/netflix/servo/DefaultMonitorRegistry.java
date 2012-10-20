@@ -61,7 +61,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     DefaultMonitorRegistry(Properties props) {
         String className = props.getProperty(REGISTRY_CLASS_PROP);
         if (className != null) {
-            MonitorRegistry r = null;
+            MonitorRegistry r;
             try {
                 Class<?> c = Class.forName(className);
                 r = (MonitorRegistry) c.newInstance();

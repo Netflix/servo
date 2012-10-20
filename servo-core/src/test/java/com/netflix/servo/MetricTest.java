@@ -65,8 +65,8 @@ public class MetricTest {
         Metric m2 = new Metric("a", tags2, now, 42);
         Metric m3 = new Metric("a", tags1, now, 42);
 
-        assertFalse(m1.equals(null));
-        assertFalse(m1.equals(m2.toString()));
+        assertNotNull(m1);
+        assertFalse(m1.toString().equals(m2.toString()));
         assertTrue(m1.equals(m1));
         assertFalse(m1.equals(m2));
         assertTrue(m1.equals(m3));
