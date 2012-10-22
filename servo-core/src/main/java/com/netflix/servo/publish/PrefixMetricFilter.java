@@ -55,7 +55,7 @@ public final class PrefixMetricFilter implements MetricFilter {
     public boolean matches(MonitorConfig config) {
         String name = config.getName();
         TagList tags = config.getTags();
-        String value = null;
+        String value;
         if (tagKey == null) {
             value = name;
         } else {

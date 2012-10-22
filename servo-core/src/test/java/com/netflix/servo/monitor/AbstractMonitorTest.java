@@ -48,7 +48,7 @@ public abstract class AbstractMonitorTest<T extends Monitor<?>> {
 
     @Test
     public void testToStringIncludesName() throws Exception {
-        assertTrue(newInstance("1234567890").toString().indexOf("1234567890") != -1);
-        assertTrue(newInstance("47").toString().indexOf("47") != -1);
+        assertTrue(newInstance("1234567890").toString().contains("1234567890"));
+        assertTrue(newInstance("47").toString().contains("47"));
     }
 }

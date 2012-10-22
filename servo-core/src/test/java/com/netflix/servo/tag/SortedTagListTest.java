@@ -20,9 +20,9 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class SortedTagListTest {
@@ -88,20 +88,20 @@ public class SortedTagListTest {
     @Test
     public void testOrder() throws Exception {
         int i = 0;
-        for(Iterator<Tag> t = testListFromStrings.iterator(); t.hasNext();){
-            assertTrue(t.next().equals(tagArray[i]));
+        for (Tag testListFromString : testListFromStrings) {
+            assertEquals(testListFromString, tagArray[i]);
             i++;
         }
 
         i = 0;
-        for(Iterator<Tag> t = testListFromTags.iterator(); t.hasNext();){
-            assertTrue(t.next().equals(tagArray[i]));
+        for (Tag testListFromTag : testListFromTags) {
+            assertEquals(testListFromTag, tagArray[i]);
             i++;
         }
 
         i = 0;
-        for(Iterator<Tag> t = testListFromCollection.iterator(); t.hasNext();){
-            assertTrue(t.next().equals(tagArray[i]));
+        for (Tag aTestListFromCollection : testListFromCollection) {
+            assertEquals(aTestListFromCollection, tagArray[i]);
             i++;
         }
     }
@@ -111,13 +111,15 @@ public class SortedTagListTest {
         Map<String, String> stringMap = testListFromCollection.asMap();
 
         int i = 0;
-        for(String s : stringMap.keySet()){
-            s.equals(tagArray[i].getKey());
+        for (String s : stringMap.keySet()){
+            assertEquals(s, tagArray[i].getKey());
+            i++;
         }
 
         i = 0;
-        for(String s : stringMap.values()){
-            s.equals(tagArray[i].getValue());
+        for (String s : stringMap.values()){
+            assertEquals(s, tagArray[i].getValue());
+            i++;
         }
     }
 }
