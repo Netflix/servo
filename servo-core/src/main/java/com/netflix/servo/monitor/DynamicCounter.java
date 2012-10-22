@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or {@link MonitorConfig}
@@ -43,11 +42,14 @@ public class DynamicCounter implements CompositeMonitor<Long> {
     private static final String CLASS_NAME = DynamicCounter.class.getCanonicalName();
     private static final String EXPIRATION_PROP = CLASS_NAME + ".expiration";
     private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
-    private static final MonitorConfig baseConfig = new MonitorConfig.Builder("servo").build();
+    private static final String INTERNAL_ID = "servoCounters";
+    private static final String CACHE_MONITOR_ID = "servoCountersCache";
+    private static final MonitorConfig baseConfig = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicCounter INSTANCE = new DynamicCounter();
 
     private final LoadingCache<MonitorConfig, Counter> counters;
+    private final CompositeMonitor<?> cacheMonitor;
 
     private DynamicCounter() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
@@ -62,9 +64,9 @@ public class DynamicCounter implements CompositeMonitor<Long> {
                         return new BasicCounter(config);
                     }
                 });
+        cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, counters);
         DefaultMonitorRegistry.getInstance().register(this);
     }
-    private final AtomicLong totalCount = new AtomicLong(0L);
 
     private Counter get(MonitorConfig config) {
         try {
@@ -80,7 +82,6 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      */
     public static void increment(MonitorConfig config) {
         INSTANCE.get(config).increment();
-        INSTANCE.totalCount.incrementAndGet();
     }
 
     /**
@@ -90,7 +91,6 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      */
     public static void increment(MonitorConfig config, long delta) {
         INSTANCE.get(config).increment(delta);
-        INSTANCE.totalCount.addAndGet(delta);
     }
 
     /**
@@ -123,7 +123,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      */
     @Override
     public Long getValue() {
-        return totalCount.get();
+        return (long) counters.asMap().size();
     }
 
     /**
@@ -139,10 +139,11 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      */
     @Override
     public String toString() {
+        ConcurrentMap<?, ?> map = counters.asMap();
         return Objects.toStringHelper(this)
                 .add("baseConfig", baseConfig)
-                .add("totalCount", totalCount.get())
-                .add("counters", counters.asMap())
+                .add("totalCounters", map.size())
+                .add("counters", map)
                 .toString();
     }
 }
