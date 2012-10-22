@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BasicStopwatch implements Stopwatch {
     private final Timer timer;
-    private AtomicLong startTime = new AtomicLong(0L);
-    private AtomicLong endTime = new AtomicLong(0L);
+    private final AtomicLong startTime = new AtomicLong(0L);
+    private final AtomicLong endTime = new AtomicLong(0L);
 
     /** Create a new stopwatch with no associated timer. */
     public BasicStopwatch() {
@@ -58,8 +58,8 @@ public class BasicStopwatch implements Stopwatch {
     /** {@inheritDoc} */
     @Override
     public void reset() {
-        startTime = new AtomicLong(0L);
-        endTime = new AtomicLong(0L);
+        startTime.set(0L);
+        endTime.set(0L);
     }
 
     /** {@inheritDoc} */

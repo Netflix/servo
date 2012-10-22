@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class EchoServerExample {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EchoServerExample.class);
+    public static final int DEFAULT_PORT = 54321;
 
     private final int port;
 
@@ -160,7 +161,7 @@ public class EchoServerExample {
         scheduler.addPoller(task, samplingInterval, TimeUnit.SECONDS);
 
         // Run server
-        int port = 54321;
+        int port = DEFAULT_PORT;
         if (args.length > 0) {
             port = Integer.valueOf(args[0]);
         }
