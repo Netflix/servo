@@ -21,8 +21,8 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -111,7 +111,7 @@ public final class SortedTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public Map<String, String> asMap() {
-        Map<String, String> stringMap = new HashMap<String, String>(size());
+        Map<String, String> stringMap = new LinkedHashMap<String, String>(size);
         for (Tag t : tagSortedMap.values()) {
             stringMap.put(t.getKey(), t.getValue());
         }

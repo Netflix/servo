@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.servo;
+package com.netflix.servo.monitor;
 
-import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
@@ -55,8 +54,8 @@ public class MonitorConfigTest {
         MonitorConfig m2 = new MonitorConfig.Builder("a").withTags(tags2).build();
         MonitorConfig m3 = new MonitorConfig.Builder("a").withTags(tags1).build();
 
-        assertFalse(m1.equals(null));
-        assertFalse(m1.equals(m2.toString()));
+        assertNotNull(m1);
+        assertFalse(m1.toString().equals(m2.toString()));
         assertTrue(m1.equals(m1));
         assertFalse(m1.equals(m2));
         assertTrue(m1.equals(m3));

@@ -376,7 +376,7 @@ public final class ThreadCpuStats {
         private final AtomicInteger nextPos = new AtomicInteger(0);
 
         /** Cumulative cpu times for the different intervals. */
-        private AtomicLongArray totals = new AtomicLongArray(BUFFER_SIZE);
+        private final AtomicLongArray totals = new AtomicLongArray(BUFFER_SIZE);
 
         private CpuUsage(long id, String name) {
             this.id = id;

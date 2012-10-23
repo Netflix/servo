@@ -99,7 +99,7 @@ public final class JmxMetricPoller implements MetricPoller {
      * Creates a tag list from an object name.
      */
     private TagList createTagList(ObjectName name) {
-        Map<String, String> props = (Map<String, String>) name.getKeyPropertyList();
+        Map<String, String> props = name.getKeyPropertyList();
         List<Tag> tags = Lists.newArrayList();
         for (Map.Entry<String, String> e : props.entrySet()) {
             String key = PROP_KEY_PREFIX + "." + e.getKey();

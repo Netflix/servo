@@ -32,7 +32,7 @@ public class PublishingPolicyTest extends AbstractMonitorTest<BasicCounter> {
     }
 
     private static class OtherPolicy implements PublishingPolicy {
-        static OtherPolicy INSTANCE = new OtherPolicy();
+        static final OtherPolicy INSTANCE = new OtherPolicy();
     }
 
     @Test

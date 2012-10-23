@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MinGauge extends AbstractMonitor<Long>
         implements Gauge<Long>, ResettableMonitor<Long> {
-    private AtomicLong min = new AtomicLong(Long.MAX_VALUE);
+    private final AtomicLong min = new AtomicLong(Long.MAX_VALUE);
 
     /** Creates a new instance of the gauge. */
     public MinGauge(MonitorConfig config) {

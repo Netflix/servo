@@ -51,7 +51,7 @@ public class BasicTagTest {
     public void testParseTagValid() throws Exception {
         String goodString = "foo=bar";
 
-        BasicTag t = BasicTag.parseTag(goodString);
+        Tag t = Tags.parseTag(goodString);
         assertTrue(t.equals(testTag));
 
     }
@@ -59,18 +59,18 @@ public class BasicTagTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testParseTagNoEqSign() throws Exception {
         String badString = "foobar";
-        BasicTag.parseTag(badString);
+        Tags.parseTag(badString);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testParseTagEmptyValue() throws Exception {
         String badString = "foo=";
-        BasicTag.parseTag(badString);
+        Tags.parseTag(badString);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testParseTagEmptyKey() throws Exception {
         String badString = "=bar";
-        BasicTag.parseTag(badString);
+        Tags.parseTag(badString);
     }
 }

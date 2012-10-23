@@ -39,7 +39,7 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
     /** {@inheritDoc} */
     @Override
     public String getValue() {
-        Object v = null;
+        Object v;
         try {
             field.setAccessible(true);
             if (field instanceof Field) {
