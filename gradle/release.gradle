@@ -34,11 +34,11 @@ checkCommitNeeded.dependsOn initScmPlugin
 task releaseArtifactory(dependsOn: [checkSnapshotDependencies, uploadArtifactory])
 
 // Ensure upload happens before taggging but after all pre-checks
-//releaseArtifactory.dependsOn checkSnapshotDependencies
+releaseArtifactory.dependsOn checkSnapshotDependencies
 createReleaseTag.dependsOn releaseArtifactory
 gradle.taskGraph.whenReady { taskGraph ->
     if ( taskGraph.hasTask(uploadArtifactory) && rootProject.status == 'release' && !taskGraph.hasTask(':release') ) {
-        throw new GradleException('Project has to be release status releasing to Artifactory')
+        throw new GradleException('"release" task has to be run before uploading a release to Artifactory')
     }
 }
 subprojects.each { project ->
