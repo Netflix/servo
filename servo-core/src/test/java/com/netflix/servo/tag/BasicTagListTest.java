@@ -133,8 +133,8 @@ public class BasicTagListTest {
         BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
         BasicTagList t3 = BasicTagList.copyOf("foo=bar");
 
-        assertFalse(t1.equals(null));
-        assertFalse(t1.equals(t2.toString()));
+        assertNotNull(t1);
+        assertFalse(t1.toString().equals(t2.toString()));
         assertTrue(t1.equals(t1));
         assertFalse(t1.equals(t2));
         assertTrue(t1.equals(t3));

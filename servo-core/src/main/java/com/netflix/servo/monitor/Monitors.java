@@ -195,7 +195,7 @@ public final class Monitors {
      */
     @SuppressWarnings("unchecked")
     static <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
-        Monitor<T> m = null;
+        Monitor<T> m;
         if (monitor instanceof CompositeMonitor<?>) {
             m = new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor);
         } else if (monitor instanceof NumericMonitor<?>) {

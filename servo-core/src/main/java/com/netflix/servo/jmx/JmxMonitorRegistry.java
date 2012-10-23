@@ -17,26 +17,21 @@ package com.netflix.servo.jmx;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MapMaker;
-
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
-
-import java.lang.management.ManagementFactory;
-
-import java.util.Collection;
-import java.util.List;
-
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.management.ManagementFactory;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
@@ -62,7 +57,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public JmxMonitorRegistry(String name) {
         this.name = name;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        monitors = (new MapMaker()).<MonitorConfig, Monitor<?>>makeMap();
+        monitors = (new MapMaker()).makeMap();
     }
 
     private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {
