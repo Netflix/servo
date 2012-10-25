@@ -61,18 +61,14 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     // Put limit on fetching the monitor value in-case someone does something silly like call a
     // remote service inline
-    private final ThreadFactory factory = new ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("ServoMonitorGetValueLimiter-%d")
-            .build();
-    private final ExecutorService service = Executors.newSingleThreadExecutor(factory);
-    private final TimeLimiter limiter = new SimpleTimeLimiter(service);
+    private final TimeLimiter limiter;
+    private final ExecutorService service;
 
     /**
      * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
      */
     public MonitorRegistryMetricPoller() {
-        this(DefaultMonitorRegistry.getInstance(), 0L, TimeUnit.MILLISECONDS);
+        this(DefaultMonitorRegistry.getInstance(), 0L, TimeUnit.MILLISECONDS, true);
     }
 
     /**
@@ -81,7 +77,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param registry  registry to query for annotated objects
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry) {
-        this(registry, 0L, TimeUnit.MILLISECONDS);
+        this(registry, 0L, TimeUnit.MILLISECONDS, true);
     }
 
     /**
@@ -91,9 +87,21 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param cacheTTL  how long to cache the filtered monitor list from the registry
      * @param unit      time unit for the cache ttl
      */
-    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit) {
+    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
         this.registry = registry;
         this.cacheTTL = TimeUnit.MILLISECONDS.convert(cacheTTL, unit);
+
+        if (useLimiter) {
+            final ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setDaemon(true)
+                    .setNameFormat("ServoMonitorGetValueLimiter-%d")
+                    .build();
+            service = Executors.newSingleThreadExecutor(factory);
+            limiter = new SimpleTimeLimiter(service);
+        } else {
+            service = null;
+            limiter = null;
+        }
     }
 
     private Object getValue(Monitor<?> monitor, boolean reset) {
@@ -101,8 +109,12 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             if (reset && monitor instanceof ResettableMonitor<?>) {
                 return ((ResettableMonitor<?>) monitor).getAndResetValue();
             } else {
-                final MonitorValueCallable c = new MonitorValueCallable(monitor);
-                return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
+                if (limiter != null) {
+                    final MonitorValueCallable c = new MonitorValueCallable(monitor);
+                    return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
+                } else {
+                    return monitor.getValue();
+                }
             }
         } catch (UncheckedTimeoutException e) {
             LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
@@ -169,7 +181,9 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * up when the executor is garbage collected if shutdown is not called explicitly.
      */
     public void shutdown() {
-        service.shutdownNow();
+        if (service != null) {
+            service.shutdownNow();
+        }
     }
 
     private static class MonitorValueCallable implements Callable<Object> {
