@@ -83,9 +83,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /**
      * Creates a new instance using the specified registry.
      *
-     * @param registry  registry to query for annotated objects
-     * @param cacheTTL  how long to cache the filtered monitor list from the registry
-     * @param unit      time unit for the cache ttl
+     * @param registry    registry to query for annotated objects
+     * @param cacheTTL    how long to cache the filtered monitor list from the registry
+     * @param unit        time unit for the cache ttl
+     * @param useLimiter  whether to use a time limiter for getting the values from the monitors
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
         this.registry = registry;
