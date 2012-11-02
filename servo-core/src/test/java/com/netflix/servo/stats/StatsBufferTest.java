@@ -49,7 +49,7 @@ public class StatsBufferTest {
     @Test
     public void testTotalNoWrap() {
         StatsBuffer buffer = getNoWrap();
-        assertEquals(buffer.getTotal(), SIZE/2 * (SIZE/2 + 1) / 2 );
+        assertEquals(buffer.getTotalTime(), SIZE/2 * (SIZE/2 + 1) / 2 );
     }
 
     @Test
@@ -67,7 +67,7 @@ public class StatsBufferTest {
     @Test
     public void testPercentiles50NoWrap() {
         StatsBuffer buffer = getNoWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         // testNG does not give good errors if we do assertEquals on the two arrays
         assertEquals(percentiles[0], 250.5);
     }
@@ -75,27 +75,27 @@ public class StatsBufferTest {
     @Test
     public void testPercentiles95NoWrap() {
         StatsBuffer buffer = getNoWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[1], 475.95);
     }
 
     @Test
     public void testPercentiles99NoWrap() {
         StatsBuffer buffer = getNoWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[2], 495.99);
     }
 
     @Test
     public void testPercentiles995NoWrap() {
         StatsBuffer buffer = getNoWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[3], 498.495);
     }
 
     void assertEmpty(StatsBuffer buffer) {
         assertEquals(buffer.getCount(), 0);
-        assertEquals(buffer.getTotal(), 0);
+        assertEquals(buffer.getTotalTime(), 0);
         assertEquals(buffer.getMax(), 0);
         assertEquals(buffer.getMin(), 0);
 
@@ -103,7 +103,7 @@ public class StatsBufferTest {
         assertEquals(buffer.getMean(), 0.0);
         assertEquals(buffer.getVariance(), 0.0);
         assertEquals(buffer.getStdDev(), 0.0);
-        assertEquals(buffer.getPercentiles()[0], 0.0);
+        assertEquals(buffer.getPercentileValues()[0], 0.0);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class StatsBufferTest {
     @Test
     public void testTotalWrap() {
         StatsBuffer buffer = getWithWrap();
-        assertEquals(buffer.getTotal(), expectedTotalWrap );
+        assertEquals(buffer.getTotalTime(), expectedTotalWrap );
     }
 
     @Test
@@ -171,7 +171,7 @@ public class StatsBufferTest {
     @Test
     public void testPercentiles50Wrap() {
         StatsBuffer buffer = getWithWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         // testNG does not give good errors if we do assertEquals on the two arrays
         assertEquals(percentiles[0], 501.0);
     }
@@ -179,21 +179,21 @@ public class StatsBufferTest {
     @Test
     public void testPercentiles95Wrap() {
         StatsBuffer buffer = getWithWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[1], 951.0);
     }
 
     @Test
     public void testPercentiles99Wrap() {
         StatsBuffer buffer = getWithWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[2], 991.0);
     }
 
     @Test
     public void testPercentiles995Wrap() {
         StatsBuffer buffer = getWithWrap();
-        double[] percentiles = buffer.getPercentiles();
+        double[] percentiles = buffer.getPercentileValues();
         assertEquals(percentiles[3], 996.0);
     }
 

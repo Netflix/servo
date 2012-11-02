@@ -19,7 +19,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.AtomicDouble;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
@@ -63,7 +62,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     private static final String STATISTIC = "statistic";
     private static final String UNIT = "unit";
-    private static final String PERCENTILE_FMT = "percentile_%.1f";
+    private static final String PERCENTILE_FMT = "percentile_%.2f";
     private static final Tag STAT_TOTAL = Tags.newTag(STATISTIC, "totalTime");
     private static final Tag STAT_COUNT = Tags.newTag(STATISTIC, "count");
     private static final Tag STAT_MIN = Tags.newTag(STATISTIC, "min");
@@ -202,8 +201,8 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
 
         private static Tag percentileTag(double percentile) {
             String percentileStr = String.format(PERCENTILE_FMT, percentile).replace('.', '_');
-            if (percentileStr.endsWith("_0")) {
-                percentileStr = percentileStr.substring(0, percentileStr.length() - 2);
+            if (percentileStr.endsWith("_00")) {
+                percentileStr = percentileStr.substring(0, percentileStr.length() - 3);
             }
 
             return Tags.newTag(STATISTIC, percentileStr);
@@ -217,7 +216,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
 
         @Override
         public void update(StatsBuffer buffer) {
-            gauge.set(buffer.getPercentiles()[index]);
+            gauge.set(buffer.getPercentileValues()[index]);
         }
     }
 

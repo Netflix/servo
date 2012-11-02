@@ -34,8 +34,8 @@ public class StatsBuffer {
     private long max;
     private long total;
 
-    private double[] percents;
     private double[] percentiles;
+    private double[] percentileValues;
     private final int size;
     private final long[] values;
     private AtomicBoolean statsComputed = new AtomicBoolean(false);
@@ -43,20 +43,27 @@ public class StatsBuffer {
     /**
      * Create a circular buffer that will be used to record values and compute useful stats
      * @param size      The capacity of the buffer
-     * @param percents  Array of percents to compute. For example { 95.0, 99.0 }. If no percentiles are required
+     * @param percentiles  Array of percentiles to compute. For example { 95.0, 99.0 }. If no percentileValues are required
      *                  pass a 0-sized array.
      */
-    public StatsBuffer(int size, double[] percents) {
+    public StatsBuffer(int size, double[] percentiles) {
         Preconditions.checkArgument(size > 0, "Size of the buffer must be greater than 0");
-        Preconditions.checkArgument(percents != null,
-                "Percents array must be non-null. Pass a 0-sized array if you don't want any percentiles to be computed.");
-
+        Preconditions.checkArgument(percentiles != null,
+                "Percents array must be non-null. Pass a 0-sized array if you don't want any percentileValues to be computed.");
+        Preconditions.checkArgument(validPercentiles(percentiles), "All percentiles should be in the interval (0.0, 100.0]");
         values = new long[size];
         this.size = size;
-        this.percents = Arrays.copyOf(percents, percents.length);
-        this.percentiles = new double[percents.length];
+        this.percentiles = Arrays.copyOf(percentiles, percentiles.length);
+        this.percentileValues = new double[percentiles.length];
 
         reset();
+    }
+
+    private static boolean validPercentiles(double[] percentiles) {
+        for (double percentile : percentiles) {
+            if (percentile <= 0.0 || percentile > 100.0) return false;
+        }
+        return true;
     }
 
     /**
@@ -72,8 +79,8 @@ public class StatsBuffer {
         min = 0L;
         max = 0L;
         sumSquares = 0.0;
-        for (int i = 0; i < percentiles.length; ++i) {
-            percentiles[i] = 0.0;
+        for (int i = 0; i < percentileValues.length; ++i) {
+            percentileValues[i] = 0.0;
         }
     }
 
@@ -95,7 +102,7 @@ public class StatsBuffer {
         if (count == 0) return;
 
         int curSize = Math.min(count, size);
-        Arrays.sort(values, 0, curSize); // to compute percentiles
+        Arrays.sort(values, 0, curSize); // to compute percentileValues
         min = values[0];
         max = values[curSize - 1];
         mean = (double)total / count;
@@ -105,15 +112,12 @@ public class StatsBuffer {
     }
 
     private void computePercentiles(int curSize) {
-        for (int i = 0; i < percents.length; ++i) {
-            percentiles[i] = calcPercentile(curSize, percents[i]);
+        for (int i = 0; i < percentiles.length; ++i) {
+            percentileValues[i] = calcPercentile(curSize, percentiles[i]);
         }
     }
 
     private double calcPercentile(int curSize, double percent) {
-        if ((percent > 100.0) || (percent <= 0)) { // SUPPRESS CHECKSTYLE MagicNumber
-            throw new IllegalArgumentException("invalid quantile value: " + percent);
-        }
         if (curSize == 0) {
             return 0.0;
         }
@@ -197,27 +201,27 @@ public class StatsBuffer {
      * Get the total sum of the values recorded.
      * @return The sum of the values recorded, or 0.0 if no values were recorded.
      */
-    public long getTotal() {
+    public long getTotalTime() {
         return total;
     }
 
     /**
-     * Get the computed percentiles. See {@link StatsConfig} for how to request different
-     * percentiles. Note that for efficiency reasons we return the actual array of computed values.
+     * Get the computed percentileValues. See {@link StatsConfig} for how to request different
+     * percentileValues. Note that for efficiency reasons we return the actual array of computed values.
      * Users must NOT modify this array.
      *
-     * @return An array of computed percentiles.
+     * @return An array of computed percentileValues.
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP",
             justification = "Performance critical code. Users treat it as read-only")
-    public double[] getPercentiles() {
-        return percentiles;
+    public double[] getPercentileValues() {
+        return percentileValues;
     }
 
     /**
      * Return the percentiles we will compute: For example: 95.0, 99.0.
      */
-    public double[] getPercents() {
-        return Arrays.copyOf(percents, percents.length);
+    public double[] getPercentiles() {
+        return Arrays.copyOf(percentiles, percentiles.length);
     }
 }
