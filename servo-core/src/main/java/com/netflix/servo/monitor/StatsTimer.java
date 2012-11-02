@@ -34,7 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A {@link Timer} that provides statistics.
@@ -42,13 +41,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * The statistics are collected periodically and are published according to the configuration
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
  */
-public class PerfStatsTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
+public class StatsTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
     private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setDaemon(true)
-            .setNameFormat("PerfStatsTimer-%d")
+            .setNameFormat("StatsTimer-%d")
             .build();
     private static final ScheduledExecutorService defaultExecutor = Executors.newScheduledThreadPool(1, threadFactory);
-    private static final Logger LOGGER = LoggerFactory.getLogger(PerfStatsTimer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatsTimer.class);
 
     private final TimeUnit timeUnit;
     private final MonitorConfig baseConfig;
@@ -72,98 +71,6 @@ public class PerfStatsTimer extends AbstractMonitor<Long> implements Timer, Comp
     private static final Tag STAT_MEAN = Tags.newTag(STATISTIC, "avg");
     private static final Tag STAT_VARIANCE = Tags.newTag(STATISTIC, "variance");
     private static final Tag STAT_STDDEV = Tags.newTag(STATISTIC, "stdDev");
-
-    private final static class LongGauge implements Gauge<Long> {
-        private final AtomicLong number = new AtomicLong(0L);
-        private final MonitorConfig config;
-
-        LongGauge(MonitorConfig config) {
-            this.config = config;
-        }
-
-        @Override
-        public Long getValue() {
-            return number.get();
-        }
-
-        @Override
-        public MonitorConfig getConfig() {
-            return config;
-        }
-
-        public void set(Long n) {
-            number.set(n);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof LongGauge)) return false;
-
-            LongGauge that = (LongGauge) o;
-            return config.equals(that.config) && number.equals(that.number);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(number, config);
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(this).
-                    add("number", number).
-                    add("config", config).
-                    toString();
-        }
-    }
-
-    private final static class DoubleGauge implements Gauge<Double> {
-        private final AtomicDouble number = new AtomicDouble(0.0);
-        private final MonitorConfig config;
-
-        DoubleGauge(MonitorConfig config) {
-            this.config = config;
-        }
-
-        @Override
-        public Double getValue() {
-            return number.get();
-        }
-
-        @Override
-        public MonitorConfig getConfig() {
-            return config;
-        }
-
-        public void set(Double n) {
-            number.set(n);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof DoubleGauge)) {
-                return false;
-            }
-            final DoubleGauge that = (DoubleGauge) o;
-            // AtomicDouble does not implement a proper .equals so we need to compare the
-            // underlying double
-            return config.equals(that.config) && number.get() == that.number.get();
-        }
-
-        @Override
-        public int hashCode() {
-            // AtomicDouble does not implement a proper .hashCode() so we need to use the
-            // underlying double
-            return Objects.hashCode(number.get(), config);
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(this).add("number", number).add("config", config).toString();
-        }
-    }
 
     private interface GaugeWrapper {
         void update(StatsBuffer buffer);
@@ -355,14 +262,14 @@ public class PerfStatsTimer extends AbstractMonitor<Long> implements Timer, Comp
     /**
      * Creates a new instance of the timer with a unit of milliseconds, using the default executor.
      */
-    public PerfStatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig) {
+    public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig) {
         this(baseConfig, statsConfig, TimeUnit.MILLISECONDS, defaultExecutor);
     }
 
     /**
      * Creates a new instance of the timer with a given unit, using the default executor.
      */
-    public PerfStatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig, TimeUnit unit) {
+    public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig, TimeUnit unit) {
         this(baseConfig, statsConfig, unit, defaultExecutor);
     }
 
@@ -371,7 +278,7 @@ public class PerfStatsTimer extends AbstractMonitor<Long> implements Timer, Comp
      * Creates a new instance of the timer with a unit of milliseconds, using the {@link ScheduledExecutorService} provided by
      * the user.
      */
-    public PerfStatsTimer(MonitorConfig config, StatsConfig statsConfig, TimeUnit unit, ScheduledExecutorService executor) {
+    public StatsTimer(MonitorConfig config, StatsConfig statsConfig, TimeUnit unit, ScheduledExecutorService executor) {
         super(config);
         this.timeUnit = unit;
         final Tag unitTag = Tags.newTag(UNIT, unit.name());
@@ -486,11 +393,11 @@ public class PerfStatsTimer extends AbstractMonitor<Long> implements Timer, Comp
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof PerfStatsTimer)) {
+        if (obj == null || !(obj instanceof StatsTimer)) {
             return false;
         }
 
-        final PerfStatsTimer m = (PerfStatsTimer) obj;
+        final StatsTimer m = (StatsTimer) obj;
         return baseConfig.equals(m.baseConfig) && monitors.equals(m.monitors);
     }
 

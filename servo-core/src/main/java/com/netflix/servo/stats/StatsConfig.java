@@ -20,7 +20,7 @@ import com.google.common.base.Objects;
 import java.util.Arrays;
 
 /**
- * Configuration options for a {@link com.netflix.servo.monitor.PerfStatsTimer}
+ * Configuration options for a {@link com.netflix.servo.monitor.StatsTimer}
  * <p>
  * By default we publish count (number of times the timer was executed), totalTime, and
  * 95.0, and 99.0 percentiles.

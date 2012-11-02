@@ -13,11 +13,11 @@ import java.util.concurrent.Executors;
 
 import static org.testng.Assert.assertEquals;
 
-public class PerfStatsTimerTest extends AbstractMonitorTest<PerfStatsTimer> {
-    static Logger LOGGER = LoggerFactory.getLogger(PerfStatsTimerTest.class);
+public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
+    static Logger LOGGER = LoggerFactory.getLogger(StatsTimerTest.class);
 
     @Override
-    public PerfStatsTimer newInstance(String name) {
+    public StatsTimer newInstance(String name) {
         final double [] percentiles = { 50.0, 95.0, 99.0, 99.5 };
         final StatsConfig statsConfig = new StatsConfig.Builder()
                 .withSampleSize(200000)
@@ -26,12 +26,12 @@ public class PerfStatsTimerTest extends AbstractMonitorTest<PerfStatsTimer> {
                 .withComputeFrequencyMillis(1000)
                 .build();
         final MonitorConfig config = MonitorConfig.builder(name).build();
-        return new PerfStatsTimer(config, statsConfig);
+        return new StatsTimer(config, statsConfig);
     }
 
     @Test
     public void testStats() throws Exception {
-        final PerfStatsTimer timer = newInstance("t1");
+        final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();
         final int N = 200 * 1000;
         expectedValues.put("count", (long) N);
@@ -66,9 +66,9 @@ public class PerfStatsTimerTest extends AbstractMonitorTest<PerfStatsTimer> {
     }
 
     private static class TimerTask implements Runnable {
-        final PerfStatsTimer timer;
+        final StatsTimer timer;
         final int value;
-        TimerTask(PerfStatsTimer timer, int value) {
+        TimerTask(StatsTimer timer, int value) {
             this.timer = timer;
             this.value = value;
         }
@@ -80,7 +80,7 @@ public class PerfStatsTimerTest extends AbstractMonitorTest<PerfStatsTimer> {
 
     @Test
     public void testMultiThreadStats() throws Exception {
-        final PerfStatsTimer timer = newInstance("t1");
+        final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();
         final int N = 100 * 1000;
         expectedValues.put("count", (long) N);
