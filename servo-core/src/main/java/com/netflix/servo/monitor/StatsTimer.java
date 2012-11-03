@@ -19,6 +19,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -200,8 +202,8 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
         private final int index;
 
         private static Tag percentileTag(double percentile) {
-            String percentileStr = String.format(PERCENTILE_FMT, percentile).replace('.', '_');
-            if (percentileStr.endsWith("_00")) {
+            String percentileStr = String.format(PERCENTILE_FMT, percentile);
+            if (percentileStr.endsWith(".00")) {
                 percentileStr = percentileStr.substring(0, percentileStr.length() - 3);
             }
 
@@ -218,6 +220,11 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
         public void update(StatsBuffer buffer) {
             gauge.set(buffer.getPercentileValues()[index]);
         }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).add("gauge", gauge).add("percentile", percentile).toString();
+        }
     }
 
     private List<Counter> getCounters(StatsConfig config) {
@@ -232,30 +239,42 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     }
 
     private List<GaugeWrapper> getGaugeWrappers(StatsConfig config) {
-        ImmutableList.Builder<GaugeWrapper> wrappers = ImmutableList.builder();
+        final ImmutableList.Builder<GaugeWrapper> builder = ImmutableList.builder();
 
         if (config.getPublishMax()) {
-            wrappers.add(new MaxGaugeWrapper(baseConfig));
+            builder.add(new MaxGaugeWrapper(baseConfig));
         }
         if (config.getPublishMin()) {
-            wrappers.add(new MinStatGaugeWrapper(baseConfig));
+            builder.add(new MinStatGaugeWrapper(baseConfig));
         }
         if (config.getPublishVariance()) {
-            wrappers.add(new VarianceGaugeWrapper(baseConfig));
+            builder.add(new VarianceGaugeWrapper(baseConfig));
         }
         if (config.getPublishStdDev()) {
-            wrappers.add(new StdDevGaugeWrapper(baseConfig));
+            builder.add(new StdDevGaugeWrapper(baseConfig));
         }
         if (config.getPublishMean()) {
-            wrappers.add(new MeanGaugeWrapper(baseConfig));
+            builder.add(new MeanGaugeWrapper(baseConfig));
         }
 
         final double[] percentiles = config.getPercentiles();
         for (int i = 0; i < percentiles.length; ++i) {
-            wrappers.add(new PercentileGaugeWrapper(baseConfig, percentiles[i], i));
+            builder.add(new PercentileGaugeWrapper(baseConfig, percentiles[i], i));
         }
 
-        return wrappers.build();
+        final List<GaugeWrapper> wrappers = builder.build();
+
+        // do a sanity check to prevent duplicated monitor configurations
+        final Set<MonitorConfig> seen = Sets.newHashSet();
+        for (final GaugeWrapper wrapper: wrappers) {
+            final MonitorConfig cfg = wrapper.getMonitor().getConfig();
+            if (seen.contains(cfg)) {
+                throw new IllegalArgumentException("Duplicated monitor configuration found: " + cfg);
+            }
+            seen.add(cfg);
+        }
+
+        return wrappers;
     }
 
     /**

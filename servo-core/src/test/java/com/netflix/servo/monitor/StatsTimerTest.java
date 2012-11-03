@@ -40,7 +40,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
         expectedValues.put("percentile_50", 100 * 1000.0);
         expectedValues.put("percentile_95", 190 * 1000.0);
         expectedValues.put("percentile_99", 198 * 1000.0);
-        expectedValues.put("percentile_99_50", 199 * 1000.0);
+        expectedValues.put("percentile_99.50", 199 * 1000.0);
 
         for (int i = 0; i < N; ++i) {
             timer.record(i);
@@ -89,7 +89,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
         expectedValues.put("percentile_50", 50 * 1000.0);
         expectedValues.put("percentile_95", 95 * 1000.0);
         expectedValues.put("percentile_99", 99 * 1000.0);
-        expectedValues.put("percentile_99_50", 99.5 * 1000.0);
+        expectedValues.put("percentile_99.50", 99.5 * 1000.0);
 
         ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
