@@ -184,7 +184,11 @@ public final class Monitors {
     /**
      * Unregister an object from the default registry. Equivalent to
      * {@code DefaultMonitorRegistry.getInstance().unregister(Monitors.newObjectMonitor(obj))}.
+<<<<<<< HEAD
      * @param obj Previously registered using {@code Monitors.registerObject(obj)}
+=======
+     * @param obj Previously object which was registered using {@code Monitors.registerObject(obj)}
+>>>>>>> Provide Monitors.unregisterObject methods
      */
     public static void unregisterObject(Object obj) {
         unregisterObject(null, obj);
@@ -193,7 +197,11 @@ public final class Monitors {
     /**
      * Unregister an object from the default registry. Equivalent to
      * {@code DefaultMonitorRegistry.getInstance().unregister(Monitors.newObjectMonitor(id, obj))}.
+<<<<<<< HEAD
      * @param obj Previously registered using {@code Monitors.registerObject(id, obj)}
+=======
+     * @param obj Previously object which was registered using {@code Monitors.registerObject(id, obj)}
+>>>>>>> Provide Monitors.unregisterObject methods
      */
     public static void unregisterObject(String id, Object obj) {
         DefaultMonitorRegistry.getInstance().unregister(newObjectMonitor(id, obj));
