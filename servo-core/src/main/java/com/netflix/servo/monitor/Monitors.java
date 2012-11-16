@@ -182,6 +182,24 @@ public final class Monitors {
     }
 
     /**
+     * Unregister an object from the default registry. Equivalent to
+     * {@code DefaultMonitorRegistry.getInstance().unregister(Monitors.newObjectMonitor(obj))}.
+     * @param obj Previously registered using {@code Monitors.registerObject(obj)}
+     */
+    public static void unregisterObject(Object obj) {
+        unregisterObject(null, obj);
+    }
+
+    /**
+     * Unregister an object from the default registry. Equivalent to
+     * {@code DefaultMonitorRegistry.getInstance().unregister(Monitors.newObjectMonitor(id, obj))}.
+     * @param obj Previously registered using {@code Monitors.registerObject(id, obj)}
+     */
+    public static void unregisterObject(String id, Object obj) {
+        DefaultMonitorRegistry.getInstance().unregister(newObjectMonitor(id, obj));
+    }
+
+    /**
      * Register an object with the default registry. Equivalent to
      * {@code DefaultMonitorRegistry.getInstance().register(Monitors.newObjectMonitor(id, obj))}.
      */
@@ -206,7 +224,7 @@ public final class Monitors {
         return m;
     }
 
-    /** Extract all monitors across class heirarchy. */
+    /** Extract all monitors across class hierarchy. */
     static void addMonitors(List<Monitor<?>> monitors, String id, TagList tags, Object obj) {
         for (Class<?> c = obj.getClass(); c != null; c = c.getSuperclass()) {
             addMonitorFields(monitors, id, tags, obj, c);
