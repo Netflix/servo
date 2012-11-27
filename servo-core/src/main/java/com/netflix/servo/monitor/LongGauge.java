@@ -31,7 +31,7 @@ public class LongGauge implements Gauge<Long> {
      *
      * @param config   configuration for this gauge
      */
-    LongGauge(MonitorConfig config) {
+    public LongGauge(MonitorConfig config) {
         this.config = config;
     }
 

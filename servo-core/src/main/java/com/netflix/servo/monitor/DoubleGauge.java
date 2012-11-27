@@ -30,7 +30,7 @@ public class DoubleGauge implements Gauge<Double> {
      *
      * @param config   configuration for this gauge
      */
-    DoubleGauge(MonitorConfig config) {
+    public DoubleGauge(MonitorConfig config) {
         this.config = config;
     }
 
