@@ -97,7 +97,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      * Increment the counter for a given name, tagList
      */
     public static void increment(String name, TagList list) {
-        MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
+        final MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
         increment(config);
     }
 
@@ -105,7 +105,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      * Increment the counter for a given name, tagList by a given delta.
      */
     public static void increment(String name, TagList list, long delta) {
-        MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
+        final MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
         increment(config, delta);
     }
 
