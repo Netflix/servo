@@ -20,8 +20,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.BasicTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -46,10 +44,9 @@ import java.util.concurrent.ConcurrentMap;
  * Each method is tagged with a <code>method</code> tag.
  * </p>
  */
-public class TimedInterface<T> {
+public class TimedInterface {
     private static class TimedHandler<T> implements InvocationHandler, CompositeMonitor<Long> {
         final T concrete;
-        final static Logger LOGGER = LoggerFactory.getLogger(TimedInterface.class);
 
         /**
          * {@inheritDoc}

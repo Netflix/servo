@@ -78,4 +78,20 @@ public class TimedInterfaceTest  {
             }
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTimedInterfaceNoId() {
+        final IDummy dummy = TimedInterface.newProxy(IDummy.class, new DummyImpl());
+
+        // you'd register the CompositeMonitor as:
+        DefaultMonitorRegistry.getInstance().register((CompositeMonitor)dummy);
+
+        final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) dummy;
+        final MonitorConfig expectedConfig = new MonitorConfig.Builder("IDummy")
+                .withTag("class", "DummyImpl")
+                .build();
+        assertEquals(compositeMonitor.getConfig(), expectedConfig);
+    }
+
 }
