@@ -116,4 +116,18 @@ public class DynamicCounterTest {
         Counter c2 = getByName("test2");
         assertNull(c2, "Counters not used in a while should expire");
     }
+
+    @Test
+    public void testByStrings() throws Exception {
+        DynamicCounter.increment("byName");
+        DynamicCounter.increment("byName");
+
+        Counter c = getByName("byName");
+        assertEquals(c.getValue().longValue(), 2L);
+
+        DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
+        DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
+        Counter c2 = getByName("byName2");
+        assertEquals(c.getValue().longValue(), 2L);
+    }
 }
