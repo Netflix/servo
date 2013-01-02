@@ -124,12 +124,13 @@ public class DynamicTimer implements CompositeMonitor<Long> {
 
     /**
      * Returns a stopwatch that has been started and will automatically
-     * record its result to the dynamic timer specified by the given config. The timer
-     * uses a TimeUnit of milliseconds.
+     * record its result to the dynamic timer specified by the given name, and sequence of (key,
+     * value) pairs. The timer uses a TimeUnit of milliseconds.
      */
     public static Stopwatch start(String name, String... tags) {
         final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
-        Preconditions.checkArgument(tags.length % 2 == 0, "Tags must be even: one key, one value");
+        Preconditions.checkArgument(tags.length % 2 == 0, 
+                "The sequence of (key, value) pairs must have even size: one key, one value");
         for (int i = 0; i < tags.length; i += 2) {
             configBuilder.withTag(tags[i], tags[i + 1]);
         }
