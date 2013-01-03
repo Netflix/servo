@@ -125,4 +125,21 @@ public class DynamicTimerTest {
         Timer c2 = getByName("test2");
         assertNull(c2, "Timers not used in a while should expire");
     }
+
+    @Test
+    public void testByStrings() throws Exception {
+        Stopwatch s = DynamicTimer.start("byName");
+        Stopwatch s2 = DynamicTimer.start("byName2", "key", "value");
+
+        Thread.sleep(100L);
+
+        s.stop();
+        s2.stop();
+
+        Timer c1 = getByName("byName");
+        assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
+
+        Timer c2 = getByName("byName2");
+        assertEquals(c2.getValue().longValue(), s2.getDuration(TimeUnit.MILLISECONDS));
+    }
 }

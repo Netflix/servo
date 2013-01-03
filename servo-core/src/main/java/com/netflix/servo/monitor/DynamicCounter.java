@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -85,6 +86,20 @@ public class DynamicCounter implements CompositeMonitor<Long> {
     }
 
     /**
+     * Increment a counter specified by a name, and a sequence of (key, value) pairs
+     */
+    public static void increment(String name, String... tags) {
+        final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
+        Preconditions.checkArgument(tags.length % 2 == 0, 
+                "The sequence of (key, value) pairs must have even size: one key, one value");
+        for (int i = 0; i < tags.length; i += 2) {
+            configBuilder.withTag(tags[i], tags[i + 1]);
+        }
+        increment(configBuilder.build());
+    }
+
+
+    /**
      * Increment a counter based on a given {@link MonitorConfig} by a given delta.
      * @param config The monitoring config
      * @param delta The amount added to the current value
@@ -105,7 +120,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      * Increment the counter for a given name, tagList by a given delta.
      */
     public static void increment(String name, TagList list, long delta) {
-        final MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
+        final MonitorConfig config = MonitorConfig.builder(name).withTags(list).build();
         increment(config, delta);
     }
 

@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -119,6 +120,22 @@ public class DynamicTimer implements CompositeMonitor<Long> {
      */
     public static Stopwatch start(MonitorConfig config) {
         return INSTANCE.get(config, TimeUnit.MILLISECONDS).start();
+    }
+
+    /**
+     * Returns a stopwatch that has been started and will automatically
+     * record its result to the dynamic timer specified by the given name, and sequence of (key,
+     * value) pairs. The timer uses a TimeUnit of milliseconds.
+     */
+    public static Stopwatch start(String name, String... tags) {
+        final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
+        Preconditions.checkArgument(tags.length % 2 == 0, 
+                "The sequence of (key, value) pairs must have even size: one key, one value");
+        for (int i = 0; i < tags.length; i += 2) {
+            configBuilder.withTag(tags[i], tags[i + 1]);
+        }
+
+        return INSTANCE.get(configBuilder.build(), TimeUnit.MILLISECONDS).start();
     }
 
     /**
