@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Netflix, Inc.
+ * Copyright 2013 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,12 @@ import java.util.concurrent.ConcurrentMap;
  *
  * <p>
  * All calls to methods implemented by IDummy would have an associated BasicTimer with them. The name for the
- * {@link CompositeMonitor} is the simple name of the interface. An additional tag: <code>class</code> is added
- * and the value is the simple name of the concrete class implementing the interface.
- * </p>
- * <p>
- * Each method is tagged with a <code>method</code> tag.
+ * {@link CompositeMonitor} is the name of the method. Additional tags are added: 
+ * <ul>
+ * <li><code>interface</code> interface being implemented.
+ * <li><code>class</code> simple name of the concrete class implementing the interface.
+ * <li><code>id</code> (Optional) An identifier for this particular instance.
+ * </ul>
  * </p>
  */
 public class TimedInterface {
