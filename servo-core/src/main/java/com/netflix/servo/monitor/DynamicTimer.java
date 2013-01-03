@@ -123,6 +123,14 @@ public class DynamicTimer implements CompositeMonitor<Long> {
     }
 
     /**
+     * Record result to the dynamic timer indicated by the provided config
+     * with a TimeUnit of milliseconds.
+     */
+    public static void record(MonitorConfig config, long duration){
+        INSTANCE.get(config, TimeUnit.MILLISECONDS).record(duration);
+    }
+
+    /**
      * Record result to the dynamic timer indicated by the provided config.
      */
     public static void record(MonitorConfig config, long duration, TimeUnit unit){
