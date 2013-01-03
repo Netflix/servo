@@ -128,6 +128,6 @@ public class DynamicCounterTest {
         DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
         DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
         Counter c2 = getByName("byName2");
-        assertEquals(c.getValue().longValue(), 2L);
+        assertEquals(c2.getValue().longValue(), 2L);
     }
 }
