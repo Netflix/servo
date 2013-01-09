@@ -19,7 +19,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.CountingOutputStream;
-
+import com.netflix.servo.monitor.DynamicCounter;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.CounterToRateMetricTransform;
 import com.netflix.servo.publish.FileMetricObserver;
@@ -27,27 +27,21 @@ import com.netflix.servo.publish.MetricObserver;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
-
-import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.tag.Tags;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
  * An really basic echo server that uses the utility methods from
- * {@link com.netflix.servo.util.Counters}.
+ * {@link com.netflix.servo.monitor.DynamicCounter}
  */
 public class EchoServerExample {
 
@@ -74,15 +68,18 @@ public class EchoServerExample {
     public static class AcceptTask implements Runnable {
         private static final String[] COUNTRIES = {"US", "CA", "GB", "IE"};
         private final ServerSocket ss;
-        private final Random r = new Random();
 
         public AcceptTask(int port) throws IOException {
             ss = new ServerSocket(port);
         }
 
         public TagList getTags(Socket s) {
-            String country = COUNTRIES[r.nextInt(COUNTRIES.length)];
-            return SortedTagList.builder().withTag(Tags.newTag("Country", country)).build();
+            // Find the remote country by using this socket
+            int length = COUNTRIES.length;
+            // force countryCode to be non-negative
+            int countryCode = (s.getInetAddress().hashCode() % length + length) % length;
+            String country = COUNTRIES[countryCode];
+            return BasicTagList.of("Country", country);
         }
 
         public void run() {
@@ -93,7 +90,7 @@ public class EchoServerExample {
                     LOGGER.info("received connection from {} with tags {}",
                         s.getRemoteSocketAddress(), tags);
 
-                    //Counters.increment("RequestCount", tags);
+                    DynamicCounter.increment("RequestCount", tags);
                     ClientTask task = new ClientTask(tags, s);
                     Thread t = new Thread(task, "ClientTask");
                     t.start();
@@ -120,8 +117,8 @@ public class EchoServerExample {
                 input = new CountingInputStream(s.getInputStream());
                 output = new CountingOutputStream(s.getOutputStream());
                 ByteStreams.copy(input, output);
-                //Counters.increment("BytesIn", input.getCount());
-                //Counters.increment("BytesOut", output.getCount());
+                DynamicCounter.increment("BytesIn", tags, input.getCount());
+                DynamicCounter.increment("BytesOut", tags, output.getCount());
             } finally {
                 Closeables.closeQuietly(input);
                 Closeables.closeQuietly(output);
