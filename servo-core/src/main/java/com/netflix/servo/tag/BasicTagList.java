@@ -17,15 +17,18 @@ package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -147,6 +150,34 @@ public final class BasicTagList implements TagList {
      */
     public static BasicTagList concat(TagList t1, Tag... t2) {
         return new BasicTagList(Iterables.concat(t1, Arrays.asList(t2)));
+    }
+
+    /**
+     * Returns a tag list from the list of key values passed.
+     *
+     * Example:
+     *
+     * <code>
+     *     BasicTagList tagList = BasicTagList.of("id", "someId", "class", "someClass");
+     * </code>
+     */
+    public static BasicTagList of(String... tags) {
+        Preconditions.checkArgument(tags.length % 2 == 0,
+                "tags must be a sequence of key,value pairs");
+
+        final List<Tag> tagList = Lists.newArrayList();
+        for (int i = 0; i < tags.length; i += 2) {
+            Tag t = new BasicTag(tags[i], tags[i + 1]);
+            tagList.add(t);
+        }
+        return new BasicTagList(tagList);
+    }
+
+    /**
+     * Returns a tag list from the tags
+     */
+    public static BasicTagList of(Tag... tags) {
+        return new BasicTagList(Arrays.asList(tags));
     }
 
     /**

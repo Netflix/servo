@@ -150,4 +150,17 @@ public class BasicTagListTest {
         assertTrue(t1.hashCode() != t2.hashCode());
         assertTrue(t1.hashCode() == t3.hashCode());
     }
+
+    @Test
+    public void testOf() throws Exception {
+        BasicTagList expected = BasicTagList.copyOf("foo=bar", "id=1");
+        BasicTagList of = BasicTagList.of("foo", "bar", "id", "1");
+        assertEquals(of, expected);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testOfOddNumber() {
+        BasicTagList of = BasicTagList.of("foo");
+    }
 }
+
