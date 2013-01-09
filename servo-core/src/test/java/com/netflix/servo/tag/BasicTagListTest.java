@@ -41,17 +41,11 @@ public class BasicTagListTest {
         assertEquals(tags.asMap(), map);
     }
 
-    @Test
-    public void testCopyOfVarargString() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        TagList tags = BasicTagList.copyOf("foo=bar", "dee=dum");
-        assertEquals(tags.asMap(), map);
-    }
 
     @Test
-    public void testCopyOfVarargTag() throws Exception {
+    public void testOfVarargTag() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        TagList tags = BasicTagList.copyOf(
+        TagList tags = BasicTagList.of(
             new BasicTag("foo", "bar"), new BasicTag("dee", "dum"));
         assertEquals(tags.asMap(), map);
     }
@@ -59,7 +53,7 @@ public class BasicTagListTest {
     @Test
     public void testConcatVararg() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        TagList t1 = BasicTagList.copyOf("foo=bar");
+        TagList t1 = BasicTagList.of("foo", "bar");
         TagList tags = BasicTagList.concat(t1, new BasicTag("dee", "dum"));
         assertEquals(tags.asMap(), map);
     }
@@ -67,8 +61,8 @@ public class BasicTagListTest {
     @Test
     public void testConcatTagList() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        TagList t1 = BasicTagList.copyOf("foo=bar");
-        TagList t2 = BasicTagList.copyOf("dee=dum");
+        TagList t1 = BasicTagList.of("foo", "bar");
+        TagList t2 = BasicTagList.of("dee", "dum");
         TagList tags = BasicTagList.concat(t1, t2);
         assertEquals(tags.asMap(), map);
     }
@@ -76,8 +70,8 @@ public class BasicTagListTest {
     @Test
     public void testConcatOverride() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar2");
-        TagList t1 = BasicTagList.copyOf("foo=bar");
-        TagList t2 = BasicTagList.copyOf("foo=bar2");
+        TagList t1 = BasicTagList.of("foo", "bar");
+        TagList t2 = BasicTagList.of("foo", "bar2");
         TagList tags = BasicTagList.concat(t1, t2);
         assertEquals(tags.asMap(), map);
     }
@@ -91,7 +85,7 @@ public class BasicTagListTest {
 
     @Test
     public void testAccessors() throws Exception {
-        TagList t1 = BasicTagList.copyOf("foo=bar");
+        TagList t1 = BasicTagList.of("foo", "bar");
         assertTrue(!t1.isEmpty());
         assertEquals(t1.size(), 1);
         assertEquals(t1.getTag("foo"), new BasicTag("foo", "bar"));
@@ -102,7 +96,7 @@ public class BasicTagListTest {
 
     @Test
     public void testIterator() throws Exception {
-        TagList t1 = BasicTagList.copyOf("foo=bar");
+        TagList t1 = BasicTagList.of("foo", "bar");
         for (Tag t : t1) {
             assertEquals(t, new BasicTag("foo", "bar"));
         }
@@ -111,9 +105,9 @@ public class BasicTagListTest {
     @Test
     public void testCopyTagList() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        BasicTagList t1 = BasicTagList.copyOf("foo=bar");
-        BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
-        BasicTagList t3 = BasicTagList.copyOf("dee=dum");
+        BasicTagList t1 = BasicTagList.of("foo", "bar");
+        BasicTagList t2 = BasicTagList.of("foo", "bar2");
+        BasicTagList t3 = BasicTagList.of("dee", "dum");
         assertEquals(t1.copy(t2), t2);
         assertEquals(t1.copy(t3).asMap(), map);
     }
@@ -121,17 +115,17 @@ public class BasicTagListTest {
     @Test
     public void testCopy() throws Exception {
         Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        BasicTagList t1 = BasicTagList.copyOf("foo=bar");
-        BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
+        BasicTagList t1 = BasicTagList.of("foo", "bar");
+        BasicTagList t2 = BasicTagList.of("foo", "bar2");
         assertEquals(t1.copy("foo", "bar2"), t2);
         assertEquals(t1.copy("dee", "dum").asMap(), map);
     }
 
     @Test
     public void testEquals() throws Exception {
-        BasicTagList t1 = BasicTagList.copyOf("foo=bar");
-        BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
-        BasicTagList t3 = BasicTagList.copyOf("foo=bar");
+        BasicTagList t1 = BasicTagList.of("foo", "bar");
+        BasicTagList t2 = BasicTagList.of("foo", "bar2");
+        BasicTagList t3 = BasicTagList.of("foo", "bar");
 
         assertNotNull(t1);
         assertFalse(t1.toString().equals(t2.toString()));
@@ -142,9 +136,9 @@ public class BasicTagListTest {
 
     @Test
     public void testHashCode() throws Exception {
-        BasicTagList t1 = BasicTagList.copyOf("foo=bar");
-        BasicTagList t2 = BasicTagList.copyOf("foo=bar2");
-        BasicTagList t3 = BasicTagList.copyOf("foo=bar");
+        BasicTagList t1 = BasicTagList.of("foo", "bar");
+        BasicTagList t2 = BasicTagList.of("foo", "bar2");
+        BasicTagList t3 = BasicTagList.of("foo", "bar");
 
         assertTrue(t1.hashCode() == t1.hashCode());
         assertTrue(t1.hashCode() != t2.hashCode());
@@ -153,14 +147,14 @@ public class BasicTagListTest {
 
     @Test
     public void testOf() throws Exception {
-        BasicTagList expected = BasicTagList.copyOf("foo=bar", "id=1");
+        BasicTagList expected = BasicTagList.copyOf(ImmutableMap.of("foo", "bar", "id", "1"));
         BasicTagList of = BasicTagList.of("foo", "bar", "id", "1");
         assertEquals(of, expected);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testOfOddNumber() {
-        BasicTagList of = BasicTagList.of("foo");
+        BasicTagList.of("foo");
     }
 }
 

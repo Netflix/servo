@@ -19,7 +19,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 
@@ -88,9 +87,9 @@ public class TimedInterface {
 
         TimedHandler(Class<T> ctype, T concrete, String id) {
             this.concrete = concrete;
-            BasicTagList tagList = BasicTagList.copyOf(
-                    new BasicTag(INTERFACE_TAG, ctype.getSimpleName()),
-                    new BasicTag(CLASS_TAG, concrete.getClass().getSimpleName()));
+            BasicTagList tagList = BasicTagList.of(
+                    INTERFACE_TAG, ctype.getSimpleName(),
+                    CLASS_TAG, concrete.getClass().getSimpleName());
             if (id != null) {
                 tagList = tagList.copy(ID_TAG, id);
             }
