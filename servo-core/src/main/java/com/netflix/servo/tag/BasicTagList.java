@@ -182,7 +182,10 @@ public final class BasicTagList implements TagList {
 
     /**
      * Returns a tag list that has a copy of {@code tags}.
+     *
+     * @deprecated Use {@link #of(Tag...)}
      */
+    @Deprecated
     public static BasicTagList copyOf(Tag... tags) {
         return new BasicTagList(Arrays.asList(tags));
     }
@@ -190,7 +193,10 @@ public final class BasicTagList implements TagList {
     /**
      * Returns a tag list that has a copy of {@code tags}. Each tag value
      * is expected to be a string parseable using {@link BasicTag#parseTag}.
+     *
+     * @deprecated Use {@link #of(String...)} with separate key, values instead.
      */
+    @Deprecated
     public static BasicTagList copyOf(String... tags) {
         return copyOf(Arrays.asList(tags));
     }

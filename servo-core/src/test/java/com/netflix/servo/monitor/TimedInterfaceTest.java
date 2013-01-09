@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
@@ -81,10 +80,10 @@ public class TimedInterfaceTest  {
         assertEquals(monitors.size(), 2);
         assertEquals(compositeMonitor.getValue().longValue(), 2L);
 
-        final TagList tagList = BasicTagList.copyOf(
-                new BasicTag(TimedInterface.CLASS_TAG, "DummyImpl"),
-                new BasicTag(TimedInterface.INTERFACE_TAG, "IDummy"),
-                new BasicTag(TimedInterface.ID_TAG, "id"));
+        final TagList tagList = BasicTagList.of(
+                TimedInterface.CLASS_TAG, "DummyImpl",
+                TimedInterface.INTERFACE_TAG, "IDummy",
+                TimedInterface.ID_TAG, "id");
         final MonitorConfig expectedConfig = MonitorConfig.builder(TimedInterface.TIMED_INTERFACE)
                 .withTags(tagList).build();
 
@@ -113,9 +112,9 @@ public class TimedInterfaceTest  {
         DefaultMonitorRegistry.getInstance().register((CompositeMonitor)dummy);
 
         final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) dummy;
-        final TagList tagList = BasicTagList.copyOf(
-                new BasicTag(TimedInterface.CLASS_TAG, "DummyImpl"),
-                new BasicTag(TimedInterface.INTERFACE_TAG, "IDummy"));
+        final TagList tagList = BasicTagList.of(
+                TimedInterface.CLASS_TAG, "DummyImpl",
+                TimedInterface.INTERFACE_TAG, "IDummy");
         final MonitorConfig expectedConfig = MonitorConfig.builder(TimedInterface.TIMED_INTERFACE)
                 .withTags(tagList).build();
         assertEquals(compositeMonitor.getConfig(), expectedConfig);
