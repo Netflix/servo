@@ -21,7 +21,7 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.annotations.MonitorTags;
-import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -52,7 +52,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
     public BaseMetricObserver(String name) {
         final Tag id = Tags.newTag(StandardTagKeys.MONITOR_ID.getKeyName(), name);
         this.name = Preconditions.checkNotNull(name);
-        this.tags = SortedTagList.builder().withTag(id).build();
+        this.tags = BasicTagList.of(id);
     }
 
     /**
