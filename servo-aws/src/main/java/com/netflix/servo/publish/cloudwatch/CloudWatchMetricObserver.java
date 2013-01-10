@@ -46,14 +46,14 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     private static final Logger log = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
     /**
-     * Experimentally derived value for the largest expononent that can be sent to cloudwatch
+     * Experimentally derived value for the largest exponent that can be sent to cloudwatch
      * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
      * program that was used.
      */
     private static final int MAX_EXPONENT = 360;
 
     /**
-     * Experimentally derived value for the smallest expononent that can be sent to cloudwatch
+     * Experimentally derived value for the smallest exponent that can be sent to cloudwatch
      * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
      * program that was used.
      */
@@ -209,6 +209,4 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         this.truncateEnabled = truncateEnabled;
         return this;
     }
-
-
 }
