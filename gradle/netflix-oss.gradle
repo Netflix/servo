@@ -9,11 +9,5 @@ rootProject {
         def deps = compileConf.dependencies
         def jackson = deps.findAll { it.group == 'org.codehaus.jackson' }
         deps.removeAll(jackson)
-        def realDep = deps.find { it.group == 'com.amazonaws' && it.name == 'aws-java-sdk' }
-        if (realDep != null) {
-            def version = realDep.version
-            deps.remove(realDep)
-            project.dependencies.add('compile', "com.amazon:aws-java-sdk:${version}")
-        }
     }
 }
