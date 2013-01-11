@@ -253,7 +253,13 @@ public final class Monitors {
             for (Field field : fields) {
                 if (isMonitorType(field.getType())) {
                     field.setAccessible(true);
-                    monitors.add(wrap(classTags, (Monitor<?>) field.get(obj)));
+                    Monitor<?> m = (Monitor<?>) field.get(obj);
+                    if (m == null) {
+                        throw new NullPointerException("field " + field.getName() +
+                            " in class " + c.getName() + " is null, all monitor fields must be" +
+                            " initialized before registering");
+                    }
+                    monitors.add(wrap(classTags, m));
                 }
             }
         } catch (Exception e) {
