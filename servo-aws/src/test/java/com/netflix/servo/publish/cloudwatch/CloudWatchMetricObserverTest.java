@@ -17,7 +17,7 @@ package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.AmazonClientException;
 
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
@@ -31,13 +31,10 @@ import junit.framework.Assert;
 
 /**
  * CloudWatchMetricObserver tests.
- * User: gorzell
- * Date: 1/9/12
- * Time: 2:24 PM
  */
 public class CloudWatchMetricObserverTest {
     private CloudWatchMetricObserver observer = new CloudWatchMetricObserver(
-            "testObserver", "testDomain", new BasicAWSCredentials("", ""));
+            "testObserver", "testDomain", new InstanceProfileCredentialsProvider());
 
     private static final int NUM_METRICS = 33;
     private static final int VALUE = 10;
