@@ -16,6 +16,7 @@
 package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
@@ -75,7 +76,10 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param name Unique name of the observer.
      * @param namespace Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
+     *
+     * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
      */
+    @Deprecated
     public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials) {
         this(name, namespace, new AmazonCloudWatchClient(credentials));
     }
@@ -86,9 +90,34 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param namespace Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+     *
+     * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
      */
+    @Deprecated
     public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials, int batchSize) {
         this(name, namespace, credentials);
+        this.batchSize = batchSize;
+    }
+
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param namespace Namespace to use in CloudWatch.
+     * @param provider Amazon credentials provider
+     */
+    public CloudWatchMetricObserver(String name, String namespace, AWSCredentialsProvider provider) {
+        this(name, namespace, new AmazonCloudWatchClient(provider));
+    }
+
+    /**
+     *
+     * @param name Unique name of the observer.
+     * @param namespace Namespace to use in CloudWatch.
+     * @param provider Amazon credentials provider.
+     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+     */
+    public CloudWatchMetricObserver(String name, String namespace, AWSCredentialsProvider provider, int batchSize) {
+        this(name, namespace, provider);
         this.batchSize = batchSize;
     }
 
