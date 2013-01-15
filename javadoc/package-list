@@ -4,5 +4,6 @@ com.netflix.servo.examples
 com.netflix.servo.jmx
 com.netflix.servo.monitor
 com.netflix.servo.publish
+com.netflix.servo.stats
 com.netflix.servo.tag
 com.netflix.servo.util
