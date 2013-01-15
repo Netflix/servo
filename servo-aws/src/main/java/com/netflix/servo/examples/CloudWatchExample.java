@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.examples;
 
-import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.netflix.servo.*;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.publish.BasicMetricFilter;
@@ -41,7 +41,7 @@ public class CloudWatchExample {
         }
 
         CloudWatchMetricObserver observer = new CloudWatchMetricObserver("SampleObserver", "SampleDomain",
-                new PropertiesCredentials(new File(args[0])));
+                new ClasspathPropertiesFileCredentialsProvider());
 
         List<Tag> tags = new ArrayList<Tag>(2);
         tags.add(InjectableTag.HOSTNAME);
