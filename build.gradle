@@ -73,7 +73,11 @@ subprojects {
 }
 
 project(':servo-core') {
-
+    task(basicExample, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.examples.BasicExample'
+        classpath = sourceSets.main.runtimeClasspath
+        args = []
+    }
 }
 
 project(':servo-aws') {
