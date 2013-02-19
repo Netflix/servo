@@ -98,3 +98,16 @@ project(':servo-graphite') {
     }
 }
 
+project(':servo-example') {
+    dependencies {
+        compile project(':servo-core')
+        compile project(':servo-graphite')
+    }
+
+    task(run, dependsOn: 'classes', type: JavaExec) {
+        main = 'com.netflix.servo.example.Main'
+        classpath = sourceSets.main.runtimeClasspath
+        args = []
+    }
+}
+
