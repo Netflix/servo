@@ -45,6 +45,15 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     }
 
     @Test
+    public void testNoRecordedValues() throws Exception {
+        final StatsTimer timer = newInstance("novalue");
+        assertEquals(timer.getCount(), 0L);
+        assertEquals(timer.getTotalTime(), 0L);
+        final long timerValue = timer.getValue();
+        assertEquals(timerValue, 0L);
+    }
+
+    @Test
     public void testStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();

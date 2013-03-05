@@ -387,7 +387,8 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
-        return totalTime.getValue() / count.getValue();
+        final long n = getCount();
+        return n > 0 ? totalTime.getValue() / n : 0L;
     }
 
     /**
@@ -423,5 +424,20 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     @Override
     public int hashCode() {
         return Objects.hashCode(baseConfig, monitors);
+    }
+
+    /**
+     * Get the number of times this timer has been updated
+     */
+    public long getCount() {
+        return count.getValue();
+    }
+
+
+    /**
+     * Get the total time recorded for this timer
+     */
+    public long getTotalTime() {
+        return totalTime.getValue();
     }
 }
