@@ -15,18 +15,43 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.TagList;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
-import org.testng.annotations.*;
-import static org.testng.Assert.*;
+import static com.netflix.servo.annotations.DataSourceType.GAUGE;
+import static org.testng.Assert.assertEquals;
 
 public class MonitorsTest {
+
+    @Test
+    public void testAddMonitorsAnon() throws Exception {
+        List<Monitor<?>> monitors = Lists.newArrayList();
+        ClassWithMonitors obj = new ClassWithMonitors() {
+            final Counter c1 = Monitors.newCounter("publicCounter");
+            @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = GAUGE)
+            public final long a3 = 0L;
+        };
+        TagList tags = SortedTagList.builder().withTag("abc", "def").build();
+        Monitors.addMonitors(monitors, null, tags, obj);
+
+
+        List<String> classes = Lists.transform(monitors, new Function<Monitor<?>, String>() {
+            @Override
+            public String apply(Monitor<?> m) {
+                return m.getConfig().getTags().getTag("class").getValue();
+            }
+        });
+
+        assertEquals(classes.size(), 10);
+        for (String c: classes) {
+            assert(c.equals("ClassWithMonitors") || c.startsWith("com.netflix.servo.monitor.MonitorsTest$"));
+        }
+    }
 
     @Test
     public void testAddMonitorFields() throws Exception {

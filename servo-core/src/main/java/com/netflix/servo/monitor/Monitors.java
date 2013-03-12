@@ -239,21 +239,21 @@ public final class Monitors {
     static void addMonitorFields(
             List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
         try {
-            SortedTagList.Builder builder = SortedTagList.builder();
-            builder.withTag("class", obj.getClass().getSimpleName());
+            final SortedTagList.Builder builder = SortedTagList.builder();
+            builder.withTag("class", className(c));
             if (tags != null) {
                 builder.withTags(tags);
             }
             if (id != null) {
                 builder.withTag("id", id);
             }
-            TagList classTags = builder.build();
+            final TagList classTags = builder.build();
 
-            Field[] fields = c.getDeclaredFields();
+            final Field[] fields = c.getDeclaredFields();
             for (Field field : fields) {
                 if (isMonitorType(field.getType())) {
                     field.setAccessible(true);
-                    Monitor<?> m = (Monitor<?>) field.get(obj);
+                    final Monitor<?> m = (Monitor<?>) field.get(obj);
                     if (m == null) {
                         throw new NullPointerException("field " + field.getName() +
                             " in class " + c.getName() + " is null, all monitor fields must be" +
@@ -373,11 +373,17 @@ public final class Monitors {
         return builder.build();
     }
 
+    private static String className(Class c) {
+        final String simpleName = c.getSimpleName();
+
+        return simpleName.isEmpty() ? c.getName() : simpleName;
+    }
+
     /** Creates a monitor config based on an annotation. */
     private static MonitorConfig newConfig(
             Class<?> c, String id, com.netflix.servo.annotations.Monitor anno, TagList tags) {
         MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
-        builder.withTag("class", c.getSimpleName());
+        builder.withTag("class", className(c));
         builder.withTag(anno.type());
         builder.withTag(anno.level());
         if (tags != null) {
