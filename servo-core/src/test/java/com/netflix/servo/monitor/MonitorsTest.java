@@ -15,18 +15,35 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import com.netflix.servo.tag.TagList;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.TagList;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
-import org.testng.annotations.*;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class MonitorsTest {
+
+    @Test
+    public void testAddMonitorsAnon() throws Exception {
+        List<Monitor<?>> monitors = Lists.newArrayList();
+        ClassWithMonitors obj = new ClassWithMonitors() {
+            final Counter c1 = Monitors.newCounter("publicCounter");
+            @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = DataSourceType.GAUGE)
+            public final long a1 = 0L;
+        };
+        TagList tags = SortedTagList.builder().withTag("abc", "def").build();
+        Monitors.addMonitors(monitors, null, tags, obj);
+
+        assertEquals(monitors.size(), 10);
+        for (Monitor m : monitors) {
+            assertEquals(m.getConfig().getTags().getValue("class"), "MonitorsTest",
+                    String.format("%s should have class MonitorsTest", m.getConfig().getName()));
+        }
+    }
 
     @Test
     public void testAddMonitorFields() throws Exception {
@@ -73,7 +90,10 @@ public class MonitorsTest {
     public void testNewObjectMonitorWithParentClass() throws Exception {
         ParentHasMonitors obj = new ParentHasMonitors();
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
-        //System.err.println(monitors);
+        for (Monitor m : monitors) {
+            assertEquals(m.getConfig().getTags().getValue("class"), "ParentHasMonitors",
+                    String.format("%s should have class ParentHasMonitors", m.getConfig().getName()));
+        }
         assertEquals(monitors.size(), 10);
     }
 }
