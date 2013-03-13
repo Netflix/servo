@@ -33,7 +33,7 @@ public class MonitorsTest {
         ClassWithMonitors obj = new ClassWithMonitors() {
             final Counter c1 = Monitors.newCounter("publicCounter");
             @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = DataSourceType.GAUGE)
-            public final long a1 = 0L;
+            final static long a1 = 0L;
         };
         TagList tags = SortedTagList.builder().withTag("abc", "def").build();
         Monitors.addMonitors(monitors, null, tags, obj);
