@@ -240,7 +240,7 @@ public final class Monitors {
             List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
         try {
             final SortedTagList.Builder builder = SortedTagList.builder();
-            builder.withTag("class", className(c));
+            builder.withTag("class", className(obj.getClass()));
             if (tags != null) {
                 builder.withTags(tags);
             }
@@ -376,7 +376,7 @@ public final class Monitors {
     private static String className(Class c) {
         final String simpleName = c.getSimpleName();
 
-        return simpleName.isEmpty() ? c.getName() : simpleName;
+        return simpleName.isEmpty() ? className(c.getEnclosingClass()): simpleName;
     }
 
     /** Creates a monitor config based on an annotation. */

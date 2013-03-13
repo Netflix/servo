@@ -15,15 +15,14 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.netflix.servo.annotations.DataSourceType.GAUGE;
 import static org.testng.Assert.assertEquals;
 
 public class MonitorsTest {
@@ -33,23 +32,16 @@ public class MonitorsTest {
         List<Monitor<?>> monitors = Lists.newArrayList();
         ClassWithMonitors obj = new ClassWithMonitors() {
             final Counter c1 = Monitors.newCounter("publicCounter");
-            @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = GAUGE)
-            public final long a3 = 0L;
+            @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = DataSourceType.GAUGE)
+            public final long a1 = 0L;
         };
         TagList tags = SortedTagList.builder().withTag("abc", "def").build();
         Monitors.addMonitors(monitors, null, tags, obj);
 
-
-        List<String> classes = Lists.transform(monitors, new Function<Monitor<?>, String>() {
-            @Override
-            public String apply(Monitor<?> m) {
-                return m.getConfig().getTags().getTag("class").getValue();
-            }
-        });
-
-        assertEquals(classes.size(), 10);
-        for (String c: classes) {
-            assert(c.equals("ClassWithMonitors") || c.startsWith("com.netflix.servo.monitor.MonitorsTest$"));
+        assertEquals(monitors.size(), 10);
+        for (Monitor m : monitors) {
+            assertEquals(m.getConfig().getTags().getValue("class"), "MonitorsTest",
+                    String.format("%s should have class MonitorsTest", m.getConfig().getName()));
         }
     }
 
@@ -98,7 +90,10 @@ public class MonitorsTest {
     public void testNewObjectMonitorWithParentClass() throws Exception {
         ParentHasMonitors obj = new ParentHasMonitors();
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
-        //System.err.println(monitors);
+        for (Monitor m : monitors) {
+            assertEquals(m.getConfig().getTags().getValue("class"), "ParentHasMonitors",
+                    String.format("%s should have class ParentHasMonitors", m.getConfig().getName()));
+        }
         assertEquals(monitors.size(), 10);
     }
 }
