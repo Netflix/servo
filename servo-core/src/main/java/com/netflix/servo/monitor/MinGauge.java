@@ -37,8 +37,12 @@ public class MinGauge extends AbstractMonitor<Long>
 
     /** Update the min if the provided value is smaller than the current min. */
     public void update(long v) {
-        if (v < min.get()) {
-            min.set(v);
+        long currentMinValue = min.get();
+        while (v < currentMinValue) {
+            if (min.compareAndSet(currentMinValue, v)) {
+                break;
+            }
+            currentMinValue = min.get();
         }
     }
 
