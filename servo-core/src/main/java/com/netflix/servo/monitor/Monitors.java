@@ -280,7 +280,7 @@ public final class Monitors {
             for (Field field : fields) {
                 final com.netflix.servo.annotations.Monitor anno = field.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(obj.getClass(), id, anno, tags);
+                    final MonitorConfig config = newConfig(obj.getClass(), field.getName(), id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, field));
                     } else {
@@ -294,7 +294,7 @@ public final class Monitors {
             for (Method method : methods) {
                 final com.netflix.servo.annotations.Monitor anno = method.getAnnotation(annoClass);
                 if (anno != null) {
-                    final MonitorConfig config = newConfig(obj.getClass(), id, anno, tags);
+                    final MonitorConfig config = newConfig(obj.getClass(), method.getName(), id, anno, tags);
                     if (anno.type() == DataSourceType.INFORMATIONAL) {
                         monitors.add(new AnnotatedStringMonitor(config, obj, method));
                     } else {
@@ -381,8 +381,12 @@ public final class Monitors {
 
     /** Creates a monitor config based on an annotation. */
     private static MonitorConfig newConfig(
-            Class<?> c, String id, com.netflix.servo.annotations.Monitor anno, TagList tags) {
-        MonitorConfig.Builder builder = MonitorConfig.builder(anno.name());
+            Class<?> c, String defaultName, String id, com.netflix.servo.annotations.Monitor anno, TagList tags) {
+        String name = anno.name();
+        if (name.isEmpty()) {
+            name = defaultName;
+        }
+        MonitorConfig.Builder builder = MonitorConfig.builder(name);
         builder.withTag("class", className(c));
         builder.withTag(anno.type());
         builder.withTag(anno.level());

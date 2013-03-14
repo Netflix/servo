@@ -36,7 +36,7 @@ public @interface Monitor {
     /**
      * Name of the annotated attribute.
      */
-    String name();
+    String name() default "";
 
     /**
      * Type of value that is annotated, for more information see
