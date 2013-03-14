@@ -36,8 +36,12 @@ public class MaxGauge extends AbstractMonitor<Long>
 
     /** Update the max if the provided value is larger than the current max. */
     public void update(long v) {
-        if (v > max.get()) {
-            max.set(v);
+        long currentMaxValue = max.get();
+        while (v > currentMaxValue) {
+            if (max.compareAndSet(currentMaxValue, v)) {
+                break;
+            }
+            currentMaxValue = max.get();
         }
     }
 
