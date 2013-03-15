@@ -27,12 +27,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Writes observations to a file. The format is a basic text file with tabs
@@ -44,23 +43,33 @@ public final class FileMetricObserver extends BaseMetricObserver {
         LoggerFactory.getLogger(FileMetricObserver.class);
 
     private static final String FILE_DATE_FORMAT = "yyyy_dd_MM_HH_mm_ss_SSS";
-    private static final String ISO_DATE_FORMAT = "yyyy-dd-MM'T'HH:mm:ss.SSS";
-
     private final File dir;
-
+    private final boolean compress;
     private final SimpleDateFormat fileFormat;
-    private final SimpleDateFormat isoFormat;
 
     /**
      * Creates a new instance that stores files in {@code dir} with a prefix of
      * {@code name} and a suffix of a timestamp in the format
      * {@code yyyy_dd_MM_HH_mm_ss_SSS}.
      *
-     * @param name  name to use as a prefix on files
-     * @param dir   directory where observations will be stored
+     * @param name      name to use as a prefix on files
+     * @param dir       directory where observations will be stored
      */
     public FileMetricObserver(String name, File dir) {
-        this(name, String.format("'%s'_%s'.log'", name, FILE_DATE_FORMAT), dir);
+        this(name, dir, false);
+    }
+
+    /**
+     * Creates a new instance that stores files in {@code dir} with a prefix of
+     * {@code name} and a suffix of a timestamp in the format
+     * {@code yyyy_dd_MM_HH_mm_ss_SSS}.
+     *
+     * @param name      name to use as a prefix on files
+     * @param dir       directory where observations will be stored
+     * @param compress  whether to compress our output
+     */
+    public FileMetricObserver(String name, File dir, boolean compress) {
+        this(name, String.format("'%s'_%s", name, FILE_DATE_FORMAT) + (compress ? "'.log.gz'" : "'.log'"), dir, compress);
     }
 
     /**
@@ -70,14 +79,14 @@ public final class FileMetricObserver extends BaseMetricObserver {
      * @param name         name of the observer
      * @param namePattern  date format pattern used to create the file names
      * @param dir          directory where observations will be stored
+     * @param compress     whether to compress our output
      */
-    public FileMetricObserver(String name, String namePattern, File dir) {
+    public FileMetricObserver(String name, String namePattern, File dir, boolean compress) {
         super(name);
         this.dir = dir;
+        this.compress = compress;
         fileFormat = new SimpleDateFormat(namePattern);
         fileFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        isoFormat = new SimpleDateFormat(ISO_DATE_FORMAT);
-        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     /** {@inheritDoc} */
@@ -88,12 +97,13 @@ public final class FileMetricObserver extends BaseMetricObserver {
         try {
             LOGGER.debug("writing {} metrics to file {}", metrics.size(), file);
             OutputStream fileOut = new FileOutputStream(file, true);
+            if (compress) {
+                fileOut = new GZIPOutputStream(fileOut);
+            }
             out = new OutputStreamWriter(fileOut, "UTF-8");
             for (Metric m : metrics) {
-                String timestamp = isoFormat.format(new Date(m.getTimestamp()));
                 out.append(m.getConfig().getName()).append('\t')
                    .append(m.getConfig().getTags().toString()).append('\t')
-                   .append(timestamp).append('\t')
                    .append(m.getValue().toString()).append('\n');
             }
         } catch (IOException e) {

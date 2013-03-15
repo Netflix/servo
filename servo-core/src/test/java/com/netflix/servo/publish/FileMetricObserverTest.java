@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import java.io.*;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -61,18 +62,21 @@ public class FileMetricObserverTest {
 
     private void checkLine(int i, String line) {
         String[] parts = line.split("\t");
-        assertEquals(parts.length, 4);
+        assertEquals(parts.length, 3);
         assertEquals(parts[0], "m");
         for (Tag tag : TAGS) {
             String tagStr = tag.getKey() + "=" + tag.getValue();
             assertTrue(parts[1].contains(tagStr), "missing " + tagStr);
         }
-        assertEquals(parts[2], "1970-01-01T00:00:00.000");
-        assertEquals(Integer.parseInt(parts[3]), i);
+        assertEquals(Integer.parseInt(parts[2]), i);
     }
 
-    private void checkFile(File f) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+    private void checkFile(File f, boolean compressed) throws IOException {
+        InputStream is = new FileInputStream(f);
+        if (compressed) {
+            is = new GZIPInputStream(is);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         try {
             int i = 0;
             String line;
@@ -99,7 +103,28 @@ public class FileMetricObserverTest {
             File[] files = dir.listFiles();
             assertEquals(files.length, 3);
             for (File f : files) {
-                checkFile(f);
+                checkFile(f, false);
+            }
+        } finally {
+            deleteRecursively(dir);
+        }
+    }
+
+    @Test
+    public void testUpdateCompressed() throws Exception {
+        File dir = Files.createTempDir();
+        try {
+            MetricObserver fmo = new FileMetricObserver("test", dir, true);
+            fmo.update(mkList(1));
+            Thread.sleep(250);
+            fmo.update(mkList(2));
+            Thread.sleep(250);
+            fmo.update(mkList(3));
+
+            File[] files = dir.listFiles();
+            assertEquals(files.length, 3);
+            for (File f : files) {
+                checkFile(f, true);
             }
         } finally {
             deleteRecursively(dir);
