@@ -106,14 +106,14 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     public void testMultiThreadStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();
-        final int N = 100 * 1000;
+        final int N = 10 * 1000;
         expectedValues.put("count", (long) N);
         expectedValues.put("totalTime", (long) N * (N - 1) / 2);
-        expectedValues.put("stdDev", 28867.66);
-        expectedValues.put("percentile_50", 50 * 1000.0);
-        expectedValues.put("percentile_95", 95 * 1000.0);
-        expectedValues.put("percentile_99", 99 * 1000.0);
-        expectedValues.put("percentile_99.50", 99.5 * 1000.0);
+        expectedValues.put("stdDev", 2886.766);
+        expectedValues.put("percentile_50", 5 * 1000.0);
+        expectedValues.put("percentile_95", 9.5 * 1000.0);
+        expectedValues.put("percentile_99", 9.9 * 1000.0);
+        expectedValues.put("percentile_99.50", 9.95 * 1000.0);
 
         ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
