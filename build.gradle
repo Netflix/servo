@@ -18,12 +18,17 @@
 ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
 
 buildscript {
-    repositories { mavenCentral() }
+    repositories {
+        mavenLocal()
+        mavenCentral() // maven { url 'http://jcenter.bintray.com' }
+    }
     apply from: file('gradle/buildscript.gradle'), to: buildscript 
 }
 
 allprojects {
-    repositories { mavenCentral() }
+    repositories { 
+        mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
+    }
 }
 
 apply from: file('gradle/convention.gradle')
@@ -110,4 +115,3 @@ project(':servo-example') {
         args = []
     }
 }
-
