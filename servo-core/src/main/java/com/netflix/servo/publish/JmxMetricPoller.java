@@ -160,9 +160,6 @@ public final class JmxMetricPoller implements MetricPoller {
         TagList tags = createTagList(name);
         MBeanInfo info = con.getMBeanInfo(name);
         MBeanAttributeInfo[] attrInfos = info.getAttributes();
-        if (attrInfos == null) {
-            return;
-        }
 
         // Restrict to attributes that match the filter
         List<String> matchingNames = Lists.newArrayList();
