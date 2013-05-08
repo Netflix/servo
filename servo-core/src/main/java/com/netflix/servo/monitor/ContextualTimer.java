@@ -44,7 +44,7 @@ public class ContextualTimer extends AbstractContextualMonitor<Long, Timer> impl
     /** {@inheritDoc} */
     @Override
     public Stopwatch start() {
-        Stopwatch s = new BasicStopwatch(getMonitorForCurrentContext());
+        Stopwatch s = new TimedStopwatch(getMonitorForCurrentContext());
         s.start();
         return s;
     }

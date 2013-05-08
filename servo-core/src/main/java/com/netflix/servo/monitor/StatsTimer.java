@@ -357,7 +357,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     /** {@inheritDoc} */
     @Override
     public Stopwatch start() {
-        Stopwatch s = new BasicStopwatch(this);
+        Stopwatch s = new TimedStopwatch(this);
         s.start();
         return s;
     }
