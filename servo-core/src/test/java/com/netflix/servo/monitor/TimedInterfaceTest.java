@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class TimedInterfaceTest  {
     /**
@@ -95,10 +96,14 @@ public class TimedInterfaceTest  {
             final MonitorConfig expected = MonitorConfig.builder(method).withTags(tagList).build();
             assertEquals(config, expected);
             if (method.equals("method1")) {
-                assertEquals(((Monitor<Long>)monitor).getValue().longValue(), 5);
+                // expected result is 5, but let's give it a fudge factor to account for slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 5;
+                assertTrue(value >= 0 && value <= 4);
             } else {
                 assertEquals(method, "method2");
-                assertEquals(((Monitor<Long>)monitor).getValue().longValue(), 15);
+                // expected result is 15, but let's give it a fudge factor to account for slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 15;
+                assertTrue(value >= 0 && value <= 4);
             }
         }
     }
