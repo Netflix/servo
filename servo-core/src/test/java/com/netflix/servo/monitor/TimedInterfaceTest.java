@@ -45,18 +45,18 @@ public class TimedInterfaceTest  {
 
         @Override
         public void method1() {
-            sleep(5);
+            sleep(20);
         }
 
         @Override
         public boolean method2(int n) {
-            sleep(15);
+            sleep(40);
             return n > 0;
         }
 
         @Override
         public Object method3(Object a, Object b) {
-            sleep(30);
+            sleep(60);
             return a;
         }
     }
@@ -96,14 +96,14 @@ public class TimedInterfaceTest  {
             final MonitorConfig expected = MonitorConfig.builder(method).withTags(tagList).build();
             assertEquals(config, expected);
             if (method.equals("method1")) {
-                // expected result is 5, but let's give it a fudge factor to account for slow machines
-                long value = ((Monitor<Long>) monitor).getValue() - 5;
-                assertTrue(value >= 0 && value <= 4);
+                // expected result is 20, but let's give it a fudge factor to account for slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 20;
+                assertTrue(value >= 0 && value <= 9);
             } else {
                 assertEquals(method, "method2");
-                // expected result is 15, but let's give it a fudge factor to account for slow machines
-                long value = ((Monitor<Long>) monitor).getValue() - 15;
-                assertTrue(value >= 0 && value <= 4);
+                // expected result is 40, but let's give it a fudge factor to account for slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 40;
+                assertTrue(value >= 0 && value <= 9);
             }
         }
     }
