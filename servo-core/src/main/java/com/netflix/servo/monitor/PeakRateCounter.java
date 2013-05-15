@@ -49,7 +49,7 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         @Override
         public int compare(Map.Entry<AtomicLong, AtomicLong> o1, Map.Entry<AtomicLong, AtomicLong> o2) {
             long v1 = o1.getValue().get();
-            long v2 = o1.getValue().get();
+            long v2 = o2.getValue().get();
             return (v1 == v2 ? 0 : v1 > v2 ? 1 : -1);
         }
     }
