@@ -66,7 +66,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         }
 
         peakCount = c.getValue();
-        assertEquals(peakCount, 0L, "Delta of 5 in 5 seconds, e.g. peak rate = average, 1 per second");
+        assertEquals(peakCount, 1L, "Delta of 5 in 5 seconds, e.g. peak rate = average, 1 per second");
 
 
 
@@ -88,7 +88,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         c.increment();
 
         peakCount = c.getValue();
-        assertEquals(peakCount, 3L, "Delta of 15 in 5 seconds, e.g. peak rate = 10, average = 3, min = 1 per second");
+        assertEquals(peakCount, 10L, "Delta of 15 in 5 seconds, e.g. peak rate = 10, average = 3, min = 1 per second");
 
 
         Thread.sleep(5000L);
