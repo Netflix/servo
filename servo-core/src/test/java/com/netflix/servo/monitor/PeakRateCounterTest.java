@@ -17,13 +17,9 @@ package com.netflix.servo.monitor;
 
 import static com.netflix.servo.monitor.PeakRateCounterTest.SAMPL_INTERVAL;
 import com.netflix.servo.tag.Tag;
-import static java.lang.Thread.sleep;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
