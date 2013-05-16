@@ -23,6 +23,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,7 +47,21 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         this.intervalTimestamp = new AtomicLong(System.currentTimeMillis());
     }
 
-    static class BucketValueComparator implements Comparator<Map.Entry<AtomicLong, AtomicLong>>, Serializable {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment() {
+        increment(1L);
+    }
+
+    @Override
+    public Long getValue() {
+        Map.Entry<AtomicLong, AtomicLong> max = getMaxBucket();
+        return (max == null ? 0L : max.getValue().get());
+    }
+
+    static class MapEntryValueComparator implements Comparator<Map.Entry<AtomicLong, AtomicLong>>, Serializable {
 
         @Override
         public int compare(Map.Entry<AtomicLong, AtomicLong> o1, Map.Entry<AtomicLong, AtomicLong> o2) {
@@ -54,39 +71,35 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         }
     }
 
-    @Override
-    public Long getValue() {
-
+    Map.Entry<AtomicLong, AtomicLong> getMaxBucket() {
         Set<Map.Entry<AtomicLong, AtomicLong>> entrySet = counterBuckets.get().entrySet();
 
         if (entrySet.isEmpty()) {
-            return 0L;
+            return null;
         }
 
-        Comparator<Map.Entry<AtomicLong, AtomicLong>> cmp = new BucketValueComparator();
+        Comparator<Map.Entry<AtomicLong, AtomicLong>> cmp = new MapEntryValueComparator();
 
         Map.Entry<AtomicLong, AtomicLong> max = Collections.max(entrySet, cmp);
 
-        long maxCountPerSecond = max.getValue().get();
-
-        return maxCountPerSecond;
+        return max;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void increment() {
-        increment(1L);
+    // remove all but the new current and max buckets
+    // if the current and max are same will only leave one bucket in the cache
+    void trimBuckets(AtomicLong currentBucketKey) {
+
+        Map.Entry<AtomicLong, AtomicLong> maxBucket = getMaxBucket();
+        AtomicLong maxBucketKey = maxBucket.getKey();
+        Set<AtomicLong> keySet = counterBuckets.get().keySet();
+
+        for (AtomicLong key : keySet) {
+            if ((!key.equals(maxBucketKey)) && (!key.equals(currentBucketKey))) {
+                counterBuckets.get().remove(key);
+            }
+        }
     }
 
-    /* !KS change increment to safely update when count is null
-     * see DCL or Lay initialization pg 348 Goetz
-     * 
-     * todo keep only the current and the max
-     * 
-     * handle the ellapsed time wrapping for the bucketKey
-     */
     /**
      * {@inheritDoc}
      */
@@ -94,18 +107,19 @@ public class PeakRateCounter extends AbstractMonitor<Long>
     public void increment(long amount) {
         long now = System.currentTimeMillis();
         long ellapsedTime = now - intervalTimestamp.get();
-        AtomicLong bucketKey = new AtomicLong(TimeUnit.SECONDS.convert(ellapsedTime, TimeUnit.MILLISECONDS));
-        AtomicLong count = counterBuckets.get().get(bucketKey);
-        if (count != null) {
-            count.addAndGet(amount);
+        AtomicLong currentBucketKey = new AtomicLong(TimeUnit.SECONDS.convert(ellapsedTime, TimeUnit.MILLISECONDS));
+        AtomicLong currentCount = counterBuckets.get().get(currentBucketKey);
+
+        if (currentCount != null) {
+            currentCount.addAndGet(amount);
         } else {
-            count = new AtomicLong(amount);
-            counterBuckets.get().put(count, count);
+            currentCount = new AtomicLong(amount);
+            counterBuckets.get().put(currentBucketKey, currentCount);
+
+            trimBuckets(currentBucketKey);
         }
-        // get the max bucket
-        // remove all but the current and max buckets
-        //lock the counterBuckets while removing
-        // be sure covers case where current is the max
+
+
     }
 
     /**
