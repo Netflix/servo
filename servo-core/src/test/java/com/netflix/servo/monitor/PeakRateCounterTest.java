@@ -45,14 +45,6 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
     }
 
-
-    /*
-     * Tests logic correctness without interval timer thread running
-     *
-     * Mimics similar test cases to CounterToRateMetricTransformTest.testSimpleRate
-     * as a way to give the reader a quick way to understand the difference in the values
-     * produced by the PeakRateCounter
-     */
     @Test
     public void testSimpleRate() throws Exception {
         PeakRateCounter c = newInstance("foo");
@@ -93,7 +85,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
         Thread.sleep(5000L);
         peakCount = c.getValue();
-        assertEquals(peakCount, 10L, "Delta of 0 in 5 seconds, e.g. peak rate = previous, 10 per second");
+        assertEquals(peakCount, 10L, "Delta of 0 in 5 seconds, e.g. peak rate = previous max, 10 per second");
 
 
     }
@@ -116,14 +108,14 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         Thread.sleep(2000L);
         c.increment(10L);
         peakCount =c.getAndResetValue();
-        assertEquals(peakCount, 10L, "Delta 5 in fourth second");
+        assertEquals(peakCount, 10L, "Delta 10 in fourth second before reset");
 
         peakCount = c.getValue();
         assertEquals(peakCount, 0, "After Reset");
 
         c.increment(8L);
         peakCount = c.getValue();
-        assertEquals(peakCount, 8L, "Delta 20 in first second after reset");
+        assertEquals(peakCount, 8L, "Delta 8 in first second after reset");
 
      }
 
