@@ -117,8 +117,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         assertEquals(bucketValue.get(), 10L, "bucketTwo unchanged, still max");
         peakCount = c.getValue();
         assertEquals(peakCount, 10L, "Delta 4, Bucket 1 incremented to 10, Peak still 10");
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey();
         assertEquals(bucketKey, bucketTwoKey, "bucket two is still the max even though bucket 1 count now equals max");
 
 
@@ -131,8 +130,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         assertEquals(bucketValue.get(), 10L, "bucketTwo unchanged, still old max");
         peakCount = c.getValue();
         assertEquals(peakCount, 11L, "Delta 1, Bucket 1 incremented to 11, Peak now 11");
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey(); 
         assertEquals(bucketKey, bucketOneKey, "bucket one is new max");
 
 
@@ -149,8 +147,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
         peakCount = c.getValue();
         assertEquals(peakCount, 20L, "Delta 20, Bucket 3 new peak");
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey();
         assertEquals(bucketKey, bucketThreeKey, "bucket three is new max");
 
     }
@@ -176,8 +173,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         c.incrementBucket(currentBucketKey, 100L);
         c.incrementBucket(maxBucketKey, 200L);
 
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey();
         assertEquals(bucketKey, maxBucketKey);
 
         c.trimBuckets(currentBucketKey);
@@ -194,8 +190,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
         c.incrementBucket(currentBucketKey, 100L);
         
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey();
         assertEquals(bucketKey, currentBucketKey);
 
         c.trimBuckets(currentBucketKey);
@@ -207,8 +202,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         assertEquals(bucketValue.get(), 200L, "current bucket is also the max, not trimmed");
 
         c.incrementBucket(currentBucketKey, 100L);
-        maxBucket = c.getMaxBucket();
-        bucketKey = maxBucket.getKey();
+        bucketKey = c.getMaxBucketKey();
         assertEquals(bucketKey, currentBucketKey);
 
         c.trimBuckets(currentBucketKey);
