@@ -118,7 +118,7 @@ public class MonitorRegistryMetricPollerTest {
         return count;
     }
 
-    private static class SlowCounter extends AbstractMonitor<Long> implements Counter {
+    private static class SlowCounter extends AbstractMonitor<Number> implements Counter {
         private final AtomicLong count = new AtomicLong();
     
         public SlowCounter(String name) {
@@ -136,7 +136,7 @@ public class MonitorRegistryMetricPollerTest {
         }
     
         @Override
-        public Long getValue() {
+        public Number getValue() {
             try {
                 Thread.sleep(ONE_HOUR);
             } catch (Exception e) {
