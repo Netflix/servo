@@ -15,27 +15,14 @@
  */
 package com.netflix.servo.monitor;
 
-import static com.netflix.servo.monitor.PeakRateCounterTest.SAMPL_INTERVAL;
 import com.netflix.servo.tag.Tag;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import org.testng.annotations.Test;
 
 public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
-
-    /* testing Note:
-     * the value of SAMPL_INTERVAL will cause the threading test to run for atleast that long
-     * so if it starts causing unit tests to run too long, try shortening it.
-     * long running threading tests probably belong somewhere else since they
-     * slow down test driven approach, not in these
-     * unit tests (where to put them?)
-     */
-    static final long SAMPL_INTERVAL = 30;
-    static final TimeUnit UNIT = TimeUnit.SECONDS;
-    static final long SAMPL_INTERVAL_MILLIS = TimeUnit.MILLISECONDS.convert(SAMPL_INTERVAL, UNIT);
 
     @Override
     public PeakRateCounter newInstance(String name) {
