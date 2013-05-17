@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * The value is the total count for the life of the counter. Observers are responsible
  * for converting to a rate and handling overflows if they occur.
  */
-public final class BasicCounter extends AbstractMonitor<Long> implements Counter {
+public final class BasicCounter extends AbstractMonitor<Number> implements Counter {
     private final AtomicLong count = new AtomicLong();
 
     /**
@@ -50,7 +50,7 @@ public final class BasicCounter extends AbstractMonitor<Long> implements Counter
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
+    public Number getValue() {
         return count.get();
     }
 

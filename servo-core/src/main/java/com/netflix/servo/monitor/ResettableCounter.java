@@ -24,9 +24,11 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Counter implementation that keeps track of updates since the last reset.
  */
-public class ResettableCounter extends AbstractMonitor<Long>
-        implements Counter, ResettableMonitor<Long> {
+public class ResettableCounter extends AbstractMonitor<Number>
+        implements Counter, ResettableMonitor<Number> {
     private final AtomicLong count = new AtomicLong(0L);
+
+    private final AtomicLong lastResetTime = new AtomicLong(System.currentTimeMillis());
 
     /** Create a new instance of the counter. */
     public ResettableCounter(MonitorConfig config) {
@@ -50,14 +52,24 @@ public class ResettableCounter extends AbstractMonitor<Long>
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
-        return count.get();
+    public Number getValue() {
+        final long now = System.currentTimeMillis();
+        return computeRate(now, lastResetTime.get(), count.get());        
     }
 
     /** {@inheritDoc} */
     @Override
-    public Long getAndResetValue() {
-        return count.getAndSet(0L);
+    public Number getAndResetValue() {
+        final long now = System.currentTimeMillis();
+        final long lastReset = lastResetTime.getAndSet(now);
+        final long currentCount = count.getAndSet(0L);
+        return computeRate(now, lastReset, currentCount);
+    }
+
+    /** Returns the rate per second since the last reset. */
+    private double computeRate(long now, long lastReset, long currentCount) {
+        final double delta = (now - lastReset) / 1000.0;
+        return (currentCount < 0 || delta <= 0.0) ? 0.0 : currentCount / delta;
     }
 
     /** {@inheritDoc} */
