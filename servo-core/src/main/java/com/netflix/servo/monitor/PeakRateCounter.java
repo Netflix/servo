@@ -40,20 +40,17 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         buckets = new AtomicReference<TimestampedHashMap>(new TimestampedHashMap());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void increment() {
-        increment(1L);
-    }
+    static class TimestampedHashMap extends ConcurrentHashMap<Long, AtomicLong> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void increment(long amount) {
-        getCurrentCount().addAndGet(amount);
+        private final long timestamp;
+
+        TimestampedHashMap() {
+            timestamp = System.currentTimeMillis();
+        }
+
+        long getTimestamp() {
+            return timestamp;
+        }
     }
 
     @Override
@@ -101,83 +98,91 @@ public class PeakRateCounter extends AbstractMonitor<Long>
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("config", config)
-                .add("current rate per second", getCurrentCount().get())
                 .add("max rate per second", getValue())
                 .toString();
     }
 
-    static class TimestampedHashMap extends ConcurrentHashMap<AtomicLong, AtomicLong> {
-        
-        private final long timestamp;
-
-        TimestampedHashMap() {
-            // map = new ConcurrentHashMap<AtomicLong, AtomicLong>();
-            timestamp = System.currentTimeMillis();
-        }
-
-        long getTimestamp() {
-            return timestamp;
-        }
-        
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment() {
+        increment(1L);
     }
 
-    AtomicLong getCurrentCount() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(long amount) {
+
         long now = System.currentTimeMillis();
         long ellapsedTime = now - buckets.get().getTimestamp();
-        AtomicLong currentBucketKey = new AtomicLong(TimeUnit.SECONDS.convert(ellapsedTime, TimeUnit.MILLISECONDS));
 
-        AtomicLong currentCount = buckets.get().get(currentBucketKey);
-        if (currentCount == null) {
+        long currentBucketKey = TimeUnit.SECONDS.convert(ellapsedTime, TimeUnit.MILLISECONDS);
 
-            currentCount = new AtomicLong();
-            buckets.get().put(currentBucketKey, currentCount);
+        incrementBucket(currentBucketKey, amount);
+        trimBuckets(currentBucketKey);
+    }
 
-            trimBuckets(currentBucketKey);
+    void incrementBucket(Long bucketKey, long amount) {
+       
+        AtomicLong delta = new AtomicLong(amount);
+
+        AtomicLong count = buckets.get().get(bucketKey);
+        if (count != null) {
+            count.addAndGet(amount);
+        } else {
+            buckets.get().putIfAbsent(bucketKey, delta);
         }
-        return currentCount;
+    }
+
+    /**
+     * Remove all but the current and max buckets.
+     */
+    void trimBuckets(Long currentBucketKey) {
+
+        Map.Entry<Long, AtomicLong> maxBucket = getMaxBucket();
+        Long maxBucketKey = maxBucket.getKey();
+       
+        Set<Long> keySet = buckets.get().keySet();
+        for (Long key : keySet) {
+            if ((!key.equals(maxBucketKey)) && (!key.equals(currentBucketKey))) {
+                buckets.get().remove(key);
+            } 
+        }
     }
 
     long getMaxCount() {
-        Map.Entry<AtomicLong, AtomicLong> max = getMaxBucket();
+        Map.Entry<Long, AtomicLong> max = getMaxBucket();
         return (max == null ? 0L : max.getValue().get());
     }
 
-    static class MapEntryValueComparator implements Comparator<Map.Entry<AtomicLong, AtomicLong>>, Serializable {
+    static class MapEntryValueComparator implements Comparator<Map.Entry<Long, AtomicLong>>, Serializable {
 
         @Override
-        public int compare(Map.Entry<AtomicLong, AtomicLong> o1, Map.Entry<AtomicLong, AtomicLong> o2) {
+        public int compare(Map.Entry<Long, AtomicLong> o1, Map.Entry<Long, AtomicLong> o2) {
             long v1 = o1.getValue().get();
             long v2 = o2.getValue().get();
             return (v1 == v2 ? 0 : v1 > v2 ? 1 : -1);
         }
     }
 
-    Map.Entry<AtomicLong, AtomicLong> getMaxBucket() {
+    Map.Entry<Long, AtomicLong> getMaxBucket() {
 
-        Set<Map.Entry<AtomicLong, AtomicLong>> entrySet = buckets.get().entrySet();
+        Set<Map.Entry<Long, AtomicLong>> entrySet = buckets.get().entrySet();
         if (entrySet.isEmpty()) {
             return null;
         }
 
-        Comparator<Map.Entry<AtomicLong, AtomicLong>> cmp = new MapEntryValueComparator();
+        Comparator<Map.Entry<Long, AtomicLong>> cmp = new MapEntryValueComparator();
 
-        Map.Entry<AtomicLong, AtomicLong> max = Collections.max(entrySet, cmp);
+        Map.Entry<Long, AtomicLong> max = Collections.max(entrySet, cmp);
 
         return max;
     }
 
-    // remove all but the new current and max buckets
-    // if the current and max are same will only leave one bucket in the cache
-    void trimBuckets(AtomicLong currentBucketKey) {
-
-        Map.Entry<AtomicLong, AtomicLong> maxBucket = getMaxBucket();
-        AtomicLong maxBucketKey = maxBucket.getKey();
-
-        Set<AtomicLong> keySet = buckets.get().keySet();
-        for (AtomicLong key : keySet) {
-            if ((!key.equals(maxBucketKey)) && (!key.equals(currentBucketKey))) {
-                buckets.get().remove(key);
-            }
-        }
+    AtomicLong getBucketValue(Long key) {
+        return buckets.get().get(key);
     }
 }
