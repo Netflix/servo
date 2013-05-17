@@ -18,7 +18,7 @@ package com.netflix.servo.monitor;
 /**
  * Monitor type for tracking how often some event is occurring.
  */
-public interface Counter extends NumericMonitor<Long> {
+public interface Counter extends NumericMonitor<Number> {
     /** Update the count by one. */
     void increment();
 
