@@ -31,6 +31,8 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         implements Counter, ResettableMonitor<Long> {
 
     private final AtomicReference<TimestampedHashMap> buckets;
+    
+    
 
     public PeakRateCounter(MonitorConfig config) {
         // This class will reset the value so it is not a monotonically increasing value as
@@ -43,8 +45,20 @@ public class PeakRateCounter extends AbstractMonitor<Long>
     static class TimestampedHashMap extends ConcurrentHashMap<Long, AtomicLong> {
 
         private final long timestamp;
-
+    
+        /**
+         * ConcurrentHashMap is initialized with the goal of reducing memory 
+         * and GC load for very large number of counters typically used.
+         * 
+         * The initialCapacity is set for a small number of values 
+         * before reallocation.  
+         * The load factor is set high for dense packing
+         * The concurrencyLevel is set low for concurrent writes to support
+         * a sufficient throughput while reducing unnecessary memory loading
+         * 
+         */
         TimestampedHashMap() {
+            super(8, 0.9f, 1); 
             timestamp = System.currentTimeMillis();
         }
 
@@ -55,7 +69,7 @@ public class PeakRateCounter extends AbstractMonitor<Long>
 
     @Override
     public Long getValue() {
-        return getMaxCount();
+        return getMaxValue();
     }
 
     /**
@@ -126,14 +140,17 @@ public class PeakRateCounter extends AbstractMonitor<Long>
     }
 
     void incrementBucket(Long bucketKey, long amount) {
-       
-        AtomicLong delta = new AtomicLong(amount);
-
+    
         AtomicLong count = buckets.get().get(bucketKey);
+        
         if (count != null) {
             count.addAndGet(amount);
         } else {
-            buckets.get().putIfAbsent(bucketKey, delta);
+            AtomicLong delta = new AtomicLong(amount);
+            count = buckets.get().putIfAbsent(bucketKey, delta);
+            if (count != null) {
+                count.addAndGet(amount);
+            }
         }
     }
 
@@ -142,8 +159,7 @@ public class PeakRateCounter extends AbstractMonitor<Long>
      */
     void trimBuckets(Long currentBucketKey) {
 
-        Map.Entry<Long, AtomicLong> maxBucket = getMaxBucket();
-        Long maxBucketKey = maxBucket.getKey();
+        Long maxBucketKey = getMaxBucketKey();
        
         Set<Long> keySet = buckets.get().keySet();
         for (Long key : keySet) {
@@ -153,10 +169,6 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         }
     }
 
-    long getMaxCount() {
-        Map.Entry<Long, AtomicLong> max = getMaxBucket();
-        return (max == null ? 0L : max.getValue().get());
-    }
 
     static class MapEntryValueComparator implements Comparator<Map.Entry<Long, AtomicLong>>, Serializable {
 
@@ -168,7 +180,7 @@ public class PeakRateCounter extends AbstractMonitor<Long>
         }
     }
 
-    Map.Entry<Long, AtomicLong> getMaxBucket() {
+    private Map.Entry<Long, AtomicLong> getMaxBucket() {
 
         Set<Map.Entry<Long, AtomicLong>> entrySet = buckets.get().entrySet();
         if (entrySet.isEmpty()) {
@@ -181,7 +193,13 @@ public class PeakRateCounter extends AbstractMonitor<Long>
 
         return max;
     }
-
+    Long getMaxBucketKey() {
+        return getMaxBucket().getKey();
+    }
+    long getMaxValue() {
+        Map.Entry<Long, AtomicLong> bucket = getMaxBucket();  
+        return (bucket == null? 0 : getMaxBucket().getValue().get());
+    }
     AtomicLong getBucketValue(Long key) {
         return buckets.get().get(key);
     }
