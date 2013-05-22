@@ -27,6 +27,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * A resettable counter implementation backed by an {@link java.util.concurrent.atomic.ConcurrentHashMap}.
+ * The value is the maximum count per second until the counter is reset. 
+ */
 public class PeakRateCounter extends AbstractMonitor<Long>
         implements Counter, ResettableMonitor<Long> {
 
@@ -131,12 +135,11 @@ public class PeakRateCounter extends AbstractMonitor<Long>
     public void increment(long amount) {
 
         long now = System.currentTimeMillis();
-        long ellapsedTime = now - buckets.get().getTimestamp();
+        long elapsedTime = now - buckets.get().getTimestamp();
 
-        long currentBucketKey = TimeUnit.SECONDS.convert(ellapsedTime, TimeUnit.MILLISECONDS);
+        long currentBucketKey = TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.MILLISECONDS);
 
-        incrementBucket(currentBucketKey, amount);
-        trimBuckets(currentBucketKey);
+        incrementBucket(currentBucketKey, amount);        
     }
 
     void incrementBucket(Long bucketKey, long amount) {
@@ -150,6 +153,8 @@ public class PeakRateCounter extends AbstractMonitor<Long>
             count = buckets.get().putIfAbsent(bucketKey, delta);
             if (count != null) {
                 count.addAndGet(amount);
+            } else {
+                trimBuckets(bucketKey);
             }
         }
     }
