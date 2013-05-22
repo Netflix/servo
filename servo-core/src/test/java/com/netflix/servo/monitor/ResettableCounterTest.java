@@ -44,12 +44,14 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
 
         // Check basic rate, if sleep exactly 50ms rate since the reset would be 20.0
         c.increment();
+        assertEquals(c.getCount(), 1L);
         Thread.sleep(50);
         double rate = c.getValue().doubleValue();
         assertTrue(rate <= 20.0 && rate > 0.0);
 
         // Should be around 10m, allow 
         c.increment(1000000);
+        assertEquals(c.getCount(), 1000001L);
         rate = c.getValue().doubleValue();
         assertTrue(rate <= 2.001e7 && rate > 5e6);
     }
@@ -67,7 +69,9 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
 
         // Should be around 10m, allow 
         c.increment(1000000);
+        assertEquals(c.getCount(), 1000001L);
         rate = c.getAndResetValue().doubleValue();
+        assertEquals(c.getCount(), 0L);
         assertTrue(rate <= 2.001e7 && rate > 5e6);
         assertEquals(c.getValue().longValue(), 0L);
     }
