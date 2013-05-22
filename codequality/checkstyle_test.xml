@@ -158,9 +158,9 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier">
+        <!--<module name="VisibilityModifier">
           <property name="protectedAllowed" value="true"/>
-        </module>
+        </module>-->
 
 
         <!-- Miscellaneous other checks.                   -->

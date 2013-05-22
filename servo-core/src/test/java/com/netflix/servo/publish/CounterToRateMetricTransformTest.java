@@ -32,9 +32,13 @@ import static org.testng.Assert.assertTrue;
 
 public class CounterToRateMetricTransformTest {
 
-    private static final TagList GAUGE = SortedTagList.builder().withTag(DataSourceType.GAUGE).build();
+    private static final TagList GAUGE = SortedTagList.builder()
+        .withTag(DataSourceType.GAUGE)
+        .build();
 
-    private static final TagList COUNTER = SortedTagList.builder().withTag(DataSourceType.COUNTER).build();
+    private static final TagList COUNTER = SortedTagList.builder()
+        .withTag(DataSourceType.COUNTER)
+        .build();
 
     private List<Metric> mkList(long ts, int value) {
         return ImmutableList.of(
@@ -44,8 +48,8 @@ public class CounterToRateMetricTransformTest {
         );
     }
 
-    private Map<String,Double> mkMap(List<List<Metric>> updates) {
-        Map<String,Double> map = Maps.newHashMap();
+    private Map<String, Double> mkMap(List<List<Metric>> updates) {
+        Map<String, Double> map = Maps.newHashMap();
         for (Metric m : updates.get(0)) {
             map.put(m.getConfig().getName(), m.getNumberValue().doubleValue());
         }
@@ -56,7 +60,7 @@ public class CounterToRateMetricTransformTest {
     public void testSimpleRate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
         MetricObserver transform = new CounterToRateMetricTransform(mmo, 120, TimeUnit.SECONDS);
-        Map<String,Double> metrics;
+        Map<String, Double> metrics;
 
         // Make time look like the future to avoid expirations
         long baseTime = System.currentTimeMillis() + 100000L;

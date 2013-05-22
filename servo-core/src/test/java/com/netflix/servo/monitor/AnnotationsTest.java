@@ -53,7 +53,8 @@ public class AnnotationsTest {
         List<Monitor<?>> monitors = Lists.newArrayList();
         Monitors.addAnnotatedFields(monitors, null, null, m, m.getClass());
 
-        List<String> expectedNames = ImmutableList.of("annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
+        List<String> expectedNames = ImmutableList.of(
+            "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
         List<String> actualNames = Lists.newArrayList();
         for (Monitor<?> monitor: monitors) {
             actualNames.add(monitor.getConfig().getName());

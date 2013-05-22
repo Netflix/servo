@@ -49,7 +49,7 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
         double rate = c.getValue().doubleValue();
         assertTrue(rate <= 20.0 && rate > 0.0);
 
-        // Should be around 10m, allow 
+        // Should be around 10m, allow
         c.increment(1000000);
         assertEquals(c.getCount(), 1000001L);
         rate = c.getValue().doubleValue();
@@ -67,7 +67,7 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
         double rate = c.getValue().doubleValue();
         assertTrue(rate <= 20.0 && rate > 0.0);
 
-        // Should be around 10m, allow 
+        // Should be around 10m, allow
         c.increment(1000000);
         assertEquals(c.getCount(), 1000001L);
         rate = c.getAndResetValue().doubleValue();
@@ -87,7 +87,7 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
         double rate = c.getValue().doubleValue();
         assertTrue(rate <= 0.2 && rate > 0.0);
 
-        // Should be around 10m, allow 
+        // Should be around 10m, allow
         c.increment(1000000);
         rate = c.getAndResetValue().doubleValue();
         assertTrue(rate <= 20.0e3 && rate > 10.0e3);

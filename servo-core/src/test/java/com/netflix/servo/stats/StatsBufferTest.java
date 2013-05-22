@@ -20,12 +20,12 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 public class StatsBufferTest {
-    double[] percentiles = { 50.0, 95.0, 99.0, 99.5 };
+    static final double[] PERCENTILES = {50.0, 95.0, 99.0, 99.5};
 
     private static final int SIZE = 1000;
 
     StatsBuffer getNoWrap() {
-        StatsBuffer buffer = new StatsBuffer(SIZE, percentiles);
+        StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
 
         int max = SIZE / 2;
         for (int i = 0; i <= max; ++i) {
@@ -64,7 +64,7 @@ public class StatsBufferTest {
     @Test
     public void testTotalNoWrap() {
         StatsBuffer buffer = getNoWrap();
-        assertEquals(buffer.getTotalTime(), SIZE/2 * (SIZE/2 + 1) / 2 );
+        assertEquals(buffer.getTotalTime(), SIZE / 2 * (SIZE / 2 + 1) / 2);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class StatsBufferTest {
 
     @Test
     public void testEmptyBuffer() {
-        StatsBuffer buffer = new StatsBuffer(SIZE, percentiles);
+        StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
         assertEmpty(buffer);
 
         buffer.computeStats();
@@ -131,7 +131,7 @@ public class StatsBufferTest {
     }
 
     StatsBuffer getWithWrap() {
-        StatsBuffer buffer = new StatsBuffer(SIZE, percentiles);
+        StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
         for (int i = SIZE * 2; i > 0; --i) {
             buffer.record(i);
         }
@@ -157,30 +157,30 @@ public class StatsBufferTest {
         assertEquals(buffer.getCount(), SIZE * 2);
     }
 
-    final static long expectedTotalWrap = SIZE*2 * (SIZE*2 + 1) / 2;
+    static final long EXPECTED_TOTAL_WRAP = SIZE * 2 * (SIZE * 2 + 1) / 2;
     @Test
     public void testTotalWrap() {
         StatsBuffer buffer = getWithWrap();
-        assertEquals(buffer.getTotalTime(), expectedTotalWrap );
+        assertEquals(buffer.getTotalTime(), EXPECTED_TOTAL_WRAP);
     }
 
     @Test
     public void testMeanWrap() {
         StatsBuffer buffer = getWithWrap();
-        assertEquals(buffer.getMean(), (double)expectedTotalWrap / (SIZE * 2));
+        assertEquals(buffer.getMean(), (double) EXPECTED_TOTAL_WRAP / (SIZE * 2));
     }
 
-    final static double expectedVarianceWrap = 1667666.75;
+    static final double EXPECTED_VARIANCE_WRAP = 1667666.75;
     @Test
     public void testVarianceWrap() {
         StatsBuffer buffer = getWithWrap();
-        assertEquals(buffer.getVariance(), expectedVarianceWrap, 1e-4);
+        assertEquals(buffer.getVariance(), EXPECTED_VARIANCE_WRAP, 1e-4);
     }
 
     @Test
     public void testStdDevWrap() {
         StatsBuffer buffer = getWithWrap();
-        assertEquals(buffer.getStdDev(), Math.sqrt(expectedVarianceWrap), 1e-4);
+        assertEquals(buffer.getStdDev(), Math.sqrt(EXPECTED_VARIANCE_WRAP), 1e-4);
     }
 
     @Test
