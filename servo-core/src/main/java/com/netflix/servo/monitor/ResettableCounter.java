@@ -86,6 +86,11 @@ public class ResettableCounter extends AbstractMonitor<Number>
         return computeRate(now, lastReset, currentCount);
     }
 
+    /** Returns the raw count instead of the rate. This can be useful for unit tests. */
+    public long getCount() {
+        return count.get();
+    }
+
     /** Returns the rate per second since the last reset. */
     private double computeRate(long now, long lastReset, long currentCount) {
         final double delta = ((lastReset >= 0) ? (now - lastReset) : estPollingInterval) / 1000.0;
