@@ -21,30 +21,30 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class BasicTagTest {
-    private final static String testKey = "foo";
-    private final static String testValue = "bar";
-    private final BasicTag testTag = new BasicTag(testKey, testValue);
+    private static final String TEST_KEY = "foo";
+    private static final String TEST_VALUE = "bar";
+    private final BasicTag testTag = new BasicTag(TEST_KEY, TEST_VALUE);
 
     @Test
     public void testEquals() throws Exception {
-        BasicTag localTag = new BasicTag(testKey, testValue);
-        BasicTag notEqualTag = new BasicTag(testKey, "goo");
+        BasicTag localTag = new BasicTag(TEST_KEY, TEST_VALUE);
+        BasicTag notEqualTag = new BasicTag(TEST_KEY, "goo");
 
         assertTrue(testTag != localTag);
         assertTrue(testTag.equals(localTag));
-        assertTrue(testTag.getKey().equals(testKey));
-        assertTrue(testTag.getValue().equals(testValue));
+        assertTrue(testTag.getKey().equals(TEST_KEY));
+        assertTrue(testTag.getValue().equals(TEST_VALUE));
         assertTrue(!testTag.equals(notEqualTag));
     }
 
     @Test
     public void testGetKey() throws Exception {
-        assertEquals(testTag.getKey(), testKey);
+        assertEquals(testTag.getKey(), TEST_KEY);
     }
 
     @Test
     public void testGetValue() throws Exception {
-        assertEquals(testTag.getValue(), testValue);
+        assertEquals(testTag.getValue(), TEST_VALUE);
     }
 
     @Test

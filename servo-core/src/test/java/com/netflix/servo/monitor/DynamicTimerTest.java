@@ -40,21 +40,22 @@ public class DynamicTimerTest {
     private DynamicTimer getInstance() throws Exception  {
         Field theInstance = DynamicTimer.class.getDeclaredField("INSTANCE");
         theInstance.setAccessible(true);
-        return (DynamicTimer)theInstance.get(null);
+        return (DynamicTimer) theInstance.get(null);
     }
 
     private List<Monitor<?>> getTimers() throws Exception {
         return getInstance().getMonitors();
     }
 
-    private final TagList tagList = new BasicTagList(ImmutableList.of((Tag)new BasicTag("PLATFORM", "true")));
+    private final TagList tagList = new BasicTagList(ImmutableList.of(
+      (Tag) new BasicTag("PLATFORM", "true")));
 
     private Timer getByName(String name) throws Exception {
         List<Monitor<?>> timers = getTimers();
         for (Monitor<?> m : timers) {
             String monitorName = m.getConfig().getName();
             if (name.equals(monitorName)) {
-                return (Timer)m;
+                return (Timer) m;
             }
         }
         return null;
@@ -81,7 +82,8 @@ public class DynamicTimerTest {
         DynamicTimer theInstance = getInstance();
         Field timers = DynamicTimer.class.getDeclaredField("timers");
         timers.setAccessible(true);
-        LoadingCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache = CacheBuilder.newBuilder()
+        LoadingCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
+            CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.SECONDS)
                 .build(new CacheLoader<DynamicTimer.ConfigUnit, Timer>() {
                     @Override

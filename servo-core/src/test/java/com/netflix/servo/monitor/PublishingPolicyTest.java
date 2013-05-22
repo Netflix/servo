@@ -28,7 +28,9 @@ public class PublishingPolicyTest extends AbstractMonitorTest<BasicCounter> {
 
     @Test
     public void testDefaultPolicy() throws Exception {
-        assertEquals(newInstance("A").getConfig().getPublishingPolicy(), DefaultPublishingPolicy.getInstance());
+        assertEquals(
+            newInstance("A").getConfig().getPublishingPolicy(),
+            DefaultPublishingPolicy.getInstance());
     }
 
     private static class OtherPolicy implements PublishingPolicy {
@@ -37,10 +39,11 @@ public class PublishingPolicyTest extends AbstractMonitorTest<BasicCounter> {
 
     @Test
     public void testEqualsPolicy() throws Exception {
-        BasicCounter other = new BasicCounter(MonitorConfig.builder("name").withPublishingPolicy(OtherPolicy.INSTANCE).build());
+        BasicCounter other = new BasicCounter(
+            MonitorConfig.builder("name").withPublishingPolicy(OtherPolicy.INSTANCE).build());
         BasicCounter dflt = newInstance("name");
 
-        assertNotEquals(other, dflt, "Equals should return false if the policies are different " + other + " / " + dflt);
-        assertNotEquals(other.hashCode(), dflt.hashCode(), "Equals should return false if the policies are different");
+        assertNotEquals(other, dflt);
+        assertNotEquals(other.hashCode(), dflt.hashCode());
     }
 }
