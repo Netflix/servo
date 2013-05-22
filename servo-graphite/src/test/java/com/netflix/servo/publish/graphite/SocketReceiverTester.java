@@ -24,8 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 
-public class SocketReceiverTester implements Runnable
-{
+public class SocketReceiverTester implements Runnable {
     private final ServerSocket acceptor;
     private Socket s;
 
@@ -35,36 +34,34 @@ public class SocketReceiverTester implements Runnable
     private volatile int linesRead = 0;
     private volatile int linesWritten = 0;
 
-    public SocketReceiverTester( int port ) throws IOException
-    {
+    public SocketReceiverTester(int port) throws IOException {
         ServerSocketFactory socketFactory = ServerSocketFactory.getDefault();
         acceptor = socketFactory.createServerSocket();
-        acceptor.setReuseAddress( true );
-        acceptor.bind( new InetSocketAddress( port ) );
+        acceptor.setReuseAddress(true);
+        acceptor.bind(new InetSocketAddress(port));
     }
 
     @Override
     public void run() {
-        while ( running ) {
+        while (running) {
             try {
                 s = acceptor.accept();
-                synchronized ( this ) {
+                synchronized (this) {
                     connected = true;
                     notify();
                 }
-                BufferedReader stream = new BufferedReader( new InputStreamReader( s.getInputStream(), "UTF-8" ) );
+                BufferedReader stream = new BufferedReader(
+                    new InputStreamReader(s.getInputStream(), "UTF-8"));
 
-                while ( running ) {
+                while (running) {
                     String line = stream.readLine();
-                    synchronized ( this )
-                    {
+                    synchronized (this) {
                         lines[linesWritten++ % lines.length] = line;
                         notify();
                     }
                 }
-            }
-            catch ( IOException e ) {
-                synchronized ( this ) {
+            } catch (IOException e) {
+                synchronized (this) {
                     connected = false;
                     linesWritten = 0;
                     linesRead = 0;
@@ -74,16 +71,16 @@ public class SocketReceiverTester implements Runnable
         }
     }
 
-    Thread thread;
+    private Thread thread;
 
     public void start() {
-        thread = new Thread( this );
+        thread = new Thread(this);
         thread.start();
     }
 
     public void stop() throws Exception {
         running = false;
-        if ( s != null ) {
+        if (s != null) {
             s.close();
         }
         acceptor.close();
@@ -91,16 +88,17 @@ public class SocketReceiverTester implements Runnable
         thread.join();
     }
 
-    public String[] waitForLines( int waitingFor ) throws Exception {
+    public String[] waitForLines(int waitingFor) throws Exception {
         long start = System.currentTimeMillis();
-        synchronized ( this ) {
-            while ( linesWritten < linesRead + waitingFor ) {
-                if ( !connected )
-                    throw new IllegalArgumentException( "Not connected!" );
-                if ( System.currentTimeMillis() - start > 1000 ) {
-                    throw new InterruptedException( "Timed out!" );
+        synchronized (this) {
+            while (linesWritten < linesRead + waitingFor) {
+                if (!connected) {
+                    throw new IllegalArgumentException("Not connected!");
                 }
-                wait( 100 );
+                if (System.currentTimeMillis() - start > 1000) {
+                    throw new InterruptedException("Timed out!");
+                }
+                wait(100);
             }
             return Arrays.copyOfRange(lines, linesRead, linesRead + waitingFor);
         }
@@ -108,12 +106,12 @@ public class SocketReceiverTester implements Runnable
 
     public void waitForConnected() throws Exception {
         long start = System.currentTimeMillis();
-        synchronized ( this ) {
-            while ( !connected ) {
-                if ( System.currentTimeMillis() - start > 1000 ) {
-                    throw new InterruptedException( "Timed out!" );
+        synchronized (this) {
+            while (!connected) {
+                if (System.currentTimeMillis() - start > 1000) {
+                    throw new InterruptedException("Timed out!");
                 }
-                wait( 100 );
+                wait(100);
             }
         }
 

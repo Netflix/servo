@@ -5,6 +5,9 @@ checkstyle {
     ignoreFailures = true 
     configFile = rootProject.file('codequality/checkstyle.xml')
 }
+checkstyleTest {
+    configFile = rootProject.file('codequality/checkstyle_test.xml')
+}
 
 // FindBugs
 apply plugin: 'findbugs'
