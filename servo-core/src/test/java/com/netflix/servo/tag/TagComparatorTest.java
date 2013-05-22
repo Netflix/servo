@@ -21,11 +21,11 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertTrue;
 
 public class TagComparatorTest {
-    Tag a;
-    Tag b;
-    Tag aa;
-    Tag ab;
-    TagComparator comparator;
+    private Tag a;
+    private Tag b;
+    private Tag aa;
+    private Tag ab;
+    private TagComparator comparator;
 
     @BeforeTest
     public void setupTest() throws Exception {

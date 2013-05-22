@@ -32,8 +32,9 @@ public class MonitorsTest {
         List<Monitor<?>> monitors = Lists.newArrayList();
         ClassWithMonitors obj = new ClassWithMonitors() {
             final Counter c1 = Monitors.newCounter("publicCounter");
-            @com.netflix.servo.annotations.Monitor(name = "primitiveGauge", type = DataSourceType.GAUGE)
-            final static long a1 = 0L;
+            @com.netflix.servo.annotations.Monitor(
+                name = "primitiveGauge", type = DataSourceType.GAUGE)
+            static final long A1 = 0L;
         };
         TagList tags = SortedTagList.builder().withTag("abc", "def").build();
         Monitors.addMonitors(monitors, null, tags, obj);
@@ -92,7 +93,7 @@ public class MonitorsTest {
         List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
         for (Monitor m : monitors) {
             assertEquals(m.getConfig().getTags().getValue("class"), "ParentHasMonitors",
-                    String.format("%s should have class ParentHasMonitors", m.getConfig().getName()));
+                String.format("%s should have class ParentHasMonitors", m.getConfig().getName()));
         }
         assertEquals(monitors.size(), 10);
     }

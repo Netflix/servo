@@ -40,21 +40,22 @@ public class DynamicCounterTest {
     private DynamicCounter getInstance() throws Exception  {
         Field theInstance = DynamicCounter.class.getDeclaredField("INSTANCE");
         theInstance.setAccessible(true);
-        return (DynamicCounter)theInstance.get(null);
+        return (DynamicCounter) theInstance.get(null);
     }
 
     private List<Monitor<?>> getCounters() throws Exception {
         return getInstance().getMonitors();
     }
 
-    private final TagList tagList = new BasicTagList(ImmutableList.of((Tag)new BasicTag("PLATFORM", "true")));
+    private final TagList tagList = new BasicTagList(ImmutableList.of(
+        (Tag) new BasicTag("PLATFORM", "true")));
 
     private Counter getByName(String name) throws Exception {
         List<Monitor<?>> counters = getCounters();
         for (Monitor<?> m : counters) {
             String monitorName = m.getConfig().getName();
             if (name.equals(monitorName)) {
-                return (Counter)m;
+                return (Counter) m;
             }
         }
         return null;
