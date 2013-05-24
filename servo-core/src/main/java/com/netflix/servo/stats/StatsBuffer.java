@@ -92,13 +92,6 @@ public class StatsBuffer {
         total += n;
         sumSquares += n * n;
     }
-    
-    /**
-     * Records a value for this buffer.
-     */
-    public void record(Number n) {
-    	record(n.longValue());
-    }
 
     /**
      * Compute stats for the current set of values.
