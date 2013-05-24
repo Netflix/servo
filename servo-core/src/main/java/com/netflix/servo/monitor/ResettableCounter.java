@@ -24,16 +24,38 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Counter implementation that keeps track of updates since the last reset.
  */
-public class ResettableCounter extends AbstractMonitor<Long>
-        implements Counter, ResettableMonitor<Long> {
+public class ResettableCounter extends AbstractMonitor<Number>
+        implements Counter, ResettableMonitor<Number> {
+    private final long estPollingInterval;
+
     private final AtomicLong count = new AtomicLong(0L);
+
+    private final AtomicLong lastResetTime = new AtomicLong(System.currentTimeMillis());
 
     /** Create a new instance of the counter. */
     public ResettableCounter(MonitorConfig config) {
+        this(config, 0L);
+    }
+
+    /**
+     * Create a new instance of the counter.
+     *
+     * @param config              configuration for the monitor
+     * @param estPollingInterval  estimated polling interval to use for the first call. If this
+     *                            is set to 0 the time delta for the first call to getAndResetValue
+     *                            will be calculated based on the creation time which can result
+     *                            in overweighting the values if counters are dynamically created
+     *                            during the middle of a polling interval.
+     */
+    public ResettableCounter(MonitorConfig config, long estPollingInterval) {
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
         // the publishing pipeline receiving the value.
         super(config.withAdditionalTag(DataSourceType.GAUGE));
+        this.estPollingInterval = estPollingInterval;
+        if (estPollingInterval > 0) {
+            lastResetTime.set(-1L);
+        }
     }
 
     /** {@inheritDoc} */
@@ -50,14 +72,29 @@ public class ResettableCounter extends AbstractMonitor<Long>
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
-        return count.get();
+    public Number getValue() {
+        final long now = System.currentTimeMillis();
+        return computeRate(now, lastResetTime.get(), count.get());        
     }
 
     /** {@inheritDoc} */
     @Override
-    public Long getAndResetValue() {
-        return count.getAndSet(0L);
+    public Number getAndResetValue() {
+        final long now = System.currentTimeMillis();
+        final long lastReset = lastResetTime.getAndSet(now);
+        final long currentCount = count.getAndSet(0L);
+        return computeRate(now, lastReset, currentCount);
+    }
+
+    /** Returns the raw count instead of the rate. This can be useful for unit tests. */
+    public long getCount() {
+        return count.get();
+    }
+
+    /** Returns the rate per second since the last reset. */
+    private double computeRate(long now, long lastReset, long currentCount) {
+        final double delta = ((lastReset >= 0) ? (now - lastReset) : estPollingInterval) / 1000.0;
+        return (currentCount < 0 || delta <= 0.0) ? 0.0 : currentCount / delta;
     }
 
     /** {@inheritDoc} */

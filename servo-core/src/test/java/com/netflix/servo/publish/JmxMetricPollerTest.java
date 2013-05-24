@@ -42,7 +42,7 @@ public class JmxMetricPollerTest {
         for (Metric m : metrics) {
             if ("AvailableProcessors".equals(m.getConfig().getName())) {
                 found = true;
-                Map<String,String> tags = m.getConfig().getTags().asMap();
+                Map<String, String> tags = m.getConfig().getTags().asMap();
                 assertEquals(tags.get("JmxDomain"), "java.lang");
                 assertEquals(tags.get("Jmx.type"), "OperatingSystem");
                 assertEquals(tags.get("ClassName"),
@@ -65,7 +65,7 @@ public class JmxMetricPollerTest {
         for (Metric m : metrics) {
             if ("AvailableProcessors".equals(m.getConfig().getName())) {
                 found = true;
-                Map<String,String> tags = m.getConfig().getTags().asMap();
+                Map<String, String> tags = m.getConfig().getTags().asMap();
                 assertEquals(tags.get("JmxDomain"), "java.lang");
                 assertEquals(tags.get("Jmx.type"), "OperatingSystem");
                 assertEquals(tags.get("ClassName"),

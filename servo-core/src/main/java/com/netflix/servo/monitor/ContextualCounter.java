@@ -23,7 +23,8 @@ import com.netflix.servo.tag.TaggingContext;
  * Composite that maintains separate simple counters for each distinct set of tags returned by the
  * tagging context.
  */
-public class ContextualCounter extends AbstractContextualMonitor<Long, Counter> implements Counter {
+public class ContextualCounter extends AbstractContextualMonitor<Number, Counter>
+        implements Counter {
 
     /**
      * Create a new instance of the counter.
@@ -53,7 +54,7 @@ public class ContextualCounter extends AbstractContextualMonitor<Long, Counter> 
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
+    public Number getValue() {
         return getMonitorForCurrentContext().getValue();
     }
 }

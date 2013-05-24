@@ -29,11 +29,11 @@ import java.util.concurrent.Executors;
 import static org.testng.Assert.assertEquals;
 
 public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
-    static Logger LOGGER = LoggerFactory.getLogger(StatsTimerTest.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(StatsTimerTest.class);
 
     @Override
     public StatsTimer newInstance(String name) {
-        final double [] percentiles = { 50.0, 95.0, 99.0, 99.5 };
+        final double [] percentiles = {50.0, 95.0, 99.0, 99.5};
         final StatsConfig statsConfig = new StatsConfig.Builder()
                 .withSampleSize(200000)
                 .withPercentiles(percentiles)
@@ -57,16 +57,16 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     public void testStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();
-        final int N = 200 * 1000;
-        expectedValues.put("count", (long) N);
-        expectedValues.put("totalTime", (long) N * (N - 1) / 2);
+        final int n = 200 * 1000;
+        expectedValues.put("count", (long) n);
+        expectedValues.put("totalTime", (long) n * (n - 1) / 2);
         expectedValues.put("stdDev", 57735.17);
         expectedValues.put("percentile_50", 100 * 1000.0);
         expectedValues.put("percentile_95", 190 * 1000.0);
         expectedValues.put("percentile_99", 198 * 1000.0);
         expectedValues.put("percentile_99.50", 199 * 1000.0);
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < n; ++i) {
             timer.record(i);
         }
 
@@ -77,11 +77,11 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     private void assertStats(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {
         for (Monitor<?> monitor : monitors) {
             final String stat = monitor.getConfig().getTags().getValue("statistic");
-            final Number actual = (Number)monitor.getValue();
+            final Number actual = (Number) monitor.getValue();
             final Number expected = expectedValues.get(stat);
             if (expected instanceof Double) {
-                double e = (Double)expected;
-                double a = (Double)actual;
+                double e = (Double) expected;
+                double a = (Double) actual;
                 assertEquals(a, e, 0.5, stat);
             } else {
                 assertEquals(actual, expected, stat);
@@ -106,18 +106,19 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     public void testMultiThreadStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
         final Map<String, Number> expectedValues = Maps.newHashMap();
-        final int N = 10 * 1000;
-        expectedValues.put("count", (long) N);
-        expectedValues.put("totalTime", (long) N * (N - 1) / 2);
+        final int n = 10 * 1000;
+        expectedValues.put("count", (long) n);
+        expectedValues.put("totalTime", (long) n * (n - 1) / 2);
         expectedValues.put("stdDev", 2886.766);
         expectedValues.put("percentile_50", 5 * 1000.0);
         expectedValues.put("percentile_95", 9.5 * 1000.0);
         expectedValues.put("percentile_99", 9.9 * 1000.0);
         expectedValues.put("percentile_99.50", 9.95 * 1000.0);
 
-        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final int poolSize = Runtime.getRuntime().availableProcessors();
+        ExecutorService service = Executors.newFixedThreadPool(poolSize);
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < n; ++i) {
             service.submit(new TimerTask(timer, i));
         }
 

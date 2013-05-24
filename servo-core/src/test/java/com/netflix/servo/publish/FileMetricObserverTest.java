@@ -23,7 +23,12 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -32,8 +37,11 @@ import static org.testng.Assert.assertTrue;
 
 public class FileMetricObserverTest {
 
-    private final TagList TAGS = SortedTagList.builder().withTag("cluster","foo").withTag("zone","a")
-            .withTag("node","i-123").build();
+    private static final TagList TAGS = SortedTagList.builder()
+        .withTag("cluster", "foo")
+        .withTag("zone", "a")
+        .withTag("node", "i-123")
+        .build();
 
     private List<Metric> mkList(int v) {
         ImmutableList.Builder<Metric> builder = ImmutableList.builder();

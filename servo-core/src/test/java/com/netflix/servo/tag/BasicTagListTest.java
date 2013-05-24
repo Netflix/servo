@@ -28,14 +28,14 @@ public class BasicTagListTest {
 
     @Test
     public void testCopyOfMap() throws Exception {
-        Map<String,String> input = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> input = ImmutableMap.of("foo", "bar", "dee", "dum");
         TagList tags = BasicTagList.copyOf(input);
         assertEquals(tags.asMap(), input);
     }
 
     @Test
     public void testCopyOfIterableString() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         List<String> input = ImmutableList.of("foo=bar", "dee=dum");
         TagList tags = BasicTagList.copyOf(input);
         assertEquals(tags.asMap(), map);
@@ -44,7 +44,7 @@ public class BasicTagListTest {
 
     @Test
     public void testOfVarargTag() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         TagList tags = BasicTagList.of(
             new BasicTag("foo", "bar"), new BasicTag("dee", "dum"));
         assertEquals(tags.asMap(), map);
@@ -52,7 +52,7 @@ public class BasicTagListTest {
 
     @Test
     public void testConcatVararg() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         TagList t1 = BasicTagList.of("foo", "bar");
         TagList tags = BasicTagList.concat(t1, new BasicTag("dee", "dum"));
         assertEquals(tags.asMap(), map);
@@ -60,7 +60,7 @@ public class BasicTagListTest {
 
     @Test
     public void testConcatTagList() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         TagList t1 = BasicTagList.of("foo", "bar");
         TagList t2 = BasicTagList.of("dee", "dum");
         TagList tags = BasicTagList.concat(t1, t2);
@@ -69,7 +69,7 @@ public class BasicTagListTest {
 
     @Test
     public void testConcatOverride() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar2");
+        Map<String, String> map = ImmutableMap.of("foo", "bar2");
         TagList t1 = BasicTagList.of("foo", "bar");
         TagList t2 = BasicTagList.of("foo", "bar2");
         TagList tags = BasicTagList.concat(t1, t2);
@@ -104,7 +104,7 @@ public class BasicTagListTest {
 
     @Test
     public void testCopyTagList() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         BasicTagList t1 = BasicTagList.of("foo", "bar");
         BasicTagList t2 = BasicTagList.of("foo", "bar2");
         BasicTagList t3 = BasicTagList.of("dee", "dum");
@@ -114,7 +114,7 @@ public class BasicTagListTest {
 
     @Test
     public void testCopy() throws Exception {
-        Map<String,String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
+        Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
         BasicTagList t1 = BasicTagList.of("foo", "bar");
         BasicTagList t2 = BasicTagList.of("foo", "bar2");
         assertEquals(t1.copy("foo", "bar2"), t2);

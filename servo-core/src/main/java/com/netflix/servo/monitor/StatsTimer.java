@@ -357,7 +357,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     /** {@inheritDoc} */
     @Override
     public Stopwatch start() {
-        Stopwatch s = new BasicStopwatch(this);
+        Stopwatch s = new TimedStopwatch(this);
         s.start();
         return s;
     }
@@ -388,7 +388,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
     @Override
     public Long getValue() {
         final long n = getCount();
-        return n > 0 ? totalTime.getValue() / n : 0L;
+        return n > 0 ? totalTime.getValue().longValue() / n : 0L;
     }
 
     /**
@@ -430,7 +430,7 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
      * Get the number of times this timer has been updated
      */
     public long getCount() {
-        return count.getValue();
+        return count.getValue().longValue();
     }
 
 
@@ -438,6 +438,6 @@ public class StatsTimer extends AbstractMonitor<Long> implements Timer, Composit
      * Get the total time recorded for this timer
      */
     public long getTotalTime() {
-        return totalTime.getValue();
+        return totalTime.getValue().longValue();
     }
 }

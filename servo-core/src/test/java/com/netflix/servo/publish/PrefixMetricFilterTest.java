@@ -33,10 +33,10 @@ public class PrefixMetricFilterTest {
     private List<Metric> mkList() {
         return ImmutableList.of(
                 new Metric("m1", SortedTagList.EMPTY, 0L, 0),
-                new Metric("m2", SortedTagList.builder().withTag("c","a.b.c.d.M1").build(), 0L, 0),
-                new Metric("m3", SortedTagList.builder().withTag("c","a.b.c.c.M3").build(), 0L, 0),
-                new Metric("m4", SortedTagList.builder().withTag("c","a.b.c.d.M4").build(), 0L, 0),
-                new Metric("m5", SortedTagList.builder().withTag("c","a.a.a.a.M5").build(), 0L, 0)
+                new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
+                new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),
+                new Metric("m4", SortedTagList.builder().withTag("c", "a.b.c.d.M4").build(), 0L, 0),
+                new Metric("m5", SortedTagList.builder().withTag("c", "a.a.a.a.M5").build(), 0L, 0)
         );
     }
 
@@ -48,7 +48,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testPrefixFilter() throws Exception {
-        TreeMap<String,MetricFilter> filters = Maps.newTreeMap();
+        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
         filters.put("a.b.c", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
         MetricPoller poller = newPoller();
@@ -59,7 +59,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testLongestPrefixFilter() throws Exception {
-        TreeMap<String,MetricFilter> filters = Maps.newTreeMap();
+        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
         filters.put("a.b.c", MATCH_ALL);
         filters.put("a.b.c.c", MATCH_NONE);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
@@ -71,7 +71,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testPrefixFilterOnName() throws Exception {
-        TreeMap<String,MetricFilter> filters = Maps.newTreeMap();
+        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
         filters.put("m", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter(null, MATCH_NONE, filters);
         MetricPoller poller = newPoller();

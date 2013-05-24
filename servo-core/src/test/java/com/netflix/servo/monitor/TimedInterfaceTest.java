@@ -23,12 +23,13 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class TimedInterfaceTest  {
     /**
      * Dummy interface to test our timer
      */
-    private static interface IDummy {
+    private interface IDummy {
         void method1();
         boolean method2(int n);
         Object method3(Object a, Object b);
@@ -39,23 +40,24 @@ public class TimedInterfaceTest  {
             try {
                 Thread.sleep(ms);
             } catch (InterruptedException ignored) {
+                // Ignored
             }
         }
 
         @Override
         public void method1() {
-            sleep(5);
+            sleep(20);
         }
 
         @Override
         public boolean method2(int n) {
-            sleep(15);
+            sleep(40);
             return n > 0;
         }
 
         @Override
         public Object method3(Object a, Object b) {
-            sleep(30);
+            sleep(60);
             return a;
         }
     }
@@ -66,7 +68,7 @@ public class TimedInterfaceTest  {
         final IDummy dummy = TimedInterface.newProxy(IDummy.class, new DummyImpl(), "id");
 
         // you'd register the CompositeMonitor as:
-        DefaultMonitorRegistry.getInstance().register((CompositeMonitor)dummy);
+        DefaultMonitorRegistry.getInstance().register((CompositeMonitor) dummy);
 
         for (int i = 0; i < 42; i++) {
             dummy.method1();
@@ -95,10 +97,16 @@ public class TimedInterfaceTest  {
             final MonitorConfig expected = MonitorConfig.builder(method).withTags(tagList).build();
             assertEquals(config, expected);
             if (method.equals("method1")) {
-                assertEquals(((Monitor<Long>)monitor).getValue().longValue(), 5);
+                // expected result is 20, but let's give it a fudge factor to account for
+                // slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 20;
+                assertTrue(value >= 0 && value <= 9);
             } else {
                 assertEquals(method, "method2");
-                assertEquals(((Monitor<Long>)monitor).getValue().longValue(), 15);
+                // expected result is 40, but let's give it a fudge factor to account for
+                // slow machines
+                long value = ((Monitor<Long>) monitor).getValue() - 40;
+                assertTrue(value >= 0 && value <= 9);
             }
         }
     }
@@ -109,7 +117,7 @@ public class TimedInterfaceTest  {
         final IDummy dummy = TimedInterface.newProxy(IDummy.class, new DummyImpl());
 
         // you'd register the CompositeMonitor as:
-        DefaultMonitorRegistry.getInstance().register((CompositeMonitor)dummy);
+        DefaultMonitorRegistry.getInstance().register((CompositeMonitor) dummy);
 
         final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) dummy;
         final TagList tagList = BasicTagList.of(

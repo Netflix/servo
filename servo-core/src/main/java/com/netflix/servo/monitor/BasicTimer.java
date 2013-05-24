@@ -81,7 +81,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     /** {@inheritDoc} */
     @Override
     public Stopwatch start() {
-        Stopwatch s = new BasicStopwatch(this);
+        Stopwatch s = new TimedStopwatch(this);
         s.start();
         return s;
     }
@@ -110,18 +110,18 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
-        final long cnt = count.getValue();
-        return (cnt == 0) ? 0L : totalTime.getValue() / cnt;
+        final long cnt = count.getValue().longValue();
+        return (cnt == 0) ? 0L : totalTime.getValue().longValue() / cnt;
     }
 
     /** Get the total time for all updates. */
     public Long getTotalTime() {
-        return totalTime.getValue();
+        return totalTime.getValue().longValue();
     }
 
     /** Get the total number of updates. */
     public Long getCount() {
-        return count.getValue();
+        return count.getValue().longValue();
     }
 
     /** Get the min value since the last reset. */
