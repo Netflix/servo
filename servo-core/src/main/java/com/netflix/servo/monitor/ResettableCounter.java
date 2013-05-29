@@ -41,11 +41,11 @@ public class ResettableCounter extends AbstractMonitor<Number>
      * Create a new instance of the counter.
      *
      * @param config              configuration for the monitor
-     * @param estPollingInterval  estimated polling interval to use for the first call. If this
-     *                            is set to 0 the time delta for the first call to getAndResetValue
-     *                            will be calculated based on the creation time which can result
-     *                            in overweighting the values if counters are dynamically created
-     *                            during the middle of a polling interval.
+     * @param estPollingInterval  estimated polling interval in milliseconds to use for the first
+     *                            call. If this is set to 0 the time delta for the first call to
+     *                            getAndResetValue will be calculated based on the creation time
+     *                            which can result in overweighting the values if counters are
+     *                            dynamically created during the middle of a polling interval.
      */
     public ResettableCounter(MonitorConfig config, long estPollingInterval) {
         // This class will reset the value so it is not a monotonically increasing value as
