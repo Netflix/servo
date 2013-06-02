@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link java.util.concurrent.atomic.ConcurrentHashMap}. The value is the
  * maximum count per second until the counter is reset.
  */
-public class PeakRateResettableCounter extends AbstractMonitor<Long>
-        implements Counter, ResettableMonitor<Long> {
+public class PeakRateResettableCounter extends AbstractMonitor<Number>
+        implements Counter, ResettableMonitor<Number> {
 
     private final AtomicReference<TimestampedHashMap> buckets;
 
