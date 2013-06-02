@@ -86,7 +86,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         c.increment(10L);
         assertEquals(c.getAndResetValue(), 10L, "Delta 10 in fourth second before reset");
 
-        assertEquals(c.getValue(), 0, "After Reset");
+        assertEquals(c.getValue(), 0L, "After Reset");
 
         c.increment(8L);
         assertEquals(c.getValue(), 8L, "Delta 8 in first second after reset");
