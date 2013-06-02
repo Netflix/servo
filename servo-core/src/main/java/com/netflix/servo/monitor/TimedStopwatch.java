@@ -15,13 +15,22 @@
  */
 package com.netflix.servo.monitor;
 
-/**
- * Monitor type for tracking how often some event is occurring.
- */
-public interface Counter extends NumericMonitor<Number> {
-    /** Update the count by one. */
-    void increment();
+import com.google.common.base.Preconditions;
 
-    /** Update the count by the specified amount. */
-    void increment(long amount);
+/**
+ * Stopwatch that will also record to a timer.
+ */
+public class TimedStopwatch extends BasicStopwatch {
+    private final Timer timer;
+
+    public TimedStopwatch(Timer timer) {
+        Preconditions.checkNotNull(timer);
+        this.timer = timer;
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        timer.record(getDuration(timer.getTimeUnit()));
+    }
 }

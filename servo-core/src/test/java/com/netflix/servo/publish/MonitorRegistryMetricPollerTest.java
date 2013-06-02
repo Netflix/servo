@@ -118,25 +118,25 @@ public class MonitorRegistryMetricPollerTest {
         return count;
     }
 
-    private static class SlowCounter extends AbstractMonitor<Long> implements Counter {
+    private static class SlowCounter extends AbstractMonitor<Number> implements Counter {
         private final AtomicLong count = new AtomicLong();
-    
+
         public SlowCounter(String name) {
             super(MonitorConfig.builder(name).withTag(DataSourceType.COUNTER).build());
         }
-    
+
         @Override
         public void increment() {
             count.incrementAndGet();
         }
-    
+
         @Override
         public void increment(long amount) {
             count.getAndAdd(amount);
         }
-    
+
         @Override
-        public Long getValue() {
+        public Number getValue() {
             try {
                 Thread.sleep(ONE_HOUR);
             } catch (Exception e) {

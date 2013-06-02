@@ -22,22 +22,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class does not enforce starting or stopping once and only once without a reset.
  */
 public class BasicStopwatch implements Stopwatch {
-    private final Timer timer;
     private final AtomicLong startTime = new AtomicLong(0L);
     private final AtomicLong endTime = new AtomicLong(0L);
 
     /** Create a new stopwatch with no associated timer. */
     public BasicStopwatch() {
-        this(null);
-    }
-
-    /**
-     * Create a new stopwatch with no associated timer.
-     *
-     * @param timer  associated timer to record the duration when stopped
-     */
-    public BasicStopwatch(Timer timer) {
-        this.timer = timer;
     }
 
     /** {@inheritDoc} */
@@ -50,9 +39,6 @@ public class BasicStopwatch implements Stopwatch {
     @Override
     public void stop() {
         endTime.set(System.nanoTime());
-        if (timer != null) {
-            timer.record(getDuration(timer.getTimeUnit()));
-        }
     }
 
     /** {@inheritDoc} */

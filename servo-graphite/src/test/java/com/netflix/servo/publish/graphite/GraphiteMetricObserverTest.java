@@ -33,30 +33,28 @@ public class GraphiteMetricObserverTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBadAddress1() throws Exception {
-        new GraphiteMetricObserver( "serverA", getLocalHostIp() );
+        new GraphiteMetricObserver("serverA", getLocalHostIp());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testBadAddress2() throws Exception
-    {
-        new GraphiteMetricObserver( "serverA", "http://google.com" );
+    public void testBadAddress2() throws Exception {
+        new GraphiteMetricObserver("serverA", "http://google.com");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBadAddress3() throws Exception {
-        new GraphiteMetricObserver( "serverA", "socket://" + getLocalHostIp() + ":808" );
+        new GraphiteMetricObserver("serverA", "socket://" + getLocalHostIp() + ":808");
     }
 
     @Test
-    public void testSuccessfulSend() throws Exception
-    {
-        SocketReceiverTester receiver = new SocketReceiverTester( 8082 );
+    public void testSuccessfulSend() throws Exception {
+        SocketReceiverTester receiver = new SocketReceiverTester(8082);
         receiver.start();
 
-        GraphiteMetricObserver gw = new GraphiteMetricObserver( "serverA", getLocalHostIp() + ":8082" );
+        String host = getLocalHostIp() + ":8082";
+        GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
 
-        try
-        {
+        try {
             List<Metric> metrics = new ArrayList<Metric>();
             metrics.add(BasicGraphiteNamingConventionTest.getOSMetric("AvailableProcessors"));
 
@@ -64,14 +62,13 @@ public class GraphiteMetricObserverTest {
 
             receiver.waitForConnected();
 
-            String[] lines = receiver.waitForLines( 1 );
-            assertEquals( 1, lines.length );
+            String[] lines = receiver.waitForLines(1);
+            assertEquals(1, lines.length);
 
-            assertEquals(lines[0].indexOf("serverA.java.lang.OperatingSystem.AvailableProcessors"), 0);
+            int found = lines[0].indexOf("serverA.java.lang.OperatingSystem.AvailableProcessors");
+            assertEquals(found, 0);
 
-        }
-        finally
-        {
+        } finally {
             receiver.stop();
             gw.stop();
         }

@@ -34,7 +34,7 @@ import static org.testng.Assert.assertEquals;
 public class BasicGraphiteNamingConventionTest {
 
     @Test
-    public void testJmxNaming() throws Exception{
+    public void testJmxNaming() throws Exception {
         Metric m = getOSMetric("AvailableProcessors");
 
         GraphiteNamingConvention convention = new BasicGraphiteNamingConvention();
@@ -44,7 +44,7 @@ public class BasicGraphiteNamingConventionTest {
     }
 
     @Test
-    public void testMetricNaming() throws Exception{
+    public void testMetricNaming() throws Exception {
         Metric m = new Metric("simpleMonitor", SortedTagList.EMPTY, 0, 1000.0);
 
         GraphiteNamingConvention convention = new BasicGraphiteNamingConvention();
@@ -53,13 +53,14 @@ public class BasicGraphiteNamingConventionTest {
         assertEquals(name, "simpleMonitor");
     }
 
-    public static Metric getOSMetric(String name)  throws Exception{
+    public static Metric getOSMetric(String name)  throws Exception {
         MetricPoller poller = new JmxMetricPoller(
                 new LocalJmxConnector(),
                 new ObjectName("java.lang:type=OperatingSystem"),
                 MATCH_NONE);
 
-        List<Metric> metrics = poller.poll(new RegexMetricFilter(null, Pattern.compile(name), false, false));
+        RegexMetricFilter filter = new RegexMetricFilter(null, Pattern.compile(name), false, false);
+        List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 1);
         return metrics.get(0);
     }

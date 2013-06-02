@@ -27,39 +27,43 @@ import static org.testng.Assert.assertTrue;
 
 public class SortedTagListTest {
 
-    static final Tag a = new BasicTag("a", "a");
-    static final Tag b = new BasicTag("b", "b");
-    static final Tag c = new BasicTag("c", "c");
+    static final Tag A = new BasicTag("a", "a");
+    static final Tag B = new BasicTag("b", "b");
+    static final Tag C = new BasicTag("c", "c");
 
-    static final Tag[] tagArray = new Tag[3];
+    static final Tag[] TAG_ARRAY = new Tag[3];
 
-    public TagList testListFromStrings;
-    public TagList testListFromCollection;
-    public TagList testListFromTags;
-    public Collection<Tag> collection;
+    private TagList testListFromStrings;
+    private TagList testListFromCollection;
+    private TagList testListFromTags;
+    private Collection<Tag> collection;
 
     @BeforeClass
     public void setup() throws Exception {
-        tagArray[0] = a;
-        tagArray[1] = b;
-        tagArray[2] = c;
+        TAG_ARRAY[0] = A;
+        TAG_ARRAY[1] = B;
+        TAG_ARRAY[2] = C;
 
-        testListFromStrings = new SortedTagList.Builder().withTag("a", "a").withTag("b", "b").withTag("c", "c").build();
+        testListFromStrings = new SortedTagList.Builder()
+            .withTag("a", "a")
+            .withTag("b", "b")
+            .withTag("c", "c")
+            .build();
 
         collection = new ArrayList<Tag>();
-        collection.add(a);
-        collection.add(c);
-        collection.add(b);
+        collection.add(A);
+        collection.add(C);
+        collection.add(B);
 
         testListFromCollection = new SortedTagList.Builder().withTags(collection).build();
-        testListFromTags = new SortedTagList.Builder().withTag(c).withTag(a).withTag(b).build();
+        testListFromTags = new SortedTagList.Builder().withTag(C).withTag(A).withTag(B).build();
     }
 
     @Test
     public void testGetTag() throws Exception {
-        assertTrue(testListFromCollection.getTag("a").equals(a));
-        assertTrue(testListFromStrings.getTag("b").equals(b));
-        assertTrue(testListFromTags.getTag("c").equals(c));
+        assertTrue(testListFromCollection.getTag("a").equals(A));
+        assertTrue(testListFromStrings.getTag("b").equals(B));
+        assertTrue(testListFromTags.getTag("c").equals(C));
     }
 
     @Test
@@ -89,19 +93,19 @@ public class SortedTagListTest {
     public void testOrder() throws Exception {
         int i = 0;
         for (Tag testListFromString : testListFromStrings) {
-            assertEquals(testListFromString, tagArray[i]);
+            assertEquals(testListFromString, TAG_ARRAY[i]);
             i++;
         }
 
         i = 0;
         for (Tag testListFromTag : testListFromTags) {
-            assertEquals(testListFromTag, tagArray[i]);
+            assertEquals(testListFromTag, TAG_ARRAY[i]);
             i++;
         }
 
         i = 0;
         for (Tag aTestListFromCollection : testListFromCollection) {
-            assertEquals(aTestListFromCollection, tagArray[i]);
+            assertEquals(aTestListFromCollection, TAG_ARRAY[i]);
             i++;
         }
     }
@@ -111,14 +115,14 @@ public class SortedTagListTest {
         Map<String, String> stringMap = testListFromCollection.asMap();
 
         int i = 0;
-        for (String s : stringMap.keySet()){
-            assertEquals(s, tagArray[i].getKey());
+        for (String s : stringMap.keySet()) {
+            assertEquals(s, TAG_ARRAY[i].getKey());
             i++;
         }
 
         i = 0;
-        for (String s : stringMap.values()){
-            assertEquals(s, tagArray[i].getValue());
+        for (String s : stringMap.values()) {
+            assertEquals(s, TAG_ARRAY[i].getValue());
             i++;
         }
     }
