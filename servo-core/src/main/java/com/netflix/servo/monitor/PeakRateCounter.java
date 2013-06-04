@@ -21,8 +21,9 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A resettable counter. The value is the maximum
- * count per second within the specified interval until the counter is reset.
+ * A resettable counter. 
+ * The value is the maximum count per second within the specified interval 
+ * until the counter is reset.
  */
 public class PeakRateCounter extends AbstractMonitor<Number>
         implements Counter, ResettableMonitor<Number> {
