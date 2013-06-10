@@ -46,7 +46,7 @@ import com.netflix.servo.tag.Tags;
  * The statistics are collected periodically and are published according to the configuration
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
  */
-public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
+public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMonitor<Long>, NumericMonitor<Long> {
     private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat("StatsMonitor-%d")
