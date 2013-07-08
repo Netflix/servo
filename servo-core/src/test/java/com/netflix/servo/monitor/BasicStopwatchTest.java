@@ -48,6 +48,15 @@ public class BasicStopwatchTest {
     }
 
     @Test
+    public void testGetDurationBeforeStop() throws Exception {
+        testStopwatch.start();
+        Thread.sleep(10);
+        assertTrue(testStopwatch.getDuration() > 9000000);
+        testStopwatch.stop();
+        assertTrue(testStopwatch.getDuration() > 9000000);
+    }
+
+    @Test
     public void testGetDurationWithUnit() throws Exception {
         testStopwatch.start();
         Thread.sleep(10);
