@@ -14,4 +14,4 @@
  *     limitations under the License.
  */
 
-include 'servo-core','servo-aws','servo-graphite','servo-example'
+include 'servo-core','servo-apache','servo-aws','servo-graphite','servo-example'

@@ -85,6 +85,12 @@ project(':servo-core') {
     }
 }
 
+project(':servo-apache') {
+    dependencies {
+        compile project(':servo-core')
+    }
+}
+
 project(':servo-aws') {
     dependencies {
         compile project(':servo-core')
