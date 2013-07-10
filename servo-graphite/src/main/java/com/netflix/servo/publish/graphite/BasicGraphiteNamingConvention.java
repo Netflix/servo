@@ -21,8 +21,8 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
 /**
- * A basic graphite naming convention that handles both "native servo" objects and standard JMX
- * objects pulled out of the JMX registry.
+ * A basic graphite naming convention that handles both "native servo" objects
+ * and standard JMX objects pulled out of the JMX registry.
  */
 public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
 
@@ -34,45 +34,68 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         TagList tags = config.getTags();
 
         Tag domainTag = tags.getTag(JMX_DOMAIN_KEY);
-        if(domainTag != null){
-           return handleJmxMetric(config, tags);
-        }else{
-           return cleanupIllegalCharacters(config.getName(), true);
+        if (domainTag != null) { // jmx metric
+            return handleJmxMetric(config, tags);
+        } else {
+            return handleMetric(config, tags);
         }
     }
 
-    private String handleJmxMetric(MonitorConfig config, TagList tags){
-        String domain = cleanValue(tags.getTag( JMX_DOMAIN_KEY ), true);
-        String type = cleanValue(tags.getTag("Jmx.type"), false);
-        String name = cleanValue(tags.getTag("Jmx.name"), false);
-        String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
-        String fieldName = cleanupIllegalCharacters(config.getName(), false);
+    private String handleMetric(MonitorConfig config, TagList tags) {
+        String type = cleanValue(tags.getTag("type"), false);
+        String instanceName = cleanValue(tags.getTag("instance"), false);
+        String name = cleanupIllegalCharacters(config.getName(), false);
 
         StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append( domain ).append( "." );
-        if(type != null){
-            nameBuilder.append( type ).append(".");
+        if (type != null) {
+            nameBuilder.append(type).append(".");
         }
-        if(instanceName != null){
-            nameBuilder.append( instanceName ).append( "." );
+        if (instanceName != null) {
+            nameBuilder.append(instanceName).append(".");
         }
-        if(name != null){
-            nameBuilder.append( name ).append( "." );
+        if (name != null) {
+            nameBuilder.append(name).append(".");
         }
-        if(fieldName != null){
-            nameBuilder.append( fieldName );
-        }
+        // remove trailing "."
+        nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
         return nameBuilder.toString();
     }
 
-    private String cleanValue(Tag tag, boolean allowPeriodsInName){
-        if(tag == null) return null;
+    private String handleJmxMetric(MonitorConfig config, TagList tags) {
+        String domain = cleanValue(tags.getTag(JMX_DOMAIN_KEY), true);
+        String type = cleanValue(tags.getTag("Jmx.type"), false);
+        String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
+        String name = cleanValue(tags.getTag("Jmx.name"), false);
+        String fieldName = cleanupIllegalCharacters(config.getName(), false);
+
+        StringBuilder nameBuilder = new StringBuilder();
+        nameBuilder.append(domain).append(".");
+        if (type != null) {
+            nameBuilder.append(type).append(".");
+        }
+        if (instanceName != null) {
+            nameBuilder.append(instanceName).append(".");
+        }
+        if (name != null) {
+            nameBuilder.append(name).append(".");
+        }
+        if (fieldName != null) {
+            nameBuilder.append(fieldName).append(".");
+        }
+        // remove trailing "."
+        nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
+        return nameBuilder.toString();
+    }
+
+    private String cleanValue(Tag tag, boolean allowPeriodsInName) {
+        if (tag == null)
+            return null;
 
         return cleanupIllegalCharacters(tag.getValue(), allowPeriodsInName);
     }
 
-    private String cleanupIllegalCharacters(String s, boolean allowPeriodsInName){
-        if(!allowPeriodsInName){
+    private String cleanupIllegalCharacters(String s, boolean allowPeriodsInName) {
+        if (!allowPeriodsInName) {
             s = s.replace(".", "_");
         }
         return s.replace(" ", "_");
