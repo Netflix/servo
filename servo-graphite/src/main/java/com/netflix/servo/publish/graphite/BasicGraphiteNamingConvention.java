@@ -34,24 +34,44 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         TagList tags = config.getTags();
 
         Tag domainTag = tags.getTag(JMX_DOMAIN_KEY);
-        if(domainTag != null){
+        if(domainTag != null){ // jmx metric
            return handleJmxMetric(config, tags);
-        }else{
-           return cleanupIllegalCharacters(config.getName(), true);
+        }else{        	
+           return handleMetric(config, tags);
         }
     }
 
+    private String handleMetric(MonitorConfig config, TagList tags) {
+        String type = cleanValue(tags.getTag("type"), false);
+        String instanceName = cleanValue(tags.getTag("instance"), false);
+        String name = cleanupIllegalCharacters(config.getName(), false);
+        
+        StringBuilder nameBuilder = new StringBuilder();
+        if(type != null){
+            nameBuilder.append(type).append( "." );
+        }
+        if(instanceName != null){
+            nameBuilder.append(instanceName).append( "." );
+        }
+        if(name != null){
+            nameBuilder.append( name ).append( "." );
+        }       
+        // remove trailing "."
+        nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
+        return nameBuilder.toString();
+    }
+    
     private String handleJmxMetric(MonitorConfig config, TagList tags){
         String domain = cleanValue(tags.getTag( JMX_DOMAIN_KEY ), true);
         String type = cleanValue(tags.getTag("Jmx.type"), false);
-        String name = cleanValue(tags.getTag("Jmx.name"), false);
         String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
+        String name = cleanValue(tags.getTag("Jmx.name"), false);
         String fieldName = cleanupIllegalCharacters(config.getName(), false);
 
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append( domain ).append( "." );
         if(type != null){
-            nameBuilder.append( type ).append(".");
+            nameBuilder.append( type ).append( "." );
         }
         if(instanceName != null){
             nameBuilder.append( instanceName ).append( "." );
@@ -60,8 +80,10 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
             nameBuilder.append( name ).append( "." );
         }
         if(fieldName != null){
-            nameBuilder.append( fieldName );
+            nameBuilder.append( fieldName ).append( "." );
         }
+        // remove trailing "."
+        nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
         return nameBuilder.toString();
     }
 

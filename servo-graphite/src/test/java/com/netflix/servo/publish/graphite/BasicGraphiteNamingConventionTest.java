@@ -21,8 +21,11 @@ import com.netflix.servo.publish.JmxMetricPoller;
 import com.netflix.servo.publish.LocalJmxConnector;
 import com.netflix.servo.publish.MetricPoller;
 import com.netflix.servo.publish.RegexMetricFilter;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
+
 
 import javax.management.ObjectName;
 import java.util.List;
@@ -44,13 +47,25 @@ public class BasicGraphiteNamingConventionTest {
     }
 
     @Test
-    public void testMetricNaming() throws Exception {
+    public void testMetricNamingEmptyTags() throws Exception {
         Metric m = new Metric("simpleMonitor", SortedTagList.EMPTY, 0, 1000.0);
 
         GraphiteNamingConvention convention = new BasicGraphiteNamingConvention();
         String name = convention.getName(m);
 
         assertEquals(name, "simpleMonitor");
+    }
+
+    @Test
+    public void testMetricNamingWithTags() throws Exception {
+        TagList tagList = BasicTagList.of("instance", "GetLogs", "type", "HystrixCommand");
+    	
+    	Metric m = new Metric("simpleMonitor", tagList, 0, 1000.0);
+
+        GraphiteNamingConvention convention = new BasicGraphiteNamingConvention();
+        String name = convention.getName(m);
+
+        assertEquals(name, "HystrixCommand.GetLogs.simpleMonitor");
     }
 
     public static Metric getOSMetric(String name)  throws Exception {
