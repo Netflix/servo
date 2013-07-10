@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish.graphite;
 
-
 import com.netflix.servo.Metric;
 import com.netflix.servo.publish.JmxMetricPoller;
 import com.netflix.servo.publish.LocalJmxConnector;
@@ -25,7 +24,6 @@ import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
-
 
 import javax.management.ObjectName;
 import java.util.List;
@@ -58,9 +56,10 @@ public class BasicGraphiteNamingConventionTest {
 
     @Test
     public void testMetricNamingWithTags() throws Exception {
-        TagList tagList = BasicTagList.of("instance", "GetLogs", "type", "HystrixCommand");
-    	
-    	Metric m = new Metric("simpleMonitor", tagList, 0, 1000.0);
+        TagList tagList = BasicTagList.of("instance", "GetLogs", "type",
+                "HystrixCommand");
+
+        Metric m = new Metric("simpleMonitor", tagList, 0, 1000.0);
 
         GraphiteNamingConvention convention = new BasicGraphiteNamingConvention();
         String name = convention.getName(m);
@@ -68,13 +67,12 @@ public class BasicGraphiteNamingConventionTest {
         assertEquals(name, "HystrixCommand.GetLogs.simpleMonitor");
     }
 
-    public static Metric getOSMetric(String name)  throws Exception {
-        MetricPoller poller = new JmxMetricPoller(
-                new LocalJmxConnector(),
-                new ObjectName("java.lang:type=OperatingSystem"),
-                MATCH_NONE);
+    public static Metric getOSMetric(String name) throws Exception {
+        MetricPoller poller = new JmxMetricPoller(new LocalJmxConnector(),
+                new ObjectName("java.lang:type=OperatingSystem"), MATCH_NONE);
 
-        RegexMetricFilter filter = new RegexMetricFilter(null, Pattern.compile(name), false, false);
+        RegexMetricFilter filter = new RegexMetricFilter(null,
+                Pattern.compile(name), false, false);
         List<Metric> metrics = poller.poll(filter);
         assertEquals(metrics.size(), 1);
         return metrics.get(0);
