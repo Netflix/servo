@@ -95,6 +95,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
          */
         private static final List<String> BLACKLISTED_METRICS = ImmutableList.of("CPULoad");
         private static final int ASCII_CHARS = 128;
+        private static final String SCOREBOARD = "Scoreboard";
 
         private static String getScoreboardName(char c) {
             switch (c) {
@@ -159,7 +160,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
          * "L" Logging,
          * "G" Gracefully finishing,
          * "I" Idle cleanup of worker,
-         * ." Open slot with no current process
+         * ." Open slot with no current process (ignored)
          */
         static List<Metric> parseScoreboardLine(String line, long timestamp) {
             final Matcher m = STAT_LINE.matcher(line);
@@ -167,7 +168,6 @@ public class ApacheStatusPoller extends BaseMetricPoller {
                 return EMPTY_LIST;
             }
 
-            final String name = INVALID_CHARS.matcher(m.group(1)).replaceAll("_");
             final char[] scoreboard = m.group(2).toCharArray();
 
             final double[] tally = new double[ASCII_CHARS];
@@ -181,11 +181,15 @@ public class ApacheStatusPoller extends BaseMetricPoller {
 
             ImmutableList.Builder<Metric> builder = ImmutableList.builder();
             for (final char item : SCOREBOARD_CHARS) {
+                if (item == '.') { // Open slots are not particularly useful to track
+                    continue;
+                }
                 final double value = tally[item];
-                final String varName = name + "_" + getScoreboardName(item);
-                final MonitorConfig monitorConfig = MonitorConfig.builder(varName)
+                final String state = getScoreboardName(item);
+                final MonitorConfig monitorConfig = MonitorConfig.builder(SCOREBOARD)
                         .withTag(DataSourceType.GAUGE)
                         .withTag(CLASS_TAG)
+                        .withTag("state", state)
                         .build();
                 final Metric metric = new Metric(monitorConfig, timestamp, value);
                 builder.add(metric);
@@ -200,7 +204,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
             try {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("Scoreboard")) {
+                    if (line.startsWith(SCOREBOARD)) {
                         metricsBuilder.addAll(parseScoreboardLine(line, timestamp));
                     } else {
                         metricsBuilder.addAll(parseStatLine(line, timestamp));

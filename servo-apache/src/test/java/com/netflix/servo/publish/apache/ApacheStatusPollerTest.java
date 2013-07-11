@@ -56,6 +56,14 @@ public class ApacheStatusPollerTest {
         return new Metric(config, TIMESTAMP, value);
     }
 
+    private static Metric scoreboard(String state, double value) {
+        MonitorConfig config = MonitorConfig.builder("Scoreboard")
+                .withTag(DataSourceType.GAUGE)
+                .withTag("state", state)
+                .withTag("class", "ApacheStatusPoller").build();
+        return new Metric(config, TIMESTAMP, value);
+    }
+
     private static Metric counter(String name, double value) {
         return metric(name, value, DataSourceType.COUNTER);
     }
@@ -101,22 +109,20 @@ public class ApacheStatusPollerTest {
         Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
         List<Metric> gauges = ImmutableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
 
-        Metric waitingForConnection = gauge("Scoreboard_WaitingForConnection", 45.0);
-        Metric startingUp = gauge("Scoreboard_StartingUp", 0.0);
-        Metric readingRequest = gauge("Scoreboard_ReadingRequest", 0.0);
-        Metric sendingReply = gauge("Scoreboard_SendingReply", 1.0);
-        Metric keepalive = gauge("Scoreboard_Keepalive", 4.0);
-        Metric dnsLookup = gauge("Scoreboard_DnsLookup", 0.0);
-        Metric closingConnection = gauge("Scoreboard_ClosingConnection", 0.0);
-        Metric logging = gauge("Scoreboard_Logging", 0.0);
-        Metric gracefullyFinishing = gauge("Scoreboard_GracefullyFinishing", 0.0);
-        Metric idleCleanupOfWorker = gauge("Scoreboard_IdleCleanupOfWorker", 0.0);
-        Metric openSlotWithNoCurrentProcess = gauge("Scoreboard_OpenSlotWithNoCurrentProcess", OPEN_SLOTS);
-        Metric unknownState = gauge("Scoreboard_UnknownState", 0.0);
+        Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
+        Metric startingUp = scoreboard("StartingUp", 0.0);
+        Metric readingRequest = scoreboard("ReadingRequest", 0.0);
+        Metric sendingReply = scoreboard("SendingReply", 1.0);
+        Metric keepalive = scoreboard("Keepalive", 4.0);
+        Metric dnsLookup = scoreboard("DnsLookup", 0.0);
+        Metric closingConnection = scoreboard("ClosingConnection", 0.0);
+        Metric logging = scoreboard("Logging", 0.0);
+        Metric gracefullyFinishing = scoreboard("GracefullyFinishing", 0.0);
+        Metric idleCleanupOfWorker = scoreboard("IdleCleanupOfWorker", 0.0);
+        Metric unknownState = scoreboard("UnknownState", 0.0);
         List<Metric> scoreboard = ImmutableList.of(waitingForConnection,
                 startingUp, readingRequest, sendingReply, keepalive, dnsLookup, closingConnection,
-                logging, gracefullyFinishing, idleCleanupOfWorker, openSlotWithNoCurrentProcess,
-                unknownState);
+                logging, gracefullyFinishing, idleCleanupOfWorker, unknownState);
 
         List<Metric> expected = new ImmutableList.Builder<Metric>()
                 .addAll(counters)
