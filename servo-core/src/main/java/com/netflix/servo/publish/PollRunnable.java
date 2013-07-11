@@ -33,6 +33,7 @@ public class PollRunnable implements Runnable {
 
     private final MetricPoller poller;
     private final MetricFilter filter;
+    private final MetricMapper mapper;
     private final boolean reset;
     private final List<MetricObserver> observers;
 
@@ -44,7 +45,7 @@ public class PollRunnable implements Runnable {
             MetricPoller poller,
             MetricFilter filter,
             Collection<MetricObserver> observers) {
-        this(poller, filter, false, observers);
+        this(poller, filter, IdentityMetricMapper.INSTANCE, false, observers);
     }
 
     /**
@@ -56,8 +57,22 @@ public class PollRunnable implements Runnable {
             MetricFilter filter,
             boolean reset,
             Collection<MetricObserver> observers) {
+        this(poller, filter, IdentityMetricMapper.INSTANCE, reset, observers);
+    }
+
+    /**
+     * Creates a new runnable instance that executes poll with the given filter
+     * and sends the metrics to all of the given observers.
+     */
+    public PollRunnable(
+            MetricPoller poller,
+            MetricFilter filter,
+            MetricMapper mapper,
+            boolean reset,
+            Collection<MetricObserver> observers) {
         this.poller = Preconditions.checkNotNull(poller);
         this.filter = Preconditions.checkNotNull(filter);
+        this.mapper = Preconditions.checkNotNull(mapper);
         this.reset = reset;
         this.observers = ImmutableList.copyOf(observers);
     }
@@ -78,9 +93,10 @@ public class PollRunnable implements Runnable {
     public void run() {
         try {
             List<Metric> metrics = poller.poll(filter, reset);
+            List<Metric> mappedMetrics = mapper.map(metrics);
             for (MetricObserver o : observers) {
                 try {
-                    o.update(metrics);
+                    o.update(mappedMetrics);
                 } catch (Throwable t) {
                     LOGGER.warn("failed to send metrics to " + o.getName(), t);
                 }
