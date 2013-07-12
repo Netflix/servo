@@ -190,7 +190,7 @@ public class JvmMetricPoller implements MetricPoller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JvmMetricPoller.class);
 
-    JvmMetricPoller() {
+    public JvmMetricPoller() {
     }
 
     @Override
