@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Poller for standard JVM metrics.
  */
-class JvmMetricPoller implements MetricPoller {
+public class JvmMetricPoller implements MetricPoller {
 
     private static final String CLASS = "class";
 
