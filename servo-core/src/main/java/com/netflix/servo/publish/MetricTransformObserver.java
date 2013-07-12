@@ -29,7 +29,7 @@ public class MetricTransformObserver implements MetricObserver {
     private final MetricObserver observer;
 
     /**
-     * Create a new MetricTransformObserver using the given transfomer function
+     * Create a new MetricTransformObserver using the given transfomer function.
      *
      * @param transformer The function used to transform metrics.
      * @param observer    The MetricObserver that will receive the transfomed metrics.
