@@ -30,6 +30,7 @@ public class MetricTransformObserver implements MetricObserver {
 
     /**
      * Create a new MetricTransformObserver using the given transfomer function
+     *
      * @param transformer The function used to transform metrics.
      * @param observer    The MetricObserver that will receive the transfomed metrics.
      */
@@ -40,11 +41,7 @@ public class MetricTransformObserver implements MetricObserver {
 
     @Override
     public void update(List<Metric> metrics) {
-        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
-        for (Metric m : metrics) {
-            newMetrics.add(transformer.apply(m));
-        }
-        observer.update(newMetrics);
+        observer.update(Lists.transform(metrics, transformer));
     }
 
     @Override
