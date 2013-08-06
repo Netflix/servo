@@ -36,16 +36,20 @@ import java.util.concurrent.TimeUnit;
  * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or {@link MonitorConfig}
  * Counters are automatically expired after 15 minutes of inactivity.
  */
-public class DynamicCounter implements CompositeMonitor<Long> {
+public final class DynamicCounter implements CompositeMonitor<Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounter.class);
     private static final String DEFAULT_EXPIRATION = "15";
     private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
+    private static final String DEFAULT_POLLING_INT = "60";
+    private static final String DEFAULT_POLLING_INT_UNIT = "SECONDS";
     private static final String CLASS_NAME = DynamicCounter.class.getCanonicalName();
     private static final String EXPIRATION_PROP = CLASS_NAME + ".expiration";
     private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
+    private static final String POLLING_INT_PROP = CLASS_NAME + ".pollingInterval";
+    private static final String POLLING_INT_PROP_UNIT = CLASS_NAME + ".pollingIntervalUnit";
     private static final String INTERNAL_ID = "servoCounters";
     private static final String CACHE_MONITOR_ID = "servoCountersCache";
-    private static final MonitorConfig baseConfig = new MonitorConfig.Builder(INTERNAL_ID).build();
+    private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicCounter INSTANCE = new DynamicCounter();
 
@@ -57,12 +61,18 @@ public class DynamicCounter implements CompositeMonitor<Long> {
         final String expirationUnit = System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
+
+        final String interval = System.getProperty(POLLING_INT_PROP, DEFAULT_POLLING_INT);
+        final String intervalUnit = System.getProperty(POLLING_INT_PROP_UNIT, DEFAULT_POLLING_INT_UNIT);
+        final long pollingInterval = Long.valueOf(interval);
+        final TimeUnit pollingUnit = TimeUnit.valueOf(intervalUnit);
+        final long pollingIntervalMs = pollingUnit.toMillis(pollingInterval);
         counters = CacheBuilder.newBuilder()
                 .expireAfterAccess(expirationValue, expirationUnitValue)
                 .build(new CacheLoader<MonitorConfig, Counter>() {
                     @Override
                     public Counter load(final MonitorConfig config) throws Exception {
-                        return new BasicCounter(config);
+                        return new ResettableCounter(config, pollingIntervalMs);
                     }
                 });
         cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, counters);
@@ -86,7 +96,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
     }
 
     /**
-     * Increment a counter specified by a name, and a sequence of (key, value) pairs
+     * Increment a counter specified by a name, and a sequence of (key, value) pairs.
      */
     public static void increment(String name, String... tags) {
         final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
@@ -109,7 +119,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
     }
 
     /**
-     * Increment the counter for a given name, tagList
+     * Increment the counter for a given name, tagList.
      */
     public static void increment(String name, TagList list) {
         final MonitorConfig config = new MonitorConfig.Builder(name).withTags(list).build();
@@ -146,7 +156,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
      */
     @Override
     public MonitorConfig getConfig() {
-        return baseConfig;
+        return BASE_CONFIG;
     }
 
     /**
@@ -156,7 +166,7 @@ public class DynamicCounter implements CompositeMonitor<Long> {
     public String toString() {
         ConcurrentMap<?, ?> map = counters.asMap();
         return Objects.toStringHelper(this)
-                .add("baseConfig", baseConfig)
+                .add("baseConfig", BASE_CONFIG)
                 .add("totalCounters", map.size())
                 .add("counters", map)
                 .toString();
