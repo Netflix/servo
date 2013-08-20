@@ -41,7 +41,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 /**
  * Poller for standard JVM metrics.
@@ -332,7 +331,6 @@ public class JvmMetricPoller implements MetricPoller {
     private void addThreadMetrics(long timestamp, MetricList metrics) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         metrics.add(new Metric(DAEMON_THREAD_COUNT, timestamp, bean.getDaemonThreadCount()));
-        //metrics.add(new Metric(THREAD_COUNT, timestamp, bean.getThreadCount()));
         metrics.add(new Metric(TOTAL_STARTED_THREAD_COUNT,
                 timestamp, bean.getTotalStartedThreadCount()));
         addDetailedThreadMetrics(timestamp, metrics);
