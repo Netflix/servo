@@ -19,6 +19,8 @@ import com.google.common.base.Objects;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 /**
  * A {@link Gauge} that reports a long value.
  */
@@ -32,7 +34,7 @@ public class LongGauge implements Gauge<Long> {
      * @param config   configuration for this gauge
      */
     public LongGauge(MonitorConfig config) {
-        this.config = config;
+        this.config = config.withAdditionalTag(DataSourceType.GAUGE);
     }
 
     /**
