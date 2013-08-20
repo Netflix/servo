@@ -339,18 +339,21 @@ public class JvmMetricPoller implements MetricPoller {
     private void addDetailedThreadMetrics(long timestamp, MetricList metrics) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 
-        if (!bean.isThreadContentionMonitoringSupported())
+        if (!bean.isThreadContentionMonitoringSupported()) {
             return;
+        }
 
-        if (!bean.isThreadContentionMonitoringEnabled())
+        if (!bean.isThreadContentionMonitoringEnabled()) {
             bean.setThreadContentionMonitoringEnabled(true);
+        }
 
         ThreadInfo[] threadInfo = bean.dumpAllThreads(false, false);
         Arrays.sort(
             threadInfo,
             new Comparator<ThreadInfo>(){
                 public int compare(ThreadInfo a, ThreadInfo b) {
-                    return -1 * Long.compare(a.getThreadId(), b.getThreadId());
+                    long diff = b.getThreadId() - a.getThreadId();
+                    return ((diff == 0L) ? 0 : (diff < 0L) ? -1 : 1);
                 }
             }
         );
