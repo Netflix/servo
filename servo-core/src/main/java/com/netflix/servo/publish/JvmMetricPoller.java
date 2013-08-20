@@ -34,8 +34,13 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
+import java.lang.management.ThreadInfo;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Poller for standard JVM metrics.
@@ -44,6 +49,7 @@ public class JvmMetricPoller implements MetricPoller {
 
     private static final String CLASS = "class";
 
+    private static final Thread.State[] VALID_STATES = Thread.State.values();
     private static final MonitorConfig LOADED_CLASS_COUNT =
             MonitorConfig.builder("loadedClassCount")
                     .withTag(CLASS, ClassLoadingMXBean.class.getSimpleName())
@@ -176,11 +182,7 @@ public class JvmMetricPoller implements MetricPoller {
                     .withTag(DataSourceType.GAUGE)
                     .build();
 
-    private static final MonitorConfig THREAD_COUNT =
-            MonitorConfig.builder("threadCount")
-                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
-                    .withTag(DataSourceType.GAUGE)
-                    .build();
+    private static final MonitorConfig[] THREAD_COUNTS = new MonitorConfig[VALID_STATES.length];
 
     private static final MonitorConfig TOTAL_STARTED_THREAD_COUNT =
             MonitorConfig.builder("totalStartedThreadCount")
@@ -188,7 +190,54 @@ public class JvmMetricPoller implements MetricPoller {
                     .withTag(DataSourceType.COUNTER)
                     .build();
 
+    private static final MonitorConfig THREAD_BLOCKED_COUNT =
+            MonitorConfig.builder("threadBlockedCount")
+                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
+                    .withTag(DataSourceType.COUNTER)
+                    .build();
+
+    private static final MonitorConfig THREAD_BLOCKED_TIME =
+            MonitorConfig.builder("threadBlockedTime")
+                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
+                    .withTag(DataSourceType.COUNTER)
+                    .build();
+
+    private static final MonitorConfig THREAD_WAITED_COUNT =
+            MonitorConfig.builder("threadWaitedCount")
+                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
+                    .withTag(DataSourceType.COUNTER)
+                    .build();
+
+    private static final MonitorConfig THREAD_WAITED_TIME =
+            MonitorConfig.builder("threadWaitedTime")
+                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
+                    .withTag(DataSourceType.COUNTER)
+                    .build();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JvmMetricPoller.class);
+
+    private static final int IDX_BLOCKED_COUNT = 0;
+    private static final int IDX_BLOCKED_TIME = 1;
+    private static final int IDX_WAITED_COUNT = 2;
+    private static final int IDX_WAITED_TIME = 3;
+    private static final long[] BASE_THREAD_COUNTS = new long[]{0L,0L,0L,0L};
+    private static ThreadInfo[] LAST_THREAD_INFOS = new ThreadInfo[0];
+
+    private static final Map<Thread.State,Integer> STATE_LOOKUP =
+        new HashMap<Thread.State,Integer>();
+
+    static {
+        for (int i = 0 ; i < VALID_STATES.length ; i++) {
+            Thread.State state = VALID_STATES[i];
+            STATE_LOOKUP.put(state, Integer.valueOf(i));
+            THREAD_COUNTS[i] =
+                MonitorConfig.builder("threadCount")
+                    .withTag(CLASS, ThreadMXBean.class.getSimpleName())
+                    .withTag("state", state.toString())
+                    .withTag(DataSourceType.GAUGE)
+                    .build();
+        }
+    }
 
     public JvmMetricPoller() {
     }
@@ -282,9 +331,68 @@ public class JvmMetricPoller implements MetricPoller {
     private void addThreadMetrics(long timestamp, MetricList metrics) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         metrics.add(new Metric(DAEMON_THREAD_COUNT, timestamp, bean.getDaemonThreadCount()));
-        metrics.add(new Metric(THREAD_COUNT, timestamp, bean.getThreadCount()));
         metrics.add(new Metric(TOTAL_STARTED_THREAD_COUNT,
                 timestamp, bean.getTotalStartedThreadCount()));
+        addDetailedThreadMetrics(timestamp, metrics);
+    }
+
+    private void addDetailedThreadMetrics(long timestamp, MetricList metrics) {
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+
+        if (!bean.isThreadContentionMonitoringSupported()) {
+            return;
+        }
+
+        if (!bean.isThreadContentionMonitoringEnabled()) {
+            bean.setThreadContentionMonitoringEnabled(true);
+        }
+
+        ThreadInfo[] threadInfo = bean.dumpAllThreads(false, false);
+        Arrays.sort(
+            threadInfo,
+            new Comparator<ThreadInfo>(){
+                public int compare(ThreadInfo a, ThreadInfo b) {
+                    long diff = b.getThreadId() - a.getThreadId();
+                    return ((diff == 0L) ? 0 : (diff < 0L) ? -1 : 1);
+                }
+            }
+        );
+        long[] stateCounts = new long[VALID_STATES.length];
+        for (int i = 0; i < stateCounts.length; i++) {
+            stateCounts[i] = 0L;
+        }
+        long blockedCount = 0L;
+        long blockedTime = 0L;
+        long waitedCount = 0L;
+        long waitedTime = 0L;
+        int l = LAST_THREAD_INFOS.length - 1;
+        for (int i = threadInfo.length - 1 ; i >= 0 ; i--) {
+            long currId = threadInfo[i].getThreadId();
+            while (l >= 0 && LAST_THREAD_INFOS[l].getThreadId() < currId) l--;
+            if (l >= 0 && LAST_THREAD_INFOS[l].getThreadId() > currId) {
+                BASE_THREAD_COUNTS[IDX_BLOCKED_COUNT] += LAST_THREAD_INFOS[l].getBlockedCount();
+                BASE_THREAD_COUNTS[IDX_BLOCKED_TIME] += LAST_THREAD_INFOS[l].getBlockedTime();
+                BASE_THREAD_COUNTS[IDX_WAITED_COUNT] += LAST_THREAD_INFOS[l].getWaitedCount();
+                BASE_THREAD_COUNTS[IDX_WAITED_TIME] += LAST_THREAD_INFOS[l].getWaitedTime();
+            }
+            stateCounts[STATE_LOOKUP.get(threadInfo[i].getThreadState()).intValue()]++;
+            blockedCount += threadInfo[i].getBlockedCount();
+            blockedTime += threadInfo[i].getBlockedTime();
+            waitedCount += threadInfo[i].getWaitedCount();
+            waitedTime += threadInfo[i].getWaitedTime();
+        }
+        metrics.add(new Metric(THREAD_BLOCKED_COUNT,
+                timestamp, blockedCount + BASE_THREAD_COUNTS[IDX_BLOCKED_COUNT]));
+        metrics.add(new Metric(THREAD_BLOCKED_TIME,
+                timestamp, (blockedTime + BASE_THREAD_COUNTS[IDX_BLOCKED_TIME]) / 1000));
+        metrics.add(new Metric(THREAD_WAITED_COUNT,
+                timestamp, waitedCount + BASE_THREAD_COUNTS[IDX_WAITED_COUNT]));
+        metrics.add(new Metric(THREAD_WAITED_TIME,
+                timestamp, (waitedTime + BASE_THREAD_COUNTS[IDX_WAITED_TIME]) / 1000));
+        for (int i = 0; i < stateCounts.length; i++) {
+            metrics.add(new Metric(THREAD_COUNTS[i], timestamp, stateCounts[i]));
+        }
+        LAST_THREAD_INFOS = threadInfo;
     }
 
     private void addOptionalMetric(
