@@ -86,6 +86,17 @@ public final class MonitorConfig {
         return new Builder(name);
     }
 
+    public static MonitorConfig of(String name, String... tags) {
+        final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
+        Preconditions.checkArgument(tags.length % 2 == 0,
+                "The sequence of (key, value) pairs must have even size: one key, one value");
+        for (int i = 0; i < tags.length; i += 2) {
+            configBuilder.withTag(tags[i], tags[i + 1]);
+        }
+        return configBuilder.build();
+    }
+
+
     private final String name;
     private final TagList tags;
     private final PublishingPolicy policy;

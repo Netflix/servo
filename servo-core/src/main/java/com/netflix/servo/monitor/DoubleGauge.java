@@ -18,6 +18,8 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.util.concurrent.AtomicDouble;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 /**
  * A {@link Gauge} that reports a double value.
  */
@@ -31,7 +33,7 @@ public class DoubleGauge implements Gauge<Double> {
      * @param config   configuration for this gauge
      */
     public DoubleGauge(MonitorConfig config) {
-        this.config = config;
+        this.config = config.withAdditionalTag(DataSourceType.GAUGE);
     }
 
     /**
