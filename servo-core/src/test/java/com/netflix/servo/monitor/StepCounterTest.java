@@ -23,15 +23,16 @@ import static org.testng.Assert.*;
 
 public class StepCounterTest {
 
-    final long step = 10000L;
-    final ManualClock clock = new ManualClock(step * 50);
+    static final long STEP = 10000L;
+
+    final ManualClock clock = new ManualClock(STEP * 50);
 
     public StepCounter newInstance(String name) {
-        return new StepCounter(MonitorConfig.builder(name).build(), step, clock);
+        return new StepCounter(MonitorConfig.builder(name).build(), STEP, clock);
     }
 
     public long time(long t) {
-        return t * 1000 + step * 50;
+        return t * 1000 + STEP * 50;
     }
 
     @Test
