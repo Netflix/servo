@@ -58,7 +58,7 @@ subprojects {
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.3'
-        compile 'com.google.guava:guava:11.0.1'
+        compile 'com.google.guava:guava:14.0.1'
         compile 'com.google.code.findbugs:annotations:2.0.0'
         testCompile 'org.testng:testng:6.1.1'
         testRuntime 'org.slf4j:slf4j-log4j12:1.6.1'
