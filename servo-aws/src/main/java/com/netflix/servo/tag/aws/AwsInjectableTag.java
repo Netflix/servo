@@ -22,8 +22,6 @@ import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
 
-import com.google.common.io.Closeables;
-
 import com.netflix.servo.aws.AwsPropertyKeys;
 import com.netflix.servo.tag.Tag;
 
@@ -35,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -124,7 +123,11 @@ public enum AwsInjectableTag implements Tag {
             getLogger().warn("Unable to read value from AWS metadata URL", e);
             return undefined;
         } finally {
-            Closeables.closeQuietly(reader);
+            try {
+                if (reader != null) reader.close();
+            } catch (IOException e) {
+                // ignore problems closing the stream
+            }
         }
     }
 
