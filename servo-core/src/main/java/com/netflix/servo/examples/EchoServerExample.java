@@ -16,7 +16,7 @@
 package com.netflix.servo.examples;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.CountingOutputStream;
 import com.netflix.servo.monitor.DynamicCounter;
@@ -111,17 +111,19 @@ public class EchoServerExample {
         }
 
         private void doWork() throws IOException {
+            Closer closer = Closer.create();
             CountingInputStream input = null;
             CountingOutputStream output = null;
             try {
-                input = new CountingInputStream(s.getInputStream());
-                output = new CountingOutputStream(s.getOutputStream());
+                input = closer.register(new CountingInputStream(s.getInputStream()));
+                output = closer.register(new CountingOutputStream(s.getOutputStream()));
                 ByteStreams.copy(input, output);
                 DynamicCounter.increment("BytesIn", tags, input.getCount());
                 DynamicCounter.increment("BytesOut", tags, output.getCount());
+            } catch (Throwable t) {
+                throw closer.rethrow(t);
             } finally {
-                Closeables.closeQuietly(input);
-                Closeables.closeQuietly(output);
+                closer.close();
             }
         }
 

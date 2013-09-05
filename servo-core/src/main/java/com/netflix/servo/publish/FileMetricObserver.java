@@ -16,7 +16,7 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.netflix.servo.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,24 +93,29 @@ public final class FileMetricObserver extends BaseMetricObserver {
     public void updateImpl(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         File file = new File(dir, fileFormat.format(new Date()));
+        Closer closer = Closer.create();
         Writer out = null;
         try {
-            LOGGER.debug("writing {} metrics to file {}", metrics.size(), file);
-            OutputStream fileOut = new FileOutputStream(file, true);
-            if (compress) {
-                fileOut = new GZIPOutputStream(fileOut);
-            }
-            out = new OutputStreamWriter(fileOut, "UTF-8");
-            for (Metric m : metrics) {
-                out.append(m.getConfig().getName()).append('\t')
-                   .append(m.getConfig().getTags().toString()).append('\t')
-                   .append(m.getValue().toString()).append('\n');
+            try {
+                LOGGER.debug("writing {} metrics to file {}", metrics.size(), file);
+                OutputStream fileOut = new FileOutputStream(file, true);
+                if (compress) {
+                    fileOut = new GZIPOutputStream(fileOut);
+                }
+                out = closer.register(new OutputStreamWriter(fileOut, "UTF-8"));
+                for (Metric m : metrics) {
+                    out.append(m.getConfig().getName()).append('\t')
+                       .append(m.getConfig().getTags().toString()).append('\t')
+                       .append(m.getValue().toString()).append('\n');
+                }
+            } catch (Throwable t) {
+                throw closer.rethrow(t);
+            } finally {
+                closer.close();
             }
         } catch (IOException e) {
             incrementFailedCount();
             LOGGER.error("failed to write update to file " + file, e);
-        } finally {
-            Closeables.closeQuietly(out);
         }
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.example;
 
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -33,8 +33,11 @@ public class ExitHandler extends BaseHandler {
     }
 
     protected void handleImpl(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(200, 0);
-        exchange.close();
-        Closeables.closeQuietly(server);
+        try {
+            exchange.sendResponseHeaders(200, 0);
+            exchange.close();
+        } finally {
+            server.close();
+        }
     }
 }
