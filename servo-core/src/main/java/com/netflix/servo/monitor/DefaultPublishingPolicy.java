@@ -16,12 +16,13 @@
 package com.netflix.servo.monitor;
 
 /**
- * The default publishing policy. Observers must follow the default behaviour when the {@link MonitorConfig}
- * associated with a {@link Monitor} uses this policy.
+ * The default publishing policy. Observers must follow the default behaviour when the
+ * {@link MonitorConfig} associated with a {@link Monitor} uses this policy.
  */
-public class DefaultPublishingPolicy implements PublishingPolicy {
+public final class DefaultPublishingPolicy implements PublishingPolicy {
     private static final DefaultPublishingPolicy INSTANCE = new DefaultPublishingPolicy();
-    private DefaultPublishingPolicy() {}
+
+    private DefaultPublishingPolicy() { }
 
     public static DefaultPublishingPolicy getInstance() {
         return INSTANCE;

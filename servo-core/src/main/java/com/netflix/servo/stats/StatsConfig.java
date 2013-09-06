@@ -105,7 +105,7 @@ public final class StatsConfig {
             return new StatsConfig(this);
         }
     }
-    
+
     private final boolean publishCount;
     private final boolean publishTotal;
     private final boolean publishMin;

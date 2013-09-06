@@ -23,11 +23,13 @@ import com.google.common.base.Preconditions;
 public class TimedStopwatch extends BasicStopwatch {
     private final Timer timer;
 
+    /** Create a new instance with the specified timer. */
     public TimedStopwatch(Timer timer) {
         Preconditions.checkNotNull(timer);
         this.timer = timer;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void stop() {
         super.stop();

@@ -33,8 +33,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or {@link MonitorConfig}
- * Counters are automatically expired after 15 minutes of inactivity.
+ * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or
+ * {@link MonitorConfig}. Counters are automatically expired after 15 minutes of inactivity.
  */
 public final class DynamicCounter implements CompositeMonitor<Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounter.class);
@@ -58,12 +58,14 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
 
     private DynamicCounter() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
-        final String expirationUnit = System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+        final String expirationUnit =
+            System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
 
         final String interval = System.getProperty(POLLING_INT_PROP, DEFAULT_POLLING_INT);
-        final String intervalUnit = System.getProperty(POLLING_INT_PROP_UNIT, DEFAULT_POLLING_INT_UNIT);
+        final String intervalUnit =
+            System.getProperty(POLLING_INT_PROP_UNIT, DEFAULT_POLLING_INT_UNIT);
         final long pollingInterval = Long.valueOf(interval);
         final TimeUnit pollingUnit = TimeUnit.valueOf(intervalUnit);
         final long pollingIntervalMs = pollingUnit.toMillis(pollingInterval);
@@ -100,7 +102,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
      */
     public static void increment(String name, String... tags) {
         final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
-        Preconditions.checkArgument(tags.length % 2 == 0, 
+        Preconditions.checkArgument(tags.length % 2 == 0,
                 "The sequence of (key, value) pairs must have even size: one key, one value");
         for (int i = 0; i < tags.length; i += 2) {
             configBuilder.withTag(tags[i], tags[i + 1]);

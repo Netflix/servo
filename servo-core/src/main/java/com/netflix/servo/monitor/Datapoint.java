@@ -16,10 +16,9 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- *
+ * Tuple for a timestamp and value.
  */
 final class Datapoint {
 
@@ -54,7 +53,7 @@ final class Datapoint {
             return false;
         }
         Datapoint dp = (Datapoint) obj;
-        return timestamp == dp.timestamp && value == dp.value; 
+        return timestamp == dp.timestamp && value == dp.value;
     }
 
     public String toString() {

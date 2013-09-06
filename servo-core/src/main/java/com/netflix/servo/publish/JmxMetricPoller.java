@@ -89,7 +89,7 @@ public final class JmxMetricPoller implements MetricPoller {
      *                   counters, all others will be gauges
      */
     public JmxMetricPoller(
-            JmxConnector connector, List<ObjectName> queries, MetricFilter counters){
+            JmxConnector connector, List<ObjectName> queries, MetricFilter counters) {
         this.connector = connector;
         this.queries = queries;
         this.counters = counters;

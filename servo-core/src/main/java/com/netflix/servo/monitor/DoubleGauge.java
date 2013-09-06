@@ -26,7 +26,7 @@ public class DoubleGauge implements Gauge<Double> {
     private final MonitorConfig config;
 
     /**
-     * Create a new instance with the specified configuration
+     * Create a new instance with the specified configuration.
      *
      * @param config   configuration for this gauge
      */
@@ -56,7 +56,10 @@ public class DoubleGauge implements Gauge<Double> {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
+
         if (!(o instanceof DoubleGauge)) {
             return false;
         }
