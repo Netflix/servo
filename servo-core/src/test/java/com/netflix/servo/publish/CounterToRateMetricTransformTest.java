@@ -95,4 +95,26 @@ public class CounterToRateMetricTransformTest {
         assertEquals(metrics.size(), 3);
         assertEquals(metrics.get("m3"), 0.0, 0.00001);
     }
+
+    @Test
+    public void testFirstSample() throws Exception {
+        MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
+        MetricObserver transform = new CounterToRateMetricTransform(mmo, 120, 5, TimeUnit.SECONDS);
+        Map<String, Double> metrics;
+
+        // Make time look like the future to avoid expirations
+        long baseTime = System.currentTimeMillis() + 100000L;
+
+        // First sample
+        transform.update(mkList(baseTime + 0, 10));
+        metrics = mkMap(mmo.getObservations());
+        assertEquals(metrics.size(), 3);
+        assertEquals(metrics.get("m3"), 2.0, 0.00001);
+
+        // Delta of 5 in 5 seconds
+        transform.update(mkList(baseTime + 5000, 15));
+        metrics = mkMap(mmo.getObservations());
+        assertEquals(metrics.size(), 3);
+        assertEquals(metrics.get("m3"), 1.0, 0.00001);
+    }
 }
