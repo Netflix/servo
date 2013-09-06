@@ -33,10 +33,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class that dynamically creates {@link BasicTimer}s based on an arbitrary (name, tagList), or {@link MonitorConfig}
- * Timers are automatically expired after 15 minutes of inactivity.
+ * Utility class that dynamically creates {@link BasicTimer}s based on an arbitrary
+ * (name, tagList), or {@link MonitorConfig}. Timers are automatically expired after 15 minutes of
+ * inactivity.
  */
-public class DynamicTimer implements CompositeMonitor<Long> {
+public final class DynamicTimer implements CompositeMonitor<Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimer.class);
     private static final String DEFAULT_EXPIRATION = "15";
     private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
@@ -45,7 +46,7 @@ public class DynamicTimer implements CompositeMonitor<Long> {
     private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
     private static final String INTERNAL_ID = "servoTimers";
     private static final String CACHE_MONITOR_ID = "servoTimersCache";
-    private static final MonitorConfig baseConfig = new MonitorConfig.Builder(INTERNAL_ID).build();
+    private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicTimer INSTANCE = new DynamicTimer();
 
@@ -63,8 +64,13 @@ public class DynamicTimer implements CompositeMonitor<Long> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             final ConfigUnit that = (ConfigUnit) o;
             return config.equals(that.config) && unit == that.unit;
@@ -80,7 +86,8 @@ public class DynamicTimer implements CompositeMonitor<Long> {
 
     private DynamicTimer() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
-        final String expirationUnit = System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+        final String expirationUnit =
+            System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         timers = CacheBuilder.newBuilder()
@@ -126,14 +133,14 @@ public class DynamicTimer implements CompositeMonitor<Long> {
      * Record result to the dynamic timer indicated by the provided config
      * with a TimeUnit of milliseconds.
      */
-    public static void record(MonitorConfig config, long duration){
+    public static void record(MonitorConfig config, long duration) {
         INSTANCE.get(config, TimeUnit.MILLISECONDS).record(duration);
     }
 
     /**
      * Record result to the dynamic timer indicated by the provided config.
      */
-    public static void record(MonitorConfig config, long duration, TimeUnit unit){
+    public static void record(MonitorConfig config, long duration, TimeUnit unit) {
         INSTANCE.get(config, unit).record(duration);
     }
 
@@ -144,7 +151,7 @@ public class DynamicTimer implements CompositeMonitor<Long> {
      */
     public static Stopwatch start(String name, String... tags) {
         final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
-        Preconditions.checkArgument(tags.length % 2 == 0, 
+        Preconditions.checkArgument(tags.length % 2 == 0,
                 "The sequence of (key, value) pairs must have even size: one key, one value");
         for (int i = 0; i < tags.length; i += 2) {
             configBuilder.withTag(tags[i], tags[i + 1]);
@@ -195,7 +202,7 @@ public class DynamicTimer implements CompositeMonitor<Long> {
      */
     @Override
     public MonitorConfig getConfig() {
-        return baseConfig;
+        return BASE_CONFIG;
     }
 
     /**
@@ -205,7 +212,7 @@ public class DynamicTimer implements CompositeMonitor<Long> {
     public String toString() {
         ConcurrentMap<?, ?> map = timers.asMap();
         return Objects.toStringHelper(this)
-                .add("baseConfig", baseConfig)
+                .add("baseConfig", BASE_CONFIG)
                 .add("totalTimers", map.size())
                 .add("timers", map)
                 .toString();

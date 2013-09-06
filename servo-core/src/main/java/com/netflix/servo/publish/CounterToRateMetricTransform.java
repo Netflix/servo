@@ -62,7 +62,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * collecting the metrics.
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SE_BAD_FIELD_INNER_CLASS",
-            justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
+            justification = "ignore that LinkedHashMap is serializable")
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
         this.observer = observer;
 

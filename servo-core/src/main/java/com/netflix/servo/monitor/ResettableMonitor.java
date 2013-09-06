@@ -22,5 +22,6 @@ package com.netflix.servo.monitor;
  * the value so it can be sample many times.
  */
 public interface ResettableMonitor<T> extends Monitor<T> {
+    /** Return the value and reset the monitor state for the next polling interval. */
     T getAndResetValue();
 }

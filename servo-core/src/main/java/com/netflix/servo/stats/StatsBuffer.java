@@ -127,7 +127,7 @@ public class StatsBuffer {
 
         /*
          * We use the definition from http://cnx.org/content/m10805/latest
-         * modified for 0-indexed arrays. 
+         * modified for 0-indexed arrays.
          */
         final double rank = percent * curSize / 100.0; // SUPPRESS CHECKSTYLE MagicNumber
         final int ir = (int) Math.floor(rank);

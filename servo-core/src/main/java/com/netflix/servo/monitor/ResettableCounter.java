@@ -74,7 +74,7 @@ public class ResettableCounter extends AbstractMonitor<Number>
     @Override
     public Number getValue() {
         final long now = System.currentTimeMillis();
-        return computeRate(now, lastResetTime.get(), count.get());        
+        return computeRate(now, lastResetTime.get(), count.get());
     }
 
     /** {@inheritDoc} */

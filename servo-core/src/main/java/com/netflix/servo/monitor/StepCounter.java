@@ -19,8 +19,6 @@ import com.google.common.base.Objects;
 
 import com.netflix.servo.annotations.DataSourceType;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * A simple counter implementation backed by a StepLong. The value returned is a rate for the
  * previous interval as defined by the step.
@@ -58,7 +56,9 @@ public final class StepCounter extends AbstractMonitor<Number> implements Counte
     /** {@inheritDoc} */
     @Override
     public void increment(long amount) {
-        if (amount > 0L) count.current().addAndGet(amount);
+        if (amount > 0L) {
+            count.current().addAndGet(amount);
+        }
     }
 
     /** {@inheritDoc} */

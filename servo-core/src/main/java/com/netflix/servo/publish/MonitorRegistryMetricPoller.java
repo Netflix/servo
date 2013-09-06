@@ -99,7 +99,8 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param unit        time unit for the cache ttl
      * @param useLimiter  whether to use a time limiter for getting the values from the monitors
      */
-    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
+    public MonitorRegistryMetricPoller(
+            MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
         this.registry = registry;
         this.cacheTTL = TimeUnit.MILLISECONDS.convert(cacheTTL, unit);
 

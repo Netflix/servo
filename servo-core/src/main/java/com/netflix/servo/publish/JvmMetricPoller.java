@@ -220,14 +220,13 @@ public class JvmMetricPoller implements MetricPoller {
     private static final int IDX_BLOCKED_TIME = 1;
     private static final int IDX_WAITED_COUNT = 2;
     private static final int IDX_WAITED_TIME = 3;
-    private static final long[] BASE_THREAD_COUNTS = new long[]{0L,0L,0L,0L};
-    private static ThreadInfo[] LAST_THREAD_INFOS = new ThreadInfo[0];
+    private static final long[] BASE_THREAD_COUNTS = new long[] {0L, 0L, 0L, 0L};
 
-    private static final Map<Thread.State,Integer> STATE_LOOKUP =
-        new HashMap<Thread.State,Integer>();
+    private static final Map<Thread.State, Integer> STATE_LOOKUP =
+        new HashMap<Thread.State, Integer>();
 
     static {
-        for (int i = 0 ; i < VALID_STATES.length ; i++) {
+        for (int i = 0; i < VALID_STATES.length; ++i) {
             Thread.State state = VALID_STATES[i];
             STATE_LOOKUP.put(state, Integer.valueOf(i));
             THREAD_COUNTS[i] =
@@ -239,14 +238,19 @@ public class JvmMetricPoller implements MetricPoller {
         }
     }
 
+    private ThreadInfo[] lastThreadInfos = new ThreadInfo[0];
+
+    /** Create a new instance. */
     public JvmMetricPoller() {
     }
 
+    /** {@inheritDoc} */
     @Override
     public final List<Metric> poll(MetricFilter filter) {
         return poll(filter, false);
     }
 
+    /** {@inheritDoc} */
     @Override
     public final List<Metric> poll(MetricFilter filter, boolean reset) {
         long now = System.currentTimeMillis();
@@ -350,7 +354,7 @@ public class JvmMetricPoller implements MetricPoller {
         ThreadInfo[] threadInfo = bean.dumpAllThreads(false, false);
         Arrays.sort(
             threadInfo,
-            new Comparator<ThreadInfo>(){
+            new Comparator<ThreadInfo>() {
                 public int compare(ThreadInfo a, ThreadInfo b) {
                     long diff = b.getThreadId() - a.getThreadId();
                     return ((diff == 0L) ? 0 : (diff < 0L) ? -1 : 1);
@@ -365,15 +369,18 @@ public class JvmMetricPoller implements MetricPoller {
         long blockedTime = 0L;
         long waitedCount = 0L;
         long waitedTime = 0L;
-        int l = LAST_THREAD_INFOS.length - 1;
-        for (int i = threadInfo.length - 1 ; i >= 0 ; i--) {
+        int l = lastThreadInfos.length - 1;
+        for (int i = threadInfo.length - 1; i >= 0; i--) {
             long currId = threadInfo[i].getThreadId();
-            while (l >= 0 && LAST_THREAD_INFOS[l].getThreadId() < currId) l--;
-            if (l >= 0 && LAST_THREAD_INFOS[l].getThreadId() > currId) {
-                BASE_THREAD_COUNTS[IDX_BLOCKED_COUNT] += LAST_THREAD_INFOS[l].getBlockedCount();
-                BASE_THREAD_COUNTS[IDX_BLOCKED_TIME] += LAST_THREAD_INFOS[l].getBlockedTime();
-                BASE_THREAD_COUNTS[IDX_WAITED_COUNT] += LAST_THREAD_INFOS[l].getWaitedCount();
-                BASE_THREAD_COUNTS[IDX_WAITED_TIME] += LAST_THREAD_INFOS[l].getWaitedTime();
+            while (l >= 0 && lastThreadInfos[l].getThreadId() < currId) {
+              --l;
+            }
+
+            if (l >= 0 && lastThreadInfos[l].getThreadId() > currId) {
+                BASE_THREAD_COUNTS[IDX_BLOCKED_COUNT] += lastThreadInfos[l].getBlockedCount();
+                BASE_THREAD_COUNTS[IDX_BLOCKED_TIME] += lastThreadInfos[l].getBlockedTime();
+                BASE_THREAD_COUNTS[IDX_WAITED_COUNT] += lastThreadInfos[l].getWaitedCount();
+                BASE_THREAD_COUNTS[IDX_WAITED_TIME] += lastThreadInfos[l].getWaitedTime();
             }
             stateCounts[STATE_LOOKUP.get(threadInfo[i].getThreadState()).intValue()]++;
             blockedCount += threadInfo[i].getBlockedCount();
@@ -392,7 +399,7 @@ public class JvmMetricPoller implements MetricPoller {
         for (int i = 0; i < stateCounts.length; i++) {
             metrics.add(new Metric(THREAD_COUNTS[i], timestamp, stateCounts[i]));
         }
-        LAST_THREAD_INFOS = threadInfo;
+        lastThreadInfos = threadInfo;
     }
 
     private void addOptionalMetric(

@@ -60,7 +60,7 @@ class StepLong {
 
     AtomicLong current() {
         final long now = clock.now();
-        final long stepTime = now / step; 
+        final long stepTime = now / step;
         final int pos = (int) (stepTime % 2);
         final long v = data[pos].get();
         final long lastInit = lastInitPos.get();

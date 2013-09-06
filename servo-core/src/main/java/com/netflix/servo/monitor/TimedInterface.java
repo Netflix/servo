@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * This class creates a {@link java.lang.reflect.Proxy} monitor that tracks all calls to methods of an interface.
+ * This class creates a {@link java.lang.reflect.Proxy} monitor that tracks all calls to methods
+ * of an interface.
  *
  * <pre>
  *   IDummy dummy = TimedInterface.newProxy(IDummy.class, new DummyImpl(), "id");
@@ -37,8 +38,8 @@ import java.util.concurrent.ConcurrentMap;
  * </pre>
  *
  * <p>
- * All calls to methods implemented by IDummy would have an associated BasicTimer with them. The name for the
- * {@link CompositeMonitor} is the name of the method. Additional tags are added: 
+ * All calls to methods implemented by IDummy would have an associated BasicTimer with them. The
+ * name for the {@link CompositeMonitor} is the name of the method. Additional tags are added:
  * <ul>
  * <li><code>interface</code> interface being implemented.
  * <li><code>class</code> simple name of the concrete class implementing the interface.
@@ -46,12 +47,12 @@ import java.util.concurrent.ConcurrentMap;
  * </ul>
  * </p>
  */
-public class TimedInterface {
+public final class TimedInterface {
 
-    public static final String TIMED_INTERFACE = "TimedInterface";
-    public static final String INTERFACE_TAG = "interface";
-    public static final String CLASS_TAG = "class";
-    public static final String ID_TAG = "id";
+    static final String TIMED_INTERFACE = "TimedInterface";
+    static final String INTERFACE_TAG = "interface";
+    static final String CLASS_TAG = "class";
+    static final String ID_TAG = "id";
 
     private static class TimedHandler<T> implements InvocationHandler, CompositeMonitor<Long> {
         final T concrete;
@@ -99,7 +100,9 @@ public class TimedInterface {
             timers = CacheBuilder.newBuilder().build(new CacheLoader<String, Timer>() {
                 @Override
                 public Timer load(String method) throws Exception {
-                    final MonitorConfig config = MonitorConfig.builder(method).withTags(baseTagList).build();
+                    final MonitorConfig config = MonitorConfig.builder(method)
+                        .withTags(baseTagList)
+                        .build();
                     return new BasicTimer(config);
                 }
             });
@@ -124,19 +127,25 @@ public class TimedInterface {
         }
     }
 
+    private TimedInterface() {
+    }
+
     /**
-     * Creates a new TimedInterface for a given interface <code>ctype</code> with a concrete class <code>concrete</code>
-     * and a specific id. The id can be used to distinguish among multiple objects with the same concrete class.
+     * Creates a new TimedInterface for a given interface <code>ctype</code> with a concrete class
+     * <code>concrete</code> and a specific id. The id can be used to distinguish among multiple
+     * objects with the same concrete class.
      */
     @SuppressWarnings("unchecked")
     public static <T> T newProxy(Class<T> ctype, T concrete, String id) {
         final InvocationHandler handler = new TimedHandler(ctype, concrete, id);
-        return (T)Proxy.newProxyInstance(ctype.getClassLoader(), new Class[] { ctype, CompositeMonitor.class }, handler);
+        final Class[] types = new Class[] {ctype, CompositeMonitor.class};
+        return (T) Proxy.newProxyInstance(ctype.getClassLoader(), types, handler);
     }
 
 
     /**
-     * Creates a new TimedInterface for a given interface <code>ctype</code> with a concrete class <code>concrete</code>.
+     * Creates a new TimedInterface for a given interface <code>ctype</code> with a concrete class
+     * <code>concrete</code>.
      */
     public static <T> T newProxy(Class<T> ctype, T concrete) {
         return newProxy(ctype, concrete, null);

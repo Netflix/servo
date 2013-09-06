@@ -33,31 +33,37 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class MonitorConfig {
 
+    /** A builder to assist in creating monitor config objects. */
     public static class Builder {
         private final String name;
         private final List<Tag> tags = new LinkedList<Tag>();
         private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
+        /** Create a new builder initialized with the specified config. */
         public Builder(MonitorConfig config) {
             this(config.getName());
             withTags(config.getTags());
             withPublishingPolicy(config.getPublishingPolicy());
         }
 
+        /** Create a new builder initialized with the specified name. */
         public Builder(String name) {
             this.name = name;
         }
 
+        /** Add a tag to the config. */
         public Builder withTag(String key, String val) {
             tags.add(Tags.newTag(key, val));
             return this;
         }
 
+        /** Add a tag to the config. */
         public Builder withTag(Tag tag) {
             tags.add(tag);
             return this;
         }
 
+        /** Add all tags in the list to the config. */
         public Builder withTags(TagList tagList) {
             if (tagList != null) {
                 for (Tag t : tagList) {
@@ -67,21 +73,25 @@ public final class MonitorConfig {
             return this;
         }
 
+        /** Add all tags in the list to the config. */
         public Builder withTags(Collection<Tag> tagCollection) {
             tags.addAll(tagCollection);
             return this;
         }
 
+        /** Add the publishing policy to the config. */
         public Builder withPublishingPolicy(PublishingPolicy policy) {
             this.policy = policy;
             return this;
         }
 
+        /** Create the monitor config object. */
         public MonitorConfig build() {
             return new MonitorConfig(this);
         }
     }
 
+    /** Return a builder instance with the specified name. */
     public static Builder builder(String name) {
         return new Builder(name);
     }
@@ -120,7 +130,7 @@ public final class MonitorConfig {
     }
 
     /**
-     * Returns the publishing policy
+     * Returns the publishing policy.
      */
     public PublishingPolicy getPublishingPolicy() {
         return policy;
@@ -136,7 +146,9 @@ public final class MonitorConfig {
             return false;
         }
         MonitorConfig m = (MonitorConfig) obj;
-        return name.equals(m.getName()) && tags.equals(m.getTags()) && policy.equals(m.getPublishingPolicy());
+        return name.equals(m.getName())
+            && tags.equals(m.getTags())
+            && policy.equals(m.getPublishingPolicy());
     }
 
     /**
@@ -166,7 +178,7 @@ public final class MonitorConfig {
     }
 
     /**
-     * Returns a copy of the current MonitorConfig
+     * Returns a copy of the current MonitorConfig.
      */
     private MonitorConfig.Builder copy() {
         return MonitorConfig.builder(name).withTags(tags).withPublishingPolicy(policy);

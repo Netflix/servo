@@ -34,7 +34,7 @@ import java.util.*;
  * ERROR 2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value 0 for parameter MetricData.member.1.Value is invalid.
  * ERROR -4.697085e+108 361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -4,697,085,165,547,666,500,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 for parameter MetricData.member.1.Value is invalid.
  * ERROR -2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -0 for parameter MetricData.member.1.Value is invalid.
- * </pre> 
+ * </pre>
  */
 public class CloudWatchValueTest {
 
