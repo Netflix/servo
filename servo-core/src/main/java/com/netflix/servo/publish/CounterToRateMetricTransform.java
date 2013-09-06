@@ -56,15 +56,46 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private final MetricObserver observer;
     private final Map<MonitorConfig, CounterValue> cache;
 
+    private final long intervalMillis;
+
     /**
      * Creates a new instance with the specified heartbeat interval. The
      * heartbeat should be some multiple of the sampling interval used when
      * collecting the metrics.
      */
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SE_BAD_FIELD_INNER_CLASS",
-            justification = "ignore that LinkedHashMap is serializable")
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(
+        value = "SE_BAD_FIELD_INNER_CLASS",
+        justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
     public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
+        this(observer, heartbeat, 0L, unit);
+    }
+
+    /**
+     * Creates a new instance with the specified heartbeat interval. The
+     * heartbeat should be some multiple of the sampling interval used when
+     * collecting the metrics.
+     *
+     * @param observer            downstream observer to forward values to after the rate has
+     *                            been computed.
+     * @param heartbeat           how long to remember a previous value before dropping it and
+     *                            treating new samples as the first report.
+     * @param estPollingInterval  estimated polling interval in to use for the first call. If set
+     *                            to zero no values will be forwarded until the second sample for
+     *                            a given counter. The delta for the first interval will be the
+     *                            total value for the counter as it is assumed it started at 0 and
+     *                            was first created since the last polling interval. If this
+     *                            assumption is not true then this setting should be 0 so it waits
+     *                            for the next sample to compute an accurate delta, otherwise
+     *                            spikes will occur in the output.
+     * @param unit                unit for the heartbeat and estPollingInterval params.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(
+        value = "SE_BAD_FIELD_INNER_CLASS",
+        justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
+    public CounterToRateMetricTransform(
+            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit) {
         this.observer = observer;
+        this.intervalMillis = TimeUnit.MILLISECONDS.convert(estPollingInterval, unit);
 
         final long heartbeatMillis = TimeUnit.MILLISECONDS.convert(heartbeat, unit);
         this.cache = new LinkedHashMap<MonitorConfig, CounterValue>(16, 0.75f, true) {
@@ -99,6 +130,11 @@ public final class CounterToRateMetricTransform implements MetricObserver {
                 } else {
                     CounterValue current = new CounterValue(m);
                     cache.put(m.getConfig(), current);
+                    if (intervalMillis > 0L) {
+                        final double delta = m.getNumberValue().doubleValue();
+                        final double rate = current.computeRate(intervalMillis, delta);
+                        newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
+                    }
                 }
             } else {
                 newMetrics.add(m);
@@ -142,13 +178,18 @@ public final class CounterToRateMetricTransform implements MetricObserver {
             final long currentTimestamp = m.getTimestamp();
             final double currentValue = m.getNumberValue().doubleValue();
 
-            final double millisPerSecond = 1000.0;
-            final double duration = (currentTimestamp - timestamp) / millisPerSecond;
+            final long durationMillis = currentTimestamp - timestamp;
             final double delta = currentValue - value;
 
             timestamp = currentTimestamp;
             value = currentValue;
 
+            return computeRate(durationMillis, delta);
+        }
+
+        public double computeRate(long durationMillis, double delta) {
+            final double millisPerSecond = 1000.0;
+            final double duration = durationMillis / millisPerSecond;
             return (duration <= 0.0 || delta <= 0.0) ? 0.0 : delta / duration;
         }
     }
