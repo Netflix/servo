@@ -27,7 +27,7 @@ public class LongGauge implements Gauge<Long> {
     private final MonitorConfig config;
 
     /**
-     * Create a new instance with the specified configuration
+     * Create a new instance with the specified configuration.
      *
      * @param config   configuration for this gauge
      */
@@ -57,8 +57,13 @@ public class LongGauge implements Gauge<Long> {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LongGauge)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof LongGauge)) {
+            return false;
+        }
 
         LongGauge that = (LongGauge) o;
         return config.equals(that.config) && number.equals(that.number);

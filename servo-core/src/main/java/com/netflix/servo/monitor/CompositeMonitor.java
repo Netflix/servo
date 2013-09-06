@@ -21,5 +21,6 @@ import java.util.List;
  * Used as a mixin for monitors that are composed of a number of sub-monitors.
  */
 public interface CompositeMonitor<T> extends Monitor<T> {
+    /** Returns a list of sub-monitors for this composite. */
     List<Monitor<?>> getMonitors();
 }

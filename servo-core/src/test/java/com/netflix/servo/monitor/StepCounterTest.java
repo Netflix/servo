@@ -53,13 +53,13 @@ public class StepCounterTest {
         c.increment();
         clock.set(time(9));
         c.increment();
-    
+
         // Should cause transition
         clock.set(time(10));
         c.increment();
         clock.set(time(19));
         c.increment();
-    
+
         // Check counts
         assertEquals(c.getValue(), 0.3);
         assertEquals(c.getCurrentCount(), 2);
@@ -81,7 +81,7 @@ public class StepCounterTest {
         clock.set(time(1));
         StepCounter c = newInstance("foo");
         c.getValue();
-    
+
         // Multiple updates without polling
         c.increment();
         clock.set(time(4));

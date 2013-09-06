@@ -233,7 +233,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
 
         return dimensionList;
     }
-    
+
     public CloudWatchMetricObserver withTruncateEnabled(boolean truncateEnabled) {
         this.truncateEnabled = truncateEnabled;
         return this;

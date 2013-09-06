@@ -21,8 +21,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A resettable counter. 
- * The value is the maximum count per second within the specified interval 
+ * A resettable counter. The value is the maximum count per second within the specified interval
  * until the counter is reset.
  */
 public class PeakRateCounter extends AbstractMonitor<Number>
@@ -31,6 +30,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
     private final AtomicReference<AtomicLongArray> buckets;
     private final int numBuckets;
 
+    /** Create a new instance with the specified interval. */
     public PeakRateCounter(MonitorConfig config, int intervalSeconds) {
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
@@ -40,6 +40,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         buckets = new AtomicReference<AtomicLongArray>(new AtomicLongArray(numBuckets));
     }
 
+    /** {@inheritDoc} */
     @Override
     public Number getValue() {
         AtomicLongArray counts = buckets.get();
@@ -55,9 +56,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         return max;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Number getAndResetValue() {
         Number value = getValue();
@@ -65,9 +64,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof PeakRateCounter)) {
@@ -79,17 +76,13 @@ public class PeakRateCounter extends AbstractMonitor<Number>
                 && (this.getValue() == c.getValue());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hashCode(config, getValue());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -98,17 +91,13 @@ public class PeakRateCounter extends AbstractMonitor<Number>
                 .toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void increment() {
         increment(1L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void increment(long amount) {
 
@@ -118,3 +107,4 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         buckets.get().addAndGet(index, amount);
     }
 }
+

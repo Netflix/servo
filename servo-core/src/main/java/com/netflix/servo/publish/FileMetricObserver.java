@@ -69,7 +69,10 @@ public final class FileMetricObserver extends BaseMetricObserver {
      * @param compress  whether to compress our output
      */
     public FileMetricObserver(String name, File dir, boolean compress) {
-        this(name, String.format("'%s'_%s", name, FILE_DATE_FORMAT) + (compress ? "'.log.gz'" : "'.log'"), dir, compress);
+        this(name,
+            String.format("'%s'_%s", name, FILE_DATE_FORMAT) + (compress ? "'.log.gz'" : "'.log'"),
+            dir,
+            compress);
     }
 
     /**

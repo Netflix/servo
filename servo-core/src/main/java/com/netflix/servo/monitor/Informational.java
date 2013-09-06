@@ -15,5 +15,8 @@
  */
 package com.netflix.servo.monitor;
 
+/**
+ * Monitor with a value type of string.
+ */
 public interface Informational extends Monitor<String> {
 }

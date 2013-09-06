@@ -28,11 +28,11 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
     }
 
-    
+
     @Test
     public void testIncrement() throws Exception {
         PeakRateCounter c = newInstance("foo");
-      
+
         assertEquals(c.getValue(), 0L);
 
 

@@ -98,6 +98,8 @@ public final class BasicTag implements Tag {
         return (BasicTag) Tags.parseTag(tagString);
     }
 
+    /** {@inheritDoc} */
+    @Override
     public String tagString() {
         return toString();
     }

@@ -75,6 +75,6 @@ public final class Tags {
         return newTag(k, v);
     }
 
-    /* Utility class */
-    private Tags() {}
+    /** Utility class. */
+    private Tags() { }
 }

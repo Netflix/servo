@@ -20,7 +20,7 @@ package com.netflix.servo.monitor;
  * where we want to fake or control the clock behavior.
  */
 interface Clock {
-    static final Clock WALL = new Clock() {
+    Clock WALL = new Clock() {
         public long now() {
             return System.currentTimeMillis();
         }

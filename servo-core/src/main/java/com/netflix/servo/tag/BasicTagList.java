@@ -174,7 +174,7 @@ public final class BasicTagList implements TagList {
     }
 
     /**
-     * Returns a tag list from the tags
+     * Returns a tag list from the tags.
      */
     public static BasicTagList of(Tag... tags) {
         return new BasicTagList(Arrays.asList(tags));

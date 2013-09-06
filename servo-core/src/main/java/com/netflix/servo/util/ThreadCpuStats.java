@@ -307,7 +307,7 @@ public final class ThreadCpuStats {
             // an accurate total including any threads that may have been started and stopped
             // between sampling. As a fallback we use the sum of the cpu time for all threads found
             // in this interval.
-            // 
+            //
             // Total cpu time can be found in:
             // http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
             //
@@ -452,9 +452,16 @@ public final class ThreadCpuStats {
 
     /** Comparator for sorting cpu usage based on one of the columns. */
     public static enum CpuUsageComparator implements Comparator<CpuUsage> {
+        /** Sort based on 1-minute usage column. */
         ONE_MINUTE(0),
+
+        /** Sort based on 5-minute usage column. */
         FIVE_MINUTE(1),
+
+        /** Sort based on 15-minute usage column. */
         FIFTEEN_MINUTE(2),
+
+        /** Sort based on overall usage column. */
         OVERALL(3);
 
         private final int col;
