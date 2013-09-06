@@ -113,6 +113,7 @@ public enum AwsInjectableTag implements Tag {
         return getUrlValue("/instance-id");
     }
 
+    @SuppressWarnings("PMD")
     static String getUrlValue(String path) {
         BufferedReader reader = null;
         try {
