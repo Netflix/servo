@@ -21,4 +21,6 @@ package com.netflix.servo.aws;
 public class AwsPropertyKeys {
 
     public static final String awsCredentialsFile = "com.netflix.servo.aws.credentialsFile";
+    public static final String awsAutoScalingEndpoint = "com.netflix.servo.aws.endpoint.autoscaling";
+    public static final String awsCloudWatchEndpoint = "com.netflix.servo.aws.endpoint.cloudwatch";
 }

@@ -29,6 +29,8 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 
+import com.netflix.servo.aws.AwsPropertyKeys;
+import com.netflix.servo.aws.AwsServiceClients;
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.Metric;
 
@@ -106,7 +108,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param provider Amazon credentials provider
      */
     public CloudWatchMetricObserver(String name, String namespace, AWSCredentialsProvider provider) {
-        this(name, namespace, new AmazonCloudWatchClient(provider));
+        this(name, namespace, AwsServiceClients.cloudWatch(provider));
     }
 
     /**
