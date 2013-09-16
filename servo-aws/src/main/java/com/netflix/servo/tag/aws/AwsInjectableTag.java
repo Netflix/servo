@@ -23,6 +23,7 @@ import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
 
 import com.netflix.servo.aws.AwsPropertyKeys;
+import com.netflix.servo.aws.AwsServiceClients;
 import com.netflix.servo.tag.Tag;
 
 import com.netflix.servo.aws.constants.Dimensions;
@@ -98,7 +99,7 @@ public enum AwsInjectableTag implements Tag {
                 credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
             }
 
-            AmazonAutoScaling autoScalingClient = new AmazonAutoScalingClient(credentials);
+            AmazonAutoScaling autoScalingClient = AwsServiceClients.autoScaling(credentials);
 
             return autoScalingClient.describeAutoScalingInstances(
                     new DescribeAutoScalingInstancesRequest().withInstanceIds(getInstanceId()))
