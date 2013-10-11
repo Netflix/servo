@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         LoggerFactory.getLogger(CounterToRateMetricTransform.class);
 
     private static final String COUNTER_VALUE = DataSourceType.COUNTER.name();
+    private static final Tag RATE_TAG = DataSourceType.RATE;
 
     private final MetricObserver observer;
     private final Map<MonitorConfig, CounterValue> cache;
@@ -123,17 +125,18 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
-                final CounterValue prev = cache.get(m.getConfig());
+                final MonitorConfig rateConfig = toRateConfig(m.getConfig());
+                final CounterValue prev = cache.get(rateConfig);
                 if (prev != null) {
                     final double rate = prev.computeRate(m);
-                    newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
+                    newMetrics.add(new Metric(rateConfig, m.getTimestamp(), rate));
                 } else {
                     CounterValue current = new CounterValue(m);
-                    cache.put(m.getConfig(), current);
+                    cache.put(rateConfig, current);
                     if (intervalMillis > 0L) {
                         final double delta = m.getNumberValue().doubleValue();
                         final double rate = current.computeRate(intervalMillis, delta);
-                        newMetrics.add(new Metric(m.getConfig(), m.getTimestamp(), rate));
+                        newMetrics.add(new Metric(rateConfig, m.getTimestamp(), rate));
                     }
                 }
             } else {
@@ -149,6 +152,14 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      */
     public void reset() {
         cache.clear();
+    }
+
+    /**
+     * Convert a MonitorConfig for a counter to one that is explicit about
+     * being a RATE.
+     */
+    private MonitorConfig toRateConfig(MonitorConfig config) {
+        return config.withAdditionalTag(RATE_TAG);
     }
 
     private boolean isCounter(Metric m) {
