@@ -38,6 +38,11 @@ public enum DataSourceType implements Tag {
     COUNTER,
 
     /**
+     * A rate is for numeric values that represent a rate per second.
+     */
+    RATE,
+
+    /**
      * An informational attribute is for values that might be useful for
      * debugging, but will not be collected as metrics for monitoring purposes.
      * These values are made available in JMX.

@@ -42,7 +42,7 @@ public final class StepCounter extends AbstractMonitor<Number> implements Counte
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
         // the publishing pipeline receiving the value.
-        super(config.withAdditionalTag(DataSourceType.GAUGE));
+        super(config.withAdditionalTag(DataSourceType.RATE));
         stepSeconds = step / 1000.0;
         count = new StepLong(step, 0L, clock);
     }
