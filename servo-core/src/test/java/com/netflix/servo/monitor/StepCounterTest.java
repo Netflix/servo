@@ -43,6 +43,11 @@ public class StepCounterTest {
     }
 
     @Test
+    public void testHasRateTag() throws Exception {
+        assertEquals(newInstance("foo").getConfig().getTags().getValue("type"), "RATE");
+    }
+
+    @Test
     public void testBoundaryTransition() {
         clock.set(time(1));
         StepCounter c = newInstance("foo");

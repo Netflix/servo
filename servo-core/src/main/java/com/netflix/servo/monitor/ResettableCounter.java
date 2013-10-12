@@ -49,7 +49,7 @@ public class ResettableCounter extends AbstractMonitor<Number>
      */
     public ResettableCounter(MonitorConfig config, long estPollingInterval) {
         // This class will reset the value so it is not a monotonically increasing value as
-        // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
+        // expected for type=COUNTER. This class looks like a counter to the user and a rate to
         // the publishing pipeline receiving the value.
         super(config.withAdditionalTag(DataSourceType.RATE));
         this.estPollingInterval = estPollingInterval;
