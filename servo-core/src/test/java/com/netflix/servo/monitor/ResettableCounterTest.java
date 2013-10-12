@@ -32,9 +32,9 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
     }
 
     @Test
-    public void testHasGaugeTag() throws Exception {
+    public void testHasRateTag() throws Exception {
         Tag type = newInstance("foo").getConfig().getTags().getTag("type");
-        assertEquals(type.getValue(), "GAUGE");
+        assertEquals(type.getValue(), "RATE");
     }
 
     @Test

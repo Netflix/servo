@@ -56,6 +56,39 @@ public class CounterToRateMetricTransformTest {
         return map;
     }
 
+    private Map<String, String> mkTypeMap(List<List<Metric>> updates) {
+        Map<String, String> map = Maps.newHashMap();
+        for (Metric m : updates.get(0)) {
+            map.put(m.getConfig().getName(), m.getConfig().getTags().getValue("type"));
+        }
+        return map;
+    }
+
+    @Test
+    public void testResultingType() throws Exception {
+        MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
+        MetricObserver transform = new CounterToRateMetricTransform(mmo, 120, TimeUnit.SECONDS);
+        Map<String, String> metrics;
+
+        // Make time look like the future to avoid expirations
+        long baseTime = System.currentTimeMillis() + 100000L;
+
+        // First sample
+        transform.update(mkList(baseTime + 0, 0));
+        metrics = mkTypeMap(mmo.getObservations());
+        assertEquals(metrics.size(), 2);
+        assertEquals(metrics.get("m3"), null);
+        assertEquals(metrics.get("m2"), "GAUGE");
+        assertEquals(metrics.get("m1"), null);
+
+        transform.update(mkList(baseTime + 5000, 5));
+        metrics = mkTypeMap(mmo.getObservations());
+        assertEquals(metrics.size(), 3);
+        assertEquals(metrics.get("m3"), "RATE");
+        assertEquals(metrics.get("m2"), "GAUGE");
+        assertEquals(metrics.get("m1"), null);
+    }
+
     @Test
     public void testSimpleRate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);

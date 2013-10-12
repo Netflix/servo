@@ -35,7 +35,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
         // the publishing pipeline receiving the value.
-        super(config.withAdditionalTag(DataSourceType.GAUGE));
+        super(config.withAdditionalTag(DataSourceType.RATE));
         numBuckets = intervalSeconds;
         buckets = new AtomicReference<AtomicLongArray>(new AtomicLongArray(numBuckets));
     }
