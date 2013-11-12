@@ -46,7 +46,7 @@ public final class StatsConfig {
         private boolean publishMean = false;
         private boolean publishVariance = false;
         private boolean publishStdDev = false;
-        private int sampleSize = Integer.valueOf(System.getProperty(SIZE_PROP, "100000"));
+        private int sampleSize = Integer.valueOf(System.getProperty(SIZE_PROP, "1000"));
         private long frequencyMillis = Long.valueOf(System.getProperty(FREQ_PROP, "60000"));
 
         private double[] percentiles = { 95.0, 99.0 };
