@@ -26,7 +26,13 @@ import com.netflix.servo.tag.Tags;
  * A {@link Timer} that provides statistics.
  * <p>
  * The statistics are collected periodically and are published according to the configuration
- * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
+ * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object. Please
+ * make sure that the sampleSize corresponds to roughly the number of samples expected in
+ * a reporting interval. While the statistics collected are accurate for this machine they will not
+ * be correct if they are aggregated across groups of machines. If that is an expected use-case a better
+ * approach is to use buckets that correspond to different times. For example you might have a counter
+ * that tracks how many calls took &lt; 20ms, one for [ 20ms, 500ms ], and one for &gt; 500ms. This bucketing 
+ * approach can be easily aggregated.
  */
 public class StatsTimer extends StatsMonitor implements Timer {
 
