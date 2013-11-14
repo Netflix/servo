@@ -55,12 +55,10 @@ public class BucketConfigTest {
         BucketConfig config = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,9})
-            .setReverseCumulative(true)
             .build();
 
         assertEquals(config.getTimeUnit(), TimeUnit.SECONDS);
         assertEquals(config.getBuckets(), new long[] {7,8,9});
-        assertEquals(config.isReverseCumulative(), true);
     }
 
     @Test
@@ -68,19 +66,16 @@ public class BucketConfigTest {
         BucketConfig config1 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,9})
-            .setReverseCumulative(true)
             .build();
 
         BucketConfig config2 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,9})
-            .setReverseCumulative(true)
             .build();
 
         BucketConfig config3 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,91})
-            .setReverseCumulative(true)
             .build();
 
         assertNotNull(config1);
@@ -95,19 +90,16 @@ public class BucketConfigTest {
         BucketConfig config1 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,9})
-            .setReverseCumulative(true)
             .build();
 
         BucketConfig config2 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,9})
-            .setReverseCumulative(true)
             .build();
 
         BucketConfig config3 = new BucketConfig.Builder()
             .withTimeUnit(TimeUnit.SECONDS)
             .withBuckets(new long[] {7,8,91})
-            .setReverseCumulative(true)
             .build();
 
         assertTrue(config1.hashCode() == config1.hashCode());

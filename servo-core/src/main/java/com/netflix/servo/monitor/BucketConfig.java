@@ -30,8 +30,7 @@ public final class BucketConfig {
 
     public static class Builder {
         private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        private long[] buckets = { 0L, 100L, 200L, 500L, 1000L, 2000L, 3000L, 5000L };
-        private boolean reverseCumulative = false;
+        private long[] buckets = null;
 
         /**
          * Sets the timeunit for the buckets.
@@ -43,17 +42,17 @@ public final class BucketConfig {
 
         /**
          * Sets the buckets to be used.
-         * Buckets are inclusive, and will receive all values up to the next
-         * highest bucket.
-         * Must be in ascending order (smallest-to-largest).
-         * Each bucket must be unique.
          *
-         * For example, using bucket values of 0,10,20:
-         * The value 33 would fall into bucket 20.
-         * The value 20 would fall into bucket 20.
-         * The value 19 would fall into bucket 10.
-         * The value 2 would fall into bucket 0.
-         * The value -3 would be ignored.
+         * <p><ul>
+         * <li>Each bucket must be unique.
+         * <li>Buckets must be in ascending order (smallest-to-largest).
+         * <li>All bucket counts will be namespaced under the "servo.bucket" tag.
+         * <li>Buckets are incremented in the following way: Given a set of n
+         * ordered buckets, let n1 = the first bucket. If a given duration is
+         * less than or equal to n1, the counter for n1 is incremented; else
+         * perform the same check on n2, n3, etc. If the duration is greater
+         * the largest bucket, it is added to the 'overflow' bucket. The overflow
+         * bucket is automatically created.
          */
         public Builder withBuckets(long[] buckets) {
             Preconditions.checkNotNull(buckets, "buckets cannot be null");
@@ -75,11 +74,6 @@ public final class BucketConfig {
             return true;
         }
 
-        public Builder setReverseCumulative(boolean reverseCumulative) {
-            this.reverseCumulative = reverseCumulative;
-            return this;
-        }
-
         public BucketConfig build() {
             return new BucketConfig(this);
         }
@@ -87,12 +81,10 @@ public final class BucketConfig {
 
     private final TimeUnit timeUnit;
     private final long[] buckets;
-    private final boolean reverseCumulative;
 
     private BucketConfig(Builder builder) {
         this.timeUnit = builder.timeUnit;
         this.buckets = Arrays.copyOf(builder.buckets, builder.buckets.length);
-        this.reverseCumulative = builder.reverseCumulative;
     }
 
     /**
@@ -119,13 +111,6 @@ public final class BucketConfig {
     }
 
     /**
-     * Checks if histogram should be calculated as inverse cumulative.
-     */
-    public boolean isReverseCumulative() {
-        return reverseCumulative;
-    }
-
-    /**
      * Get a copy of the array that holds the bucket values.
      */
     public long[] getBuckets() {
@@ -137,7 +122,6 @@ public final class BucketConfig {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("timeUnit", timeUnit)
-                .add("reverseCumulative", reverseCumulative)
                 .add("buckets", buckets)
                 .toString();
     }
@@ -151,7 +135,6 @@ public final class BucketConfig {
         final BucketConfig that = (BucketConfig) o;
 
         if (timeUnit != that.timeUnit) return false;
-        if (reverseCumulative != that.reverseCumulative) return false;
         if (!Arrays.equals(buckets, that.buckets)) return false;
 
         return true;
@@ -161,7 +144,6 @@ public final class BucketConfig {
     @Override
     public int hashCode() {
         int result = timeUnit.hashCode();
-        result = 31 * result + (reverseCumulative ? 1 : 0);
         result = 31 * result + Arrays.hashCode(buckets);
         return result;
     }

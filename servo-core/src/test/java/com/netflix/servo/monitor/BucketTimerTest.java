@@ -29,7 +29,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
     public BucketTimer newInstance(String name) {
         return new BucketTimer(
             MonitorConfig.builder(name).build(),
-            new BucketConfig.Builder().withBuckets(new long[]{0L, 10L, 20L}).build()
+            new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build()
         );
     }
 
@@ -40,199 +40,86 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         expectedValues = Maps.newHashMap();
         expectedValues.put("totalTime", 0L);
-        expectedValues.put("count", 0L);
         expectedValues.put("min", 0L);
         expectedValues.put("max", 0L);
-        expectedValues.put("bucketTime_0ms", 0L);
-        expectedValues.put("bucketTime_10ms", 0L);
-        expectedValues.put("bucketTime_20ms", 0L);
-        expectedValues.put("bucketCount_0ms", 0L);
-        expectedValues.put("bucketCount_10ms", 0L);
-        expectedValues.put("bucketCount_20ms", 0L);
+        expectedValues.put("bucket=10ms", 0L);
+        expectedValues.put("bucket=20ms", 0L);
+        expectedValues.put("bucket=overflow", 0L);
         assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 0L);
 
         c.record(40);
 
         expectedValues = Maps.newHashMap();
         expectedValues.put("totalTime", 40L);
-        expectedValues.put("count", 1L);
         expectedValues.put("min", 40L);
         expectedValues.put("max", 40L);
-        expectedValues.put("bucketTime_0ms", 0L);
-        expectedValues.put("bucketTime_10ms", 0L);
-        expectedValues.put("bucketTime_20ms", 40L);
-        expectedValues.put("bucketCount_0ms", 0L);
-        expectedValues.put("bucketCount_10ms", 0L);
-        expectedValues.put("bucketCount_20ms", 1L);
+        expectedValues.put("bucket=10ms", 0L);
+        expectedValues.put("bucket=20ms", 0L);
+        expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 1L);
 
         c.record(10);
 
         expectedValues = Maps.newHashMap();
         expectedValues.put("totalTime", 50L);
-        expectedValues.put("count", 2L);
         expectedValues.put("min", 10L);
         expectedValues.put("max", 40L);
-        expectedValues.put("bucketTime_0ms", 0L);
-        expectedValues.put("bucketTime_10ms", 10L);
-        expectedValues.put("bucketTime_20ms", 40L);
-        expectedValues.put("bucketCount_0ms", 0L);
-        expectedValues.put("bucketCount_10ms", 1L);
-        expectedValues.put("bucketCount_20ms", 1L);
+        expectedValues.put("bucket=10ms", 1L);
+        expectedValues.put("bucket=20ms", 0L);
+        expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 2L);
 
         c.record(5);
 
         expectedValues = Maps.newHashMap();
         expectedValues.put("totalTime", 55L);
-        expectedValues.put("count", 3L);
         expectedValues.put("min", 5L);
         expectedValues.put("max", 40L);
-        expectedValues.put("bucketTime_0ms", 5L);
-        expectedValues.put("bucketTime_10ms", 10L);
-        expectedValues.put("bucketTime_20ms", 40L);
-        expectedValues.put("bucketCount_0ms", 1L);
-        expectedValues.put("bucketCount_10ms", 1L);
-        expectedValues.put("bucketCount_20ms", 1L);
+        expectedValues.put("bucket=10ms", 2L);
+        expectedValues.put("bucket=20ms", 0L);
+        expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 3L);
 
-        c.record(0);
+        c.record(20);
 
         expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 55L);
-        expectedValues.put("count", 4L);
-        expectedValues.put("min", 0L);
-        expectedValues.put("max", 40L);
-        expectedValues.put("bucketTime_0ms", 5L);
-        expectedValues.put("bucketTime_10ms", 10L);
-        expectedValues.put("bucketTime_20ms", 40L);
-        expectedValues.put("bucketCount_0ms", 2L);
-        expectedValues.put("bucketCount_10ms", 1L);
-        expectedValues.put("bucketCount_20ms", 1L);
-        assertMonitors(c.getMonitors(), expectedValues);
-
-        c.record(45);
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 100L);
-        expectedValues.put("count", 5L);
-        expectedValues.put("min", 0L);
-        expectedValues.put("max", 45L);
-        expectedValues.put("bucketTime_0ms", 5L);
-        expectedValues.put("bucketTime_10ms", 10L);
-        expectedValues.put("bucketTime_20ms", 85L);
-        expectedValues.put("bucketCount_0ms", 2L);
-        expectedValues.put("bucketCount_10ms", 1L);
-        expectedValues.put("bucketCount_20ms", 2L);
-        assertMonitors(c.getMonitors(), expectedValues);
-    }
-
-    @Test
-    public void testRecordWithReverseCumulation() throws Exception {
-        BucketTimer c = new BucketTimer(
-            MonitorConfig.builder("foo").build(),
-            new BucketConfig.Builder()
-                .withBuckets(new long[]{0L, 10L, 20L})
-                .setReverseCumulative(true)
-                .build()
-        );
-        Map<String, Number> expectedValues;
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 0L);
-        expectedValues.put("count", 0L);
-        expectedValues.put("min", 0L);
-        expectedValues.put("max", 0L);
-        expectedValues.put("bucketTimeRevCum_0ms", 0L);
-        expectedValues.put("bucketTimeRevCum_10ms", 0L);
-        expectedValues.put("bucketTimeRevCum_20ms", 0L);
-        expectedValues.put("bucketCountRevCum_0ms", 0L);
-        expectedValues.put("bucketCountRevCum_10ms", 0L);
-        expectedValues.put("bucketCountRevCum_20ms", 0L);
-        assertMonitors(c.getMonitors(), expectedValues);
-
-        c.record(40);
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 40L);
-        expectedValues.put("count", 1L);
-        expectedValues.put("min", 40L);
-        expectedValues.put("max", 40L);
-        expectedValues.put("bucketTimeRevCum_0ms", 40L);
-        expectedValues.put("bucketTimeRevCum_10ms", 40L);
-        expectedValues.put("bucketTimeRevCum_20ms", 40L);
-        expectedValues.put("bucketCountRevCum_0ms", 1L);
-        expectedValues.put("bucketCountRevCum_10ms", 1L);
-        expectedValues.put("bucketCountRevCum_20ms", 1L);
-        assertMonitors(c.getMonitors(), expectedValues);
-
-        c.record(10);
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 50L);
-        expectedValues.put("count", 2L);
-        expectedValues.put("min", 10L);
-        expectedValues.put("max", 40L);
-        expectedValues.put("bucketTimeRevCum_0ms", 50L);
-        expectedValues.put("bucketTimeRevCum_10ms", 50L);
-        expectedValues.put("bucketTimeRevCum_20ms", 40L);
-        expectedValues.put("bucketCountRevCum_0ms", 2L);
-        expectedValues.put("bucketCountRevCum_10ms", 2L);
-        expectedValues.put("bucketCountRevCum_20ms", 1L);
-        assertMonitors(c.getMonitors(), expectedValues);
-
-        c.record(5);
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 55L);
-        expectedValues.put("count", 3L);
+        expectedValues.put("totalTime", 75L);
         expectedValues.put("min", 5L);
         expectedValues.put("max", 40L);
-        expectedValues.put("bucketTimeRevCum_0ms", 55L);
-        expectedValues.put("bucketTimeRevCum_10ms", 50L);
-        expectedValues.put("bucketTimeRevCum_20ms", 40L);
-        expectedValues.put("bucketCountRevCum_0ms", 3L);
-        expectedValues.put("bucketCountRevCum_10ms", 2L);
-        expectedValues.put("bucketCountRevCum_20ms", 1L);
+        expectedValues.put("bucket=10ms", 2L);
+        expectedValues.put("bucket=20ms", 1L);
+        expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 4L);
 
-        c.record(0);
+        c.record(125);
 
         expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 55L);
-        expectedValues.put("count", 4L);
-        expectedValues.put("min", 0L);
-        expectedValues.put("max", 40L);
-        expectedValues.put("bucketTimeRevCum_0ms", 55L);
-        expectedValues.put("bucketTimeRevCum_10ms", 50L);
-        expectedValues.put("bucketTimeRevCum_20ms", 40L);
-        expectedValues.put("bucketCountRevCum_0ms", 4L);
-        expectedValues.put("bucketCountRevCum_10ms", 2L);
-        expectedValues.put("bucketCountRevCum_20ms", 1L);
+        expectedValues.put("totalTime", 200L);
+        expectedValues.put("min", 5L);
+        expectedValues.put("max", 125L);
+        expectedValues.put("bucket=10ms", 2L);
+        expectedValues.put("bucket=20ms", 1L);
+        expectedValues.put("bucket=overflow", 2L);
         assertMonitors(c.getMonitors(), expectedValues);
-
-        c.record(45);
-
-        expectedValues = Maps.newHashMap();
-        expectedValues.put("totalTime", 100L);
-        expectedValues.put("count", 5L);
-        expectedValues.put("min", 0L);
-        expectedValues.put("max", 45L);
-        expectedValues.put("bucketTimeRevCum_0ms", 100L);
-        expectedValues.put("bucketTimeRevCum_10ms", 95L);
-        expectedValues.put("bucketTimeRevCum_20ms", 85L);
-        expectedValues.put("bucketCountRevCum_0ms", 5L);
-        expectedValues.put("bucketCountRevCum_10ms", 3L);
-        expectedValues.put("bucketCountRevCum_20ms", 2L);
-        assertMonitors(c.getMonitors(), expectedValues);
+        assertEquals(c.getCount().longValue(), 5L);
     }
 
     private void assertMonitors(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {
+        String[] namespaces = new String[] { "statistic", "servo.bucket"};
         for (Monitor<?> monitor : monitors) {
-            final String bucket = monitor.getConfig().getTags().getValue("bucket");
-            final Number actual = (Number) monitor.getValue();
-            final Number expected = expectedValues.get(bucket);
-            assertEquals(actual, expected, bucket);
+            for (String namespace : namespaces) {
+                final String tag = monitor.getConfig().getTags().getValue(namespace);
+                if (tag != null && !tag.equals("count")) {
+                    final Number actual = (Number) monitor.getValue();
+                    final Number expected = expectedValues.get(tag);
+                    assertEquals(actual, expected, namespace + "." + tag);
+                }
+            }
         }
     }
 
