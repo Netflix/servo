@@ -19,7 +19,11 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.CountingOutputStream;
+import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.monitor.BasicCounter;
+import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.DynamicCounter;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.CounterToRateMetricTransform;
 import com.netflix.servo.publish.FileMetricObserver;
@@ -47,7 +51,11 @@ public class EchoServerExample {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EchoServerExample.class);
     public static final int DEFAULT_PORT = 54321;
-
+    public static final Counter numRequests = new BasicCounter(MonitorConfig.builder("numRequests")
+            .withTag("class", "EchoServerExample").build());
+    static {
+        DefaultMonitorRegistry.getInstance().register(numRequests);
+    }
     private final int port;
 
     public EchoServerExample(int port) {
@@ -90,6 +98,7 @@ public class EchoServerExample {
                     LOGGER.info("received connection from {} with tags {}",
                         s.getRemoteSocketAddress(), tags);
 
+                    numRequests.increment();
                     DynamicCounter.increment("RequestCount", tags);
                     ClientTask task = new ClientTask(tags, s);
                     Thread t = new Thread(task, "ClientTask");

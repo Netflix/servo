@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.tag;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
@@ -28,8 +27,6 @@ import java.net.UnknownHostException;
 public enum InjectableTag implements Tag {
     HOSTNAME("hostname", getHostName()),
     IP("ip", getIp());
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InjectableTag.class);
 
     private final String key;
     private final String value;
@@ -63,7 +60,7 @@ public enum InjectableTag implements Tag {
         try {
             return InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOGGER.warn("Unable to load INET info.", e);
+            LoggerFactory.getLogger(InjectableTag.class).warn("Unable to load INET info.", e);
             return null;
         }
     }
