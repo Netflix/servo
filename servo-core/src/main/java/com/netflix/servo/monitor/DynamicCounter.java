@@ -104,10 +104,14 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
         final MonitorConfig.Builder configBuilder = MonitorConfig.builder(name);
         Preconditions.checkArgument(tags.length % 2 == 0,
                 "The sequence of (key, value) pairs must have even size: one key, one value");
-        for (int i = 0; i < tags.length; i += 2) {
-            configBuilder.withTag(tags[i], tags[i + 1]);
+        try {
+            for (int i = 0; i < tags.length; i += 2) {
+                configBuilder.withTag(tags[i], tags[i + 1]);
+            }
+            increment(configBuilder.build());
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Failed to get a counter to increment: {}", e.getMessage());
         }
-        increment(configBuilder.build());
     }
 
 
