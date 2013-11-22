@@ -131,4 +131,9 @@ public class DynamicCounterTest {
         Counter c2 = getByName("byName2");
         assertEquals(c2.getValue().longValue(), 2L);
     }
+
+    @Test
+    public void testShouldNotThrow() throws Exception {
+        DynamicCounter.increment("name", "", "");
+    }
 }
