@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
+import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,7 +33,7 @@ public class LongGauge implements Gauge<Long> {
      * @param config   configuration for this gauge
      */
     public LongGauge(MonitorConfig config) {
-        this.config = config;
+        this.config = config.withAdditionalTag(DataSourceType.GAUGE);
     }
 
     /**
