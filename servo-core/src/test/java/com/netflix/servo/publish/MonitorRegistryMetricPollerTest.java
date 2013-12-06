@@ -86,7 +86,13 @@ public class MonitorRegistryMetricPollerTest {
             pollers[i] = new MonitorRegistryMetricPoller(registry);
             pollers[i].poll(MATCH_ALL);
         }
-        assertTrue(countThreadsWithName(threadPrefix) >= 10 + baseCount);
+
+        int retries = 0;
+        for (; retries < 10; ++retries) {
+            if (countThreadsWithName(threadPrefix) >= 10 + baseCount) break;
+            Thread.sleep(100);
+        }
+        assertTrue(retries < 10);
 
         for (MonitorRegistryMetricPoller poller : pollers) {
             poller.shutdown();
