@@ -22,6 +22,14 @@ package com.netflix.servo.monitor;
  * the value so it can be sample many times.
  */
 public interface ResettableMonitor<T> extends Monitor<T> {
-    /** Return the value and reset the monitor state for the next polling interval. */
+    /**
+     * Return the value and reset the monitor state for the default polling interval.
+     */
     T getAndResetValue();
+
+    /**
+     * Return the value and reset the monitor state for a given polling interval. This
+     * allows us to support multiple pollers, for example a 10second and 60second poller.
+     */
+    T getAndResetValue(int pollerIdx);
 }

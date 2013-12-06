@@ -16,19 +16,19 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.tag.Tag;
-
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter> {
 
     public ResettableCounter newInstance(String name) {
-        return new ResettableCounter(MonitorConfig.builder(name).build());
+        return new ResettableCounter(MonitorConfig.builder(name).build(), new long[]{0L});
     }
 
     public ResettableCounter newInstance(String name, long interval) {
-        return new ResettableCounter(MonitorConfig.builder(name).build(), interval);
+        return new ResettableCounter(MonitorConfig.builder(name).build(), new long[]{interval});
     }
 
     @Test

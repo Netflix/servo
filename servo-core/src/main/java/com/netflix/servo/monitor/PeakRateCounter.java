@@ -17,6 +17,8 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
+
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,44 +29,104 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PeakRateCounter extends AbstractMonitor<Number>
         implements Counter, ResettableMonitor<Number> {
 
-    private final AtomicReference<AtomicLongArray> buckets;
-    private final int numBuckets;
+    private static class PeakInterval {
+        final AtomicReference<AtomicLongArray> countsRef;
 
-    /** Create a new instance with the specified interval. */
-    public PeakRateCounter(MonitorConfig config, int intervalSeconds) {
+        PeakInterval(int numBuckets) {
+            countsRef = new AtomicReference<AtomicLongArray>(new AtomicLongArray(numBuckets));
+        }
+
+        Number getValue() {
+            return getValue(countsRef.get());
+        }
+
+        Number getValue(AtomicLongArray counts) {
+            long max = 0;
+            long cnt;
+
+            for (int i = 0; i < counts.length(); i++) {
+                cnt = counts.get(i);
+                if (cnt > max) {
+                    max = cnt;
+                }
+            }
+            return max;
+        }
+
+        Number getAndResetValue() {
+            AtomicLongArray counts = countsRef.getAndSet(new AtomicLongArray(countsRef.get().length()));
+            return getValue(counts);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PeakInterval that = (PeakInterval) o;
+            return AtomicUtils.equals(countsRef.get(), that.countsRef.get());
+        }
+
+        @Override
+        public int hashCode() {
+            return AtomicUtils.hashCode(countsRef.get());
+        }
+
+        void increment(long now, long amount) {
+            int index = (int) now % countsRef.get().length();
+            countsRef.get().addAndGet(index, amount);
+        }
+    }
+
+    private final PeakInterval[] peakIntervals;
+
+    public PeakRateCounter(MonitorConfig config) {
+        this(config, Pollers.POLLING_INTERVALS);
+    }
+
+    PeakRateCounter(MonitorConfig config, long[] pollingIntervals) {
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
         // the publishing pipeline receiving the value.
         super(config.withAdditionalTag(DataSourceType.RATE));
-        numBuckets = intervalSeconds;
-        buckets = new AtomicReference<AtomicLongArray>(new AtomicLongArray(numBuckets));
+
+        peakIntervals = new PeakInterval[pollingIntervals.length];
+        for (int i = 0; i < peakIntervals.length; ++i) {
+            peakIntervals[i] = new PeakInterval((int) (pollingIntervals[i] / 1000L));
+        }
+    }
+
+    /**
+     * Create a new instance with the specified interval.
+     *
+     * @deprecated Polling intervals are configured using the system property servo.pollers
+     */
+    @Deprecated
+    public PeakRateCounter(MonitorConfig config, int intervalSeconds) {
+        this(config, Pollers.POLLING_INTERVALS);
     }
 
     /** {@inheritDoc} */
     @Override
     public Number getValue() {
-        AtomicLongArray counts = buckets.get();
-        long max = 0;
-        long cnt;
-
-        for (int i = 0; i < counts.length(); i++) {
-            cnt = counts.get(i);
-            if (cnt > max) {
-                max = cnt;
-            }
-        }
-        return max;
+        return peakIntervals[0].getValue();
     }
 
     /** {@inheritDoc} */
     @Override
     public Number getAndResetValue() {
-        Number value = getValue();
-        buckets.set(new AtomicLongArray(numBuckets));
-        return value;
+        return getAndResetValue(0);
     }
 
     /** {@inheritDoc} */
+    @Override
+    public Number getAndResetValue(int pollerIdx) {
+        return peakIntervals[pollerIdx].getAndResetValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof PeakRateCounter)) {
@@ -73,7 +135,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         PeakRateCounter c = (PeakRateCounter) obj;
 
         return config.equals(c.getConfig())
-                && (this.getValue() == c.getValue());
+                && (Arrays.equals(this.peakIntervals, c.peakIntervals));
     }
 
     /** {@inheritDoc} */
@@ -100,11 +162,10 @@ public class PeakRateCounter extends AbstractMonitor<Number>
     /** {@inheritDoc} */
     @Override
     public void increment(long amount) {
-
         long now = System.currentTimeMillis() / 1000L;
-        int index = (int) now % numBuckets;
-
-        buckets.get().addAndGet(index, amount);
+        for (PeakInterval peakInterval : peakIntervals) {
+            peakInterval.increment(now, amount);
+        }
     }
 }
 

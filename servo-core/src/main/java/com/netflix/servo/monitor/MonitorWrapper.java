@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
-
 import com.netflix.servo.tag.TagList;
 
 /**
@@ -46,6 +45,16 @@ class MonitorWrapper<T> extends AbstractMonitor<T> implements ResettableMonitor<
     }
 
     /** {@inheritDoc} */
+    @Override
+    public T getAndResetValue(int pollerIdx) {
+        return (monitor instanceof ResettableMonitor<?>)
+                ? ((ResettableMonitor<T>) monitor).getAndResetValue(pollerIdx)
+                : monitor.getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof MonitorWrapper<?>)) {
