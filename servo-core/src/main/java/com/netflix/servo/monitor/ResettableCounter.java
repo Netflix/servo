@@ -64,7 +64,7 @@ public class ResettableCounter extends AbstractMonitor<Number>
      * Create a new instance of the counter.
      *
      * @param config              configuration for the monitor
-     * @param estPollingInterval  estimated polling interval in milliseconds.
+     * @param estPollingInterval  ignored
      * @deprecated Polling intervals are configured via the system wide property servo.pollers instead
      *
      */

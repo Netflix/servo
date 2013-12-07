@@ -99,6 +99,8 @@ public class PeakRateCounter extends AbstractMonitor<Number>
     /**
      * Create a new instance with the specified interval.
      *
+     * @param config          configuration for the monitor
+     * @param intervalSeconds ignored
      * @deprecated Polling intervals are configured using the system property servo.pollers
      */
     @Deprecated

@@ -18,7 +18,8 @@ package com.netflix.servo.monitor;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
- * Utility class for dealing with concurrent types.
+ * Utility class for dealing with concurrent types. This is not thread safe, and its main
+ * purpose is to facilitate testing.
  */
 final class AtomicUtils {
     private AtomicUtils() {

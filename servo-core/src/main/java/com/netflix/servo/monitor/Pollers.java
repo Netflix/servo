@@ -15,6 +15,9 @@
  */
 package com.netflix.servo.monitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 final class Pollers {
     private Pollers() {
     }
@@ -33,10 +36,25 @@ final class Pollers {
     static long[] parse(String pollers) {
         String[] periods = pollers.split(",\\s*");
         long[] result = new long[periods.length];
+        long[] defaultPeriod = new long[]{60000L};
+
+        boolean errors = false;
+        Logger logger = LoggerFactory.getLogger(Pollers.class);
         for (int i = 0; i < periods.length; ++i) {
             String period = periods[i];
-            result[i] = Long.parseLong(period);
+            try {
+                result[i] = Long.parseLong(period);
+            } catch (NumberFormatException e) {
+                logger.error("Cannot parse %s as a long " + e.getMessage());
+                errors = true;
+            }
         }
-        return result;
+
+        if (errors || periods.length == 0) {
+            logger.info("Using a default configuration of a poller with a {}ms interval", defaultPeriod[0]);
+            return defaultPeriod;
+        } else {
+            return result;
+        }
     }
 }
