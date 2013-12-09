@@ -16,15 +16,16 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.tag.Tag;
+import org.testng.annotations.Test;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
-import org.testng.annotations.Test;
 
 public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
 
     @Override
     public PeakRateCounter newInstance(String name) {
-        return new PeakRateCounter(MonitorConfig.builder(name).build(), 60);
+        return new PeakRateCounter(MonitorConfig.builder(name).build());
 
     }
 
@@ -33,7 +34,7 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
     public void testIncrement() throws Exception {
         PeakRateCounter c = newInstance("foo");
 
-        assertEquals(c.getValue(), 0L);
+        assertEquals(c.getValue().longValue(), 0L);
 
 
         for (int i = 0; i < 5; i++) {
@@ -41,8 +42,8 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
             c.increment();
         }
 
-        assertEquals(c.getValue(), 1L, "Delta of 5 in 5 seconds, e.g. peak rate = average, 1 per second");
-
+        assertEquals(c.getValue().longValue(), 1L,
+                "Delta of 5 in 5 seconds, e.g. peak rate = average, 1 per second");
 
 
         for (int i = 0; i < 5; i++) {
@@ -50,7 +51,8 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
             c.increment(3);
         }
 
-        assertEquals(c.getValue(), 3L, "Delta of 15 in 5 seconds, e.g. peak rate = average, 3 per second");
+        assertEquals(c.getValue().longValue(), 3L,
+                "Delta of 15 in 5 seconds, e.g. peak rate = average, 3 per second");
 
 
         Thread.sleep(1000L);
@@ -61,11 +63,13 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
         }
         c.increment();
 
-        assertEquals(c.getValue(), 10L, "Delta of 15 in 5 seconds, e.g. peak rate = 10, average = 3, min = 1 per second");
+        assertEquals(c.getValue().longValue(), 10L,
+                "Delta of 15 in 5 seconds, e.g. peak rate = 10, average = 3, min = 1 per second");
 
 
         Thread.sleep(5000L);
-        assertEquals(c.getValue(), 10L, "Delta of 0 in 5 seconds, e.g. peak rate = previous max, 10 per second");
+        assertEquals(c.getValue().longValue(), 10L,
+                "Delta of 0 in 5 seconds, e.g. peak rate = previous max, 10 per second");
 
 
     }
@@ -73,23 +77,26 @@ public class PeakRateCounterTest extends AbstractMonitorTest<PeakRateCounter> {
     @Test
     public void testReset() throws Exception {
         PeakRateCounter c = newInstance("foo");
-        assertEquals(c.getValue(), 0L);
+        assertEquals(c.getValue().longValue(), 0L);
 
         c.increment();
-        assertEquals(c.getValue(), 1L, "Delta 1 in first second");
+        assertEquals(c.getValue().longValue(), 1L,
+                "Delta 1 in first second");
 
         Thread.sleep(1000L);
         c.increment(5L);
-        assertEquals(c.getValue(), 5L, "Delta 5 in second second");
+        assertEquals(c.getValue().longValue(), 5L,
+                "Delta 5 in second second");
 
         Thread.sleep(2000L);
         c.increment(10L);
-        assertEquals(c.getAndResetValue(), 10L, "Delta 10 in fourth second before reset");
+        assertEquals(c.getAndResetValue().longValue(), 10L,
+                "Delta 10 in fourth second before reset");
 
-        assertEquals(c.getValue(), 0L, "After Reset");
+        assertEquals(c.getValue().longValue(), 0L, "After Reset");
 
         c.increment(8L);
-        assertEquals(c.getValue(), 8L, "Delta 8 in first second after reset");
+        assertEquals(c.getValue().longValue(), 8L, "Delta 8 in first second after reset");
 
     }
 

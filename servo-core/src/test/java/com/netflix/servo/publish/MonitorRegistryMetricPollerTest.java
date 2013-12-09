@@ -17,22 +17,22 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.BasicMonitorRegistry;
 import com.netflix.servo.Metric;
+import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.AbstractMonitor;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Monitors;
-import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.annotations.DataSourceType;
 import org.testng.annotations.Test;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
-
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class MonitorRegistryMetricPollerTest {
     private static final long TEN_SECONDS = 10 * 1000;
@@ -86,7 +86,15 @@ public class MonitorRegistryMetricPollerTest {
             pollers[i] = new MonitorRegistryMetricPoller(registry);
             pollers[i].poll(MATCH_ALL);
         }
-        assertTrue(countThreadsWithName(threadPrefix) >= 10 + baseCount);
+
+        int retries = 0;
+        for (; retries < 10; ++retries) {
+            int currentThreads = countThreadsWithName(threadPrefix);
+            if (currentThreads >= 10 + baseCount) break;
+            System.err.println(String.format("currentThreads: %d/%d", currentThreads, baseCount));
+            Thread.sleep(200);
+        }
+        assertTrue(retries < 10);
 
         for (MonitorRegistryMetricPoller poller : pollers) {
             poller.shutdown();
