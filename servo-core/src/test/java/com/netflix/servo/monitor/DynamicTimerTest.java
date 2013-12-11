@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
@@ -82,17 +83,12 @@ public class DynamicTimerTest {
         DynamicTimer theInstance = getInstance();
         Field timers = DynamicTimer.class.getDeclaredField("timers");
         timers.setAccessible(true);
-        LoadingCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
-            CacheBuilder.newBuilder()
-                .expireAfterAccess(1, TimeUnit.SECONDS)
-                .build(new CacheLoader<DynamicTimer.ConfigUnit, Timer>() {
-                    @Override
-                    public Timer load(final DynamicTimer.ConfigUnit configUnit) throws Exception {
-                        return new BasicTimer(configUnit.config, configUnit.unit);
-                    }
-                });
-
-        timers.set(theInstance, newShortExpiringCache);
+        ConcurrentMap c = (ConcurrentMap) timers.get(theInstance);
+        c.clear();
+        Field expireAfterMs = DynamicTimer.class.getDeclaredField("expireAfterMs");
+        expireAfterMs.setAccessible(true);
+        expireAfterMs.setLong(theInstance, 1000L);
+        theInstance.service.scheduleWithFixedDelay(theInstance.expirationJob, 500, 200, TimeUnit.MILLISECONDS);
     }
 
     @Test

@@ -19,6 +19,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.tag.TagList;
 import jsr166e.ConcurrentHashMapV8;
 import org.slf4j.Logger;
@@ -119,6 +120,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
                 .build();
         service = Executors.newSingleThreadScheduledExecutor(threadFactory);
         service.scheduleWithFixedDelay(expirationJob, 1, 1, TimeUnit.MINUTES);
+        DefaultMonitorRegistry.getInstance().register(this);
     }
 
     private Counter get(final MonitorConfig config) {
