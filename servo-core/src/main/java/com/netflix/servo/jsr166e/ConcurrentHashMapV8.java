@@ -6,7 +6,7 @@
 
 package com.netflix.servo.jsr166e;
 
-import com.netflix.servo.util.ForkJoinPool;
+import com.netflix.servo.jsr166e.ForkJoinPool;
 
 import java.io.ObjectStreamField;
 import java.io.Serializable;
