@@ -15,9 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;

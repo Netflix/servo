@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.tag.TagList;
-import jsr166e.ConcurrentHashMapV8;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 
 import java.util.List;
 import java.util.Map;
