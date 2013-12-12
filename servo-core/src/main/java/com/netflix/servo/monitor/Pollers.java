@@ -15,8 +15,11 @@
  */
 package com.netflix.servo.monitor;
 
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Poller configuration. Our resettable monitors need to be aware of all pollers so they can
@@ -39,12 +42,21 @@ public final class Pollers {
     /**
      * Polling intervals in milliseconds.
      */
-    public static final long[] POLLING_INTERVALS = parse(POLLERS);
+    static final long[] POLLING_INTERVALS = parse(POLLERS);
+
+    private static final ImmutableList<Long> pollingIntervals;
+
+    /**
+     * Get list of polling intervals in milliseconds.
+     */
+    public static List<Long> getPollingIntervals() {
+        return pollingIntervals;
+    }
 
     /**
      * Number of pollers that will run.
      */
-    public static int NUM_POLLERS = POLLING_INTERVALS.length;
+    public static final int NUM_POLLERS = POLLING_INTERVALS.length;
 
     /**
      * Parse the content of the system property that describes the polling intervals, and in case of errors
@@ -73,5 +85,13 @@ public final class Pollers {
         } else {
             return result;
         }
+    }
+
+    static {
+        ImmutableList.Builder<Long> builder = ImmutableList.builder();
+        for (long pollingInterval : POLLING_INTERVALS) {
+            builder.add(pollingInterval);
+        }
+        pollingIntervals = builder.build();
     }
 }
