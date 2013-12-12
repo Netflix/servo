@@ -18,7 +18,12 @@ package com.netflix.servo.monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class Pollers {
+/**
+ * Poller configuration. Our resettable monitors need to be aware of all pollers so they can
+ * deal with calls that reset their values. This class provides the mechanism they use
+ * to know how many pollers will be used, and at their estimated polling intervals.
+ */
+public final class Pollers {
     private Pollers() {
     }
 
@@ -29,10 +34,22 @@ final class Pollers {
      * This is used to deal with monitors that need to get reset after they're polled. For example a MinGauge
      * or a ResettableCounter.
      */
-    static final String POLLERS = System.getProperty("servo.pollers", "60000");
-    static final long[] POLLING_INTERVALS = parse(POLLERS);
-    static int NUM_POLLERS = POLLING_INTERVALS.length;
+    public static final String POLLERS = System.getProperty("servo.pollers", "60000");
 
+    /**
+     * Polling intervals in milliseconds.
+     */
+    public static final long[] POLLING_INTERVALS = parse(POLLERS);
+
+    /**
+     * Number of pollers that will run.
+     */
+    public static int NUM_POLLERS = POLLING_INTERVALS.length;
+
+    /**
+     * Parse the content of the system property that describes the polling intervals, and in case of errors
+     * use the default of one poller running every minute.
+     */
     static long[] parse(String pollers) {
         String[] periods = pollers.split(",\\s*");
         long[] result = new long[periods.length];
