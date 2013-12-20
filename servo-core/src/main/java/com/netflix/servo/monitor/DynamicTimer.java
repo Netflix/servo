@@ -17,15 +17,13 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
+import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringMap;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class that dynamically creates {@link BasicTimer}s based on an arbitrary
@@ -42,51 +40,7 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
     private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicTimer INSTANCE = new DynamicTimer();
-    private static class Entry {
-        private long accessTime;
-        private final Timer timer;
-
-        private Entry(Timer timer, long accessTime) {
-            this.timer = timer;
-            this.accessTime = accessTime;
-        }
-
-        private synchronized Timer getTimer() {
-            accessTime = System.currentTimeMillis();
-            return timer;
-        }
-
-        static Entry newEntry(final ConfigUnit config) {
-            return new Entry(new BasicTimer(config.config, config.unit), 0L);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Entry entry = (Entry) o;
-
-            return accessTime == entry.accessTime && timer.equals(entry.timer);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (int) (accessTime ^ (accessTime >>> 32));
-            result = 31 * result + timer.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Entry{" +
-                    "accessTime=" + accessTime +
-                    ", timer=" + timer +
-                    '}';
-        }
-    }
-    private final ConcurrentHashMapV8<ConfigUnit, Entry> timers;
-    private final long expireAfterMs;
+    private final ExpiringMap<ConfigUnit, Timer> timers;
 
     static class ConfigUnit {
         final MonitorConfig config;
@@ -119,46 +73,24 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
         }
     }
 
-    final Runnable expirationJob = new Runnable() {
-        @Override
-        public void run() {
-            long tooOld = System.currentTimeMillis() - expireAfterMs;
-            for (Map.Entry<ConfigUnit, Entry> entry : timers.entrySet()) {
-                if (entry.getValue().accessTime < tooOld) {
-                    timers.remove(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-    };
-
-    final ScheduledExecutorService service;
-
     private DynamicTimer() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
-            System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+                System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setDaemon(true)
-                .setNameFormat("dynTimerExpiration-%d")
-                .build();
-        expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-        timers = new ConcurrentHashMapV8<ConfigUnit, Entry>();
-        service = Executors.newSingleThreadScheduledExecutor(threadFactory);
-        service.scheduleWithFixedDelay(expirationJob, 1, 1, TimeUnit.MINUTES);
+        final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
+        timers = new ExpiringMap<ConfigUnit, Timer>(expireAfterMs, new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
+            @Override
+            public Timer apply(final ConfigUnit configUnit) {
+                return new BasicTimer(configUnit.config, configUnit.unit);
+            }
+        });
         DefaultMonitorRegistry.getInstance().register(this);
     }
 
     private Timer get(MonitorConfig config, TimeUnit unit) {
-        Entry entry = timers.computeIfAbsent(new ConfigUnit(config, unit), new ConcurrentHashMapV8.Fun<ConfigUnit, Entry>() {
-            @Override
-            public Entry apply(final ConfigUnit configUnit) {
-                return Entry.newEntry(configUnit);
-            }
-        });
-
-        return entry.getTimer();
+        return timers.get(new ConfigUnit(config, unit));
     }
 
     /**
@@ -234,12 +166,10 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List<Monitor<?>> getMonitors() {
-        ImmutableList.Builder<Monitor<?>> builder = ImmutableList.builder();
-        for (Entry e : timers.values()) {
-            builder.add(e.timer); // avoid updating the access time
-        }
-        return builder.build();
+        List list = timers.values();
+        return (List<Monitor<?>>) list;
     }
 
     /**
@@ -263,11 +193,10 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      */
     @Override
     public String toString() {
-        ConcurrentMap<?, ?> map = timers;
         return Objects.toStringHelper(this)
                 .add("baseConfig", BASE_CONFIG)
-                .add("totalTimers", map.size())
-                .add("timers", map)
+                .add("totalTimers", timers.size())
+                .add("timers", timers)
                 .toString();
     }
 }

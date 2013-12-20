@@ -16,10 +16,12 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -27,8 +29,6 @@ import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -72,16 +72,19 @@ public class DynamicCounterTest {
      */
     @BeforeMethod
     public void setupInstance() throws Exception {
-        LOGGER.info("Setting up DynamicCounter instance with a 1s expiration time");
+        LOGGER.info("Setting up DynamicCounter instance with a new cache");
         DynamicCounter theInstance = getInstance();
         Field counters = DynamicCounter.class.getDeclaredField("counters");
         counters.setAccessible(true);
-        ConcurrentMap c = (ConcurrentMap) counters.get(theInstance);
-        c.clear();
-        Field expireAfterMs = DynamicCounter.class.getDeclaredField("expireAfterMs");
-        expireAfterMs.setAccessible(true);
-        expireAfterMs.setLong(theInstance, 1000L);
-        theInstance.service.scheduleWithFixedDelay(theInstance.expirationJob, 500, 200, TimeUnit.MILLISECONDS);
+        ExpiringMap<MonitorConfig, Counter> newShortExpiringCache = new ExpiringMap<MonitorConfig, Counter>(1000L,
+                new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
+                    @Override
+                    public Counter apply(final MonitorConfig config) {
+                        return new ResettableCounter(config);
+                    }
+                }, 100L);
+
+        counters.set(theInstance, newShortExpiringCache);
     }
 
     @Test

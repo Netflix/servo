@@ -16,10 +16,12 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -27,7 +29,6 @@ import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
@@ -80,12 +81,16 @@ public class DynamicTimerTest {
         DynamicTimer theInstance = getInstance();
         Field timers = DynamicTimer.class.getDeclaredField("timers");
         timers.setAccessible(true);
-        ConcurrentMap c = (ConcurrentMap) timers.get(theInstance);
-        c.clear();
-        Field expireAfterMs = DynamicTimer.class.getDeclaredField("expireAfterMs");
-        expireAfterMs.setAccessible(true);
-        expireAfterMs.setLong(theInstance, 1000L);
-        theInstance.service.scheduleWithFixedDelay(theInstance.expirationJob, 500, 200, TimeUnit.MILLISECONDS);
+        ExpiringMap<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
+                new ExpiringMap<DynamicTimer.ConfigUnit, Timer>(1000L,
+                        new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
+                            @Override
+                            public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
+                                return new BasicTimer(configUnit.config, configUnit.unit);
+                            }
+                        }, 100L);
+
+        timers.set(theInstance, newShortExpiringCache);
     }
 
     @Test
