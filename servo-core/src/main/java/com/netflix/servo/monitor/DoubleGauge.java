@@ -36,10 +36,36 @@ public class DoubleGauge implements Gauge<Double> {
     }
 
     /**
-     * Set the current value.
+     * Sets to the given value.
      */
     public void set(Double n) {
         number.set(n);
+    }
+
+    /**
+     * Atomically sets to the given value and returns the old value.
+     * @return The old value
+     */
+    public double getAndSet(double newValue) {
+        return number.getAndSet(newValue);
+    }
+
+    /**
+     * Atomically adds the given value to the current value.
+     * @param delta The value to add
+     * @return The old value
+     */
+    public double getAndAdd(double delta) {
+        return number.getAndAdd(delta);
+    }
+
+    /**
+     * Atomically adds the given value to the current value.
+     * @param delta The value to add
+     * @return The updated value
+     */
+    public double addAndGet(double delta) {
+        return number.addAndGet(delta);
     }
 
     /** {@inheritDoc} */
