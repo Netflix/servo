@@ -43,6 +43,61 @@ public class LongGauge implements Gauge<Long> {
         number.set(n);
     }
 
+    /**
+     * Atomically increments by one the current value.
+     * @return the updated value
+     */
+    public long incrementAndGet() {
+        return number.incrementAndGet();
+    }
+
+    /**
+     * Atomically adds the given value to the current value.
+     * @return the updated value
+     */
+    public long addAndGet(long delta) {
+        return number.addAndGet(delta);
+    }
+
+    /**
+     * Atomically decrements by one the current value.
+     * @return the updated value
+     */
+    public long decrementAndGet() {
+        return number.decrementAndGet();
+    }
+
+    /**
+     * Atomically increments by one the current value.
+     * @return the previous value
+     */
+    public long getAndIncrement() {
+        return number.getAndIncrement();
+    }
+
+    /**
+     * Atomically adds the given value to the current value.
+     * @return the previous value
+     */
+    public long getAndAdd(long delta) {
+        return number.getAndAdd(delta);
+    }
+
+    /**
+     * Atomically decrements by one the current value.
+     * @return the previous value
+     */
+    public long getAndDecrement() {
+        return number.getAndDecrement();
+    }
+
+    /**
+     * Atomically sets to the given value and returns the old value.
+     */
+    public long getAndSet(long newValue) {
+        return number.getAndSet(newValue);
+    }
+
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
@@ -67,13 +122,13 @@ public class LongGauge implements Gauge<Long> {
         }
 
         LongGauge that = (LongGauge) o;
-        return config.equals(that.config) && number.equals(that.number);
+        return config.equals(that.config) && getValue().equals(that.getValue());
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(number, config);
+        return Objects.hashCode(getValue(), config);
     }
 
     /** {@inheritDoc} */
