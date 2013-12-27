@@ -16,16 +16,14 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
-import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A {@link Gauge} that reports a long value.
  */
-public class LongGauge implements Gauge<Long> {
-    private final AtomicLong number = new AtomicLong(0L);
-    private final MonitorConfig config;
+public class LongGauge extends NumberGauge {
+    private final AtomicLong number;
 
     /**
      * Create a new instance with the specified configuration.
@@ -33,7 +31,8 @@ public class LongGauge implements Gauge<Long> {
      * @param config   configuration for this gauge
      */
     public LongGauge(MonitorConfig config) {
-        this.config = config.withAdditionalTag(DataSourceType.GAUGE);
+        super(config, new AtomicLong(0L));
+        this.number = (AtomicLong) getValue();
     }
 
     /**
@@ -43,45 +42,37 @@ public class LongGauge implements Gauge<Long> {
         number.set(n);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Long getValue() {
-        return number.get();
+    /**
+     * Returns a reference to the {@link java.util.concurrent.atomic.AtomicLong}.
+     */
+    public AtomicLong getNumber() {
+        return number;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
 
-        if (!(o instanceof LongGauge)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         LongGauge that = (LongGauge) o;
-        return config.equals(that.config) && number.equals(that.number);
+
+        return getConfig().equals(that.getConfig()) &&
+                number.get() == that.number.get();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
-        return Objects.hashCode(number, config);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).
-                add("number", number).
-                add("config", config).
-                toString();
+        return Objects.hashCode(number.get(), getConfig());
     }
 }

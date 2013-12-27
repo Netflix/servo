@@ -80,8 +80,8 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
             final Number actual = (Number) monitor.getValue();
             final Number expected = expectedValues.get(stat);
             if (expected instanceof Double) {
-                double e = (Double) expected;
-                double a = (Double) actual;
+                double e = expected.doubleValue();
+                double a = actual.doubleValue();
                 assertEquals(a, e, 0.5, stat);
             } else {
                 assertEquals(actual, expected, stat);
