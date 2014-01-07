@@ -77,7 +77,7 @@ value 0 is returned.
 
 #### NumberGauge: LongGauge and DoubleGauge
 
-A `NumberGauge` just wraps a provided `Number`. For example:
+A `NumberGauge` just wraps a provided `Number`. The number needs to be be thread-safe for access by a background thread.   For example:
 
 ```java
 
@@ -142,10 +142,10 @@ The difference among counter types is what they report on the getValue() call.
   polling interval.
 
 At Netflix we send all counters to our backend as rates. That means we have to
-convert the value provided by `BasicCounter`. This is done using the
-Servo `CounterToRateMetricTransform`. In order to convert a `BasicCounter` to a rate two
-samples are required, therefore counters that get incremented very infrequently
-should be `ResettableCounter`s.
+convert the value provided by `BasicCounter`. This is done using the Servo
+`CounterToRateMetricTransform`. In order to convert a `BasicCounter` to a rate
+two polling samples are required. A `ResettableCounter` can send the value to
+backend as a rate with just one polling sample.
 
 ```java
 
@@ -179,8 +179,8 @@ A `BasicTimer` is a composite monitor that generates four metrics per polling
 interval:
 
 * The minimum value that has been recorded. `statistic=min`
-* The maximum value that has been recorded. `statistic=min`
-* The total time recorded. `statistic=total`
+* The maximum value that has been recorded. `statistic=max`
+* The total time recorded. `statistic=totalTime`
 * The number of times the event has been recorded. `statistic=count`
 
 ```java
@@ -251,12 +251,12 @@ times, and the values reported were: 49ms, 40ms, 400ms, 50ms, 500ms, 2000ms,
 * name=getRecommendations statistic=count servo.bucket=bucket=500ms value=2
 * name=getRecommendations statistic=count servo.bucket=overflow value=1 
 
-The main feature of the BucketTimer is that allows a backend service to
-aggregate the values correctly. For example in an AWS deployment we might want to graph
-the distribution of values across buckets per availability zone, or per
-autoScalingGroup, etc. To get the total count we'll have to use
-statistic=count and ignore the servo.bucket tag, using an aggregation function
-of sum.
+The main use of BucketTimer is as an alternative to percentiles that allows a
+backend service to aggregate the values correctly.  For example in an AWS
+deployment we might want to graph the distribution of values across buckets per
+availability zone, or per autoScalingGroup, etc. To get the total count we'll
+have to use statistic=count and ignore the servo.bucket tag, using an
+aggregation function of sum.
 
 #### StatsTimer
 
