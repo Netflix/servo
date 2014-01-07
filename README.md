@@ -497,7 +497,7 @@ public class Server {
             ...
         } catch (Throwable t) {
             DynamicCounter.increment("numErrors", "class", "Server");
-            throw t
+            throw t;
         }
     }
 
