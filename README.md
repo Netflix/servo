@@ -187,6 +187,8 @@ interval:
 public class Server {
     private final Timer doSomethingTimer = new BasicTimer(
         MonitorConfig.builder("doSomething").build());
+    private final Timer doSomethingElseTimer = new BasicTimer(
+        MonitorConfig.builder("doSomethingElse").build());
 
     public void doSomething() {
         Stopwatch s = doSomethingTimer.start();
@@ -196,6 +198,11 @@ public class Server {
         } finally {
             s.stop();
         }
+    }
+
+    public void doSomethingElse() {
+        long timeInMs = thisReturnsTheTimeInMsItTakes();
+        doSomethingElseTimer.record(timeInMs, TimeUnit.MILLISECONDS);
     }
 }
 ```
@@ -530,7 +537,7 @@ public class Server {
         } catch (Throwable t) {
             // manually record the time it took for a particular exception
             // type
-            DynamicCounter.record(MonitorConfig.builder("bar")
+            DynamicTimer.record(MonitorConfig.builder("bar")
                 .withTag("class", "Server")
                 .withTag("error", t.getClass().getSimpleName())
                 .build(), s.getDuration());
