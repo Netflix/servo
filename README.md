@@ -386,7 +386,9 @@ The main ways to achieve this:
 
 public final class AlertEvaluator {
     private static final Counter alertNotificationFailures = new ResettableCounter(
-            MonitorConfig.builder("notificationFailures").withTag("class", "AlertEvaluator").build());
+            MonitorConfig.builder("notificationFailures")
+                .withTag("class", "AlertEvaluator")
+                .build());
     static {
         DefaultMonitorRegistry.getInstance().register(alertNotificationFailures);
     }
@@ -438,8 +440,10 @@ tag to distinguish metrics among different instances.
 
 ```java
 public class Servo {
-    private static final ConcurrentMap<MonitorConfig, Counter> counters = new ConcurrentHashMap<MonitorConfig, Counter>();
-    private static final ConcurrentMap<MonitorConfig, Timer> timers = new ConcurrentHashMap<MonitorConfig, Timer>();
+    private static final ConcurrentMap<MonitorConfig, Counter> counters = 
+        new ConcurrentHashMap<MonitorConfig, Counter>();
+    private static final ConcurrentMap<MonitorConfig, Timer> timers = 
+        new ConcurrentHashMap<MonitorConfig, Timer>();
 
     public static Counter getCounter(MonitorConfig config) {
         Counter v = counters.get(config);
@@ -456,7 +460,8 @@ public class Servo {
     }
 
     public static Counter getCounter(Class c, String n) {
-        MonitorConfig config = MonitorConfig.builder(n).withTag("class", c.getSimpleName()).build();
+        MonitorConfig config = MonitorConfig.builder(n)
+            .withTag("class", c.getSimpleName()).build();
         return getCounter(config); 
     }
 
