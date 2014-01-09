@@ -21,7 +21,7 @@ import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.ExpiringMap;
+import com.netflix.servo.util.ExpiringCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -76,7 +76,7 @@ public class DynamicCounterTest {
         DynamicCounter theInstance = getInstance();
         Field counters = DynamicCounter.class.getDeclaredField("counters");
         counters.setAccessible(true);
-        ExpiringMap<MonitorConfig, Counter> newShortExpiringCache = new ExpiringMap<MonitorConfig, Counter>(1000L,
+        ExpiringCache<MonitorConfig, Counter> newShortExpiringCache = new ExpiringCache<MonitorConfig, Counter>(1000L,
                 new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
                     @Override
                     public Counter apply(final MonitorConfig config) {

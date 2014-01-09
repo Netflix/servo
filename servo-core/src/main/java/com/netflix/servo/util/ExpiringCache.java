@@ -26,7 +26,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class ExpiringMap<K, V> {
+/**
+ * A semi-persistent mapping from keys to values. Values are automatically loaded
+ * by the cache, and are stored in the cache until evicted.
+ *
+ * @param <K> The type of keys maintained
+ * @param <V> The type of values maintained
+ */
+public class ExpiringCache<K, V> {
     private final ConcurrentHashMapV8<K, Entry<V>> map;
     private final long expireAfterMs;
     private final ConcurrentHashMapV8.Fun<K, Entry<V>> entryGetter;
@@ -81,12 +88,28 @@ public class ExpiringMap<K, V> {
         service = Executors.newSingleThreadScheduledExecutor(threadFactory);
     }
 
-    public ExpiringMap(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter) {
+    /**
+     * Create a new ExpiringCache that will expire entries after a given number of milliseconds
+     * computing the values as needed using the given getter.
+     *
+     * @param expireAfterMs Number of milliseconds after which entries will be evicted
+     * @param getter        Function that will be used to compute the values
+     */
+    public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter) {
         this(expireAfterMs, getter, TimeUnit.MINUTES.toMillis(1));
     }
 
-    public ExpiringMap(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter,
-                       final long expirationFreqMs) {
+    /**
+     * For unit tests.
+     * Create a new ExpiringCache that will expire entries after a given number of milliseconds
+     * computing the values as needed using the given getter.
+     *
+     * @param expireAfterMs    Number of milliseconds after which entries will be evicted
+     * @param getter           Function that will be used to compute the values
+     * @param expirationFreqMs Frequency at which to schedule the job that evicts entries from the cache.
+     */
+    public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter,
+                         final long expirationFreqMs) {
         this.map = new ConcurrentHashMapV8<K, Entry<V>>();
         this.expireAfterMs = expireAfterMs;
         this.entryGetter = toEntry(getter);
@@ -113,11 +136,18 @@ public class ExpiringMap<K, V> {
         };
     }
 
+    /**
+     * Get the (possibly cached) value for a given key.
+     */
     public V get(final K key) {
         Entry<V> entry = map.computeIfAbsent(key, entryGetter);
         return entry.getValue();
     }
 
+    /**
+     * Get the list of all values that are members of this cache. Does not
+     * affect the access time used for eviction.
+     */
     public List<V> values() {
         ImmutableList.Builder<V> builder = ImmutableList.builder();
         for (Entry<V> e : map.values()) {
@@ -126,13 +156,17 @@ public class ExpiringMap<K, V> {
         return builder.build();
     }
 
+    /**
+     * Return the number of entries in the cache.
+     */
     public int size() {
         return map.size();
     }
 
+    /**{@inheritDoc}*/
     @Override
     public String toString() {
-        return "ExpiringMap{"
+        return "ExpiringCache{"
                 + "map=" + map
                 + ", expireAfterMs=" + expireAfterMs
                 + '}';

@@ -21,7 +21,7 @@ import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.ExpiringMap;
+import com.netflix.servo.util.ExpiringCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -36,7 +36,8 @@ import static org.testng.Assert.assertNull;
 
 public class DynamicTimerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimerTest.class);
-    private DynamicTimer getInstance() throws Exception  {
+
+    private DynamicTimer getInstance() throws Exception {
         Field theInstance = DynamicTimer.class.getDeclaredField("INSTANCE");
         theInstance.setAccessible(true);
         return (DynamicTimer) theInstance.get(null);
@@ -47,7 +48,7 @@ public class DynamicTimerTest {
     }
 
     private final TagList tagList = new BasicTagList(ImmutableList.of(
-      (Tag) new BasicTag("PLATFORM", "true")));
+            (Tag) new BasicTag("PLATFORM", "true")));
 
     private Timer getByName(String name) throws Exception {
         List<Monitor<?>> timers = getTimers();
@@ -66,7 +67,7 @@ public class DynamicTimerTest {
         DynamicTimer.start("test1", tagList);
         CompositeMonitor c = (CompositeMonitor<Long>) getByName("test1");
         List<Monitor<?>> monitors = c.getMonitors();
-        for (Monitor<?> m: monitors) {
+        for (Monitor<?> m : monitors) {
             Tag type = m.getConfig().getTags().getTag("unit");
             assertEquals(type.getValue(), "MILLISECONDS");
         }
@@ -81,8 +82,8 @@ public class DynamicTimerTest {
         DynamicTimer theInstance = getInstance();
         Field timers = DynamicTimer.class.getDeclaredField("timers");
         timers.setAccessible(true);
-        ExpiringMap<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
-                new ExpiringMap<DynamicTimer.ConfigUnit, Timer>(1000L,
+        ExpiringCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
+                new ExpiringCache<DynamicTimer.ConfigUnit, Timer>(1000L,
                         new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
                             @Override
                             public Timer apply(final DynamicTimer.ConfigUnit configUnit) {

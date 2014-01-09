@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.ExpiringMap;
+import com.netflix.servo.util.ExpiringCache;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +40,7 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
     private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicTimer INSTANCE = new DynamicTimer();
-    private final ExpiringMap<ConfigUnit, Timer> timers;
+    private final ExpiringCache<ConfigUnit, Timer> timers;
 
     static class ConfigUnit {
         final MonitorConfig config;
@@ -80,7 +80,7 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-        timers = new ExpiringMap<ConfigUnit, Timer>(expireAfterMs, new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
+        timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs, new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
             @Override
             public Timer apply(final ConfigUnit configUnit) {
                 return new BasicTimer(configUnit.config, configUnit.unit);

@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
-import com.netflix.servo.util.ExpiringMap;
+import com.netflix.servo.util.ExpiringCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
 
     private static final DynamicCounter INSTANCE = new DynamicCounter();
 
-    private final ExpiringMap<MonitorConfig, Counter> counters;
+    private final ExpiringCache<MonitorConfig, Counter> counters;
 
     private DynamicCounter() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
@@ -52,7 +52,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-        counters = new ExpiringMap<MonitorConfig, Counter>(expireAfterMs,
+        counters = new ExpiringCache<MonitorConfig, Counter>(expireAfterMs,
                 new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
                     @Override
                     public Counter apply(final MonitorConfig config) {

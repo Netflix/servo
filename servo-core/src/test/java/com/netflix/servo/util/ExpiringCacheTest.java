@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
-public class ExpiringMapTest {
+public class ExpiringCacheTest {
     static class CountingFun implements ConcurrentHashMapV8.Fun<String, Integer> {
         int numCalled = 0;
 
@@ -34,7 +34,7 @@ public class ExpiringMapTest {
     @Test
     public void testGet() throws Exception {
         CountingFun fun = new CountingFun();
-        ExpiringMap<String, Integer> map = new ExpiringMap<String, Integer>(100L, fun, 100L);
+        ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L, fun, 100L);
 
         Integer three = map.get("foo");
         assertEquals(three, Integer.valueOf(3));
