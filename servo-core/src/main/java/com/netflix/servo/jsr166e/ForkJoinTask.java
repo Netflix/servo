@@ -234,6 +234,7 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * @param completion one of NORMAL, CANCELLED, EXCEPTIONAL
      * @return completion status on exit
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="NN_NAKED_NOTIFY", justification = "Doug Lea's code")
     private int setCompletion(int completion) {
         for (int s;;) {
             if ((s = status) < 0)

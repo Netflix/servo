@@ -1285,6 +1285,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * Unlocks and signals any thread waiting for plock. Called only
      * when CAS of seq value for unlock fails.
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="NN_NAKED_NOTIFY", justification = "Doug Lea's code")
     private void releasePlock(int ps) {
         plock = ps;
         synchronized (this) { notifyAll(); }
@@ -2092,7 +2093,8 @@ public class ForkJoinPool extends AbstractExecutorService {
                                    ((c & AC_MASK) + AC_UNIT))));
                 }
                 if ((b = q.base) - q.top < 0 && (t = q.pollAt(b)) != null) {
-                    (w.currentSteal = t).doExec();
+                    w.currentSteal = t;
+                    t.doExec();
                     w.currentSteal = ps;
                 }
             }
@@ -2205,6 +2207,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @param enable if true, enable shutdown when next possible
      * @return true if now terminating or terminated
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="NN_NAKED_NOTIFY", justification = "Doug Lea's code")
     private boolean tryTerminate(boolean now, boolean enable) {
         int ps;
         if (this == common)                        // cannot shut down
@@ -3283,7 +3286,7 @@ public class ForkJoinPool extends AbstractExecutorService {
         ForkJoinWorkerThreadFactory factory
             = defaultForkJoinWorkerThreadFactory;
         UncaughtExceptionHandler handler = null;
-        try {  // ignore exceptions in accessing/parsing properties
+        try {
             String pp = System.getProperty
                 ("java.util.concurrent.ForkJoinPool.common.parallelism");
             String fp = System.getProperty
@@ -3298,7 +3301,9 @@ public class ForkJoinPool extends AbstractExecutorService {
             if (hp != null)
                 handler = ((UncaughtExceptionHandler)ClassLoader.
                            getSystemClassLoader().loadClass(hp).newInstance());
-        } catch (Exception ignore) {
+        } catch (InstantiationException ignore) {
+        } catch (IllegalAccessException ignore) {
+        } catch (ClassNotFoundException ignore) {
         }
 
         if (parallelism < 0 && // default 1 less than #cores

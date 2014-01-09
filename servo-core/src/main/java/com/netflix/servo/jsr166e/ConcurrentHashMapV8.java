@@ -2877,14 +2877,14 @@ public class ConcurrentHashMapV8<K,V> extends AbstractMap<K,V>
                             else
                                 sp.right = p;
                         }
-                        if ((s.right = pr) != null)
-                            pr.parent = s;
+                        s.right = pr;
+                        pr.parent = s;
                     }
                     p.left = null;
                     if ((p.right = sr) != null)
                         sr.parent = p;
-                    if ((s.left = pl) != null)
-                        pl.parent = s;
+                    s.left = pl;
+                    pl.parent = s;
                     if ((s.parent = pp) == null)
                         r = s;
                     else if (p == pp.left)
