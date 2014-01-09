@@ -1,12 +1,10 @@
 [![Build Status](https://netflixoss.ci.cloudbees.com/job/servo-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/servo-master/)
 
-Generating Metrics
-==================
+Generating Metrics with Servo
+=============================
 
-Metric
-------
-
-### Metrics and Monitors
+Metrics and Monitors
+--------------------
 
 A `Monitor` in servo has a configuration (`MonitorConfig`) and a way to get its
 current value. The configuration is just a set of key=value pairs that uniquely
@@ -23,7 +21,7 @@ create and maintain fragile regular expressions (and in many cases the desired
 aggregation would be impossible to achieve.)
 
 Monitor Types
-------------
+-------------
 
 ### Basic types
 
@@ -68,7 +66,7 @@ value 0 is returned.
   private final MinGauge minDiskFree = new MinGauge(MonitorConfig.builder("diskFreeMin").build());
   private final MaxGauge maxDiskFree = new MaxGauge(MonitorConfig.builder("diskFreeMax").build());
 
-...
+  ...
   private void updateDiskFreeStats(long curValue) {
     minDiskFree.update(curValue);
     maxDiskFree.update(curValue);
@@ -83,7 +81,7 @@ A `NumberGauge` just wraps a provided `Number`. The number needs to be be thread
 
   private final AtomicInteger n = new AtomicInteger(0);
   private final NumberGauge gauge = new NumberGauge(MonitorConfig.builder("someNumber").build(), n);
-...
+  ...
 
   private void update() {
     if (someCondition) {
@@ -100,7 +98,7 @@ and the provided `LongGauge` and `DoubleGauge` do just that:
 ```java
   private final LongGauge tp90 = new LongGauge(MonitorConfig.builder("tp90").build());
   private final DoubleGauge stdDev = new DoubleGauge(MonitorConfig.builder("stddev").build());
-...
+  ...
 
   private void computeStats() {
     // compute these
@@ -581,6 +579,3 @@ frequency. For example: `-Dservo.pollers=60000,10000` tells servo that there
 will be two pollers: poller at index 0 will run once a minute (60,000 ms) and
 poller at index 1 will run every 10 seconds.
 
-Wiki
-====
-See the wiki at https://github.com/Netflix/servo/wiki for more information on using Servo.
