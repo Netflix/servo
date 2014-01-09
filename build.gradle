@@ -44,6 +44,10 @@ subprojects {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
     } 
 
+    tasks.withType(Pmd) {
+          exclude "com/netflix/servo/jsr166e/*"
+    }
+
     test {
         useTestNG()
         options.excludeGroups = ['aws']
