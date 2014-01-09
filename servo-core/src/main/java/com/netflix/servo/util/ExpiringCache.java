@@ -39,7 +39,7 @@ public class ExpiringCache<K, V> {
     private final ConcurrentHashMapV8.Fun<K, Entry<V>> entryGetter;
 
     private static class Entry<V> {
-        private long accessTime;
+        private volatile long accessTime;
         private final V value;
 
         private Entry(V value, long accessTime) {
@@ -47,7 +47,7 @@ public class ExpiringCache<K, V> {
             this.accessTime = accessTime;
         }
 
-        private synchronized V getValue() {
+        private V getValue() {
             accessTime = System.currentTimeMillis();
             return value;
         }
