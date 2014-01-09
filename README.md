@@ -113,10 +113,10 @@ and the provided `LongGauge` and `DoubleGauge` do just that:
 
 ### Counters
 
-Counters are monitors that provide `increment` method and `increment(long
+Counters are monitors that provide `increment()` and `increment(long
 delta)` methods. There are several types of counters available in Servo. You
 can get a default `Counter` by calling `Monitors.newCounter(String name)`, or
-you could instantiate a specific type of `Counter`. For example:
+you can instantiate a specific type of `Counter`. For example:
 
 ```java
 
@@ -141,9 +141,9 @@ The difference among counter types is what they report on the getValue() call.
 
 At Netflix we send all counters to our backend as rates. That means we have to
 convert the value provided by `BasicCounter`. This is done using the Servo
-`CounterToRateMetricTransform`. In order to convert a `BasicCounter` to a rate
-two polling samples are required. A `ResettableCounter` can send the value to
-backend as a rate with just one polling sample.
+`CounterToRateMetricTransform` observer. In order to convert a `BasicCounter`
+to a rate two polling samples are required. A `ResettableCounter` can send the
+value to backend as a rate with just one polling sample.
 
 ```java
 
