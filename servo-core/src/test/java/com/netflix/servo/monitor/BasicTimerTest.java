@@ -17,6 +17,8 @@ package com.netflix.servo.monitor;
 
 import org.testng.annotations.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.testng.Assert.*;
 
 public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
@@ -34,21 +36,21 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
         assertEquals(c.getMin().longValue(), 0L);
         assertEquals(c.getMax().longValue(), 0L);
 
-        c.record(42);
+        c.record(42, TimeUnit.MILLISECONDS);
         assertEquals(c.getValue().longValue(), 42L);
         assertEquals(c.getTotalTime().longValue(), 42L);
         assertEquals(c.getCount().longValue(), 1L);
         assertEquals(c.getMin().longValue(), 42L);
         assertEquals(c.getMax().longValue(), 42L);
 
-        c.record(21);
+        c.record(21, TimeUnit.MILLISECONDS);
         assertEquals(c.getValue().longValue(), 31L);
         assertEquals(c.getTotalTime().longValue(), 63L);
         assertEquals(c.getCount().longValue(), 2L);
         assertEquals(c.getMin().longValue(), 21L);
         assertEquals(c.getMax().longValue(), 42L);
 
-        c.record(84);
+        c.record(84, TimeUnit.MILLISECONDS);
         assertEquals(c.getValue().longValue(), 49L);
         assertEquals(c.getTotalTime().longValue(), 147L);
         assertEquals(c.getCount().longValue(), 3L);
@@ -57,8 +59,8 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
 
         for (Monitor<?> m : c.getMonitors()) {
             if (m instanceof ResettableMonitor<?>) {
-                long v = (Long) ((ResettableMonitor<?>) m).getAndResetValue();
-                assertNotEquals(v, 0L);
+                double v = (Double) ((ResettableMonitor<?>) m).getAndResetValue();
+                assertNotEquals(v, 0.0);
             }
         }
 
@@ -75,9 +77,19 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
         BasicTimer c2 = newInstance("foo");
         assertEquals(c1, c2);
 
-        c1.record(42);
+        c1.record(42, TimeUnit.MILLISECONDS);
         assertNotEquals(c1, c2);
-        c2.record(42);
+        c2.record(42, TimeUnit.MILLISECONDS);
         assertEquals(c1, c2);
+    }
+
+    @Test
+    public void testFractional() throws Exception {
+        BasicTimer timer = newInstance("foo");
+
+        timer.record(1000, TimeUnit.NANOSECONDS);
+        assertEquals(timer.getTotalTime(), 0.001);
+        assertEquals(timer.getMax(), 0.001);
+        assertEquals(timer.getMin(), 0.001);
     }
 }

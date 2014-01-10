@@ -35,7 +35,9 @@ public interface Timer extends NumericMonitor<Long> {
 
     /**
      * Record a new value for this timer.
+     * @deprecated Use record(duration, timeUnit)
      */
+    @Deprecated
     void record(long duration);
 
     /**

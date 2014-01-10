@@ -17,6 +17,8 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Preconditions;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Stopwatch that will also record to a timer.
  */
@@ -33,6 +35,6 @@ public class TimedStopwatch extends BasicStopwatch {
     @Override
     public void stop() {
         super.stop();
-        timer.record(getDuration(timer.getTimeUnit()));
+        timer.record(getDuration(), TimeUnit.NANOSECONDS);
     }
 }
