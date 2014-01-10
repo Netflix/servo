@@ -17,19 +17,14 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,40 +39,31 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
     private static final String EXPIRATION_PROP = CLASS_NAME + ".expiration";
     private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
     private static final String INTERNAL_ID = "servoCounters";
-    private static final String CACHE_MONITOR_ID = "servoCountersCache";
     private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicCounter INSTANCE = new DynamicCounter();
 
-    private final LoadingCache<MonitorConfig, Counter> counters;
-    private final CompositeMonitor<?> cacheMonitor;
+    private final ExpiringCache<MonitorConfig, Counter> counters;
 
     private DynamicCounter() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
-            System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+                System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
-
-        counters = CacheBuilder.newBuilder()
-                .expireAfterAccess(expirationValue, expirationUnitValue)
-                .build(new CacheLoader<MonitorConfig, Counter>() {
+        final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
+        counters = new ExpiringCache<MonitorConfig, Counter>(expireAfterMs,
+                new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
                     @Override
-                    public Counter load(final MonitorConfig config) throws Exception {
+                    public Counter apply(final MonitorConfig config) {
                         return new ResettableCounter(config);
                     }
                 });
-        cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, counters);
         DefaultMonitorRegistry.getInstance().register(this);
     }
 
-    private Counter get(MonitorConfig config) {
-        try {
-            return counters.get(config);
-        } catch (ExecutionException e) {
-            LOGGER.error("Failed to get a counter for {}: {}", config, e.getMessage());
-            throw Throwables.propagate(e);
-        }
+    private Counter get(final MonitorConfig config) {
+        return counters.get(config);
     }
 
     /**
@@ -107,8 +93,9 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
 
     /**
      * Increment a counter based on a given {@link MonitorConfig} by a given delta.
+     *
      * @param config The monitoring config
-     * @param delta The amount added to the current value
+     * @param delta  The amount added to the current value
      */
     public static void increment(MonitorConfig config, long delta) {
         INSTANCE.get(config).increment(delta);
@@ -134,9 +121,10 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List<Monitor<?>> getMonitors() {
-        final ConcurrentMap<MonitorConfig, Counter> countersMap = counters.asMap();
-        return ImmutableList.<Monitor<?>>copyOf(countersMap.values());
+        List list = counters.values();
+        return (List<Monitor<?>>) list;
     }
 
     /**
@@ -144,7 +132,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
      */
     @Override
     public Long getValue() {
-        return (long) counters.asMap().size();
+        return (long) counters.size();
     }
 
     /**
@@ -160,11 +148,10 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
      */
     @Override
     public String toString() {
-        ConcurrentMap<?, ?> map = counters.asMap();
         return Objects.toStringHelper(this)
                 .add("baseConfig", BASE_CONFIG)
-                .add("totalCounters", map.size())
-                .add("counters", map)
+                .add("totalCounters", counters.size())
+                .add("counters", counters)
                 .toString();
     }
 }

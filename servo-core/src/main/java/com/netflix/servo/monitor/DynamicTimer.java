@@ -17,19 +17,12 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.netflix.servo.util.ExpiringCache;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,20 +31,16 @@ import java.util.concurrent.TimeUnit;
  * inactivity.
  */
 public final class DynamicTimer implements CompositeMonitor<Long> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimer.class);
     private static final String DEFAULT_EXPIRATION = "15";
     private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
     private static final String CLASS_NAME = DynamicTimer.class.getCanonicalName();
     private static final String EXPIRATION_PROP = CLASS_NAME + ".expiration";
     private static final String EXPIRATION_PROP_UNIT = CLASS_NAME + ".expirationUnit";
     private static final String INTERNAL_ID = "servoTimers";
-    private static final String CACHE_MONITOR_ID = "servoTimersCache";
     private static final MonitorConfig BASE_CONFIG = new MonitorConfig.Builder(INTERNAL_ID).build();
 
     private static final DynamicTimer INSTANCE = new DynamicTimer();
-
-    private final LoadingCache<ConfigUnit, Timer> timers;
-    private final CompositeMonitor<?> cacheMonitor;
+    private final ExpiringCache<ConfigUnit, Timer> timers;
 
     static class ConfigUnit {
         final MonitorConfig config;
@@ -87,28 +76,21 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
     private DynamicTimer() {
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
-            System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
+                System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
-        timers = CacheBuilder.newBuilder()
-                .expireAfterAccess(expirationValue, expirationUnitValue)
-                .build(new CacheLoader<ConfigUnit, Timer>() {
-                    @Override
-                    public Timer load(final ConfigUnit configUnit) throws Exception {
-                        return new BasicTimer(configUnit.config, configUnit.unit);
-                    }
-                });
-        cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, timers);
+        final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
+        timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs, new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
+            @Override
+            public Timer apply(final ConfigUnit configUnit) {
+                return new BasicTimer(configUnit.config, configUnit.unit);
+            }
+        });
         DefaultMonitorRegistry.getInstance().register(this);
     }
 
     private Timer get(MonitorConfig config, TimeUnit unit) {
-        try {
-            return timers.get(new ConfigUnit(config, unit));
-        } catch (ExecutionException e) {
-            LOGGER.error("Failed to get a timer for {}: {}", config, e.getMessage());
-            throw Throwables.propagate(e);
-        }
+        return timers.get(new ConfigUnit(config, unit));
     }
 
     /**
@@ -184,9 +166,10 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List<Monitor<?>> getMonitors() {
-        final ConcurrentMap<ConfigUnit, Timer> timersMap = timers.asMap();
-        return ImmutableList.<Monitor<?>>copyOf(timersMap.values());
+        List list = timers.values();
+        return (List<Monitor<?>>) list;
     }
 
     /**
@@ -194,7 +177,7 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      */
     @Override
     public Long getValue() {
-        return (long) timers.asMap().size();
+        return (long) timers.size();
     }
 
     /**
@@ -210,11 +193,10 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      */
     @Override
     public String toString() {
-        ConcurrentMap<?, ?> map = timers.asMap();
         return Objects.toStringHelper(this)
                 .add("baseConfig", BASE_CONFIG)
-                .add("totalTimers", map.size())
-                .add("timers", map)
+                .add("totalTimers", timers.size())
+                .add("timers", timers)
                 .toString();
     }
 }

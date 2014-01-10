@@ -15,14 +15,13 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -37,7 +36,8 @@ import static org.testng.Assert.assertNull;
 
 public class DynamicTimerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimerTest.class);
-    private DynamicTimer getInstance() throws Exception  {
+
+    private DynamicTimer getInstance() throws Exception {
         Field theInstance = DynamicTimer.class.getDeclaredField("INSTANCE");
         theInstance.setAccessible(true);
         return (DynamicTimer) theInstance.get(null);
@@ -48,7 +48,7 @@ public class DynamicTimerTest {
     }
 
     private final TagList tagList = new BasicTagList(ImmutableList.of(
-      (Tag) new BasicTag("PLATFORM", "true")));
+            (Tag) new BasicTag("PLATFORM", "true")));
 
     private Timer getByName(String name) throws Exception {
         List<Monitor<?>> timers = getTimers();
@@ -67,7 +67,7 @@ public class DynamicTimerTest {
         DynamicTimer.start("test1", tagList);
         CompositeMonitor c = (CompositeMonitor<Long>) getByName("test1");
         List<Monitor<?>> monitors = c.getMonitors();
-        for (Monitor<?> m: monitors) {
+        for (Monitor<?> m : monitors) {
             Tag type = m.getConfig().getTags().getTag("unit");
             assertEquals(type.getValue(), "MILLISECONDS");
         }
@@ -82,15 +82,14 @@ public class DynamicTimerTest {
         DynamicTimer theInstance = getInstance();
         Field timers = DynamicTimer.class.getDeclaredField("timers");
         timers.setAccessible(true);
-        LoadingCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
-            CacheBuilder.newBuilder()
-                .expireAfterAccess(1, TimeUnit.SECONDS)
-                .build(new CacheLoader<DynamicTimer.ConfigUnit, Timer>() {
-                    @Override
-                    public Timer load(final DynamicTimer.ConfigUnit configUnit) throws Exception {
-                        return new BasicTimer(configUnit.config, configUnit.unit);
-                    }
-                });
+        ExpiringCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
+                new ExpiringCache<DynamicTimer.ConfigUnit, Timer>(1000L,
+                        new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
+                            @Override
+                            public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
+                                return new BasicTimer(configUnit.config, configUnit.unit);
+                            }
+                        }, 100L);
 
         timers.set(theInstance, newShortExpiringCache);
     }
