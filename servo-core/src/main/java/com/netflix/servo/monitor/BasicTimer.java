@@ -17,12 +17,10 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 
 import java.util.List;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,13 +38,63 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     private static final Tag STAT_MAX = Tags.newTag(STATISTIC, "max");
 
     private final TimeUnit timeUnit;
-
+    private final double timeUnitNanosFactor;
     private final Counter totalTime;
     private final Counter count;
     private final MinGauge min;
     private final MaxGauge max;
 
     private final List<Monitor<?>> monitors;
+
+    private static class FactorMonitor<T extends Number> implements NumericMonitor<Double> {
+        private final Monitor<T> wrapped;
+        private final double factor;
+
+        private FactorMonitor(Monitor<T> wrapped, double factor) {
+            this.wrapped = wrapped;
+            this.factor = factor;
+        }
+
+        @Override
+        public Double getValue() {
+            return wrapped.getValue().doubleValue() * factor;
+        }
+
+        @Override
+        public MonitorConfig getConfig() {
+            return wrapped.getConfig();
+        }
+    }
+
+    private static class ResettableFactorMonitor<T extends Number> implements ResettableMonitor<Double> {
+        private final ResettableMonitor<T> wrapped;
+        private final double factor;
+
+        private ResettableFactorMonitor(ResettableMonitor<T> wrapped, double factor) {
+            this.wrapped = wrapped;
+            this.factor = factor;
+        }
+
+        @Override
+        public Double getValue() {
+            return wrapped.getValue().doubleValue() * factor;
+        }
+
+        @Override
+        public MonitorConfig getConfig() {
+            return wrapped.getConfig();
+        }
+
+        @Override
+        public Double getAndResetValue() {
+            return getAndResetValue(0);
+        }
+
+        @Override
+        public Double getAndResetValue(int pollerIdx) {
+            return wrapped.getAndResetValue(pollerIdx).doubleValue() * factor;
+        }
+    }
 
     /**
      * Creates a new instance of the timer with a unit of milliseconds.
@@ -64,12 +112,18 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         final Tag unitTag = Tags.newTag(UNIT, unit.name());
         final MonitorConfig unitConfig = config.withAdditionalTag(unitTag);
         timeUnit = unit;
+        timeUnitNanosFactor = 1.0 / timeUnit.toNanos(1);
 
         totalTime = new BasicCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
         count = new BasicCounter(unitConfig.withAdditionalTag(STAT_COUNT));
         min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
         max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
-        monitors = ImmutableList.<Monitor<?>>of(totalTime, count, min, max);
+
+        final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<Number>(totalTime, timeUnitNanosFactor);
+        final ResettableFactorMonitor<Long> minFactor = new ResettableFactorMonitor<Long>(min, timeUnitNanosFactor);
+        final ResettableFactorMonitor<Long> maxFactor = new ResettableFactorMonitor<Long>(max, timeUnitNanosFactor);
+
+        monitors = ImmutableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
     }
 
     /** {@inheritDoc} */
@@ -92,31 +146,44 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return timeUnit;
     }
 
+    private void recordNanos(long nanos) {
+        if (nanos > 0) {
+            totalTime.increment(nanos);
+            count.increment();
+            min.update(nanos);
+            max.update(nanos);
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
+    @Deprecated
     public void record(long duration) {
-        totalTime.increment(duration);
-        count.increment();
-        min.update(duration);
-        max.update(duration);
+        long nanos = timeUnit.toNanos(duration);
+        recordNanos(nanos);
     }
 
     /** {@inheritDoc} */
     @Override
     public void record(long duration, TimeUnit unit) {
-        record(this.timeUnit.convert(duration, unit));
+        recordNanos(unit.toNanos(duration));
+    }
+
+    private double getTotal() {
+        return totalTime.getValue().longValue() * timeUnitNanosFactor;
     }
 
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
         final long cnt = count.getValue().longValue();
-        return (cnt == 0) ? 0L : totalTime.getValue().longValue() / cnt;
+        final long value = (long) (getTotal() / cnt);
+        return (cnt == 0) ? 0L : value;
     }
 
     /** Get the total time for all updates. */
-    public Long getTotalTime() {
-        return totalTime.getValue().longValue();
+    public Double getTotalTime() {
+        return getTotal();
     }
 
     /** Get the total number of updates. */
@@ -125,13 +192,13 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     }
 
     /** Get the min value since the last reset. */
-    public Long getMin() {
-        return min.getValue();
+    public Double getMin() {
+        return min.getValue() * timeUnitNanosFactor;
     }
 
     /** Get the max value since the last reset. */
-    public Long getMax() {
-        return max.getValue();
+    public Double getMax() {
+        return max.getValue() * timeUnitNanosFactor;
     }
 
     /** {@inheritDoc} */
@@ -142,10 +209,10 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         }
         BasicTimer m = (BasicTimer) obj;
         return config.equals(m.getConfig())
-            && totalTime.equals(m.totalTime)
-            && count.equals(m.count)
-            && min.equals(m.min)
-            && max.equals(m.max);
+                && totalTime.equals(m.totalTime)
+                && count.equals(m.count)
+                && min.equals(m.min)
+                && max.equals(m.max);
     }
 
     /** {@inheritDoc} */
