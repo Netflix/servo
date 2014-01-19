@@ -35,6 +35,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultMonitorRegistry.class);
     private static final String CLASS_NAME = DefaultMonitorRegistry.class.getCanonicalName();
     private static final String REGISTRY_CLASS_PROP = CLASS_NAME + ".registryClass";
+    private static final String REGISTRY_NAME_PROP = CLASS_NAME + ".registryName";
     private static final MonitorRegistry INSTANCE = new DefaultMonitorRegistry();
     private static final String DEFAULT_REGISTRY_NAME = "com.netflix.servo";
 
@@ -59,7 +60,8 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
      * intended for use in unit tests.
      */
     DefaultMonitorRegistry(Properties props) {
-        String className = props.getProperty(REGISTRY_CLASS_PROP);
+        final String className = props.getProperty(REGISTRY_CLASS_PROP);
+        final String registryName = props.getProperty(REGISTRY_NAME_PROP, DEFAULT_REGISTRY_NAME);
         if (className != null) {
             MonitorRegistry r;
             try {
@@ -71,11 +73,11 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
                                 + "using default class "
                                 + JmxMonitorRegistry.class.getName(),
                         t);
-                r = new JmxMonitorRegistry(DEFAULT_REGISTRY_NAME);
+                r = new JmxMonitorRegistry(registryName);
             }
             registry = r;
         } else {
-            registry = new JmxMonitorRegistry(DEFAULT_REGISTRY_NAME);
+            registry = new JmxMonitorRegistry(registryName);
         }
     }
 
