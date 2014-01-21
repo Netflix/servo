@@ -101,7 +101,7 @@ public class DynamicTimerTest {
         s.stop();
         // we don't call s.stop(), so we only have one recorded value
         assertEquals(c.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
-        c.record(13);
+        c.record(13, TimeUnit.MILLISECONDS);
 
         long expected = (13 + s.getDuration(TimeUnit.MILLISECONDS)) / 2;
         assertEquals(c.getValue().longValue(), expected);
