@@ -16,7 +16,6 @@
 package com.netflix.servo.jmx;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.MapMaker;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -29,6 +28,7 @@ import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,7 +57,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     public JmxMonitorRegistry(String name) {
         this.name = name;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        monitors = (new MapMaker()).makeMap();
+        monitors = new ConcurrentHashMap<MonitorConfig, Monitor<?>>();
     }
 
     private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {
