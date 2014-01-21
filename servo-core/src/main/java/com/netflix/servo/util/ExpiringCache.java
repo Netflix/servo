@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
@@ -110,6 +111,8 @@ public class ExpiringCache<K, V> {
      */
     public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter,
                          final long expirationFreqMs) {
+        Preconditions.checkArgument(expireAfterMs > 0, "expireAfterMs must be positive.");
+        Preconditions.checkArgument(expirationFreqMs > 0, "expirationFreqMs must be positive.");
         this.map = new ConcurrentHashMapV8<K, Entry<V>>();
         this.expireAfterMs = expireAfterMs;
         this.entryGetter = toEntry(getter);
