@@ -37,6 +37,7 @@ public class ExpiringCache<K, V> {
     private final ConcurrentHashMapV8<K, Entry<V>> map;
     private final long expireAfterMs;
     private final ConcurrentHashMapV8.Fun<K, Entry<V>> entryGetter;
+    public static final long NEVER_EXPIRE = -1L;
 
     private static class Entry<V> {
         private volatile long accessTime;
@@ -113,18 +114,20 @@ public class ExpiringCache<K, V> {
         this.map = new ConcurrentHashMapV8<K, Entry<V>>();
         this.expireAfterMs = expireAfterMs;
         this.entryGetter = toEntry(getter);
-        final Runnable expirationJob = new Runnable() {
-            @Override
-            public void run() {
-                long tooOld = System.currentTimeMillis() - expireAfterMs;
-                for (Map.Entry<K, Entry<V>> entry : map.entrySet()) {
-                    if (entry.getValue().accessTime < tooOld) {
-                        map.remove(entry.getKey(), entry.getValue());
+        if (expireAfterMs >= 0) {
+            final Runnable expirationJob = new Runnable() {
+                @Override
+                public void run() {
+                    long tooOld = System.currentTimeMillis() - expireAfterMs;
+                    for (Map.Entry<K, Entry<V>> entry : map.entrySet()) {
+                        if (entry.getValue().accessTime < tooOld) {
+                            map.remove(entry.getKey(), entry.getValue());
+                        }
                     }
                 }
-            }
-        };
-        service.scheduleWithFixedDelay(expirationJob, 1, expirationFreqMs, TimeUnit.MILLISECONDS);
+            };
+            service.scheduleWithFixedDelay(expirationJob, 1, expirationFreqMs, TimeUnit.MILLISECONDS);
+        }
     }
 
     private ConcurrentHashMapV8.Fun<K, Entry<V>> toEntry(final ConcurrentHashMapV8.Fun<K, V> underlying) {

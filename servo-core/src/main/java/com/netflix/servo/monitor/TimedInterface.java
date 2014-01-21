@@ -15,18 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.ExpiringCache;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class creates a {@link java.lang.reflect.Proxy} monitor that tracks all calls to methods
@@ -53,7 +50,6 @@ public final class TimedInterface {
     static final String INTERFACE_TAG = "interface";
     static final String CLASS_TAG = "class";
     static final String ID_TAG = "id";
-
     private static class TimedHandler<T> implements InvocationHandler, CompositeMonitor<Long> {
         final T concrete;
 
@@ -61,9 +57,10 @@ public final class TimedInterface {
          * {@inheritDoc}
          */
         @Override
+        @SuppressWarnings("unchecked")
         public List<Monitor<?>> getMonitors() {
-            final ConcurrentMap<String, Timer> timersMap = timers.asMap();
-            return ImmutableList.<Monitor<?>>copyOf(timersMap.values());
+            List dynamicTimers = timers.values();
+            return (List<Monitor<?>>) dynamicTimers;
         }
 
         /**
@@ -71,7 +68,7 @@ public final class TimedInterface {
          */
         @Override
         public Long getValue() {
-            return (long) timers.asMap().size();
+            return (long) timers.size();
         }
 
         /**
@@ -82,7 +79,7 @@ public final class TimedInterface {
             return baseConfig;
         }
 
-        final LoadingCache<String, Timer> timers;
+        final ExpiringCache<String, Timer> timers;
         final MonitorConfig baseConfig;
         final TagList baseTagList;
 
@@ -97,9 +94,9 @@ public final class TimedInterface {
             baseTagList = tagList;
             baseConfig = MonitorConfig.builder(TIMED_INTERFACE).withTags(baseTagList).build();
 
-            timers = CacheBuilder.newBuilder().build(new CacheLoader<String, Timer>() {
+            timers = new ExpiringCache<String, Timer>(ExpiringCache.NEVER_EXPIRE, new ConcurrentHashMapV8.Fun<String, Timer>() {
                 @Override
-                public Timer load(String method) throws Exception {
+                public Timer apply(String method) {
                     final MonitorConfig config = MonitorConfig.builder(method)
                         .withTags(baseTagList)
                         .build();
