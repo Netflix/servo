@@ -37,7 +37,8 @@ public final class Pollers {
      * This is used to deal with monitors that need to get reset after they're polled. For example a MinGauge
      * or a ResettableCounter.
      */
-    public static final String POLLERS = System.getProperty("servo.pollers", "60000");
+    public static final String POLLERS = System.getProperty("servo.pollers", "60000,10000");
+    static final long[] DEFAULT_PERIODS = new long[]{60000L,10000L};
 
     /**
      * Polling intervals in milliseconds.
@@ -58,6 +59,18 @@ public final class Pollers {
      */
     public static final int NUM_POLLERS = POLLING_INTERVALS.length;
 
+    /** For debugging. Simple toString for non-empty arrays */
+    private static String join(long[] a) {
+        assert (a.length > 0);
+        StringBuilder builder = new StringBuilder();
+        builder.append(a[0]);
+        for (int i = 1; i < a.length; ++i) {
+            builder.append(',');
+            builder.append(a[i]);
+        }
+        return builder.toString();
+    }
+
     /**
      * Parse the content of the system property that describes the polling intervals, and in case of errors
      * use the default of one poller running every minute.
@@ -65,7 +78,6 @@ public final class Pollers {
     static long[] parse(String pollers) {
         String[] periods = pollers.split(",\\s*");
         long[] result = new long[periods.length];
-        long[] defaultPeriod = new long[]{60000L};
 
         boolean errors = false;
         Logger logger = LoggerFactory.getLogger(Pollers.class);
@@ -73,15 +85,19 @@ public final class Pollers {
             String period = periods[i];
             try {
                 result[i] = Long.parseLong(period);
+                if (result[i] <= 0) {
+                    logger.error("Invalid polling interval: {} must be positive.", period);
+                    errors = true;
+                }
             } catch (NumberFormatException e) {
-                logger.error("Cannot parse %s as a long " + e.getMessage());
+                logger.error("Cannot parse '{}' as a long: {}", period, e.getMessage());
                 errors = true;
             }
         }
 
         if (errors || periods.length == 0) {
-            logger.info("Using a default configuration of a poller with a {}ms interval", defaultPeriod[0]);
-            return defaultPeriod;
+            logger.info("Using a default configuration for poller intervals: {}", join(DEFAULT_PERIODS));
+            return DEFAULT_PERIODS;
         } else {
             return result;
         }
