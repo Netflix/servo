@@ -128,5 +128,6 @@ project(':servo-example') {
         main = 'com.netflix.servo.example.Main'
         classpath = sourceSets.main.runtimeClasspath
         args = []
+        systemProperties = [ "servo.pollers": "5000" ]
     }
 }
