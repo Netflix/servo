@@ -55,4 +55,9 @@ public class Config {
     public static String getGraphiteObserverAddress() {
         return System.getProperty("servo.example.graphiteObserverAddress", "localhost:2003");
     }
+
+    /** Should we poll the standard jvm mbeans? Default is true. */
+    public static boolean isJvmPollerEnabled() {
+        return Boolean.valueOf(System.getProperty("servo.example.isJvmPollerEnabled", "true"));
+    }
 }

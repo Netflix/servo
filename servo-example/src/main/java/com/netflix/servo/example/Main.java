@@ -19,6 +19,7 @@ import com.netflix.servo.publish.AsyncMetricObserver;
 import com.netflix.servo.publish.CounterToRateMetricTransform;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.FileMetricObserver;
+import com.netflix.servo.publish.JvmMetricPoller;
 import com.netflix.servo.publish.MetricObserver;
 import com.netflix.servo.publish.MetricPoller;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
@@ -64,6 +65,11 @@ public class Main {
         return rateTransform(async("graphite", new GraphiteMetricObserver(prefix, addr)));
     }
 
+    private static void schedule(MetricPoller poller, List<MetricObserver> observers) {
+        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL, observers);
+        PollScheduler.getInstance().addPoller(task, Config.getPollInterval(), TimeUnit.SECONDS);
+    }
+
     private static void initMetricsPublishing() throws Exception {
         final List<MetricObserver> observers = new ArrayList<MetricObserver>();
         if (Config.isFileObserverEnabled()) {
@@ -74,11 +80,12 @@ public class Main {
             observers.add(createGraphiteObserver());
         }
 
-        final MetricPoller poller = new MonitorRegistryMetricPoller();
-        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL, observers);
-
         PollScheduler.getInstance().start();
-        PollScheduler.getInstance().addPoller(task, Config.getPollInterval(), TimeUnit.SECONDS);
+        schedule(new MonitorRegistryMetricPoller(), observers);
+
+        if (Config.isJvmPollerEnabled()) {
+            schedule(new JvmMetricPoller(), observers);
+        }
     }
 
     private static void initHttpServer() throws Exception {
