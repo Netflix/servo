@@ -15,6 +15,8 @@
  */
 package com.netflix.servo.example;
 
+import com.netflix.servo.monitor.Pollers;
+
 import java.io.File;
 
 public class Config {
@@ -26,9 +28,9 @@ public class Config {
         return Integer.valueOf(System.getProperty("servo.example.port", "12345"));
     }
 
-    /** How frequently to poll metrics and report to observers. */
+    /** How frequently to poll metrics in seconds and report to observers. */
     public static long getPollInterval() {
-        return Long.valueOf(System.getProperty("servo.example.pollInterval", "5"));
+        return Pollers.getPollingIntervals().get(0) / 1000L;
     }
 
     /** Should we report metrics to the file observer? Default is true. */
@@ -54,5 +56,10 @@ public class Config {
     /** Address for reporting to graphite. Default is localhost:2003. */
     public static String getGraphiteObserverAddress() {
         return System.getProperty("servo.example.graphiteObserverAddress", "localhost:2003");
+    }
+
+    /** Should we poll the standard jvm mbeans? Default is true. */
+    public static boolean isJvmPollerEnabled() {
+        return Boolean.valueOf(System.getProperty("servo.example.isJvmPollerEnabled", "true"));
     }
 }
