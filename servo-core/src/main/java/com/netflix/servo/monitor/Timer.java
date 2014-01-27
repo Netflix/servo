@@ -35,7 +35,9 @@ public interface Timer extends NumericMonitor<Long> {
 
     /**
      * Record a new value for this timer.
-     * @deprecated Use record(duration, timeUnit)
+     * @deprecated Use record(duration, timeUnit). By always providing a timeUnit to record()
+     * you can have a base time unit of seconds, but
+     * use recordings with timeunit of milliseconds for example.
      */
     @Deprecated
     void record(long duration);
