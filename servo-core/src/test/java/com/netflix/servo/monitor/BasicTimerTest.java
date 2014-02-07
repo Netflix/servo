@@ -19,7 +19,8 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
 
@@ -64,9 +65,10 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
             }
         }
 
-        assertEquals(c.getValue().longValue(), 49L);
-        assertEquals(c.getTotalTime().longValue(), 147L);
-        assertEquals(c.getCount().longValue(), 3L);
+        // timers use a resettable counter now
+        assertEquals(c.getValue().longValue(), 0L);
+        assertEquals(c.getTotalTime().longValue(), 0L);
+        assertEquals(c.getCount().longValue(), 0L);
         assertEquals(c.getMin().longValue(), 0L);
         assertEquals(c.getMax().longValue(), 0L);
     }
