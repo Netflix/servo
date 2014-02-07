@@ -39,32 +39,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     private final TimeUnit timeUnit;
     private final double timeUnitNanosFactor;
-    private final Counter totalTime;
-    private final Counter count;
+    private final ResettableCounter totalTime;
+    private final ResettableCounter count;
     private final MinGauge min;
     private final MaxGauge max;
 
     private final List<Monitor<?>> monitors;
-
-    private static class FactorMonitor<T extends Number> implements NumericMonitor<Double> {
-        private final Monitor<T> wrapped;
-        private final double factor;
-
-        private FactorMonitor(Monitor<T> wrapped, double factor) {
-            this.wrapped = wrapped;
-            this.factor = factor;
-        }
-
-        @Override
-        public Double getValue() {
-            return wrapped.getValue().doubleValue() * factor;
-        }
-
-        @Override
-        public MonitorConfig getConfig() {
-            return wrapped.getConfig();
-        }
-    }
 
     private static class ResettableFactorMonitor<T extends Number> implements ResettableMonitor<Double> {
         private final ResettableMonitor<T> wrapped;
@@ -114,12 +94,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         timeUnit = unit;
         timeUnitNanosFactor = 1.0 / timeUnit.toNanos(1);
 
-        totalTime = new BasicCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
-        count = new BasicCounter(unitConfig.withAdditionalTag(STAT_COUNT));
+        totalTime = new ResettableCounter(unitConfig.withAdditionalTag(STAT_TOTAL));
+        count = new ResettableCounter(unitConfig.withAdditionalTag(STAT_COUNT));
         min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
         max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
 
-        final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<Number>(totalTime, timeUnitNanosFactor);
+        final ResettableFactorMonitor<Number> totalTimeFactor = new ResettableFactorMonitor<Number>(totalTime, timeUnitNanosFactor);
         final ResettableFactorMonitor<Long> minFactor = new ResettableFactorMonitor<Long>(min, timeUnitNanosFactor);
         final ResettableFactorMonitor<Long> maxFactor = new ResettableFactorMonitor<Long>(max, timeUnitNanosFactor);
 
@@ -170,13 +150,13 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     }
 
     private double getTotal() {
-        return totalTime.getValue().longValue() * timeUnitNanosFactor;
+        return totalTime.getCount() * timeUnitNanosFactor;
     }
 
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
-        final long cnt = count.getValue().longValue();
+        final long cnt = count.getCount();
         final long value = (long) (getTotal() / cnt);
         return (cnt == 0) ? 0L : value;
     }
@@ -188,7 +168,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     /** Get the total number of updates. */
     public Long getCount() {
-        return count.getValue().longValue();
+        return count.getCount();
     }
 
     /** Get the min value since the last reset. */
