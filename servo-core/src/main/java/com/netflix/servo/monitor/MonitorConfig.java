@@ -87,13 +87,51 @@ public final class MonitorConfig {
 
         /** Create the monitor config object. */
         public MonitorConfig build() {
-            return new MonitorConfig(this);
+            if (configSanitizer != null) {
+                return new MonitorConfig(configSanitizer.sanitize(this));
+            } else {
+                return new MonitorConfig(this);
+            }
+        }
+
+        /**
+         * Get the name for this monitor config.
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Get the list of tags for this monitor config.
+         */
+        public List<Tag> getTags() {
+            return tags;
+        }
+
+        /**
+         * Get the publishingPolicy.
+         */
+        public PublishingPolicy getPublishingPolicy() {
+            return policy;
         }
     }
 
     /** Return a builder instance with the specified name. */
     public static Builder builder(String name) {
         return new Builder(name);
+    }
+
+    /**
+     * Interface used to return a new builder that can perform a cleanup of the metric names and tags.
+     */
+    public interface ConfigSanitizer {
+        Builder sanitize(Builder configBuilder);
+    }
+
+    private static ConfigSanitizer configSanitizer = null;
+
+    public static void setConfigSanitizer(ConfigSanitizer sanitizer) {
+        configSanitizer = sanitizer;
     }
 
     private final String name;
