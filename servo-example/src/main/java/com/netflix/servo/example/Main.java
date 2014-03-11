@@ -66,7 +66,7 @@ public class Main {
     }
 
     private static void schedule(MetricPoller poller, List<MetricObserver> observers) {
-        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL, observers);
+        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL, true, observers);
         PollScheduler.getInstance().addPoller(task, Config.getPollInterval(), TimeUnit.SECONDS);
     }
 
