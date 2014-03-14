@@ -17,6 +17,7 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.Clock;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -99,6 +100,11 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     /** {@inheritDoc} */
     @Override
     public Long getValue() {
+        return getValue(0);
+    }
+
+    @Override
+    public Long getValue(int pollerIndex) {
         return getDurationMillis() / 1000;
     }
 

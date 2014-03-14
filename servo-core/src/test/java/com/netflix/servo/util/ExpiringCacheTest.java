@@ -33,8 +33,9 @@ public class ExpiringCacheTest {
 
     @Test
     public void testGet() throws Exception {
+        ManualClock clock = new ManualClock(0L);
         CountingFun fun = new CountingFun();
-        ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L, fun, 100L);
+        ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L, fun, 100L, clock);
 
         Integer three = map.get("foo");
         assertEquals(three, Integer.valueOf(3));
@@ -42,7 +43,9 @@ public class ExpiringCacheTest {
         assertEquals(threeAgain, Integer.valueOf(3));
 
         assertEquals(fun.numCalled, 1, "Properly caches computations");
+        clock.set(200L);
         Thread.sleep(200L);
+
         Integer threeOnceMore = map.get("foo");
         assertEquals(threeOnceMore, Integer.valueOf(3));
         assertEquals(fun.numCalled, 2, "Properly expires unused entries");

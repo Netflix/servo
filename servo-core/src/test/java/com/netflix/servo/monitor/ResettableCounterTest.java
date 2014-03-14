@@ -24,85 +24,12 @@ import static org.testng.Assert.assertTrue;
 public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter> {
 
     public ResettableCounter newInstance(String name) {
-        return new ResettableCounter(MonitorConfig.builder(name).build(), new long[]{0L});
-    }
-
-    public ResettableCounter newInstance(String name, long interval) {
-        return new ResettableCounter(MonitorConfig.builder(name).build(), new long[]{interval});
+        return new ResettableCounter(MonitorConfig.builder(name).build());
     }
 
     @Test
-    public void testHasRateTag() throws Exception {
+    public void testHasRightType() throws Exception {
         Tag type = newInstance("foo").getConfig().getTags().getTag("type");
-        assertEquals(type.getValue(), "RATE");
-    }
-
-    @Test
-    public void testGetValue() throws Exception {
-        ResettableCounter c = newInstance("foo");
-        assertEquals(c.getValue().longValue(), 0L);
-
-        // Check basic rate, if sleep exactly 50ms rate since the reset would be 20.0
-        c.increment();
-        assertEquals(c.getCount(), 1L);
-        Thread.sleep(50);
-        double rate = c.getValue().doubleValue();
-        assertTrue(rate <= 20.0 && rate > 0.0);
-
-        // Should be around 10m, allow
-        c.increment(1000000);
-        assertEquals(c.getCount(), 1000001L);
-        rate = c.getValue().doubleValue();
-        assertTrue(rate <= 2.001e7 && rate > 5e6);
-    }
-
-    @Test
-    public void testGetAndResetValue() throws Exception {
-        ResettableCounter c = newInstance("foo");
-        assertEquals(c.getValue().longValue(), 0L);
-
-        // Check basic rate, if sleep exactly 50ms rate since the reset would be 20.0
-        c.increment();
-        Thread.sleep(50);
-        double rate = c.getValue().doubleValue();
-        assertTrue(rate <= 20.0 && rate > 0.0);
-
-        // Should be around 10m, allow
-        c.increment(1000000);
-        assertEquals(c.getCount(), 1000001L);
-        rate = c.getAndResetValue().doubleValue();
-        assertEquals(c.getCount(), 0L);
-        assertTrue(rate <= 2.001e7 && rate > 5e6);
-        assertEquals(c.getValue().longValue(), 0L);
-    }
-
-    @Test
-    public void testGetAndResetValueWithEstimate() throws Exception {
-        ResettableCounter c = newInstance("foo", 60000L);
-        assertEquals(c.getValue().longValue(), 0L);
-
-        // Check basic rate, if sleep exactly 50ms rate since the reset would be 20.0
-        c.increment();
-        Thread.sleep(50);
-        double rate = c.getValue().doubleValue();
-        assertTrue(rate <= 0.2 && rate > 0.0);
-
-        // Should be around 10m, allow
-        c.increment(1000000);
-        rate = c.getAndResetValue().doubleValue();
-        assertTrue(rate <= 20.0e3 && rate > 10.0e3);
-        assertEquals(c.getValue().longValue(), 0L);
-    }
-
-    @Test
-    public void testOverflow() throws Exception {
-        ResettableCounter c = newInstance("foo");
-        assertEquals(c.getValue().longValue(), 0L);
-
-        // Check basic rate, if sleep exactly 50ms rate since the reset would be 20.0
-        c.increment(Long.MAX_VALUE);
-        c.increment(1);
-        long rate = c.getValue().longValue();
-        assertEquals(rate, 0L);
+        assertEquals(type.getValue(), "GAUGE");
     }
 }

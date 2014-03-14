@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * Poller configuration. Our resettable monitors need to be aware of all pollers so they can
- * deal with calls that reset their values. This class provides the mechanism they use
+ * Poller configuration. This class provides the mechanism
  * to know how many pollers will be used, and at their estimated polling intervals.
  */
 public final class Pollers {

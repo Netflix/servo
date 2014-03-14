@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 
 public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
 
@@ -58,31 +57,11 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
         assertEquals(c.getMin().longValue(), 21L);
         assertEquals(c.getMax().longValue(), 84L);
 
-        for (Monitor<?> m : c.getMonitors()) {
-            if (m instanceof ResettableMonitor<?>) {
-                double v = (Double) ((ResettableMonitor<?>) m).getAndResetValue();
-                assertNotEquals(v, 0.0);
-            }
-        }
-
-        // timers use a resettable counter now
-        assertEquals(c.getValue().longValue(), 0L);
-        assertEquals(c.getTotalTime().longValue(), 0L);
-        assertEquals(c.getCount().longValue(), 0L);
-        assertEquals(c.getMin().longValue(), 0L);
-        assertEquals(c.getMax().longValue(), 0L);
-    }
-
-    @Test
-    public void testEqualsCount() throws Exception {
-        BasicTimer c1 = newInstance("foo");
-        BasicTimer c2 = newInstance("foo");
-        assertEquals(c1, c2);
-
-        c1.record(42, TimeUnit.MILLISECONDS);
-        assertNotEquals(c1, c2);
-        c2.record(42, TimeUnit.MILLISECONDS);
-        assertEquals(c1, c2);
+        assertEquals(c.getValue().longValue(), 49L);
+        assertEquals(c.getTotalTime().longValue(), 147L);
+        assertEquals(c.getCount().longValue(), 3L);
+        assertEquals(c.getMin().longValue(), 21L);
+        assertEquals(c.getMax().longValue(), 84L);
     }
 
     @Test

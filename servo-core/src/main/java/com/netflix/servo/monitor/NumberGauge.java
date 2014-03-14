@@ -19,25 +19,18 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.annotations.DataSourceType;
 
-public class NumberGauge implements Gauge<Number>  {
+public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number>  {
     private final Number number;
-    private final MonitorConfig config;
 
     public NumberGauge(MonitorConfig config, Number number) {
-        Preconditions.checkNotNull(config);
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
         Preconditions.checkNotNull(number);
-        this.config = config.withAdditionalTag(DataSourceType.GAUGE);
         this.number = number;
     }
 
     @Override
-    public Number getValue() {
+    public Number getValue(int pollerIdx) {
         return number;
-    }
-
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
     }
 
     /** {@inheritDoc} */

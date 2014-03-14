@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.servo.monitor;
-
-import java.util.concurrent.atomic.AtomicLong;
+package com.netflix.servo.util;
 
 /**
- * Mostly for testing, this clock must be explicitly set to a given value. Defaults to init.
+ * A wrapper around the system clock to allow custom implementations to be used in unit tests
+ * where we want to fake or control the clock behavior.
  */
-class ManualClock implements Clock {
+public interface Clock {
+    Clock WALL = new Clock() {
+        public long now() {
+            return System.currentTimeMillis();
+        }
+    };
 
-    private final AtomicLong time;
-
-    ManualClock(long init) {
-        time = new AtomicLong(init);
-    }
-
-    void set(long t) {
-        time.set(t);
-    }
-
-    public long now() {
-        return time.get();
-    }
+    long now();
 }

@@ -27,8 +27,6 @@ import java.util.List;
  */
 public final class MemoryMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MemoryMetricObserver.class);
-
     private static final int DEFAULT_N = 10;
 
     private final List<Metric>[] observations;
@@ -59,7 +57,7 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
     public List<List<Metric>> getObservations() {
         ImmutableList.Builder<List<Metric>> builder = ImmutableList.builder();
         int pos = next;
-        for (int i = 0; i < observations.length; ++i) {
+        for (List<Metric> observation : observations) {
             if (observations[pos] != null) {
                 builder.add(observations[pos]);
             }

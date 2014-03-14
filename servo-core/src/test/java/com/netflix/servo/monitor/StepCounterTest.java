@@ -15,36 +15,34 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.tag.Tag;
-
+import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class StepCounterTest {
 
-    static final long STEP = 10000L;
-
-    final ManualClock clock = new ManualClock(STEP * 50);
+    final ManualClock clock = new ManualClock(50 * Pollers.POLLING_INTERVALS[1]);
 
     public StepCounter newInstance(String name) {
-        return new StepCounter(MonitorConfig.builder(name).build(), STEP, clock);
+        return new StepCounter(MonitorConfig.builder(name).build(), clock);
     }
 
     public long time(long t) {
-        return t * 1000 + STEP * 50;
+        return t * 1000 + Pollers.POLLING_INTERVALS[1] * 50;
     }
 
     @Test
     public void testInitialPollIsZero() {
         clock.set(time(1));
         StepCounter c = newInstance("foo");
-        assertEquals(c.getValue(), 0.0);
+        assertEquals(c.getValue(1).doubleValue(), 0.0);
     }
 
     @Test
-    public void testHasRateTag() throws Exception {
-        assertEquals(newInstance("foo").getConfig().getTags().getValue("type"), "RATE");
+    public void testHasRightType() throws Exception {
+        assertEquals(newInstance("foo").getConfig().getTags().getValue("type"), "GAUGE");
     }
 
     @Test
@@ -66,18 +64,18 @@ public class StepCounterTest {
         c.increment();
 
         // Check counts
-        assertEquals(c.getValue(), 0.3);
-        assertEquals(c.getCurrentCount(), 2);
+        assertEquals(c.getValue(1).doubleValue(), 0.3);
+        assertEquals(c.getCurrentCount(1), 2);
     }
 
     @Test
     public void testResetPreviousValue() {
         clock.set(time(1));
         StepCounter c = newInstance("foo");
-        for (int i = 1; i <= 1000000; ++i) {
+        for (int i = 1; i <= 100000; ++i) {
             c.increment();
             clock.set(time(i * 10 + 1));
-            assertEquals(c.getValue(), 0.1);
+            assertEquals(c.getValue(1).doubleValue(), 0.1);
         }
     }
 
@@ -85,7 +83,7 @@ public class StepCounterTest {
     public void testMissedInterval() {
         clock.set(time(1));
         StepCounter c = newInstance("foo");
-        c.getValue();
+        c.getValue(1);
 
         // Multiple updates without polling
         c.increment();
@@ -99,7 +97,7 @@ public class StepCounterTest {
         c.increment();
 
         // Check counts
-        assertTrue(Double.isNaN(c.getValue().doubleValue()));
-        assertEquals(c.getCurrentCount(), 1);
+        assertTrue(Double.isNaN(c.getValue(1).doubleValue()));
+        assertEquals(c.getCurrentCount(1), 1);
     }
 }

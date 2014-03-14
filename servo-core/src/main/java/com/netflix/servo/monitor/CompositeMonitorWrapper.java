@@ -50,8 +50,8 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
 
     /** {@inheritDoc} */
     @Override
-    public T getValue() {
-        return monitor.getValue();
+    public T getValue(int pollerIdx) {
+        return monitor.getValue(pollerIdx);
     }
 
     /** {@inheritDoc} */

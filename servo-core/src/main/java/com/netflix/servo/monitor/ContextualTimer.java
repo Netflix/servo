@@ -57,8 +57,10 @@ public class ContextualTimer extends AbstractContextualMonitor<Long, Timer> impl
 
     /** {@inheritDoc} */
     @Override
+    @Deprecated
     public void record(long duration) {
-        getMonitorForCurrentContext().record(duration);
+        Timer monitor = getMonitorForCurrentContext();
+        monitor.record(duration, monitor.getTimeUnit());
     }
 
     /** {@inheritDoc} */
@@ -69,7 +71,7 @@ public class ContextualTimer extends AbstractContextualMonitor<Long, Timer> impl
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
+    public Long getValue(int pollerIndex) {
         return getMonitorForCurrentContext().getValue();
     }
 }

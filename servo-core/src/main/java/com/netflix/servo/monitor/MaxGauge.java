@@ -17,32 +17,40 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.util.Clock;
 
-import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Gauge that keeps track of the maximum value seen since the last reset. Updates should be
  * non-negative, the reset value is 0.
  */
 public class MaxGauge extends AbstractMonitor<Long>
-        implements Gauge<Long>, ResettableMonitor<Long> {
-    private final AtomicLongArray max = new AtomicLongArray(Pollers.NUM_POLLERS);
+        implements Gauge<Long> {
+    private final StepLong max;
 
     /** Creates a new instance of the gauge. */
     public MaxGauge(MonitorConfig config) {
+        this(config, Clock.WALL);
+    }
+
+    /** Creates a new instance of the gauge using a specific clock. Useful for unit testing. */
+    MaxGauge(MonitorConfig config, Clock clock) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));
+        max = new StepLong(0L, clock);
     }
 
     /**
      * Update the max for the given index if the provided value is larger than the current max.
      */
     private void updateMax(int idx, long v) {
-        long currentMaxValue = max.get(idx);
-        while (v > currentMaxValue) {
-            if (max.compareAndSet(idx, currentMaxValue, v)) {
+        AtomicLong current = max.getCurrent(idx);
+        long m = current.get();
+        while (v > m) {
+            if (current.compareAndSet(m, v)) {
                 break;
             }
-            currentMaxValue = max.get(idx);
+            m = current.get();
         }
     }
 
@@ -50,27 +58,15 @@ public class MaxGauge extends AbstractMonitor<Long>
      * Update the max if the provided value is larger than the current max.
      */
     public void update(long v) {
-        for (int i = 0; i < max.length(); ++i) {
+        for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
             updateMax(i, v);
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
-        return max.get(0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Long getAndResetValue() {
-        return getAndResetValue(0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Long getAndResetValue(int idx) {
-        return max.getAndSet(idx, 0L);
+    public Long getValue(int nth) {
+        return max.getCurrent(nth).get();
     }
 
     /**
@@ -78,17 +74,20 @@ public class MaxGauge extends AbstractMonitor<Long>
      */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null || !(obj instanceof MaxGauge)) {
             return false;
         }
         MaxGauge m = (MaxGauge) obj;
-        return config.equals(m.getConfig()) && AtomicUtils.equals(max, m.max);
+        return config.equals(m.getConfig());
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, AtomicUtils.hashCode(max));
+        return config.hashCode();
     }
 
     /** {@inheritDoc} */

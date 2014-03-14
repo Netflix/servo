@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import java.util.List;

@@ -62,6 +62,12 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
         monitors = new ConcurrentHashMap<MonitorConfig, M>();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public T getValue() {
+        return getValue(0);
+    }
+
     /**
      * Returns a monitor instance for the current context. If no monitor exists for the current
      * context then a new one will be created.

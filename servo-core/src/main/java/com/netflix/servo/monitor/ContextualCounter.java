@@ -54,7 +54,7 @@ public class ContextualCounter extends AbstractContextualMonitor<Number, Counter
 
     /** {@inheritDoc} */
     @Override
-    public Number getValue() {
-        return getMonitorForCurrentContext().getValue();
+    public Number getValue(int pollerIndex) {
+        return getMonitorForCurrentContext().getValue(pollerIndex);
     }
 }

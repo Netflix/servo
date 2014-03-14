@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or
  * {@link MonitorConfig}. Counters are automatically expired after 15 minutes of inactivity.
  */
-public final class DynamicCounter implements CompositeMonitor<Long> {
+public final class DynamicCounter extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounter.class);
     private static final String DEFAULT_EXPIRATION = "15";
     private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
@@ -44,8 +44,8 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
     private static final DynamicCounter INSTANCE = new DynamicCounter();
 
     private final ExpiringCache<MonitorConfig, Counter> counters;
-
     private DynamicCounter() {
+        super(BASE_CONFIG);
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
                 System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
@@ -56,7 +56,7 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
                 new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
                     @Override
                     public Counter apply(final MonitorConfig config) {
-                        return new ResettableCounter(config);
+                        return new StepCounter(config);
                     }
                 });
         DefaultMonitorRegistry.getInstance().register(this);
@@ -131,16 +131,8 @@ public final class DynamicCounter implements CompositeMonitor<Long> {
      * {@inheritDoc}
      */
     @Override
-    public Long getValue() {
+    public Long getValue(int pollerIndex) {
         return (long) counters.size();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public MonitorConfig getConfig() {
-        return BASE_CONFIG;
     }
 
     /**

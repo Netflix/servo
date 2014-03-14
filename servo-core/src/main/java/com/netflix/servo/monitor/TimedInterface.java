@@ -66,12 +66,14 @@ public final class TimedInterface {
             return (List<Monitor<?>>) dynamicTimers;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        @Override
+        public Long getValue(int pollerIdx) {
+            return (long) timers.size();
+        }
+
         @Override
         public Long getValue() {
-            return (long) timers.size();
+            return getValue(0);
         }
 
         /**
