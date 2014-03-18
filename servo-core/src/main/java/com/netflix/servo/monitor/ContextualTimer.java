@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Composite that maintains separate simple timers for each distinct set of tags returned by the
  * tagging context.
+ * @deprecated This is an abstraction that hasn't proved useful. It will be removed in a future release.
  */
+@Deprecated
 public class ContextualTimer extends AbstractContextualMonitor<Long, Timer> implements Timer {
 
     /**

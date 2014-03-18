@@ -20,7 +20,9 @@ package com.netflix.servo.tag;
  * current thread. Can be used to customize the context for code executed in
  * a particular thread. For example, on a server with a thread per request the
  * context can be set so metrics will be tagged accordingly.
+ * @deprecated This is an abstraction that hasn't proved useful. It will be removed in a future release.
  */
+@Deprecated
 public final class ThreadLocalTaggingContext implements TaggingContext {
 
     private final ThreadLocal<TagList> context = new ThreadLocal<TagList>();

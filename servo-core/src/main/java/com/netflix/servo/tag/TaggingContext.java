@@ -19,7 +19,9 @@ package com.netflix.servo.tag;
  * Returns the set of tags associated with the current execution context.
  * Implementations of this interface are used to provide a common set of tags
  * for all contextual monitors in a given execution flow.
+ * @deprecated This is an abstraction that hasn't proved useful. It will be removed in a future release.
  */
+@Deprecated
 public interface TaggingContext {
     /** Returns the tags for the current execution context. */
     TagList getTags();

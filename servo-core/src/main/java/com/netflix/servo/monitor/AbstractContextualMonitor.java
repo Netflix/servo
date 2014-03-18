@@ -28,7 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Base class used to simplify creation of contextual monitors.
+ * @deprecated This is an abstraction that hasn't proved useful. It will be removed in a future release.
  */
+@Deprecated
 public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
         implements CompositeMonitor<T> {
 
