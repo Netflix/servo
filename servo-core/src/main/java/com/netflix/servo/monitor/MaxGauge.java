@@ -81,13 +81,13 @@ public class MaxGauge extends AbstractMonitor<Long>
             return false;
         }
         MaxGauge m = (MaxGauge) obj;
-        return config.equals(m.getConfig());
+        return config.equals(m.getConfig()) && getValue(0).equals(m.getValue(0));
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return config.hashCode();
+        return Objects.hashCode(config, getValue(0));
     }
 
     /** {@inheritDoc} */

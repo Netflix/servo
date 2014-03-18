@@ -30,7 +30,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
     /**
      * Creates a new instance of the counter.
      */
-    public  StepCounter(MonitorConfig config) {
+    public StepCounter(MonitorConfig config) {
         this(config, Clock.WALL);
     }
 
@@ -45,13 +45,17 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         count = new StepLong(0L, clock);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void increment() {
         count.addAndGet(1L);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void increment(long amount) {
         if (amount > 0L) {
@@ -59,7 +63,9 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Number getValue(int pollerIndex) {
         final Datapoint dp = count.poll(pollerIndex);
@@ -75,7 +81,9 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         return count.getCurrent(pollerIndex).get();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -90,7 +98,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         if (o == null || getClass() != o.getClass()) return false;
 
         StepCounter that = (StepCounter) o;
-        return config.equals(that.config);
+        return config.equals(that.config) && getCount(0) == that.getCount(0);
     }
 
     @Override

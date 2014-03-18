@@ -86,7 +86,7 @@ public class MinGauge extends AbstractMonitor<Long>
             return false;
         }
         MinGauge m = (MinGauge) obj;
-        return config.equals(m.getConfig());
+        return config.equals(m.getConfig()) && getValue(0).equals(m.getValue(0));
     }
 
     /**
@@ -94,7 +94,7 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public int hashCode() {
-        return config.hashCode();
+        return Objects.hashCode(config, getValue(0));
     }
 
     /**

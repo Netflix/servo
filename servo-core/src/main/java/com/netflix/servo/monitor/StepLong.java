@@ -18,6 +18,7 @@ package com.netflix.servo.monitor;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.util.Clock;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -106,6 +107,16 @@ class StepLong {
             POLLED_INTERVALS.increment();
             return new Datapoint(now / step * step, value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "StepLong{" +
+                "init=" + init +
+                ", data=" + Arrays.toString(data) +
+                ", lastPollTime=" + Arrays.toString(lastPollTime) +
+                ", lastInitPos=" + Arrays.toString(lastInitPos) +
+                '}';
     }
 }
 

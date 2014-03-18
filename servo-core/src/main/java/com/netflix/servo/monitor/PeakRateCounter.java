@@ -66,13 +66,13 @@ public class PeakRateCounter extends AbstractMonitor<Number>
             return false;
         }
         PeakRateCounter c = (PeakRateCounter) obj;
-        return config.equals(c.getConfig());
+        return config.equals(c.getConfig()) && getValue(0).doubleValue() == c.getValue(0).doubleValue();
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return config.hashCode();
+        return Objects.hashCode(config, getValue(0).doubleValue());
     }
 
     /** {@inheritDoc} */

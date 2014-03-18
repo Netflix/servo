@@ -35,4 +35,18 @@ public class ManualClock implements Clock {
     public long now() {
         return time.get();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ManualClock clock = (ManualClock) o;
+        return now() == clock.now();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.valueOf(now()).hashCode();
+    }
 }
