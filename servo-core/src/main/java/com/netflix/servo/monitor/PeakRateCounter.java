@@ -113,6 +113,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         long now = clock.now() / 1000L;
         if (now != currentSecond.get()) {
             currentCount.set(0);
+            currentSecond.set(now);
         }
         long count = currentCount.addAndGet(amount);
         updatePeak(count);
