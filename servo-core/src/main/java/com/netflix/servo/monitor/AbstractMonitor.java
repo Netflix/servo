@@ -35,4 +35,10 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     public MonitorConfig getConfig() {
         return config;
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public T getValue() {
+        return getValue(0);
+    }
 }

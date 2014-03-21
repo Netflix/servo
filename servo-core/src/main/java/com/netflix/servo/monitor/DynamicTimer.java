@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * (name, tagList), or {@link MonitorConfig}. Timers are automatically expired after 15 minutes of
  * inactivity.
  */
-public final class DynamicTimer implements CompositeMonitor<Long> {
+public final class DynamicTimer extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
     private static final String DEFAULT_EXPIRATION = "15";
     private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
     private static final String CLASS_NAME = DynamicTimer.class.getCanonicalName();
@@ -74,6 +74,7 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
     }
 
     private DynamicTimer() {
+        super(BASE_CONFIG);
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
                 System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
@@ -176,16 +177,8 @@ public final class DynamicTimer implements CompositeMonitor<Long> {
      * {@inheritDoc}
      */
     @Override
-    public Long getValue() {
+    public Long getValue(int pollerIdx) {
         return (long) timers.size();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public MonitorConfig getConfig() {
-        return BASE_CONFIG;
     }
 
     /**

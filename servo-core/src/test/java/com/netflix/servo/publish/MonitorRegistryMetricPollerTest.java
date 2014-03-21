@@ -47,7 +47,7 @@ public class MonitorRegistryMetricPollerTest {
         MetricPoller poller = new MonitorRegistryMetricPoller(registry);
         Metric metric = poller.poll(MATCH_ALL).get(0);
         MonitorConfig expected = MonitorConfig.builder("test")
-            .withTag(DataSourceType.COUNTER)
+            .withTag(DataSourceType.GAUGE)
             .build();
         assertEquals(metric.getConfig(), expected);
     }
@@ -68,7 +68,7 @@ public class MonitorRegistryMetricPollerTest {
         assertTrue(end - start < TEN_SECONDS);
 
         MonitorConfig expected = MonitorConfig.builder("test")
-            .withTag(DataSourceType.COUNTER)
+            .withTag(DataSourceType.GAUGE)
             .build();
         assertEquals(metric.getConfig(), expected);
     }
@@ -144,7 +144,7 @@ public class MonitorRegistryMetricPollerTest {
         }
 
         @Override
-        public Number getValue() {
+        public Number getValue(int pollerIndex) {
             try {
                 Thread.sleep(ONE_HOUR);
             } catch (Exception e) {

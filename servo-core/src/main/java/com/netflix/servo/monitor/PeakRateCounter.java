@@ -17,113 +17,41 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.util.Clock;
 
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * A resettable counter. The value is the maximum count per second within the specified interval
- * until the counter is reset.
+ * The value is the maximum count per second within the specified interval.
  */
 public class PeakRateCounter extends AbstractMonitor<Number>
-        implements Counter, ResettableMonitor<Number> {
+        implements Counter {
 
-    private static class PeakInterval {
-        final AtomicReference<AtomicLongArray> countsRef;
+    private final Clock clock;
 
-        PeakInterval(int numBuckets) {
-            countsRef = new AtomicReference<AtomicLongArray>(new AtomicLongArray(numBuckets));
-        }
-
-        Number getValue() {
-            return getValue(countsRef.get());
-        }
-
-        Number getValue(AtomicLongArray counts) {
-            long max = 0;
-            long cnt;
-
-            for (int i = 0; i < counts.length(); i++) {
-                cnt = counts.get(i);
-                if (cnt > max) {
-                    max = cnt;
-                }
-            }
-            return max;
-        }
-
-        Number getAndResetValue() {
-            AtomicLongArray counts = countsRef.getAndSet(new AtomicLongArray(countsRef.get().length()));
-            return getValue(counts);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            PeakInterval that = (PeakInterval) o;
-            return AtomicUtils.equals(countsRef.get(), that.countsRef.get());
-        }
-
-        @Override
-        public int hashCode() {
-            return AtomicUtils.hashCode(countsRef.get());
-        }
-
-        void increment(long now, long amount) {
-            int index = (int) now % countsRef.get().length();
-            countsRef.get().addAndGet(index, amount);
-        }
-    }
-
-    private final PeakInterval[] peakIntervals;
-
-    public PeakRateCounter(MonitorConfig config) {
-        this(config, Pollers.POLLING_INTERVALS);
-    }
-
-    PeakRateCounter(MonitorConfig config, long[] pollingIntervals) {
-        // This class will reset the value so it is not a monotonically increasing value as
-        // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
-        // the publishing pipeline receiving the value.
-        super(config.withAdditionalTag(DataSourceType.RATE));
-
-        peakIntervals = new PeakInterval[pollingIntervals.length];
-        for (int i = 0; i < peakIntervals.length; ++i) {
-            peakIntervals[i] = new PeakInterval((int) (pollingIntervals[i] / 1000L));
-        }
-    }
+    private final AtomicLong currentSecond = new AtomicLong();
+    private final AtomicLong currentCount = new AtomicLong();
 
     /**
-     * Create a new instance with the specified interval.
-     *
-     * @param config          configuration for the monitor
-     * @param intervalSeconds ignored
-     * @deprecated Polling intervals are configured using the system property servo.pollers
+     * Creates a counter implementation that records the maximum count per second
+     * within a specific interval.
      */
-    @Deprecated
-    public PeakRateCounter(MonitorConfig config, int intervalSeconds) {
-        this(config, Pollers.POLLING_INTERVALS);
+    public PeakRateCounter(MonitorConfig config) {
+        this(config, Clock.WALL);
+    }
+
+    private final StepLong peakRate;
+    PeakRateCounter(MonitorConfig config, Clock clock) {
+        super(config.withAdditionalTag(DataSourceType.GAUGE));
+
+        this.clock = clock;
+        this.peakRate = new StepLong(0L, clock);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Number getValue() {
-        return peakIntervals[0].getValue();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Number getAndResetValue() {
-        return getAndResetValue(0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Number getAndResetValue(int pollerIdx) {
-        return peakIntervals[pollerIdx].getAndResetValue();
+    public Number getValue(int pollerIdx) {
+        return peakRate.getCurrent(pollerIdx);
     }
 
     /**
@@ -131,19 +59,20 @@ public class PeakRateCounter extends AbstractMonitor<Number>
      */
     @Override
     public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
         if (obj == null || !(obj instanceof PeakRateCounter)) {
             return false;
         }
         PeakRateCounter c = (PeakRateCounter) obj;
-
-        return config.equals(c.getConfig())
-                && (Arrays.equals(this.peakIntervals, c.peakIntervals));
+        return config.equals(c.getConfig()) && getValue(0).doubleValue() == c.getValue(0).doubleValue();
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, getValue());
+        return Objects.hashCode(config, getValue(0).doubleValue());
     }
 
     /** {@inheritDoc} */
@@ -161,13 +90,33 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         increment(1L);
     }
 
+    private void updatePeakPoller(int idx, long v) {
+        AtomicLong current = peakRate.getCurrent(idx);
+        long m = current.get();
+        while (v > m) {
+            if (current.compareAndSet(m, v)) {
+                break;
+            }
+            m = current.get();
+        }
+    }
+
+    private void updatePeak(long v) {
+        for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
+            updatePeakPoller(i, v);
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public void increment(long amount) {
-        long now = System.currentTimeMillis() / 1000L;
-        for (PeakInterval peakInterval : peakIntervals) {
-            peakInterval.increment(now, amount);
+        long now = clock.now() / 1000L;
+        if (now != currentSecond.get()) {
+            currentCount.set(0);
+            currentSecond.set(now);
         }
+        long count = currentCount.addAndGet(amount);
+        updatePeak(count);
     }
 }
 

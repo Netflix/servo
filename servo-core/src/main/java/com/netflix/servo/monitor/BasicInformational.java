@@ -41,7 +41,7 @@ public final class BasicInformational extends AbstractMonitor<String> implements
 
     /** {@inheritDoc} */
     @Override
-    public String getValue() {
+    public String getValue(int pollerIndex) {
         return info.get();
     }
 

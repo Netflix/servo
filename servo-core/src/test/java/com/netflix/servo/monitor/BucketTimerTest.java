@@ -46,7 +46,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 0L);
         expectedValues.put("bucket=overflow", 0L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 0L);
+        assertEquals(c.getCount(0).longValue(), 0L);
 
         c.record(40);
 
@@ -58,7 +58,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 0L);
         expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 1L);
+        assertEquals(c.getCount(0).longValue(), 1L);
 
         c.record(10);
 
@@ -70,7 +70,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 0L);
         expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 2L);
+        assertEquals(c.getCount(0).longValue(), 2L);
 
         c.record(5);
 
@@ -82,7 +82,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 0L);
         expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 3L);
+        assertEquals(c.getCount(0).longValue(), 3L);
 
         c.record(20);
 
@@ -94,7 +94,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 1L);
         expectedValues.put("bucket=overflow", 1L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 4L);
+        assertEquals(c.getCount(0).longValue(), 4L);
 
         c.record(125);
 
@@ -106,7 +106,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         expectedValues.put("bucket=20ms", 1L);
         expectedValues.put("bucket=overflow", 2L);
         assertMonitors(c.getMonitors(), expectedValues);
-        assertEquals(c.getCount().longValue(), 5L);
+        assertEquals(c.getCount(0).longValue(), 5L);
     }
 
     private void assertMonitors(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {

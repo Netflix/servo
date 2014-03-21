@@ -367,9 +367,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
     /** Get the value of the measurement */
     @Override
-    public Long getValue() {
-        final long n = getCount();
-        return n > 0 ? totalMeasurement.getValue().longValue() / n : 0L;
+    public Long getValue(int pollerIndex) {
+        final long n = getCount(pollerIndex);
+        return n > 0 ? totalMeasurement.getValue(pollerIndex).longValue() / n : 0L;
     }
 
     /**
@@ -410,8 +410,8 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
     /**
      * Get the number of times this timer has been updated
      */
-    public long getCount() {
-        return count.getValue().longValue();
+    public long getCount(int pollerIndex) {
+        return count.getValue(pollerIndex).longValue();
     }
 
 

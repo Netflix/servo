@@ -21,7 +21,7 @@ import com.netflix.servo.tag.TagList;
 /**
  * Wraps another monitor object providing an alternative configuration.
  */
-class MonitorWrapper<T> extends AbstractMonitor<T> implements ResettableMonitor<T> {
+class MonitorWrapper<T> extends AbstractMonitor<T> {
     private final Monitor<T> monitor;
 
     /** Creates a new instance of the wrapper. */
@@ -32,24 +32,8 @@ class MonitorWrapper<T> extends AbstractMonitor<T> implements ResettableMonitor<
 
     /** {@inheritDoc} */
     @Override
-    public T getValue() {
+    public T getValue(int pollerIdx) {
         return monitor.getValue();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public T getAndResetValue() {
-        return (monitor instanceof ResettableMonitor<?>)
-            ? ((ResettableMonitor<T>) monitor).getAndResetValue()
-            : monitor.getValue();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public T getAndResetValue(int pollerIdx) {
-        return (monitor instanceof ResettableMonitor<?>)
-                ? ((ResettableMonitor<T>) monitor).getAndResetValue(pollerIdx)
-                : monitor.getValue();
     }
 
     /**

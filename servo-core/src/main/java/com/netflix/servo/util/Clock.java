@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.servo.monitor;
+package com.netflix.servo.util;
 
 /**
  * A wrapper around the system clock to allow custom implementations to be used in unit tests
  * where we want to fake or control the clock behavior.
  */
-interface Clock {
+public interface Clock {
     Clock WALL = new Clock() {
         public long now() {
             return System.currentTimeMillis();

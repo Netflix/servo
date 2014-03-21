@@ -17,8 +17,9 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.util.Clock;
 
-import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Gauge that keeps track of the minimum value seen since the last reset. The reset value is
@@ -26,26 +27,32 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * will return 0.
  */
 public class MinGauge extends AbstractMonitor<Long>
-        implements Gauge<Long>, ResettableMonitor<Long> {
-    private final AtomicLongArray min = new AtomicLongArray(Pollers.NUM_POLLERS);
+        implements Gauge<Long> {
+    private final StepLong min;
 
     /**
      * Creates a new instance of the gauge.
      */
-    public MinGauge(MonitorConfig config) {
+    MinGauge(MonitorConfig config) {
+        this(config, Clock.WALL);
+    }
+
+    /**
+     * Creates a new instance of the gauge using a specific Clock. Useful for unit testing.
+     */
+    MinGauge(MonitorConfig config, Clock clock) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));
-        for (int i = 0; i < min.length(); ++i) {
-            min.set(i, Long.MAX_VALUE);
-        }
+        min = new StepLong(Long.MAX_VALUE, clock);
     }
 
     private void updateMin(int idx, long v) {
-        long currentMinValue = min.get(idx);
-        while (v < currentMinValue) {
-            if (min.compareAndSet(idx, currentMinValue, v)) {
+        AtomicLong current = min.getCurrent(idx);
+        long m = current.get();
+        while (v < m) {
+            if (current.compareAndSet(m, v)) {
                 break;
             }
-            currentMinValue = min.get(idx);
+            m = current.get();
         }
     }
 
@@ -53,7 +60,7 @@ public class MinGauge extends AbstractMonitor<Long>
      * Update the min if the provided value is smaller than the current min.
      */
     public void update(long v) {
-        for (int i = 0; i < min.length(); ++i) {
+        for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
             updateMin(i, v);
         }
     }
@@ -62,22 +69,8 @@ public class MinGauge extends AbstractMonitor<Long>
      * {@inheritDoc}
      */
     @Override
-    public Long getValue() {
-        long v = min.get(0);
-        return (v == Long.MAX_VALUE) ? 0L : v;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Long getAndResetValue() {
-        return getAndResetValue(0);
-    }
-
-    @Override
-    public Long getAndResetValue(int pollerIdx) {
-        long v = min.getAndSet(pollerIdx, Long.MAX_VALUE);
+    public Long getValue(int pollerIdx) {
+        long v = min.getCurrent(pollerIdx).get();
         return (v == Long.MAX_VALUE) ? 0L : v;
     }
 
@@ -86,11 +79,14 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
         if (obj == null || !(obj instanceof MinGauge)) {
             return false;
         }
         MinGauge m = (MinGauge) obj;
-        return config.equals(m.getConfig()) && AtomicUtils.equals(min, m.min);
+        return config.equals(m.getConfig()) && getValue(0).equals(m.getValue(0));
     }
 
     /**
@@ -98,7 +94,7 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, AtomicUtils.hashCode(min));
+        return Objects.hashCode(config, getValue(0));
     }
 
     /**

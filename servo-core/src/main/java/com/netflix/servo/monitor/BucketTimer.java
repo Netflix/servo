@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.Clock;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +65,10 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
      * Creates a new instance of the timer.
      */
     public BucketTimer(MonitorConfig config, BucketConfig bucketConfig, TimeUnit unit) {
+        this(config, bucketConfig, unit, Clock.WALL);
+    }
+
+    BucketTimer(MonitorConfig config, BucketConfig bucketConfig, TimeUnit unit, Clock clock) {
         super(config);
         this.bucketConfig = Preconditions.checkNotNull(bucketConfig, "bucketConfig");
 
@@ -74,8 +80,8 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
         this.overflowCount = new BasicCounter(unitConfig
             .withAdditionalTag(STAT_COUNT)
             .withAdditionalTag(Tags.newTag(BUCKET, "bucket=overflow")));
-        this.min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN));
-        this.max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX));
+        this.min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN), clock);
+        this.max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
 
         final long[] buckets = bucketConfig.getBuckets();
         final int numBuckets = buckets.length;
@@ -145,8 +151,8 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
 
     /** {@inheritDoc} */
     @Override
-    public Long getValue() {
-        final long cnt = getCount().longValue();
+    public Long getValue(int pollerIndex) {
+        final long cnt = getCount(pollerIndex);
         return (cnt == 0) ? 0L : totalTime.getValue().longValue() / cnt;
     }
 
@@ -156,24 +162,24 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     }
 
     /** Get the total number of updates. */
-    public Long getCount() {
+    public Long getCount(int pollerIndex) {
         long updates = 0;
         for (Counter c : bucketCount) {
-            updates += c.getValue().longValue();
+            updates += c.getValue(pollerIndex).longValue();
         }
-        updates += overflowCount.getValue().longValue();
+        updates += overflowCount.getValue(pollerIndex).longValue();
 
-        return Long.valueOf(updates);
+        return updates;
     }
 
     /** Get the min value since the last reset. */
-    public Long getMin() {
-        return min.getValue();
+    public Long getMin(int pollerIndex) {
+        return min.getValue(pollerIndex);
     }
 
     /** Get the max value since the last reset. */
-    public Long getMax() {
-        return max.getValue();
+    public Long getMax(int pollerIndex) {
+        return max.getValue(pollerIndex);
     }
 
     /** {@inheritDoc} */

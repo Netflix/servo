@@ -26,7 +26,6 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
-import com.netflix.servo.monitor.ResettableMonitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     private final long cacheTTL;
 
     private final AtomicReference<List<Monitor<?>>> cachedMonitors =
-        new AtomicReference<List<Monitor<?>>>();
+            new AtomicReference<List<Monitor<?>>>();
 
     private final AtomicLong cacheLastUpdateTime = new AtomicLong(0L);
 
@@ -74,7 +73,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /**
      * Creates a new instance using the specified registry.
      *
-     * @param registry  registry to query for annotated objects
+     * @param registry registry to query for annotated objects
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry) {
         this(registry, 0L, TimeUnit.MILLISECONDS, true);
@@ -83,9 +82,9 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /**
      * Creates a new instance using the specified registry and a time limiter.
      *
-     * @param registry    registry to query for annotated objects
-     * @param cacheTTL    how long to cache the filtered monitor list from the registry
-     * @param unit        time unit for the cache ttl
+     * @param registry registry to query for annotated objects
+     * @param cacheTTL how long to cache the filtered monitor list from the registry
+     * @param unit     time unit for the cache ttl
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit) {
         this(registry, cacheTTL, unit, true);
@@ -94,10 +93,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     /**
      * Creates a new instance using the specified registry.
      *
-     * @param registry    registry to query for annotated objects
-     * @param cacheTTL    how long to cache the filtered monitor list from the registry
-     * @param unit        time unit for the cache ttl
-     * @param useLimiter  whether to use a time limiter for getting the values from the monitors
+     * @param registry   registry to query for annotated objects
+     * @param cacheTTL   how long to cache the filtered monitor list from the registry
+     * @param unit       time unit for the cache ttl
+     * @param useLimiter whether to use a time limiter for getting the values from the monitors
      */
     public MonitorRegistryMetricPoller(
             MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
@@ -119,15 +118,11 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     private Object getValue(Monitor<?> monitor, boolean reset) {
         try {
-            if (reset && monitor instanceof ResettableMonitor<?>) {
-                return ((ResettableMonitor<?>) monitor).getAndResetValue();
+            if (limiter != null) {
+                final MonitorValueCallable c = new MonitorValueCallable(monitor);
+                return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
             } else {
-                if (limiter != null) {
-                    final MonitorValueCallable c = new MonitorValueCallable(monitor);
-                    return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
-                } else {
-                    return monitor.getValue();
-                }
+                return monitor.getValue();
             }
         } catch (UncheckedTimeoutException e) {
             LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
@@ -161,19 +156,23 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             cacheLastUpdateTime.set(System.currentTimeMillis());
             cachedMonitors.set(monitors);
             LOGGER.debug("cache refreshed, {} monitors matched filter, previous age {} seconds",
-                monitors.size(), age / 1000);
+                    monitors.size(), age / 1000);
         } else {
             LOGGER.debug("cache age of {} seconds is within ttl of {} seconds",
-                age / 1000, cacheTTL / 1000);
+                    age / 1000, cacheTTL / 1000);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public List<Metric> poll(MetricFilter filter) {
         return poll(filter, false);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public List<Metric> poll(MetricFilter filter, boolean reset) {
         refreshMonitorCache(filter);
         List<Monitor<?>> monitors = cachedMonitors.get();

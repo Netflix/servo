@@ -22,6 +22,7 @@ import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.ExpiringCache;
+import com.netflix.servo.util.ManualClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -73,6 +74,7 @@ public class DynamicTimerTest {
         }
     }
 
+    final ManualClock clock = new ManualClock(0L);
     /**
      * Erase all previous timers by creating a new loading cache with a short expiration time
      */
@@ -89,7 +91,7 @@ public class DynamicTimerTest {
                             public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
                                 return new BasicTimer(configUnit.config, configUnit.unit);
                             }
-                        }, 100L);
+                        }, 100L, clock);
 
         timers.set(theInstance, newShortExpiringCache);
     }
@@ -109,20 +111,21 @@ public class DynamicTimerTest {
 
     @Test
     public void testExpiration() throws Exception {
+        clock.set(0L);
         DynamicTimer.start("test1", tagList);
         DynamicTimer.start("test2", tagList);
-
-        Thread.sleep(500L);
+        clock.set(500L);
 
         DynamicTimer.start("test1", tagList);
-        Thread.sleep(500L);
+        clock.set(1000L);
 
         Stopwatch s = DynamicTimer.start("test1", tagList);
-        Thread.sleep(200L);
+        clock.set(1200L);
         s.stop();
         Timer c1 = getByName("test1");
         assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
 
+        Thread.sleep(200L);
         Timer c2 = getByName("test2");
         assertNull(c2, "Timers not used in a while should expire");
     }

@@ -38,18 +38,21 @@ public class ExpiringCache<K, V> {
     private final ConcurrentHashMapV8<K, Entry<V>> map;
     private final long expireAfterMs;
     private final ConcurrentHashMapV8.Fun<K, Entry<V>> entryGetter;
+    private final Clock clock;
 
     private static class Entry<V> {
         private volatile long accessTime;
         private final V value;
+        private final Clock clock;
 
-        private Entry(V value, long accessTime) {
+        private Entry(V value, long accessTime, Clock clock) {
             this.value = value;
             this.accessTime = accessTime;
+            this.clock = clock;
         }
 
         private V getValue() {
-            accessTime = System.currentTimeMillis();
+            accessTime = clock.now();
             return value;
         }
 
@@ -97,7 +100,7 @@ public class ExpiringCache<K, V> {
      * @param getter        Function that will be used to compute the values
      */
     public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter) {
-        this(expireAfterMs, getter, TimeUnit.MINUTES.toMillis(1));
+        this(expireAfterMs, getter, TimeUnit.MINUTES.toMillis(1), Clock.WALL);
     }
 
     /**
@@ -110,16 +113,17 @@ public class ExpiringCache<K, V> {
      * @param expirationFreqMs Frequency at which to schedule the job that evicts entries from the cache.
      */
     public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter,
-                         final long expirationFreqMs) {
+                         final long expirationFreqMs, final Clock clock) {
         Preconditions.checkArgument(expireAfterMs > 0, "expireAfterMs must be positive.");
         Preconditions.checkArgument(expirationFreqMs > 0, "expirationFreqMs must be positive.");
         this.map = new ConcurrentHashMapV8<K, Entry<V>>();
         this.expireAfterMs = expireAfterMs;
         this.entryGetter = toEntry(getter);
+        this.clock = clock;
         final Runnable expirationJob = new Runnable() {
             @Override
             public void run() {
-                long tooOld = System.currentTimeMillis() - expireAfterMs;
+                long tooOld = clock.now() - expireAfterMs;
                 for (Map.Entry<K, Entry<V>> entry : map.entrySet()) {
                     if (entry.getValue().accessTime < tooOld) {
                         map.remove(entry.getKey(), entry.getValue());
@@ -134,7 +138,7 @@ public class ExpiringCache<K, V> {
         return new ConcurrentHashMapV8.Fun<K, Entry<V>>() {
             @Override
             public Entry<V> apply(K key) {
-                return new Entry<V>(underlying.apply(key), 0L);
+                return new Entry<V>(underlying.apply(key), 0L, clock);
             }
         };
     }

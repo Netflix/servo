@@ -42,8 +42,7 @@ public interface MetricPoller {
      * interval.
      *
      * @param filter  retricts the set of metrics
-     * @param reset   should this poller trigger a reset for
-     *                {@link com.netflix.servo.monitor.ResettableMonitor}
+     * @param reset   ignored. This is kept for backwards compatibility only.
      * @return        list of current metric values
      */
     List<Metric> poll(MetricFilter filter, boolean reset);

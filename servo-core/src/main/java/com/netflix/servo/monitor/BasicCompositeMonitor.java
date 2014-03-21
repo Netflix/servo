@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -25,9 +24,7 @@ import java.util.List;
  * Simple composite monitor type with a static list of sub-monitors. The value for the composite
  * is the number of sub-monitors.
  */
-public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
-
-    private final MonitorConfig config;
+public final class BasicCompositeMonitor extends AbstractMonitor<Integer> implements CompositeMonitor<Integer> {
     private final List<Monitor<?>> monitors;
 
     /**
@@ -38,20 +35,14 @@ public final class BasicCompositeMonitor implements CompositeMonitor<Integer> {
      * @param monitors  list of sub-monitors
      */
     public BasicCompositeMonitor(MonitorConfig config, List<Monitor<?>> monitors) {
-        this.config = Preconditions.checkNotNull(config);
+        super(config);
         this.monitors = ImmutableList.copyOf(monitors);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Integer getValue() {
+    public Integer getValue(int pollerIdx) {
         return monitors.size();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
     }
 
     /** {@inheritDoc} */
