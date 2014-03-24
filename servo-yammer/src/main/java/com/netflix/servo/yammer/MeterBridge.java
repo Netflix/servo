@@ -32,4 +32,24 @@ public class MeterBridge implements MetricBridge {
     private double fiveMinuteRate;
     @Monitor(name="fifteenMinuteRate", type= DataSourceType.GAUGE)
     private double fifteenMinuteRate;
+
+    public long getCount() {
+        return count;
+    }
+
+    public double getOneMinuteRate() {
+        return oneMinuteRate;
+    }
+
+    public double getMeanRate() {
+        return meanRate;
+    }
+
+    public double getFiveMinuteRate() {
+        return fiveMinuteRate;
+    }
+
+    public double getFifteenMinuteRate() {
+        return fifteenMinuteRate;
+    }
 }

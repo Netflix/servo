@@ -15,6 +15,8 @@ public class GaugeDoubleBridge implements MetricBridge {
     @Monitor(name="gauge", type= DataSourceType.GAUGE)
     private double value;
 
+    public double getValue() { return value; }
+
     @Override
     public void update(Metric metric) {
         value = (Double) ((Gauge) metric).value();

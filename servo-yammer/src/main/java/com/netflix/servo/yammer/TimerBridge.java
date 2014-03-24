@@ -41,4 +41,36 @@ public class TimerBridge implements MetricBridge {
         percentile99 = timer.getSnapshot().get99thPercentile();
         percentile999 = timer.getSnapshot().get999thPercentile();
     }
+
+    public double getMin() {
+        return min;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public double getMean() {
+        return mean;
+    }
+
+    public double getMedian() {
+        return median;
+    }
+
+    public double getStddev() {
+        return stddev;
+    }
+
+    public double getPercentile95() {
+        return percentile95;
+    }
+
+    public double getPercentile99() {
+        return percentile99;
+    }
+
+    public double getPercentile999() {
+        return percentile999;
+    }
 }

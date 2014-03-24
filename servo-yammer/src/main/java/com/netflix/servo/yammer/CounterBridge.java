@@ -15,6 +15,8 @@ public class CounterBridge implements MetricBridge {
     @Monitor(name="counter", type= DataSourceType.COUNTER)
     private long value;
 
+    public long getValue() { return value; }
+
     @Override
     public void update(Metric metric) {
         value = ((Counter) metric).count();

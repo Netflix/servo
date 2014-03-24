@@ -42,4 +42,36 @@ public class HistogramBridge implements MetricBridge {
         percentile99th = histogram.getSnapshot().get99thPercentile();
         percentile999th = histogram.getSnapshot().get999thPercentile();
     }
+
+    public double getMax() {
+        return max;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public double getMean() {
+        return mean;
+    }
+
+    public double getMedian() {
+        return median;
+    }
+
+    public double getStddev() {
+        return stddev;
+    }
+
+    public double getPercentile95th() {
+        return percentile95th;
+    }
+
+    public double getPercentile99th() {
+        return percentile99th;
+    }
+
+    public double getPercentile999th() {
+        return percentile999th;
+    }
 }

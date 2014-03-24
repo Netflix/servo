@@ -15,6 +15,8 @@ public class GaugeLongBridge implements MetricBridge {
     @Monitor(name="gauge", type= DataSourceType.GAUGE)
     private long value;
 
+    public long getValue() { return value; }
+
     @Override
     public void update(Metric metric) {
         value = (Long) ((Gauge) metric).value();

@@ -133,9 +133,4 @@ public class ServoReporter extends AbstractPollingReporter implements
     public void start(long period, TimeUnit unit) {
         super.start(period, unit);
     }
-
-    @Override
-    public void shutdown() {
-        super.shutdown();
-    }
 }
