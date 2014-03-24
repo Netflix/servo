@@ -55,7 +55,7 @@ public enum AwsInjectableTag implements Tag {
     PUBLIC_HOSTNAME("public-hostname", getPublicHostname()),
     PUBLIC_IPV4("public-ipv4", getPublicIpv4());
 
-    private static final String metaDataUrl = "http://169.254.169.254/latest/meta-data";
+    private static final String metaDataUrl = "http://instance-data/latest/meta-data";
     private static final String undefined = "undefined";
 
     private static Logger getLogger() {
