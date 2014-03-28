@@ -96,6 +96,13 @@ project(':servo-graphite') {
     }
 }
 
+project(':servo-stackdriver') {
+	dependencies {
+		compile project(':servo-core')
+		compile 'com.stackdriver:stackdriver-custommetrics:0.3'
+	}
+}
+
 project(':servo-example') {
     dependencies {
         compile project(':servo-core')
