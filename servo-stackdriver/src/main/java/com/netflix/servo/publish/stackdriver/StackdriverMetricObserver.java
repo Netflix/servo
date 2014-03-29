@@ -30,6 +30,14 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
+ * {@link com.netflix.servo.publish.MetricObserver} implementation which publishes metrics
+ * to Stackdriver. A {@link com.stackdriver.api.custommetrics.CustomMetricsPoster} client
+ * must be provided at construction time, and contains the configuration required to post
+ * metrics to your account.
+ *
+ * An optional instanceID can be provided to associate these metrics with a particular
+ * cloud service resource.
+ *
  * @author Ben Fagin
  * @version 2014-03-28
  */
@@ -83,7 +91,7 @@ public class StackdriverMetricObserver extends BaseMetricObserver {
 		} else {
 			final String value = String.valueOf(metric.getValue());
 
-			// we try to convert boolean metrics to 0.0 / 1.0
+			// we can try to convert boolean metrics to 0.0 / 1.0
 			if ("true".equals(value)) {
 				metricValue = 1;
 			} else if ("false".equals(value)) {
