@@ -35,18 +35,25 @@ public class StackdriverMetricObserverTest {
     @Test(enabled=false, description="tests metrics posting to Stackdriver")
     public void testUpdate() throws Exception {
         List<Metric> metrics = new ArrayList<Metric>();
+	    final long time = System.currentTimeMillis();
 
 	    // integer
-		metrics.add(new Metric("testInteger", BasicTagList.EMPTY, System.currentTimeMillis(), random.nextInt(100)+1));
+		metrics.add(new Metric("testInteger", BasicTagList.EMPTY, time, random.nextInt(100)+1));
 
 	    // double
-		metrics.add(new Metric("testDecimal", BasicTagList.EMPTY, System.currentTimeMillis(), random.nextInt(100)+1.1));
+		metrics.add(new Metric("testDecimal", BasicTagList.EMPTY, time, random.nextInt(100)+1.1));
 
 	    // longer double
-		metrics.add(new Metric("testBiggerDecimal", BasicTagList.EMPTY, System.currentTimeMillis(), random.nextInt(100)+1.1135791357935979593571975));
+		metrics.add(new Metric("testBiggerDecimal", BasicTagList.EMPTY, time, random.nextDouble()*100.0));
 
 	    // boolean
-	    metrics.add(new Metric("testBoolean", BasicTagList.EMPTY, System.currentTimeMillis(), random.nextBoolean()));
+	    metrics.add(new Metric("testBoolean", BasicTagList.EMPTY, time, random.nextBoolean()));
+
+	    // string double
+	    metrics.add(new Metric("testStringDouble", BasicTagList.EMPTY, time, ""+random.nextDouble()*100.0));
+
+	    // string value (should be ignored)
+	    metrics.add(new Metric("testString", BasicTagList.EMPTY, time, "test-"+time));
 
 
 		// publish the metrics
