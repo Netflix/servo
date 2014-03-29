@@ -46,8 +46,12 @@ public class StackdriverMetricObserver extends BaseMetricObserver {
 		super(name);
 		this.client = checkNotNull(client);
 
-		instanceID = instanceID.trim();
-		this.instanceID = instanceID.isEmpty() ? null : instanceID;
+		if (instanceID != null) {
+			instanceID = instanceID.trim();
+			this.instanceID = instanceID.isEmpty() ? null : instanceID;
+		} else {
+			this.instanceID = null;
+		}
 	}
 
 	@Override
@@ -58,7 +62,7 @@ public class StackdriverMetricObserver extends BaseMetricObserver {
 			DataPoint data = convert(metric);
 
 			if (data != null) {
-				request.getDataPoints().add(data);
+				request.addDataPoint(data);
 			}
 		}
 
