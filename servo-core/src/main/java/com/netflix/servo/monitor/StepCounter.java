@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
@@ -77,7 +78,8 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         return count.poll(pollerIndex).getValue();
     }
 
-    long getCurrentCount(int pollerIndex) {
+    @VisibleForTesting
+    public long getCurrentCount(int pollerIndex) {
         return count.getCurrent(pollerIndex).get();
     }
 
