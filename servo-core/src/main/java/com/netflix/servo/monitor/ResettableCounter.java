@@ -25,4 +25,8 @@ public class ResettableCounter extends StepCounter {
     public ResettableCounter(MonitorConfig config) {
         super(config);
     }
+
+    public ResettableCounter(MonitorConfig config, long l) {
+        super(config);
+    }
 }
