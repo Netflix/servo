@@ -104,7 +104,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
             protected boolean removeEldestEntry(Map.Entry<MonitorConfig, CounterValue> eldest) {
                 final long now = System.currentTimeMillis();
                 final long lastMod = eldest.getValue().getTimestamp();
-                final boolean expired = (now - lastMod > heartbeatMillis);
+                final boolean expired = (now - lastMod) > heartbeatMillis;
                 if (expired) {
                     LOGGER.debug("heartbeat interval exceeded, expiring {}", eldest.getKey());
                 }

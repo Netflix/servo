@@ -64,7 +64,7 @@ public final class NormalizationTransform implements MetricObserver {
             protected boolean removeEldestEntry(Map.Entry<MonitorConfig, NormalizedValue> eldest) {
                 final long now = clock.now();
                 final long lastMod = eldest.getValue().lastUpdateTime;
-                final boolean expired = (now - lastMod > heartbeat);
+                final boolean expired = (now - lastMod) > heartbeat;
                 if (expired) {
                     LOGGER.debug("heartbeat interval exceeded, expiring {}", eldest.getKey());
                 }
