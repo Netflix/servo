@@ -91,13 +91,15 @@ public final class NormalizationTransform implements MetricObserver {
         return dsType.equals(DataSourceType.RATE.name());
     }
 
+    private static boolean isInformational(String dsType) {
+        return dsType.equals(DataSourceType.INFORMATIONAL.name());
+    }
+
     private MonitorConfig toGaugeConfig(MonitorConfig config) {
         return config.withAdditionalTag(DataSourceType.GAUGE);
     }
 
-    private Metric normalize(Metric m) {
-        long offset = m.getTimestamp() % step;
-        long stepBoundary = m.getTimestamp() - offset;
+    private Metric normalize(Metric m, long stepBoundary) {
         NormalizedValue normalizedValue = cache.get(m.getConfig());
         if (normalizedValue == null) {
             normalizedValue = new NormalizedValue();
@@ -113,18 +115,24 @@ public final class NormalizationTransform implements MetricObserver {
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
+
         for (Metric m : metrics) {
+            long offset = m.getTimestamp() % step;
+            long stepBoundary = m.getTimestamp() - offset;
             String dsType = getDataSourceType(m);
             if (isGauge(dsType)) {
-                newMetrics.add(m); // gauges are not normalized
+                Metric atStepBoundary = new Metric(m.getConfig(), stepBoundary, m.getValue());
+                newMetrics.add(atStepBoundary); // gauges are not normalized
             } else if (isRate(dsType)) {
-                Metric normalized = normalize(m);
+                Metric normalized = normalize(m, stepBoundary);
                 if (normalized != null) {
                     newMetrics.add(normalized);
                 }
-            } else {
+            } else if (!isInformational(dsType)) {
                 // TODO how to deal with this error in configuration
-                LOGGER.warn("NormalizationTransform should get only GAUGE and RATE metrics. Please use CounterToRateMetricTransform.");
+                LOGGER.warn("NormalizationTransform should get only GAUGE and RATE metrics. Please use CounterToRateMetricTransform. "
+                                + m.getConfig()
+                );
             }
         }
         observer.update(newMetrics);
