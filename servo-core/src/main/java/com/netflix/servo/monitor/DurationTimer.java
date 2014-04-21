@@ -18,6 +18,7 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -59,7 +60,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
      * Create a new DurationTimer using the provided configuration.
      */
     public DurationTimer(MonitorConfig config) {
-        this(config, Clock.WALL);
+        this(config, ClockWithOffset.INSTANCE);
     }
 
     /**

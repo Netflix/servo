@@ -18,6 +18,7 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -37,7 +38,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
      * within a specific interval.
      */
     public PeakRateCounter(MonitorConfig config) {
-        this(config, Clock.WALL);
+        this(config, ClockWithOffset.INSTANCE);
     }
 
     private final StepLong peakRate;

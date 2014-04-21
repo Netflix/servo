@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -23,7 +23,7 @@ import static org.testng.Assert.assertEquals;
 public class MaxGaugeTest extends AbstractMonitorTest<MaxGauge> {
     @Override
     public MaxGauge newInstance(String name) {
-        return new MaxGauge(MonitorConfig.builder(name).build(), Clock.WALL);
+        return new MaxGauge(MonitorConfig.builder(name).build(), ClockWithOffset.INSTANCE);
     }
 
     @Test

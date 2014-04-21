@@ -25,6 +25,7 @@ import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public final class NormalizationTransform implements MetricObserver {
     private final Map<MonitorConfig, NormalizedValue> cache;
 
     public NormalizationTransform(MetricObserver observer, long step, long heartbeat) {
-        this(observer, step, heartbeat, Clock.WALL);
+        this(observer, step, heartbeat, ClockWithOffset.INSTANCE);
     }
 
     public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, final Clock clock) {

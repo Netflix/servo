@@ -100,7 +100,7 @@ public class ExpiringCache<K, V> {
      * @param getter        Function that will be used to compute the values
      */
     public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter) {
-        this(expireAfterMs, getter, TimeUnit.MINUTES.toMillis(1), Clock.WALL);
+        this(expireAfterMs, getter, TimeUnit.MINUTES.toMillis(1), ClockWithOffset.INSTANCE);
     }
 
     /**

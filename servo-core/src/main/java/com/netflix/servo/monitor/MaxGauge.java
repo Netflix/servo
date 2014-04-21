@@ -18,6 +18,7 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -31,7 +32,7 @@ public class MaxGauge extends AbstractMonitor<Long>
 
     /** Creates a new instance of the gauge. */
     public MaxGauge(MonitorConfig config) {
-        this(config, Clock.WALL);
+        this(config, ClockWithOffset.INSTANCE);
     }
 
     /** Creates a new instance of the gauge using a specific clock. Useful for unit testing. */
