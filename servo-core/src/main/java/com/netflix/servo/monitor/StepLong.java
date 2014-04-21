@@ -91,7 +91,6 @@ class StepLong {
     Datapoint poll(int pollerIndex) {
         final long now = clock.now();
         final long step = Pollers.POLLING_INTERVALS[pollerIndex];
-        final long stepTime = now / step;
 
         rollCount(pollerIndex, now);
         final int prevPos = 2 * pollerIndex + PREVIOUS;
