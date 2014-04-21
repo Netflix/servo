@@ -123,13 +123,18 @@ public final class MonitorConfig {
 
     /**
      * Interface used to return a new builder that can perform a cleanup of the metric names and tags.
+     * @deprecated There's no good way to guarantee configs will be sanitized since some metrics
+     * could be created before the setConfigSanitizer() call is made. This interface and related
+     * methods will be removed in the next release.
      */
+    @Deprecated
     public interface ConfigSanitizer {
         Builder sanitize(Builder configBuilder);
     }
 
     private static ConfigSanitizer configSanitizer = null;
 
+    @Deprecated
     public static void setConfigSanitizer(ConfigSanitizer sanitizer) {
         configSanitizer = sanitizer;
     }
