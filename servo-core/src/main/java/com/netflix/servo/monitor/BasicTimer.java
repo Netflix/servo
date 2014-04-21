@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +99,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
      * Creates a new instance of the timer.
      */
     public BasicTimer(MonitorConfig config, TimeUnit unit) {
-        this(config, unit, Clock.WALL);
+        this(config, unit, ClockWithOffset.INSTANCE);
     }
 
 

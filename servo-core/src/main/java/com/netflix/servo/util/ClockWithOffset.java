@@ -15,16 +15,17 @@
  */
 package com.netflix.servo.util;
 
-/**
- * A wrapper around the system clock to allow custom implementations to be used in unit tests
- * where we want to fake or control the clock behavior.
- */
-public interface Clock {
-    Clock WALL = new Clock() {
-        public long now() {
-            return System.currentTimeMillis();
-        }
-    };
+public enum ClockWithOffset implements Clock {
+    INSTANCE;
 
-    long now();
+    private volatile long offset = 0L;
+
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
+    @Override
+    public long now() {
+        return offset + System.currentTimeMillis();
+    }
 }

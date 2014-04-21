@@ -19,6 +19,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 /**
  * A simple counter implementation backed by a StepLong. The value returned is a rate for the
@@ -32,7 +33,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
      * Creates a new instance of the counter.
      */
     public StepCounter(MonitorConfig config) {
-        this(config, Clock.WALL);
+        this(config, ClockWithOffset.INSTANCE);
     }
 
     /**

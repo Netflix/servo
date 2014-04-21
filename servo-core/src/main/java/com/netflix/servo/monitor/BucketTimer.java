@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +66,7 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
      * Creates a new instance of the timer.
      */
     public BucketTimer(MonitorConfig config, BucketConfig bucketConfig, TimeUnit unit) {
-        this(config, bucketConfig, unit, Clock.WALL);
+        this(config, bucketConfig, unit, ClockWithOffset.INSTANCE);
     }
 
     BucketTimer(MonitorConfig config, BucketConfig bucketConfig, TimeUnit unit, Clock clock) {

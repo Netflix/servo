@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -24,7 +24,7 @@ public class MinGaugeTest extends AbstractMonitorTest<MinGauge> {
     @Override
     public MinGauge newInstance(String name) {
         MonitorConfig config = MonitorConfig.builder(name).build();
-        return new MinGauge(config, Clock.WALL);
+        return new MinGauge(config, ClockWithOffset.INSTANCE);
     }
 
     @Test
