@@ -100,4 +100,27 @@ public class StepCounterTest {
         assertTrue(Double.isNaN(c.getValue(1).doubleValue()));
         assertEquals(c.getCurrentCount(1), 1);
     }
+
+    @Test
+    public void testNonMonotonicClock() {
+        clock.set(time(1));
+        StepCounter c = newInstance("foo");
+        c.getValue(1);
+
+        c.increment();
+        c.increment();
+        clock.set(time(10));
+        c.increment();
+        clock.set(time(9)); // Should get ignored
+        c.increment();
+        assertEquals(c.getCurrentCount(1), 2);
+        c.increment();
+        clock.set(time(10));
+        c.increment();
+        c.increment();
+        assertEquals(c.getCurrentCount(1), 5);
+
+        // Check rate for previous internval
+        assertEquals(c.getValue(1).doubleValue(), 0.2);
+    }
 }

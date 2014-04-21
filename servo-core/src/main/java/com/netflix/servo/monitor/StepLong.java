@@ -33,6 +33,9 @@ class StepLong {
     private static final Counter POLLED_INTERVALS = newCounter("servo.monitor.polledIntervals");
     private static final Counter MISSED_INTERVALS = newCounter("servo.monitor.missedIntervals");
 
+    private static final int PREVIOUS = 0;
+    private static final int CURRENT = 1;
+
     private static Counter newCounter(String name) {
         Counter c = Monitors.newCounter(name);
         DefaultMonitorRegistry.getInstance().register(c);
@@ -65,33 +68,32 @@ class StepLong {
 
     void addAndGet(long amount) {
         for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
-            int pos = getIndex(i);
-            data[pos].addAndGet(amount);
+            getCurrent(i).addAndGet(amount);
         }
     }
 
-    private int getIndex(int pollerIndex) {
-        final long now = clock.now();
+    private void rollCount(int pollerIndex, long now) {
         final long step = Pollers.POLLING_INTERVALS[pollerIndex];
         final long stepTime = now / step;
-        final int pos = 2 * pollerIndex + (int) (stepTime % 2);
-        final long v = data[pos].get();
         final long lastInit = lastInitPos[pollerIndex].get();
-        if (lastInit != stepTime && lastInitPos[pollerIndex].compareAndSet(lastInit, stepTime)) {
-            data[pos].compareAndSet(v, init);
+        if (lastInit < stepTime && lastInitPos[pollerIndex].compareAndSet(lastInit, stepTime)) {
+            final int prev = 2 * pollerIndex + PREVIOUS;
+            final int curr = 2 * pollerIndex + CURRENT;
+            data[prev].set(data[curr].getAndSet(init));
         }
-        return pos;
     }
 
     AtomicLong getCurrent(int pollerIndex) {
-        return data[getIndex(pollerIndex)];
+        rollCount(pollerIndex, clock.now());
+        return data[2 * pollerIndex + CURRENT];
     }
 
     Datapoint poll(int pollerIndex) {
         final long now = clock.now();
         final long step = Pollers.POLLING_INTERVALS[pollerIndex];
-        final long stepTime = now / step;
-        final int prevPos = 2 * pollerIndex + (int) ((stepTime + 1) % 2);
+
+        rollCount(pollerIndex, now);
+        final int prevPos = 2 * pollerIndex + PREVIOUS;
         final long value = data[prevPos].getAndSet(init);
 
         final long last = lastPollTime[pollerIndex].getAndSet(now);
