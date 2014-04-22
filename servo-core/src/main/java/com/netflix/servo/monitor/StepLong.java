@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.util.Clock;
 
 import java.util.Arrays;
@@ -28,19 +27,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * polling.
  */
 class StepLong {
-
-    private static final Counter REPOLLED_INTERVALS = newCounter("servo.monitor.repolledIntervals");
-    private static final Counter POLLED_INTERVALS = newCounter("servo.monitor.polledIntervals");
-    private static final Counter MISSED_INTERVALS = newCounter("servo.monitor.missedIntervals");
-
     private static final int PREVIOUS = 0;
     private static final int CURRENT = 1;
-
-    private static Counter newCounter(String name) {
-        Counter c = Monitors.newCounter(name);
-        DefaultMonitorRegistry.getInstance().register(c);
-        return c;
-    }
 
     private final long init;
     private final Clock clock;
@@ -100,13 +88,10 @@ class StepLong {
         final long missed = (now - last) / step - 1;
 
         if (last / step == now / step) {
-            REPOLLED_INTERVALS.increment();
             return new Datapoint(now / step * step, value);
         } else if (last > 0L && missed > 0L) {
-            MISSED_INTERVALS.increment(missed);
             return Datapoint.UNKNOWN;
         } else {
-            POLLED_INTERVALS.increment();
             return new Datapoint(now / step * step, value);
         }
     }
