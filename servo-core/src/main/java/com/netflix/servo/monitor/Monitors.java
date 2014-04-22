@@ -102,7 +102,7 @@ public final class Monitors {
      * Create a new counter instance.
      */
     public static Counter newCounter(String name) {
-        return new StepCounter(MonitorConfig.builder(name).build());
+        return new BasicCounter(MonitorConfig.builder(name).build());
     }
 
     /**
