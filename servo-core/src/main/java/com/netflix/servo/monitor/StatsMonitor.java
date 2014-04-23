@@ -15,18 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
@@ -39,6 +27,17 @@ import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link Timer} that provides statistics.
@@ -370,6 +369,12 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
     public Long getValue(int pollerIndex) {
         final long n = getCount(pollerIndex);
         return n > 0 ? totalMeasurement.getValue(pollerIndex).longValue() / n : 0L;
+    }
+
+
+    @Override
+    public Long getValue() {
+        return getValue(0);
     }
 
     /**
