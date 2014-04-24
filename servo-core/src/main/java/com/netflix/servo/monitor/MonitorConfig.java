@@ -17,13 +17,14 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SmallTagMap;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,7 +37,7 @@ public final class MonitorConfig {
     /** A builder to assist in creating monitor config objects. */
     public static class Builder {
         private final String name;
-        private final List<Tag> tags = new LinkedList<Tag>();
+        private SmallTagMap.Builder tagsBuilder = SmallTagMap.builder();
         private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
         /** Create a new builder initialized with the specified config. */
@@ -53,13 +54,13 @@ public final class MonitorConfig {
 
         /** Add a tag to the config. */
         public Builder withTag(String key, String val) {
-            tags.add(Tags.newTag(key, val));
+            tagsBuilder.add(Tags.newTag(key, val));
             return this;
         }
 
         /** Add a tag to the config. */
         public Builder withTag(Tag tag) {
-            tags.add(tag);
+            tagsBuilder.add(tag);
             return this;
         }
 
@@ -67,7 +68,7 @@ public final class MonitorConfig {
         public Builder withTags(TagList tagList) {
             if (tagList != null) {
                 for (Tag t : tagList) {
-                    tags.add(t);
+                    tagsBuilder.add(t);
                 }
             }
             return this;
@@ -75,7 +76,15 @@ public final class MonitorConfig {
 
         /** Add all tags in the list to the config. */
         public Builder withTags(Collection<Tag> tagCollection) {
-            tags.addAll(tagCollection);
+            tagsBuilder.addAll(tagCollection);
+            return this;
+        }
+
+        /**
+         * Add all tags from a given SmallTagMap
+         */
+        Builder withTags(SmallTagMap.Builder tagsBuilder) {
+            this.tagsBuilder = tagsBuilder;
             return this;
         }
 
@@ -105,6 +114,7 @@ public final class MonitorConfig {
          * Get the list of tags for this monitor config.
          */
         public List<Tag> getTags() {
+            List<Tag> tags = ImmutableList.copyOf(tagsBuilder.result());
             return tags;
         }
 
@@ -152,9 +162,9 @@ public final class MonitorConfig {
      */
     private MonitorConfig(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
-        this.tags = (builder.tags.isEmpty())
+        this.tags = (builder.tagsBuilder.isEmpty())
             ? BasicTagList.EMPTY
-            : new BasicTagList(builder.tags);
+            : new BasicTagList(builder.tagsBuilder.result());
         this.policy = builder.policy;
     }
 
