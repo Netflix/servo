@@ -101,7 +101,7 @@ public final class BucketConfig {
         switch (timeUnit) {
             case DAYS: return "day";
             case HOURS: return "hr";
-            case MICROSECONDS: return "μs";
+            case MICROSECONDS: return "\u00B5s";
             case MILLISECONDS: return "ms";
             case MINUTES: return "min";
             case NANOSECONDS: return "ns";
