@@ -34,6 +34,30 @@ public class StepCounterTest {
     }
 
     @Test
+    public void testSimpleTransition() {
+        clock.set(0);
+        StepCounter c = newInstance("c");
+        assertEquals(c.getValue(0).doubleValue(), Double.NaN);
+        assertEquals(c.getCurrentCount(0), 0L);
+
+        clock.set(2000);
+        c.increment();
+        assertEquals(c.getValue(0).doubleValue(), Double.NaN);
+        assertEquals(c.getCurrentCount(0), 1L);
+
+        clock.set(52000);
+        c.increment();
+        assertEquals(c.getValue(0).doubleValue(), Double.NaN);
+        assertEquals(c.getCurrentCount(0), 2L);
+
+        clock.set(62000);
+        c.increment();
+        assertEquals(c.getValue(0).doubleValue(), 1.0 / 30.0);
+        assertEquals(c.getCurrentCount(0), 1L);
+    }
+
+
+    @Test
     public void testInitialPollIsZero() {
         clock.set(time(1));
         StepCounter c = newInstance("foo");
