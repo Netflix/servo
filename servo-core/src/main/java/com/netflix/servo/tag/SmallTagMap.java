@@ -16,6 +16,8 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -30,6 +32,7 @@ import java.util.NoSuchElementException;
 public class SmallTagMap implements Iterable<Tag> {
     public final static int MAX_TAGS = 32;
     public final static int INITIAL_TAG_SIZE = 8;
+    private final static Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
     /** Return a new builder to assist in creating a new SmallTagMap using the default tag size (8). */
     public static Builder builder() {
@@ -60,20 +63,21 @@ public class SmallTagMap implements Iterable<Tag> {
         }
 
         private void resizeIfPossible(Tag tag) {
-            if (size >= MAX_TAGS) {
+            if (size < MAX_TAGS) {
+                Object[] prevBuf = buf;
+                init(size * 2);
+                for (int i = 1; i < prevBuf.length; i += 2) {
+                    Tag t = (Tag) prevBuf[i];
+                    if (t != null) {
+                        add(t);
+                    }
+                }
+                add(tag);
+            } else {
                 final String msg = String.format("Cannot add Tag %s - Maximum number of tags (%d) reached.",
                         tag, MAX_TAGS);
-                throw new IllegalStateException(msg);
+                LOGGER.error(msg);
             }
-            Object[] prevBuf = buf;
-            init(size * 2);
-            for (int i = 1; i < prevBuf.length; i += 2) {
-                Tag t = (Tag) prevBuf[i];
-                if (t != null) {
-                    add(t);
-                }
-            }
-            add(tag);
         }
 
         public Builder add(Tag tag) {
