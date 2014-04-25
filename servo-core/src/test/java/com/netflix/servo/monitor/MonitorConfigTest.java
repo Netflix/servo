@@ -17,11 +17,8 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
-
-import java.util.regex.Pattern;
 
 import static org.testng.Assert.*;
 
@@ -86,43 +83,5 @@ public class MonitorConfigTest {
         assertEquals(m1.getName(), m3.getName());
         assertNotEquals(m1.getTags(), m3.getTags());
         assertEquals(m1.getPublishingPolicy(), m3.getPublishingPolicy());
-    }
-
-    // Only allow letters, numbers, underscores, dashes and dots in our identifiers.
-    final Pattern INVALID_CHARS = Pattern.compile("[^a-zA-Z0-9_\\-\\.]");
-
-    MonitorConfig.ConfigSanitizer sanitizer = new MonitorConfig.ConfigSanitizer() {
-        /**
-         * Convert a given string to one where all characters are valid.
-         */
-        String toValidCharset(String str) {
-            return INVALID_CHARS.matcher(str).replaceAll("_");
-        }
-
-
-        @Override
-        public MonitorConfig.Builder sanitize(MonitorConfig.Builder cfg) {
-            MonitorConfig.Builder cfgBuilder = MonitorConfig.builder(toValidCharset(cfg.getName()));
-            for (Tag orig : cfg.getTags()) {
-                cfgBuilder.withTag(toValidCharset(orig.getKey()), toValidCharset(orig.getValue()));
-            }
-            cfgBuilder.withPublishingPolicy(cfg.getPublishingPolicy());
-            return cfgBuilder;
-        }
-    };
-
-    @Test
-    public void testSanitizedConfigs() throws Exception {
-        MonitorConfig.setConfigSanitizer(null);
-        MonitorConfig m1 = MonitorConfig.builder("foo bar%").withTag("some$tag", "some#value").build();
-        assertEquals(m1.getName(), "foo bar%");
-        assertEquals(m1.getTags(), BasicTagList.of("some$tag", "some#value"));
-
-        MonitorConfig.setConfigSanitizer(sanitizer);
-        MonitorConfig m2 = MonitorConfig.builder("foo bar%").withTag("some$tag", "some#value").build();
-        assertEquals(m2.getName(), "foo_bar_");
-        assertEquals(m2.getTags(), BasicTagList.of("some_tag", "some_value"));
-
-        MonitorConfig.setConfigSanitizer(null);
     }
 }
