@@ -87,12 +87,26 @@ public class SmallTagMapTest {
         assertEquals(tags, ImmutableSet.of(t1, t2));
     }
 
-    @Test(expectedExceptions = IllegalStateException.class)
+    @Test
+    public void testResize() {
+        SmallTagMap.Builder builder = SmallTagMap.builder();
+        for (int i = 0; i < SmallTagMap.MAX_TAGS; ++i) {
+            Tag t = new BasicTag("k" + i, "0");
+            builder.add(t);
+            assertEquals(builder.size(), i + 1);
+        }
+        SmallTagMap map = builder.result();
+        assertEquals(map.size(), SmallTagMap.MAX_TAGS);
+    }
+
+    @Test
     public void testTooManyTags() {
         SmallTagMap.Builder builder = SmallTagMap.builder();
-        for (int i = 0; i <= SmallTagMap.MAX_TAGS; ++i) {
+        for (int i = 0; i < SmallTagMap.MAX_TAGS + 2; ++i) {
             builder.add(new BasicTag("k" + i, "0"));
         }
+        assertEquals(builder.size(), SmallTagMap.MAX_TAGS);
+        assertEquals(builder.result().size(), SmallTagMap.MAX_TAGS);
     }
 
     @Test

@@ -16,6 +16,8 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -28,26 +30,54 @@ import java.util.NoSuchElementException;
  * for the BasicTagList use-case than using a LinkedHashMap as in previous implementations.
  */
 public class SmallTagMap implements Iterable<Tag> {
-    public final static int MAX_TAGS = 24;
+    public final static int MAX_TAGS = 32;
+    public final static int INITIAL_TAG_SIZE = 8;
+    private final static Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
-    /** Return a new builder to assist in creating a new SmallTagMap. This limits the maximum number of tags that
-     * can be associated with a MonitorConfig to 24. */
+    /** Return a new builder to assist in creating a new SmallTagMap using the default tag size (8). */
     public static Builder builder() {
-        return new Builder(MAX_TAGS);
+        return new Builder(INITIAL_TAG_SIZE);
     }
 
     public static class Builder {
         private int actualSize = 0;
-        private final int size;
-        private final Object[] buf;
+        private int size;
+        private Object[] buf;
 
-        public Builder(int size) {
+        private void init(int size) {
             this.size = size;
             buf = new Object[size * 2];
+            actualSize = 0;
+        }
+
+        public Builder(int size) {
+            init(size);
+        }
+
+        public int size() {
+            return actualSize;
         }
 
         public boolean isEmpty() {
             return actualSize == 0;
+        }
+
+        private void resizeIfPossible(Tag tag) {
+            if (size < MAX_TAGS) {
+                Object[] prevBuf = buf;
+                init(size * 2);
+                for (int i = 1; i < prevBuf.length; i += 2) {
+                    Tag t = (Tag) prevBuf[i];
+                    if (t != null) {
+                        add(t);
+                    }
+                }
+                add(tag);
+            } else {
+                final String msg = String.format("Cannot add Tag %s - Maximum number of tags (%d) reached.",
+                        tag, MAX_TAGS);
+                LOGGER.error(msg);
+            }
         }
 
         public Builder add(Tag tag) {
@@ -58,7 +88,8 @@ public class SmallTagMap implements Iterable<Tag> {
             while (ki != null && !ki.equals(k)) {
                 i = (i + 1) % size;
                 if (i == pos) {
-                    throw new IllegalStateException("data array is full");
+                    resizeIfPossible(tag);
+                    return this;
                 }
                 ki = buf[i * 2];
             }
