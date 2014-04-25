@@ -83,7 +83,7 @@ public final class MonitorConfig {
         /**
          * Add all tags from a given SmallTagMap
          */
-        Builder withTags(SmallTagMap.Builder tagsBuilder) {
+        public Builder withTags(SmallTagMap.Builder tagsBuilder) {
             this.tagsBuilder = tagsBuilder;
             return this;
         }
