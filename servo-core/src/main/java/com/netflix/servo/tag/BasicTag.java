@@ -18,8 +18,6 @@ package com.netflix.servo.tag;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Immutable tag.
  */
@@ -27,8 +25,6 @@ public final class BasicTag implements Tag {
 
     private final String key;
     private final String value;
-
-    private final AtomicInteger cachedHashCode = new AtomicInteger(0);
 
     /**
      * Creates a new instance with the specified key and value.
@@ -71,12 +67,7 @@ public final class BasicTag implements Tag {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        int hash = cachedHashCode.get();
-        if (hash == 0) {
-            hash = Objects.hashCode(key, value);
-            cachedHashCode.set(hash);
-        }
-        return hash;
+        return Objects.hashCode(key, value);
     }
 
     /** {@inheritDoc} */
