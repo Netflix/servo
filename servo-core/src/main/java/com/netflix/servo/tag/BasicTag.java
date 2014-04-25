@@ -60,8 +60,8 @@ public final class BasicTag implements Tag {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (o instanceof BasicTag) {
-            BasicTag t = (BasicTag) o;
+        } else if (o instanceof Tag) {
+            Tag t = (Tag) o;
             return key.equals(t.getKey()) && value.equals(t.getValue());
         } else {
             return false;

@@ -16,30 +16,27 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Immutable tag list.
  */
 public final class BasicTagList implements TagList {
-
     /** An empty tag list. */
     public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
 
-    private final Map<String, Tag> tagMap;
+    private final SmallTagMap tagMap;
+
+    public BasicTagList(SmallTagMap tagMap) {
+        this.tagMap = tagMap;
+    }
 
     /**
      * Creates a new instance with a fixed set of tags.
@@ -47,12 +44,9 @@ public final class BasicTagList implements TagList {
      * @param entries  entries to include in this tag list
      */
     public BasicTagList(Iterable<Tag> entries) {
-        final Map<String, Tag> tags = Maps.newTreeMap();
-        for (Tag tag : entries) {
-            final Tag t = Tags.internCustom(tag);
-            tags.put(t.getKey(), t);
-        }
-        tagMap = Collections.unmodifiableMap(new LinkedHashMap<String, Tag>(tags));
+        SmallTagMap.Builder builder = SmallTagMap.builder();
+        builder.addAll(entries);
+        tagMap = builder.result();
     }
 
     /** {@inheritDoc} */
@@ -83,13 +77,13 @@ public final class BasicTagList implements TagList {
 
     /** {@inheritDoc} */
     public Iterator<Tag> iterator() {
-        return tagMap.values().iterator();
+        return tagMap.iterator();
     }
 
     /** {@inheritDoc} */
     public Map<String, String> asMap() {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        for (Tag tag : tagMap.values()) {
+        for (Tag tag : tagMap) {
             builder.put(tag.getKey(), tag.getValue());
         }
         return builder.build();
@@ -115,23 +109,20 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        } else {
-            return (obj instanceof BasicTagList) && tagMap.equals(((BasicTagList) obj).tagMap);
-        }
+        return this == obj ||
+                (obj instanceof BasicTagList) && tagMap.equals(((BasicTagList) obj).tagMap);
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(tagMap);
+        return tagMap.hashCode();
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tagMap.values());
+        return Joiner.on(",").join(tagMap.iterator());
     }
 
     /**
@@ -165,12 +156,12 @@ public final class BasicTagList implements TagList {
         Preconditions.checkArgument(tags.length % 2 == 0,
                 "tags must be a sequence of key,value pairs");
 
-        final List<Tag> tagList = Lists.newArrayList();
+        final SmallTagMap.Builder builder = SmallTagMap.builder();
         for (int i = 0; i < tags.length; i += 2) {
             Tag t = new BasicTag(tags[i], tags[i + 1]);
-            tagList.add(t);
+            builder.add(t);
         }
-        return new BasicTagList(tagList);
+        return new BasicTagList(builder.result());
     }
 
     /**
@@ -206,21 +197,21 @@ public final class BasicTagList implements TagList {
      * is expected to be a string parseable using {@link BasicTag#parseTag}.
      */
     public static BasicTagList copyOf(Iterable<String> tags) {
-        ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
+        SmallTagMap.Builder builder = SmallTagMap.builder();
         for (String tag : tags) {
             builder.add(Tags.parseTag(tag));
         }
-        return new BasicTagList(builder.build());
+        return new BasicTagList(builder.result());
     }
 
     /**
      * Returns a tag list that has a copy of {@code tags}.
      */
     public static BasicTagList copyOf(Map<String, String> tags) {
-        ImmutableSet.Builder<Tag> builder = ImmutableSet.builder();
+        SmallTagMap.Builder builder = SmallTagMap.builder();
         for (Map.Entry<String, String> tag : tags.entrySet()) {
             builder.add(new BasicTag(tag.getKey(), tag.getValue()));
         }
-        return new BasicTagList(builder.build());
+        return new BasicTagList(builder.result());
     }
 }
