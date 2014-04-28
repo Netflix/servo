@@ -144,7 +144,7 @@ public class MonitorRegistryMetricPollerTest {
         }
 
         @Override
-        public Number getValue(int pollerIndex) {
+        public Number getValue() {
             try {
                 Thread.sleep(ONE_HOUR);
             } catch (Exception e) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Netflix, Inc.
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,23 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
-
 /**
- * Base type to simplify implementing monitors.
+ * Base type to simplify implementing monitors that are step aware.
  */
-public abstract class AbstractMonitor<T> implements Monitor<T> {
-    protected final MonitorConfig config;
+public abstract class AbstractStepMonitor<T> extends AbstractMonitor<T> {
 
-    /**
-     * Create a new instance with the specified configuration.
-     */
-    protected AbstractMonitor(MonitorConfig config) {
-        this.config = Preconditions.checkNotNull(config);
+    protected AbstractStepMonitor(MonitorConfig config) {
+        super(config);
     }
 
     /** {@inheritDoc} */
+
     @Override
-    public MonitorConfig getConfig() {
-        return config;
+    public abstract T getValue(int pollerIndex);
+
+   /** {@inheritDoc} */
+    @Override
+    public T getValue() {
+        return getValue(0);
     }
-
-    @Override 
-    public T getValue(int n) {
-        return getValue();
-    }
-
-
 }

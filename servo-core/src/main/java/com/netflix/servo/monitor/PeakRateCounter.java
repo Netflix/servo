@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * The value is the maximum count per second within the specified interval.
  */
-public class PeakRateCounter extends AbstractMonitor<Number>
+public class PeakRateCounter extends AbstractStepMonitor<Number>
         implements Counter {
 
     private final Clock clock;

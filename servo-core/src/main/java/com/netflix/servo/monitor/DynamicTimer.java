@@ -177,7 +177,7 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
      * {@inheritDoc}
      */
     @Override
-    public Long getValue(int pollerIdx) {
+    public Long getValue() {
         return (long) timers.size();
     }
 

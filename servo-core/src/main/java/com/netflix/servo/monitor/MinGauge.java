@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Long.MAX_VALUE. If no update has been received since the last reset, then {@link #getValue}
  * will return 0.
  */
-public class MinGauge extends AbstractMonitor<Long>
+public class MinGauge extends AbstractStepMonitor<Long>
         implements Gauge<Long> {
     private final StepLong min;
 
