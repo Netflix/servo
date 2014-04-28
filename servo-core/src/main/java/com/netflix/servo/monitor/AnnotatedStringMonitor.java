@@ -38,7 +38,7 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
 
     /** {@inheritDoc} */
     @Override
-    public String getValue(int pollerIndex) {
+    public String getValue() {
         Object v;
         try {
             field.setAccessible(true);

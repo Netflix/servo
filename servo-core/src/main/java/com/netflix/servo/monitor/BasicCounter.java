@@ -50,7 +50,7 @@ public final class BasicCounter extends AbstractMonitor<Number> implements Count
 
     /** {@inheritDoc} */
     @Override
-    public Number getValue(int pollerIdx) {
+    public Number getValue() {
         return count.get();
     }
 

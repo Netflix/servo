@@ -131,7 +131,7 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
      * {@inheritDoc}
      */
     @Override
-    public Long getValue(int pollerIndex) {
+    public Long getValue() {
         return (long) counters.size();
     }
 

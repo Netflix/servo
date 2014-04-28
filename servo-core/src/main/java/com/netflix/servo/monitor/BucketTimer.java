@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * A simple timer implementation providing the total time, count, min, and max for the times that
  * have been recorded.
  */
-public class BucketTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
+public class BucketTimer extends AbstractStepMonitor<Long> implements Timer, CompositeMonitor<Long> {
 
     private static final String STATISTIC = "statistic";
     private static final String BUCKET = "servo.bucket";

@@ -29,7 +29,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
     }
 
     @Override
-    public Number getValue(int pollerIdx) {
+    public Number getValue() {
         return number;
     }
 

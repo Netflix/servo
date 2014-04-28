@@ -41,7 +41,7 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
 
     /** {@inheritDoc} */
     @Override
-    public T getValue(int pollerIndex) {
+    public T getValue() {
         try {
             return function.call();
         } catch (Exception e) {

@@ -38,7 +38,7 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericM
 
     /** {@inheritDoc} */
     @Override
-    public Number getValue(int pollerIdx) {
+    public Number getValue() {
         try {
             field.setAccessible(true);
             if (field instanceof Field) {

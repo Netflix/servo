@@ -32,7 +32,7 @@ class MonitorWrapper<T> extends AbstractMonitor<T> {
 
     /** {@inheritDoc} */
     @Override
-    public T getValue(int pollerIdx) {
+    public T getValue() {
         return monitor.getValue();
     }
 

@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Gauge that keeps track of the maximum value seen since the last reset. Updates should be
  * non-negative, the reset value is 0.
  */
-public class MaxGauge extends AbstractMonitor<Long>
+public class MaxGauge extends AbstractStepMonitor<Long>
         implements Gauge<Long> {
     private final StepLong max;
 

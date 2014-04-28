@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * A simple timer implementation providing the total time, count, min, and max for the times that
  * have been recorded.
  */
-public class BasicTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
+public class BasicTimer extends AbstractStepMonitor<Long> implements Timer, CompositeMonitor<Long> {
 
     private static final String STATISTIC = "statistic";
     private static final String UNIT = "unit";
@@ -48,7 +48,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     private final List<Monitor<?>> monitors;
 
-    private static class FactorMonitor<T extends Number> extends AbstractMonitor<Double>
+    private static class FactorMonitor<T extends Number> extends AbstractStepMonitor<Double>
             implements NumericMonitor<Double> {
         private final Monitor<T> wrapped;
         private final double factor;

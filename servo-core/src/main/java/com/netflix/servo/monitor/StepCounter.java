@@ -25,7 +25,7 @@ import com.netflix.servo.util.ClockWithOffset;
  * A simple counter implementation backed by a StepLong. The value returned is a rate for the
  * previous interval as defined by the step.
  */
-public class StepCounter extends AbstractMonitor<Number> implements Counter {
+public class StepCounter extends AbstractStepMonitor<Number> implements Counter {
 
     private final StepLong count;
 

@@ -41,7 +41,7 @@ public final class BasicCompositeMonitor extends AbstractMonitor<Integer> implem
 
     /** {@inheritDoc} */
     @Override
-    public Integer getValue(int pollerIdx) {
+    public Integer getValue() {
         return monitors.size();
     }
 
