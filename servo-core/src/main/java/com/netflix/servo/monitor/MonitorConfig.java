@@ -96,11 +96,7 @@ public final class MonitorConfig {
 
         /** Create the monitor config object. */
         public MonitorConfig build() {
-            if (configSanitizer != null) {
-                return new MonitorConfig(configSanitizer.sanitize(this));
-            } else {
-                return new MonitorConfig(this);
-            }
+            return new MonitorConfig(this);
         }
 
         /**
@@ -114,8 +110,7 @@ public final class MonitorConfig {
          * Get the list of tags for this monitor config.
          */
         public List<Tag> getTags() {
-            List<Tag> tags = ImmutableList.copyOf(tagsBuilder.result());
-            return tags;
+            return ImmutableList.copyOf(tagsBuilder.result());
         }
 
         /**
@@ -129,24 +124,6 @@ public final class MonitorConfig {
     /** Return a builder instance with the specified name. */
     public static Builder builder(String name) {
         return new Builder(name);
-    }
-
-    /**
-     * Interface used to return a new builder that can perform a cleanup of the metric names and tags.
-     * @deprecated There's no good way to guarantee configs will be sanitized since some metrics
-     * could be created before the setConfigSanitizer() call is made. This interface and related
-     * methods will be removed in the next release.
-     */
-    @Deprecated
-    public interface ConfigSanitizer {
-        Builder sanitize(Builder configBuilder);
-    }
-
-    private static ConfigSanitizer configSanitizer = null;
-
-    @Deprecated
-    public static void setConfigSanitizer(ConfigSanitizer sanitizer) {
-        configSanitizer = sanitizer;
     }
 
     private final String name;
