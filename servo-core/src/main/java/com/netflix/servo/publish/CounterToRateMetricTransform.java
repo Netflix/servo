@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.publish;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
@@ -22,6 +23,8 @@ import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,18 +94,19 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      *                            spikes will occur in the output.
      * @param unit                unit for the heartbeat and estPollingInterval params.
      */
+    @VisibleForTesting
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
         value = "SE_BAD_FIELD_INNER_CLASS",
         justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
     public CounterToRateMetricTransform(
-            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit) {
+            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit, final Clock clock) {
         this.observer = observer;
         this.intervalMillis = TimeUnit.MILLISECONDS.convert(estPollingInterval, unit);
 
         final long heartbeatMillis = TimeUnit.MILLISECONDS.convert(heartbeat, unit);
         this.cache = new LinkedHashMap<MonitorConfig, CounterValue>(16, 0.75f, true) {
             protected boolean removeEldestEntry(Map.Entry<MonitorConfig, CounterValue> eldest) {
-                final long now = System.currentTimeMillis();
+                final long now = clock.now();
                 final long lastMod = eldest.getValue().getTimestamp();
                 final boolean expired = (now - lastMod) > heartbeatMillis;
                 if (expired) {
@@ -111,6 +115,11 @@ public final class CounterToRateMetricTransform implements MetricObserver {
                 return expired;
             }
         };
+    }
+
+    public CounterToRateMetricTransform(
+            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit) {
+        this(observer, heartbeat, estPollingInterval, unit, ClockWithOffset.INSTANCE);
     }
 
     /** {@inheritDoc} */

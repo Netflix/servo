@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public final class NormalizationTransform implements MetricObserver {
     private static final Logger LOGGER =
@@ -42,31 +43,39 @@ public final class NormalizationTransform implements MetricObserver {
         return c;
     }
     private static final String DEFAULT_DSTYPE = DataSourceType.RATE.name();
-    private static final Counter heartbeatExpireCount = newCounter("servo.monitor.norm.heartbeatExpireCount");
+    static final Counter heartbeatExceeded = newCounter("servo.norm.heartbeatExceeded");
 
     private final MetricObserver observer;
-    private final long heartbeat;
-    private final long step;
+    private final long heartbeatMillis;
+    private final long stepMillis;
     private final Map<MonitorConfig, NormalizedValue> cache;
 
     public NormalizationTransform(MetricObserver observer, long step, long heartbeat) {
-        this(observer, step, heartbeat, ClockWithOffset.INSTANCE);
+        this(observer, step, heartbeat, TimeUnit.MILLISECONDS, ClockWithOffset.INSTANCE);
     }
 
-    public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, final Clock clock) {
-        Preconditions.checkNotNull(observer);
-        this.observer = observer;
+    public NormalizationTransform(MetricObserver observer, long step, long heartbeat, TimeUnit unit) {
+        this(observer, step, heartbeat, unit, ClockWithOffset.INSTANCE);
+    }
+
+    public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, TimeUnit unit, final Clock clock) {
+        this.observer = Preconditions.checkNotNull(observer);
         Preconditions.checkArgument(step > 0, "step must be positive");
-        this.step = step;
+        this.stepMillis = unit.toMillis(step);
         Preconditions.checkArgument(heartbeat > 0, "heartbeat must be positive");
-        this.heartbeat = heartbeat;
+        this.heartbeatMillis = unit.toMillis(heartbeat);
 
         this.cache = new LinkedHashMap<MonitorConfig, NormalizedValue>(16, 0.75f, true) {
             protected boolean removeEldestEntry(Map.Entry<MonitorConfig, NormalizedValue> eldest) {
-                final long now = clock.now();
                 final long lastMod = eldest.getValue().lastUpdateTime;
-                final boolean expired = (now - lastMod) > heartbeat;
+                if (lastMod < 0) {
+                    return false;
+                }
+
+                final long now = clock.now();
+                final boolean expired = (now - lastMod) > heartbeatMillis;
                 if (expired) {
+                    heartbeatExceeded.increment();
                     LOGGER.debug("heartbeat interval exceeded, expiring {}", eldest.getKey());
                 }
                 return expired;
@@ -118,7 +127,7 @@ public final class NormalizationTransform implements MetricObserver {
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
 
         for (Metric m : metrics) {
-            long offset = m.getTimestamp() % step;
+            long offset = m.getTimestamp() % stepMillis;
             long stepBoundary = m.getTimestamp() - offset;
             String dsType = getDataSourceType(m);
             if (isGauge(dsType)) {
@@ -145,37 +154,36 @@ public final class NormalizationTransform implements MetricObserver {
         return observer.getName();
     }
 
-    private static long NO_PREVIOUS_UPDATE = -1L;
+    private final static long NO_PREVIOUS_UPDATE = -1L;
     private class NormalizedValue {
         long lastUpdateTime = NO_PREVIOUS_UPDATE;
         double lastValue = 0.0;
 
         private double weightedValue(long offset, double value) {
-            double weight = (double) offset / step;
+            double weight = (double) offset / stepMillis;
             return value * weight;
         }
 
         double updateAndGet(long timestamp, double value) {
             double result = Double.NaN;
             if (timestamp > lastUpdateTime) {
-                if (lastUpdateTime > 0 && timestamp - lastUpdateTime > heartbeat) {
-                   heartbeatExpireCount.increment();
+                if (lastUpdateTime > 0 && timestamp - lastUpdateTime > heartbeatMillis) {
                     lastUpdateTime = NO_PREVIOUS_UPDATE;
                     lastValue = 0.0;
                 }
 
-                long offset = timestamp % step;
+                long offset = timestamp % stepMillis;
                 long stepBoundary = timestamp - offset;
 
                 if (lastUpdateTime < stepBoundary) {
                     if (lastUpdateTime != NO_PREVIOUS_UPDATE) {
-                        long intervalOffset = lastUpdateTime % step;
-                        lastValue += weightedValue(step - intervalOffset, value);
+                        long intervalOffset = lastUpdateTime % stepMillis;
+                        lastValue += weightedValue(stepMillis - intervalOffset, value);
                         result = lastValue;
                     } else if (offset == 0) {
                         result = value;
                     } else {
-                        result = weightedValue(step - offset, value);
+                        result = weightedValue(stepMillis - offset, value);
                     }
 
                     lastValue = weightedValue(offset, value);
