@@ -82,7 +82,7 @@ class StepLong {
 
         rollCount(pollerIndex, now);
         final int prevPos = 2 * pollerIndex + PREVIOUS;
-        final long value = data[prevPos].getAndSet(init);
+        final long value = data[prevPos].get();
 
         final long last = lastPollTime[pollerIndex].getAndSet(now);
         final long missed = (now - last) / step - 1;

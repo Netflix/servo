@@ -147,4 +147,18 @@ public class StepCounterTest {
         // Check rate for previous internval
         assertEquals(c.getValue(1).doubleValue(), 0.2);
     }
+
+    @Test
+    public void testGetValueTwice() {
+        ManualClock manualClock = new ManualClock(0L);
+
+        StepCounter c = new StepCounter(MonitorConfig.builder("test").build(), manualClock);
+        c.increment();
+        for (int i = 1; i < 10; ++i) {
+            manualClock.set(i * 60000L);
+            c.increment();
+            c.getValue(0);
+            assertEquals(c.getValue(0).doubleValue(), 1 / 60.0);
+        }
+    }
 }
