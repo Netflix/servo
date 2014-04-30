@@ -34,14 +34,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Converts rate metrics into normalized values. See
+ * <a href="http://www.vandenbogaerdt.nl/rrdtool/process.php">Rates, normalizing and consolidating</a> for a
+ * discussion on normalization of rates as done by rrdtool.
+ */
 public final class NormalizationTransform implements MetricObserver {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(NormalizationTransform.class);
+
     static Counter newCounter(String name) {
         Counter c = Monitors.newCounter(name);
         DefaultMonitorRegistry.getInstance().register(c);
         return c;
     }
+
     private static final String DEFAULT_DSTYPE = DataSourceType.RATE.name();
     static final Counter heartbeatExceeded = newCounter("servo.norm.heartbeatExceeded");
 
@@ -50,15 +57,59 @@ public final class NormalizationTransform implements MetricObserver {
     private final long stepMillis;
     private final Map<MonitorConfig, NormalizedValue> cache;
 
+    /**
+     * Creates a new instance with the specified sampling and heartbeat interval using the default clock
+     * implementation.
+     *
+     * @param observer  downstream observer to forward values after rates have been normalized to step boundaries
+     * @param step      sampling interval in milliseconds
+     * @param heartbeat how long to keep values before dropping them and treating new samples as first report
+     *                  (in milliseconds)
+     * @deprecated Please use a constructor that specifies the the timeunit explicitly.
+     */
+    @Deprecated
     public NormalizationTransform(MetricObserver observer, long step, long heartbeat) {
         this(observer, step, heartbeat, TimeUnit.MILLISECONDS, ClockWithOffset.INSTANCE);
     }
 
+    /**
+     * Creates a new instance with the specified sampling and heartbeat interval and the specified clock implementation.
+     *
+     * @param observer  downstream observer to forward values after rates have been normalized to step boundaries
+     * @param step      sampling interval in milliseconds
+     * @param heartbeat how long to keep values before dropping them and treating new samples as first report
+     *                  (in milliseconds)
+     * @param clock     The {@link com.netflix.servo.util.Clock} to use for getting the current time.
+     * @deprecated Please use a constructor that specifies the the timeunit explicitly.
+     */
+    @Deprecated
+    public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, final Clock clock) {
+        this(observer, step, heartbeat, TimeUnit.MILLISECONDS, ClockWithOffset.INSTANCE)
+    }
+
+    /**
+     * Creates a new instance with the specified sampling and heartbeat interval and the specified clock implementation.
+     *
+     * @param observer  downstream observer to forward values after rates have been normalized to step boundaries
+     * @param step      sampling interval
+     * @param heartbeat how long to keep values before dropping them and treating new samples as first report
+     * @param unit      {@link java.util.concurrent.TimeUnit} in which step and heartbeat are specified.
+     */
     public NormalizationTransform(MetricObserver observer, long step, long heartbeat, TimeUnit unit) {
         this(observer, step, heartbeat, unit, ClockWithOffset.INSTANCE);
     }
 
-    public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, TimeUnit unit, final Clock clock) {
+    /**
+     * Creates a new instance with the specified sampling and heartbeat interval and the specified clock implementation.
+     *
+     * @param observer  downstream observer to forward values after rates have been normalized to step boundaries
+     * @param step      sampling interval
+     * @param heartbeat how long to keep values before dropping them and treating new samples as first report
+     * @param unit      {@link java.util.concurrent.TimeUnit} in which step and heartbeat are specified.
+     * @param clock     The {@link com.netflix.servo.util.Clock} to use for getting the current time.
+     */
+    public NormalizationTransform(MetricObserver observer, long step, final long heartbeat,
+                                  TimeUnit unit, final Clock clock) {
         this.observer = Preconditions.checkNotNull(observer);
         Preconditions.checkArgument(step > 0, "step must be positive");
         this.stepMillis = unit.toMillis(step);
@@ -120,7 +171,9 @@ public final class NormalizationTransform implements MetricObserver {
         return new Metric(toGaugeConfig(m.getConfig()), stepBoundary, value);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
@@ -148,13 +201,16 @@ public final class NormalizationTransform implements MetricObserver {
         observer.update(newMetrics);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return observer.getName();
     }
 
     private final static long NO_PREVIOUS_UPDATE = -1L;
+
     private class NormalizedValue {
         long lastUpdateTime = NO_PREVIOUS_UPDATE;
         double lastValue = 0.0;
