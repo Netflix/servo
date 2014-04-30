@@ -36,7 +36,7 @@ public class SmallTagMap implements Iterable<Tag> {
     public final static int INITIAL_TAG_SIZE = 8;
     private final static Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
-    private ImmutableSet<Tag> entrySet;
+    private volatile ImmutableSet<Tag> entrySet;
 
     /** Return a new builder to assist in creating a new SmallTagMap using the default tag size (8). */
     public static Builder builder() {
@@ -249,6 +249,8 @@ public class SmallTagMap implements Iterable<Tag> {
         return entrySet;
     }
 
+    @Override
+    /** {@inheritDoc} */
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
