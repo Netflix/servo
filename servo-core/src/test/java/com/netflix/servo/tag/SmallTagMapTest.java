@@ -155,4 +155,28 @@ public class SmallTagMapTest {
         assertTrue(it.hasNext());
         it.remove();
     }
+
+    @Test
+    public void testEqualsRandomOrder() {
+        SmallTagMap.Builder builder1 = SmallTagMap.builder();
+        SmallTagMap.Builder builder2 = SmallTagMap.builder();
+        final int N = 16;
+        for (int i = 0; i < N; i++) {
+            builder1.add(new BasicTag("k" + i, "0"));
+            builder2.add(new BasicTag("k" + (N - i - 1), "0"));
+        }
+        assertEquals(builder1.result(), builder2.result());
+    }
+
+    @Test
+    public void testHashcodeRandomOrder() {
+        SmallTagMap.Builder builder1 = SmallTagMap.builder();
+        SmallTagMap.Builder builder2 = SmallTagMap.builder();
+        final int N = 16;
+        for (int i = 0; i < N; i++) {
+            builder1.add(new BasicTag("k" + i, "0"));
+            builder2.add(new BasicTag("k" + (N - i - 1), "0"));
+        }
+        assertEquals(builder1.result().hashCode(), builder2.result().hashCode());
+    }
 }
