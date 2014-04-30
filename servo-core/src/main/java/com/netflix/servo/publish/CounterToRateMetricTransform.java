@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
@@ -94,11 +93,10 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      *                            spikes will occur in the output.
      * @param unit                unit for the heartbeat and estPollingInterval params.
      */
-    @VisibleForTesting
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
         value = "SE_BAD_FIELD_INNER_CLASS",
         justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
-    public CounterToRateMetricTransform(
+    CounterToRateMetricTransform(
             MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit, final Clock clock) {
         this.observer = observer;
         this.intervalMillis = TimeUnit.MILLISECONDS.convert(estPollingInterval, unit);
