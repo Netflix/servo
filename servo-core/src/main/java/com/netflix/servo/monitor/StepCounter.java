@@ -39,7 +39,8 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
     /**
      * Creates a new instance of the counter.
      */
-    StepCounter(MonitorConfig config, Clock clock) {
+    @VisibleForTesting
+    public StepCounter(MonitorConfig config, Clock clock) {
         // This class will reset the value so it is not a monotonically increasing value as
         // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
         // the publishing pipeline receiving the value.
