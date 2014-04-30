@@ -16,11 +16,13 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Simple immutable hash map implementation intended only for dealing with a small set of tags (<= 24 in our case)
@@ -33,6 +35,8 @@ public class SmallTagMap implements Iterable<Tag> {
     public final static int MAX_TAGS = 32;
     public final static int INITIAL_TAG_SIZE = 8;
     private final static Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
+
+    private ImmutableSet<Tag> entrySet;
 
     /** Return a new builder to assist in creating a new SmallTagMap using the default tag size (8). */
     public static Builder builder() {
@@ -229,8 +233,22 @@ public class SmallTagMap implements Iterable<Tag> {
         return dataLength;
     }
 
-    /** {@inheritDoc} */
-    @Override
+    public Set<Tag> tagSet() {
+        if (entrySet == null) {
+            ImmutableSet.Builder<Tag> e = ImmutableSet.builder();
+            for (int i = 1; i < data.length; i += 2) {
+                Object o = data[i];
+                if (o != null) {
+                    e.add((Tag) o);
+                }
+            }
+
+            entrySet = e.build();
+        }
+
+        return entrySet;
+    }
+
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -242,17 +260,7 @@ public class SmallTagMap implements Iterable<Tag> {
 
         SmallTagMap that = (SmallTagMap) obj;
 
-        if (that.dataLength != this.dataLength) {
-            return false;
-        }
-
-        for (int i = 1; i < data.length; i += 2) {
-            Object o = data[i];
-            if (o != null && !o.equals(that.data[i])) {
-                return false;
-            }
-        }
-
-        return true;
+        // quickly check lengths before the more expensive computation
+        return that.dataLength == this.dataLength && tagSet().equals(that.tagSet());
     }
 }
