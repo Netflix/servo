@@ -84,7 +84,7 @@ public final class NormalizationTransform implements MetricObserver {
      */
     @Deprecated
     public NormalizationTransform(MetricObserver observer, long step, final long heartbeat, final Clock clock) {
-        this(observer, step, heartbeat, TimeUnit.MILLISECONDS, ClockWithOffset.INSTANCE)
+        this(observer, step, heartbeat, TimeUnit.MILLISECONDS, ClockWithOffset.INSTANCE);
     }
 
     /**
