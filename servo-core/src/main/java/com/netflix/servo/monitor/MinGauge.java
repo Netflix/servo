@@ -34,7 +34,7 @@ public class MinGauge extends AbstractMonitor<Long>
     /**
      * Creates a new instance of the gauge.
      */
-    MinGauge(MonitorConfig config) {
+    public MinGauge(MonitorConfig config) {
         this(config, ClockWithOffset.INSTANCE);
     }
 
