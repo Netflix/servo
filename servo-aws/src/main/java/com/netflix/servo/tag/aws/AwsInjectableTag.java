@@ -90,7 +90,7 @@ public enum AwsInjectableTag implements Tag {
 
     static String getAutoScaleGroup() {
         try {
-            String credFileProperty = System.getProperties().getProperty(AwsPropertyKeys.awsCredentialsFile);
+            String credFileProperty = System.getProperties().getProperty(AwsPropertyKeys.AWS_CREDENTIALS_FILE);
             AWSCredentials credentials;
 
             if (credFileProperty != null) {

@@ -16,11 +16,25 @@
 package com.netflix.servo.aws;
 
 /**
- * Constant key values for setting aws related properties.
+ * Enum key values for setting aws related properties.
  */
-public class AwsPropertyKeys {
+public enum AwsPropertyKeys {
+	
+	AWS_CREDENTIALS_FILE("com.netflix.servo.aws.credentialsFile"), 
+	AWS_AUTO_SCALING_END_POINT("com.netflix.servo.aws.endpoint.autoscaling"), 
+	AWS_CLOUD_WATCH_END_POINT("com.netflix.servo.aws.endpoint.cloudwatch");
 
-    public static final String awsCredentialsFile = "com.netflix.servo.aws.credentialsFile";
-    public static final String awsAutoScalingEndpoint = "com.netflix.servo.aws.endpoint.autoscaling";
-    public static final String awsCloudWatchEndpoint = "com.netflix.servo.aws.endpoint.cloudwatch";
+	private String bundle;
+	
+	/**
+	 * Constructor responsible to instantiate the type of bundle
+	 */
+	private AwsPropertyKeys(String bundle) {
+       this.bundle = bundle;
+    }
+	
+	public String getBundle() {
+		return bundle;
+	}
+	
 }
