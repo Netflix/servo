@@ -32,7 +32,7 @@ public class AwsServiceClients {
    */
   public static AmazonCloudWatch cloudWatch(AWSCredentialsProvider credentials ) {
     AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
-    client.setEndpoint( System.getProperty( AwsPropertyKeys.awsCloudWatchEndpoint, "monitoring.amazonaws.com" ) );
+    client.setEndpoint( System.getProperty( AwsPropertyKeys.AWS_CLOUD_WATCH_END_POINT.getBundle(), "monitoring.amazonaws.com" ) );
     return client;
   }
 
@@ -41,7 +41,7 @@ public class AwsServiceClients {
    */
   public static AmazonAutoScaling autoScaling(AWSCredentials credentials) {
     AmazonAutoScaling client = new AmazonAutoScalingClient(credentials);
-    client.setEndpoint( System.getProperty( AwsPropertyKeys.awsAutoScalingEndpoint, "autoscaling.amazonaws.com" ) );
+    client.setEndpoint( System.getProperty( AwsPropertyKeys.AWS_AUTO_SCALING_END_POINT.getBundle(), "autoscaling.amazonaws.com" ) );
     return client;
   }
 }
