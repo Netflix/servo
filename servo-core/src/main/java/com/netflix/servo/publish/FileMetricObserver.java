@@ -18,6 +18,8 @@ package com.netflix.servo.publish;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import com.netflix.servo.Metric;
+import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
     private static final String FILE_DATE_FORMAT = "yyyy_dd_MM_HH_mm_ss_SSS";
     private final File dir;
     private final boolean compress;
+    private final Clock clock;
     private final SimpleDateFormat fileFormat;
 
     /**
@@ -85,9 +88,25 @@ public final class FileMetricObserver extends BaseMetricObserver {
      * @param compress     whether to compress our output
      */
     public FileMetricObserver(String name, String namePattern, File dir, boolean compress) {
+        this(name, namePattern, dir, compress, ClockWithOffset.INSTANCE);
+    }
+
+    /**
+     * Creates a new instance that stores files in {@code dir} with a name that
+     * is created using {@code namePattern}.
+     *
+     * @param name         name of the observer
+     * @param namePattern  date format pattern used to create the file names
+     * @param dir          directory where observations will be stored
+     * @param compress     whether to compress our output
+     * @param clock        clock instance to use for getting the time used in the filename
+     */
+
+    public FileMetricObserver(String name, String namePattern, File dir, boolean compress, Clock clock) {
         super(name);
         this.dir = dir;
         this.compress = compress;
+        this.clock = clock;
         fileFormat = new SimpleDateFormat(namePattern);
         fileFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -95,7 +114,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
     /** {@inheritDoc} */
     public void updateImpl(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics);
-        File file = new File(dir, fileFormat.format(new Date()));
+        File file = new File(dir, fileFormat.format(new Date(clock.now())));
         Closer closer = Closer.create();
         Writer out = null;
         try {

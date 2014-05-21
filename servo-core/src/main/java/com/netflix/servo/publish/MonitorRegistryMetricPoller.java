@@ -27,6 +27,8 @@ import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 
+import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ClockWithOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +65,8 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     private final TimeLimiter limiter;
     private final ExecutorService service;
 
+    private final Clock clock;
+
     /**
      * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
      */
@@ -76,7 +80,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param registry registry to query for annotated objects
      */
     public MonitorRegistryMetricPoller(MonitorRegistry registry) {
-        this(registry, 0L, TimeUnit.MILLISECONDS, true);
+        this(registry, 0L, TimeUnit.MILLISECONDS, true, ClockWithOffset.INSTANCE);
     }
 
     /**
@@ -98,10 +102,24 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
      * @param unit       time unit for the cache ttl
      * @param useLimiter whether to use a time limiter for getting the values from the monitors
      */
+    public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
+        this(registry, cacheTTL, unit, useLimiter, ClockWithOffset.INSTANCE);
+    }
+
+    /**
+     * Creates a new instance using the specified registry.
+     *
+     * @param registry   registry to query for annotated objects
+     * @param cacheTTL   how long to cache the filtered monitor list from the registry
+     * @param unit       time unit for the cache ttl
+     * @param useLimiter whether to use a time limiter for getting the values from the monitors
+     * @param clock      clock instance to use to get the time
+     */
     public MonitorRegistryMetricPoller(
-            MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter) {
+            MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter, Clock clock) {
         this.registry = registry;
         this.cacheTTL = TimeUnit.MILLISECONDS.convert(cacheTTL, unit);
+        this.clock = clock;
 
         if (useLimiter) {
             final ThreadFactory factory = new ThreadFactoryBuilder()
@@ -153,7 +171,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
                     LOGGER.warn("failed to get monitors for composite " + monitor.getConfig(), e);
                 }
             }
-            cacheLastUpdateTime.set(System.currentTimeMillis());
+            cacheLastUpdateTime.set(clock.now());
             cachedMonitors.set(monitors);
             LOGGER.debug("cache refreshed, {} monitors matched filter, previous age {} seconds",
                     monitors.size(), age / 1000);
@@ -180,8 +198,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         for (Monitor<?> monitor : monitors) {
             Object v = getValue(monitor, reset);
             if (v != null) {
-                long now = System.currentTimeMillis();
-                metrics.add(new Metric(monitor.getConfig(), now, v));
+                metrics.add(new Metric(monitor.getConfig(), clock.now(), v));
             }
         }
         return metrics;
