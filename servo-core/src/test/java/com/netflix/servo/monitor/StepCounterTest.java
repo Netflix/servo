@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
@@ -66,7 +67,7 @@ public class StepCounterTest {
 
     @Test
     public void testHasRightType() throws Exception {
-        assertEquals(newInstance("foo").getConfig().getTags().getValue("type"), "GAUGE");
+        assertEquals(newInstance("foo").getConfig().getTags().getValue(DataSourceType.KEY), "GAUGE");
     }
 
     @Test

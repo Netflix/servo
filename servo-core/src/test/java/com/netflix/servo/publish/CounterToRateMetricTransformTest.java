@@ -59,7 +59,7 @@ public class CounterToRateMetricTransformTest {
     private Map<String, String> mkTypeMap(List<List<Metric>> updates) {
         Map<String, String> map = Maps.newHashMap();
         for (Metric m : updates.get(0)) {
-            map.put(m.getConfig().getName(), m.getConfig().getTags().getValue("type"));
+            map.put(m.getConfig().getName(), m.getConfig().getTags().getValue(DataSourceType.KEY));
         }
         return map;
     }

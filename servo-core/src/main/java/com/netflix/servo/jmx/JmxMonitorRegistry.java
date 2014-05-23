@@ -36,7 +36,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Monitor registry backed by JMX. The monitor annotations on registered
  * objects will be used to export the data to JMX. For details about the
- * representation in JMX see {@link MonitorMBean}.
+ * representation in JMX see {@link MonitorMBean}. The {@link ObjectName}
+ * used for each monitor depends on the implementation of {@link ObjectNameMapper}
+ * that is specified for the registry. See {@link ObjectNameMapper#DEFAULT} for
+ * the default naming implementation.
+ *
  */
 public final class JmxMonitorRegistry implements MonitorRegistry {
 
@@ -45,6 +49,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     private final MBeanServer mBeanServer;
     private final ConcurrentMap<MonitorConfig, Monitor<?>> monitors;
     private final String name;
+    private final ObjectNameMapper mapper;
 
     private final AtomicBoolean updatePending = new AtomicBoolean(false);
     private final AtomicReference<Collection<Monitor<?>>> monitorList =
@@ -52,10 +57,22 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     /**
      * Creates a new instance that registers metrics with the local mbean
-     * server.
+     * server using the default ObjectNameMapper {@link ObjectNameMapper#DEFAULT}.
+     * @name  the registry name
      */
     public JmxMonitorRegistry(String name) {
+        this(name, ObjectNameMapper.DEFAULT);
+    }
+
+    /**
+     * Creates a new instance that registers metrics with the local mbean
+     * server using the ObjectNameMapper provided.
+     * @param name    the registry name
+     * @param mapper  the monitor to object name mapper
+     */
+    public JmxMonitorRegistry(String name, ObjectNameMapper mapper) {
         this.name = name;
+        this.mapper = mapper;
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         monitors = new ConcurrentHashMap<MonitorConfig, Monitor<?>>();
     }
@@ -84,7 +101,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void register(Monitor<?> monitor) {
         try {
-            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor, mapper);
             for (MonitorMBean bean : beans) {
                 register(bean.getObjectName(), bean);
             }
@@ -101,7 +118,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public void unregister(Monitor<?> monitor) {
         try {
-            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor);
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor, mapper);
             for (MonitorMBean bean : beans) {
                 mBeanServer.unregisterMBean(bean.getObjectName());
             }

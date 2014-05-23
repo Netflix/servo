@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.Tag;
 import org.testng.annotations.Test;
 
@@ -29,7 +30,7 @@ public class ResettableCounterTest extends AbstractMonitorTest<ResettableCounter
 
     @Test
     public void testHasRightType() throws Exception {
-        Tag type = newInstance("foo").getConfig().getTags().getTag("type");
+        Tag type = newInstance("foo").getConfig().getTags().getTag(DataSourceType.KEY);
         assertEquals(type.getValue(), "GAUGE");
     }
 }
