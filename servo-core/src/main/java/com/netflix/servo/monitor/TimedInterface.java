@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 
@@ -23,7 +22,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class creates a {@link java.lang.reflect.Proxy} monitor that tracks all calls to methods
@@ -51,19 +52,21 @@ public final class TimedInterface {
     static final String CLASS_TAG = "class";
     static final String ID_TAG = "id";
     private static class TimedHandler<T> implements InvocationHandler, CompositeMonitor<Long> {
-        final T concrete;
+        private final T concrete;
+        private final Map<String, Timer> timers;
+        private final MonitorConfig baseConfig;
+        private final TagList baseTagList;
 
         /**
          * {@inheritDoc}
          */
         @Override
-        @SuppressWarnings("unchecked")
         public List<Monitor<?>> getMonitors() {
-            List dynamicTimers = new ArrayList();
+            List<Monitor<?>> dynamicTimers = new ArrayList<Monitor<?>>();
             for (Timer timer : timers.values()) {
                 dynamicTimers.add(timer);
             }
-            return (List<Monitor<?>>) dynamicTimers;
+            return dynamicTimers;
         }
 
         @Override
@@ -84,10 +87,6 @@ public final class TimedInterface {
             return baseConfig;
         }
 
-        final ConcurrentHashMapV8<String, Timer> timers;
-        final MonitorConfig baseConfig;
-        final TagList baseTagList;
-
         TimedHandler(Class<T> ctype, T concrete, String id) {
             this.concrete = concrete;
             BasicTagList tagList = BasicTagList.of(
@@ -99,7 +98,14 @@ public final class TimedInterface {
             baseTagList = tagList;
             baseConfig = MonitorConfig.builder(TIMED_INTERFACE).withTags(baseTagList).build();
 
-            timers = new ConcurrentHashMapV8<String, Timer>();
+            timers = new HashMap<String, Timer>();
+            for (Method method : ctype.getMethods()) {
+                final MonitorConfig config =
+                        MonitorConfig.builder(method.getName())
+                                     .withTags(baseTagList)
+                                     .build();
+                timers.put(method.getName(), new BasicTimer(config));
+            }
         }
 
 
@@ -108,18 +114,10 @@ public final class TimedInterface {
             // if the method is one of the CompositeMonitor interface
             final Class<?> declaringClass = method.getDeclaringClass();
             if (declaringClass.isAssignableFrom(CompositeMonitor.class)) {
-                return method.invoke(this);
+                return method.invoke(this, args);
             }
             final String methodName = method.getName();
-            final Timer timer = timers.computeIfAbsent(methodName, new ConcurrentHashMapV8.Fun<String, Timer>() {
-                @Override
-                public Timer apply(String method) {
-                    final MonitorConfig config = MonitorConfig.builder(method)
-                            .withTags(baseTagList)
-                            .build();
-                    return new BasicTimer(config);
-                }
-            });
+            final Timer timer = timers.get(methodName);
             final Stopwatch stopwatch = timer.start();
             try {
                 return method.invoke(concrete, args);
@@ -139,8 +137,8 @@ public final class TimedInterface {
      */
     @SuppressWarnings("unchecked")
     public static <T> T newProxy(Class<T> ctype, T concrete, String id) {
-        final InvocationHandler handler = new TimedHandler(ctype, concrete, id);
-        final Class[] types = new Class[] {ctype, CompositeMonitor.class};
+        final InvocationHandler handler = new TimedHandler<T>(ctype, concrete, id);
+        final Class<?>[] types = new Class[] {ctype, CompositeMonitor.class};
         return (T) Proxy.newProxyInstance(ctype.getClassLoader(), types, handler);
     }
 

@@ -15,9 +15,11 @@
  */
 package com.netflix.servo.monitor;
 
+import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
+
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -33,6 +35,10 @@ public class TimedInterfaceTest  {
         void method1();
         boolean method2(int n);
         Object method3(Object a, Object b);
+    }
+    
+    private interface IDummyExtended extends IDummy {
+        void method4();
     }
 
     private static class DummyImpl implements IDummy {
@@ -61,11 +67,24 @@ public class TimedInterfaceTest  {
             return a;
         }
     }
+    
+    private static class ExtendedDummy extends DummyImpl implements IDummyExtended {
+
+        @Override
+        public void method4() {
+            // do nothing
+        }
+
+    }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testTimedInterface() {
         final IDummy dummy = TimedInterface.newProxy(IDummy.class, new DummyImpl(), "id");
+        final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) dummy;
+        final List<Monitor<?>> monitors = compositeMonitor.getMonitors();
+        assertEquals(monitors.size(), 3);
+        assertEquals(compositeMonitor.getValue().longValue(), 3L);
 
         // you'd register the CompositeMonitor as:
         DefaultMonitorRegistry.getInstance().register((CompositeMonitor) dummy);
@@ -76,11 +95,6 @@ public class TimedInterfaceTest  {
                 dummy.method2(i);
             }
         }
-
-        final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) dummy;
-        final List<Monitor<?>> monitors = compositeMonitor.getMonitors();
-        assertEquals(monitors.size(), 2);
-        assertEquals(compositeMonitor.getValue().longValue(), 2L);
 
         final TagList tagList = BasicTagList.of(
                 TimedInterface.CLASS_TAG, "DummyImpl",
@@ -101,12 +115,15 @@ public class TimedInterfaceTest  {
                 // slow machines
                 long value = ((Monitor<Long>) monitor).getValue() - 20;
                 assertTrue(value >= 0 && value <= 9);
-            } else {
-                assertEquals(method, "method2");
+            } else if (method.equals("method2")) {
                 // expected result is 40, but let's give it a fudge factor to account for
                 // slow machines
                 long value = ((Monitor<Long>) monitor).getValue() - 40;
                 assertTrue(value >= 0 && value <= 9);
+            } else {
+                assertEquals(method, "method3");
+                long value = ((Monitor<Long>) monitor).getValue();
+                assertEquals(value, 0);
             }
         }
     }
@@ -126,5 +143,21 @@ public class TimedInterfaceTest  {
         final MonitorConfig expectedConfig = MonitorConfig.builder(TimedInterface.TIMED_INTERFACE)
                 .withTags(tagList).build();
         assertEquals(compositeMonitor.getConfig(), expectedConfig);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testInterfaceInheritence() {
+        final List<String> expectedNames = Lists.newArrayList("method1", "method2", "method3", "method4");
+        final IDummyExtended extendedDummy = TimedInterface.newProxy(IDummyExtended.class, new ExtendedDummy());
+        final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) extendedDummy;
+        DefaultMonitorRegistry.getInstance().register(compositeMonitor);
+        assertEquals(compositeMonitor.getMonitors().size(), 4);
+        assertEquals(compositeMonitor.getValue().longValue(), 4L);
+        assertEquals(compositeMonitor.getValue(100).longValue(), 4L);
+        final List<Monitor<?>> monitors = compositeMonitor.getMonitors();
+        for (Monitor<?> monitor : monitors) {
+            assertTrue(expectedNames.contains(monitor.getConfig().getName()));
+        }
     }
 }
