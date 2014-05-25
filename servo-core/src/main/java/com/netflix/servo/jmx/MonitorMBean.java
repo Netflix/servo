@@ -15,17 +15,13 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.NumericMonitor;
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -49,25 +45,26 @@ class MonitorMBean implements DynamicMBean {
      *
      * @param domain   passed in to the object name created to identify the beans
      * @param monitor  monitor to expose to jmx
+     * @param mapper   the mapper which maps the Monitor to ObjectName
      * @return         flattened list of simple monitor mbeans
      */
-    public static List<MonitorMBean> createMBeans(String domain, Monitor<?> monitor) {
+    public static List<MonitorMBean> createMBeans(String domain, Monitor<?> monitor,
+                                                  ObjectNameMapper mapper) {
         List<MonitorMBean> mbeans = Lists.newArrayList();
-        createMBeans(mbeans, domain, monitor);
+        createMBeans(mbeans, domain, monitor, mapper);
         return mbeans;
     }
 
-    private static void createMBeans(List<MonitorMBean> mbeans, String domain, Monitor<?> monitor) {
+    private static void createMBeans(List<MonitorMBean> mbeans, String domain, Monitor<?> monitor,
+                                     ObjectNameMapper mapper) {
         if (monitor instanceof CompositeMonitor<?>) {
             for (Monitor<?> m : ((CompositeMonitor<?>) monitor).getMonitors()) {
-                createMBeans(mbeans, domain, m);
+                createMBeans(mbeans, domain, m, mapper);
             }
         } else {
-            mbeans.add(new MonitorMBean(domain, monitor));
+            mbeans.add(new MonitorMBean(domain, monitor, mapper));
         }
     }
-
-    private static final Pattern INVALID_CHARS = Pattern.compile("[^a-zA-Z0-9_\\-\\.]");
 
     private final Monitor<?> monitor;
 
@@ -80,10 +77,11 @@ class MonitorMBean implements DynamicMBean {
      *
      * @param domain   passed in to the object name created to identify the beans
      * @param monitor  monitor to expose to jmx
+     * @param mapper   the mapper which maps the monitor to ObjectName
      */
-    MonitorMBean(String domain, Monitor<?> monitor) {
+    MonitorMBean(String domain, Monitor<?> monitor, ObjectNameMapper mapper) {
         this.monitor = monitor;
-        this.objectName = createObjectName(domain);
+        this.objectName = createObjectName(mapper, domain);
         this.beanInfo = createBeanInfo();
     }
 
@@ -136,26 +134,8 @@ class MonitorMBean implements DynamicMBean {
         return beanInfo;
     }
 
-    private ObjectName createObjectName(String domain) {
-        try {
-            final String name = monitor.getConfig().getName();
-            final String sanitizedDomain = INVALID_CHARS.matcher(domain).replaceAll("_");
-            final String sanitizedName = INVALID_CHARS.matcher(name).replaceAll("_");
-            StringBuilder builder = new StringBuilder();
-            builder.append(sanitizedDomain).append(':');
-            builder.append("name=").append(sanitizedName);
-
-            TagList tags = monitor.getConfig().getTags();
-            for (Tag tag : tags) {
-                final String sanitizedKey = INVALID_CHARS.matcher(tag.getKey()).replaceAll("_");
-                final String sanitizedValue = INVALID_CHARS.matcher(tag.getValue()).replaceAll("_");
-                builder.append(',').append(sanitizedKey).append('=').append(sanitizedValue);
-            }
-            return new ObjectName(builder.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw Throwables.propagate(e);
-        }
+    private ObjectName createObjectName(ObjectNameMapper mapper, String domain) {
+        return mapper.createObjectName(domain, monitor);
     }
 
     private MBeanInfo createBeanInfo() {

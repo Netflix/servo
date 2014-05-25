@@ -16,6 +16,7 @@
 package com.netflix.servo.publish.graphite;
 
 import com.netflix.servo.Metric;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -42,7 +43,7 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
     }
 
     private String handleMetric(MonitorConfig config, TagList tags) {
-        String type = cleanValue(tags.getTag("type"), false);
+        String type = cleanValue(tags.getTag(DataSourceType.KEY), false);
         String instanceName = cleanValue(tags.getTag("instance"), false);
         String name = cleanupIllegalCharacters(config.getName(), false);
 

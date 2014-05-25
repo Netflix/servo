@@ -16,6 +16,7 @@
 package com.netflix.servo.publish.graphite;
 
 import com.netflix.servo.Metric;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.publish.JmxMetricPoller;
 import com.netflix.servo.publish.LocalJmxConnector;
 import com.netflix.servo.publish.MetricPoller;
@@ -56,7 +57,7 @@ public class BasicGraphiteNamingConventionTest {
 
     @Test
     public void testMetricNamingWithTags() throws Exception {
-        TagList tagList = BasicTagList.of("instance", "GetLogs", "type",
+        TagList tagList = BasicTagList.of("instance", "GetLogs", DataSourceType.KEY,
                 "HystrixCommand");
 
         Metric m = new Metric("simpleMonitor", tagList, 0, 1000.0);

@@ -17,6 +17,8 @@ package com.netflix.servo.monitor;
 
 import org.testng.annotations.Test;
 
+import com.netflix.servo.annotations.DataSourceType;
+
 import static org.testng.Assert.assertEquals;
 
 public class DoubleGaugeTest extends AbstractMonitorTest<DoubleGauge> {
@@ -35,7 +37,7 @@ public class DoubleGaugeTest extends AbstractMonitorTest<DoubleGauge> {
     @Test
     public void testGetConfig() throws Exception {
         DoubleGauge gauge = newInstance("test");
-        MonitorConfig expectedConfig = MonitorConfig.builder("test").withTag("type", "GAUGE").build();
+        MonitorConfig expectedConfig = MonitorConfig.builder("test").withTag(DataSourceType.KEY, "GAUGE").build();
         assertEquals(gauge.getConfig(), expectedConfig);
     }
 }

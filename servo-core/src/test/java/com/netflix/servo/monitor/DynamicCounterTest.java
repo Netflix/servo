@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
@@ -64,7 +65,7 @@ public class DynamicCounterTest {
     public void testHasRightType() throws Exception {
         DynamicCounter.increment("test1", tagList);
         StepCounter c = getByName("test1");
-        Tag type = c.getConfig().getTags().getTag("type");
+        Tag type = c.getConfig().getTags().getTag(DataSourceType.KEY);
         assertEquals(type.getValue(), "GAUGE");
     }
 
