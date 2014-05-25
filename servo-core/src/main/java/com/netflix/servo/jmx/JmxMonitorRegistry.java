@@ -58,7 +58,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     /**
      * Creates a new instance that registers metrics with the local mbean
      * server using the default ObjectNameMapper {@link ObjectNameMapper#DEFAULT}.
-     * @name  the registry name
+     * @param name  the registry name
      */
     public JmxMonitorRegistry(String name) {
         this(name, ObjectNameMapper.DEFAULT);
