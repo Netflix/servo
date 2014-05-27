@@ -16,7 +16,9 @@
 package com.netflix.servo;
 
 import com.netflix.servo.jmx.JmxMonitorRegistry;
+import com.netflix.servo.jmx.ObjectNameMapper;
 import com.netflix.servo.monitor.Monitor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,13 @@ import java.util.Collection;
  * specified registry class must have a constructor with no arguments. If the
  * property is not specified or the class cannot be loaded an instance of
  * {@link com.netflix.servo.jmx.JmxMonitorRegistry} will be used.
+ * <p>
+ * If the default {@link com.netflix.servo.jmx.JmxMonitorRegistry} is used, the property
+ * {@code com.netflix.servo.DefaultMonitorRegistry.jmxMapperClass} can optionally be
+ * specified to control how monitors are mapped to JMX {@link javax.management.ObjectName}.
+ * This property specifies the {@link com.netflix.servo.jmx.ObjectNameMapper}
+ * implementation class to use. The implementation must have a constructor with
+ * no arguments.
  */
 public final class DefaultMonitorRegistry implements MonitorRegistry {
 
@@ -36,6 +45,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     private static final String CLASS_NAME = DefaultMonitorRegistry.class.getCanonicalName();
     private static final String REGISTRY_CLASS_PROP = CLASS_NAME + ".registryClass";
     private static final String REGISTRY_NAME_PROP = CLASS_NAME + ".registryName";
+    private static final String REGISTRY_JMX_NAME_PROP = CLASS_NAME + ".jmxMapperClass";
     private static final MonitorRegistry INSTANCE = new DefaultMonitorRegistry();
     private static final String DEFAULT_REGISTRY_NAME = "com.netflix.servo";
 
@@ -77,8 +87,36 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
             }
             registry = r;
         } else {
-            registry = new JmxMonitorRegistry(registryName);
+            registry = new JmxMonitorRegistry(registryName,
+                    getObjectNameMapper(props));
         }
+    }
+
+    /**
+     * Gets the {@link ObjectNameMapper} to use by looking at the
+     * {@code com.netflix.servo.DefaultMonitorRegistry.jmxMapperClass}
+     * property. If not specified, then {@link ObjectNameMapper#DEFAULT}
+     * is used.
+     * @param props  the properties
+     * @return       the mapper to use
+     */
+    private static ObjectNameMapper getObjectNameMapper(Properties props) {
+        ObjectNameMapper mapper = ObjectNameMapper.DEFAULT;
+        final String jmxNameMapperClass = props.getProperty(REGISTRY_JMX_NAME_PROP);
+        if (jmxNameMapperClass != null) {
+            try {
+                Class<?> mapperClazz = Class.forName(jmxNameMapperClass);
+                mapper = (ObjectNameMapper) mapperClazz.newInstance();
+            } catch (Throwable t) {
+                LOG.error(
+                        "failed to create the JMX ObjectNameMapper instance of class "
+                                + jmxNameMapperClass
+                                + ", using the default naming scheme",
+                        t);
+            }
+        }
+
+        return mapper;
     }
 
     /**
