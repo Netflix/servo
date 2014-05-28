@@ -170,12 +170,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     /** Get the min value since the last reset. */
     public Double getMin() {
-        return min.getValue(0) * timeUnitNanosFactor;
+        return min.getCurrentValue(0) * timeUnitNanosFactor;
     }
 
     /** Get the max value since the last reset. */
     public Double getMax() {
-        return max.getValue(0) * timeUnitNanosFactor;
+        return max.getCurrentValue(0) * timeUnitNanosFactor;
     }
 
     /** {@inheritDoc} */
