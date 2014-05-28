@@ -67,6 +67,13 @@ public class MaxGauge extends AbstractMonitor<Long>
     /** {@inheritDoc} */
     @Override
     public Long getValue(int nth) {
+        return max.poll(nth).getValue();
+    }
+
+    /**
+     * Returns the current max value since the last reset.
+     */
+    public long getCurrentValue(int nth) {
         return max.getCurrent(nth).get();
     }
 

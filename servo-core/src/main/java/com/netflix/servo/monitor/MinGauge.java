@@ -71,7 +71,15 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public Long getValue(int pollerIdx) {
-        long v = min.getCurrent(pollerIdx).get();
+        long v = min.poll(pollerIdx).getValue();
+        return (v == Long.MAX_VALUE) ? 0L : v;
+    }
+
+    /**
+     * Returns the current min value since the last reset.
+     */
+    public long getCurrentValue(int nth) {
+        long v = min.getCurrent(nth).get();
         return (v == Long.MAX_VALUE) ? 0L : v;
     }
 

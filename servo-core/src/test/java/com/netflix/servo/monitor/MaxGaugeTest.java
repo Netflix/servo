@@ -15,25 +15,48 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
 public class MaxGaugeTest extends AbstractMonitorTest<MaxGauge> {
+
+    private ManualClock clock = new ManualClock(0L);
+
     @Override
     public MaxGauge newInstance(String name) {
-        return new MaxGauge(MonitorConfig.builder(name).build(), ClockWithOffset.INSTANCE);
+        return new MaxGauge(MonitorConfig.builder(name).build(), clock);
     }
 
     @Test
     public void testUpdate() throws Exception {
+        clock.set(0L);
         MaxGauge maxGauge = newInstance("max1");
         maxGauge.update(42L);
+        assertEquals(maxGauge.getValue().longValue(), 0L);
+        clock.set(60000L);
         assertEquals(maxGauge.getValue().longValue(), 42L);
+    }
+
+    @Test
+    public void testUpdate2() throws Exception {
+        clock.set(0L);
+        MaxGauge maxGauge = newInstance("max1");
+        maxGauge.update(42L);
         maxGauge.update(420L);
+        clock.set(60000L);
         assertEquals(maxGauge.getValue().longValue(), 420L);
+    }
+
+    @Test
+    public void testUpdate3() throws Exception {
+        clock.set(0L);
+        MaxGauge maxGauge = newInstance("max1");
+        maxGauge.update(42L);
+        maxGauge.update(420L);
         maxGauge.update(1L);
+        clock.set(60000L);
         assertEquals(maxGauge.getValue().longValue(), 420L);
     }
 }

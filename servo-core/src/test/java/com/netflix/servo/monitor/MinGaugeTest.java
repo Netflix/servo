@@ -15,26 +15,48 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
 public class MinGaugeTest extends AbstractMonitorTest<MinGauge> {
+
+    private ManualClock clock = new ManualClock(0L);
+
     @Override
     public MinGauge newInstance(String name) {
         MonitorConfig config = MonitorConfig.builder(name).build();
-        return new MinGauge(config, ClockWithOffset.INSTANCE);
+        return new MinGauge(config, clock);
     }
 
     @Test
     public void testUpdate() throws Exception {
+        clock.set(0L);
         MinGauge minGauge = newInstance("min1");
         minGauge.update(42L);
+        clock.set(60000L);
         assertEquals(minGauge.getValue().longValue(), 42L);
+    }
+
+    @Test
+    public void testUpdate2() throws Exception {
+        clock.set(0L);
+        MinGauge minGauge = newInstance("min1");
+        minGauge.update(42L);
         minGauge.update(420L);
+        clock.set(60000L);
         assertEquals(minGauge.getValue().longValue(), 42L);
+    }
+
+    @Test
+    public void testUpdate3() throws Exception {
+        clock.set(0L);
+        MinGauge minGauge = newInstance("min1");
+        minGauge.update(42L);
+        minGauge.update(420L);
         minGauge.update(1L);
+        clock.set(60000L);
         assertEquals(minGauge.getValue().longValue(), 1L);
     }
 }

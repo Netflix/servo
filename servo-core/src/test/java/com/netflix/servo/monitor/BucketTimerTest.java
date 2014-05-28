@@ -18,9 +18,11 @@ package com.netflix.servo.monitor;
 
 import static org.testng.Assert.*;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.testng.annotations.Test;
 
 public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
@@ -110,11 +112,12 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
     }
 
     private void assertMonitors(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {
+        Set<String> exclude = ImmutableSet.of("count", "min", "max");
         String[] namespaces = new String[] { "statistic", "servo.bucket"};
         for (Monitor<?> monitor : monitors) {
             for (String namespace : namespaces) {
                 final String tag = monitor.getConfig().getTags().getValue(namespace);
-                if (tag != null && !tag.equals("count")) {
+                if (tag != null && !exclude.contains(tag)) {
                     final Number actual = (Number) monitor.getValue();
                     final Number expected = expectedValues.get(tag);
                     assertEquals(actual, expected, namespace + "." + tag);
