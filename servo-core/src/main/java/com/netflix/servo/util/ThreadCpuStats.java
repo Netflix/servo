@@ -446,7 +446,7 @@ public final class ThreadCpuStats {
          */
         private void updateNoValue() {
             final int currentPos = toIndex(nextPos.get() - 1);
-            update(totals.get(currentPos));
+            totals.set(toIndex(nextPos.getAndIncrement()), totals.get(currentPos));
         }
     }
 
