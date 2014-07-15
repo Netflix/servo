@@ -71,6 +71,18 @@ subprojects {
 }
 
 project(':servo-core') {
+  task(checkCompatibility, dependsOn: 'jar', type: JavaExec) {
+    main = 'com.googlecode.japi.checker.cli.Main'
+    classpath = files("$projectDir/../codequality/japi-checker-cli-0.2.0-SNAPSHOT.jar")
+    args = [
+      "$projectDir/../codequality/servo-core-BASELINE.jar",
+      "$projectDir/build/libs/servo-core-${project.version}.jar"
+    ]
+  }
+
+  build {
+    it.dependsOn checkCompatibility
+  }
 }
 
 project(':servo-apache') {
