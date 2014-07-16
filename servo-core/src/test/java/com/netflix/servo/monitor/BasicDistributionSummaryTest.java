@@ -32,17 +32,20 @@ public class BasicDistributionSummaryTest extends AbstractMonitorTest<BasicDistr
         assertEquals(m.getCount().longValue(), 0L);
         assertEquals(m.getTotalAmount().longValue(), 0L);
         assertEquals(m.getMax().longValue(), 0L);
+        assertEquals(m.getMin().longValue(), 0L);
 
         m.record(42);
         assertEquals(m.getValue().longValue(), 42L);
         assertEquals(m.getTotalAmount().longValue(), 42L);
         assertEquals(m.getCount().longValue(), 1L);
         assertEquals(m.getMax().longValue(), 42L);
+        assertEquals(m.getMin().longValue(), 42L);
 
         m.record(21);
         assertEquals(m.getValue().longValue(), 31L);
         assertEquals(m.getTotalAmount().longValue(), 63L);
         assertEquals(m.getCount().longValue(), 2L);
         assertEquals(m.getMax().longValue(), 42L);
+        assertEquals(m.getMin().longValue(), 21L);
     }
 }
