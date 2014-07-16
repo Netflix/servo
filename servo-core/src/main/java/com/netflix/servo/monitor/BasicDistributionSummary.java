@@ -33,10 +33,12 @@ public class BasicDistributionSummary
     private static final Tag STAT_TOTAL = Tags.newTag(STATISTIC, "totalAmount");
     private static final Tag STAT_COUNT = Tags.newTag(STATISTIC, "count");
     private static final Tag STAT_MAX = Tags.newTag(STATISTIC, "max");
+    private static final Tag STAT_MIN = Tags.newTag(STATISTIC, "min");
 
     private final StepCounter totalAmount;
     private final StepCounter count;
     private final MaxGauge max;
+    private final MinGauge min;
 
     private final List<Monitor<?>> monitors;
 
@@ -49,8 +51,9 @@ public class BasicDistributionSummary
         totalAmount = new StepCounter(config.withAdditionalTag(STAT_TOTAL));
         count = new StepCounter(config.withAdditionalTag(STAT_COUNT));
         max = new MaxGauge(config.withAdditionalTag(STAT_MAX));
+        min = new MinGauge(config.withAdditionalTag(STAT_MIN));
 
-        monitors = ImmutableList.<Monitor<?>>of(totalAmount, count, max);
+        monitors = ImmutableList.<Monitor<?>>of(totalAmount, count, max, min);
     }
 
     /**
@@ -69,6 +72,7 @@ public class BasicDistributionSummary
             totalAmount.increment(amount);
             count.increment();
             max.update(amount);
+            min.update(amount);
         }
     }
 
@@ -98,6 +102,13 @@ public class BasicDistributionSummary
     }
 
     /**
+     * Get the min value since the last polling interval.
+     */
+    public Long getMin() {
+        return min.getCurrentValue(0);
+    }
+
+    /**
      * Get the max value since the last polling interval.
      */
     public Long getMax() {
@@ -113,6 +124,7 @@ public class BasicDistributionSummary
                 .add("config", config)
                 .add("totalAmount", totalAmount)
                 .add("count", count)
+                .add("min", min)
                 .add("max", max).toString();
     }
 
@@ -121,7 +133,7 @@ public class BasicDistributionSummary
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, totalAmount, count, max);
+        return Objects.hashCode(config, totalAmount, count, max, min);
     }
 
     /**
@@ -141,6 +153,7 @@ public class BasicDistributionSummary
         return config.equals(m.getConfig())
                 && totalAmount.equals(m.totalAmount)
                 && count.equals(m.count)
-                && max.equals(m.max);
+                && max.equals(m.max)
+                && min.equals(m.min);
     }
 }
