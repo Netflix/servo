@@ -17,8 +17,6 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -32,12 +30,16 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
     private final List<Metric>[] observations;
     private int next;
 
-    /** Creates a new instance that keeps 10 copies in memory. */
+    /**
+     * Creates a new instance that keeps 10 copies in memory.
+     */
     public MemoryMetricObserver() {
         this("unamed observer", DEFAULT_N);
     }
 
-    /** Creates a new instance that keeps {@code num} copies in memory. */
+    /**
+     * Creates a new instance that keeps {@code num} copies in memory.
+     */
     @SuppressWarnings("unchecked")
     public MemoryMetricObserver(String name, int num) {
         super(name);
@@ -45,7 +47,9 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
         next = 0;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void updateImpl(List<Metric> metrics) {
         observations[next] = metrics;
         next = (next + 1) % observations.length;

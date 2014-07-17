@@ -22,10 +22,10 @@ import static org.testng.Assert.assertEquals;
 public class PollersTest {
     @Test
     public void testParseOneEntry() throws Exception {
-        long[] expected1 = { 1L };
+        long[] expected1 = {1L};
         assertEquals(Pollers.parse("1"), expected1);
 
-        long[] expected2 = { 42000L };
+        long[] expected2 = {42000L};
         assertEquals(Pollers.parse("42000"), expected2);
     }
 

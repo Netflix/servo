@@ -41,16 +41,20 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link Timer} that provides statistics.
- * <p>
+ * <p/>
  * The statistics are collected periodically and are published according to the configuration
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
  */
-public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMonitor<Long>, NumericMonitor<Long> {
-    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+public class StatsMonitor extends AbstractMonitor<Long> implements
+        CompositeMonitor<Long>, NumericMonitor<Long> {
+    private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat("StatsMonitor-%d")
             .build();
-    protected static final ScheduledExecutorService defaultExecutor = Executors.newScheduledThreadPool(1, threadFactory);
+    //CHECKSTYLE.OFF: ConstantName
+    protected static final ScheduledExecutorService defaultExecutor =
+            Executors.newScheduledThreadPool(1, THREAD_FACTORY);
+    //CHECKSTYLE.ON: ConstantName
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsMonitor.class);
 
     private final MonitorConfig baseConfig;
@@ -76,10 +80,11 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
     private interface GaugeWrapper {
         void update(StatsBuffer buffer);
+
         Monitor<?> getMonitor();
     }
 
-    private static abstract class LongGaugeWrapper implements GaugeWrapper {
+    private abstract static class LongGaugeWrapper implements GaugeWrapper {
         protected final LongGauge gauge;
 
         protected LongGaugeWrapper(MonitorConfig config) {
@@ -93,9 +98,12 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof LongGaugeWrapper)) return false;
-
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof LongGaugeWrapper)) {
+                return false;
+            }
             final LongGaugeWrapper that = (LongGaugeWrapper) o;
             return gauge.equals(that.gauge);
         }
@@ -111,7 +119,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
         }
     }
 
-    private static abstract class DoubleGaugeWrapper implements GaugeWrapper {
+    private abstract static class DoubleGaugeWrapper implements GaugeWrapper {
         protected final DoubleGauge gauge;
 
         protected DoubleGaugeWrapper(MonitorConfig config) {
@@ -125,9 +133,12 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof DoubleGaugeWrapper)) return false;
-
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DoubleGaugeWrapper)) {
+                return false;
+            }
             final DoubleGaugeWrapper that = (DoubleGaugeWrapper) o;
             return gauge.equals(that.gauge);
         }
@@ -224,7 +235,10 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("gauge", gauge).add("percentile", percentile).toString();
+            return Objects.toStringHelper(this)
+                    .add("gauge", gauge)
+                    .add("percentile", percentile)
+                    .toString();
         }
     }
 
@@ -267,10 +281,11 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
         // do a sanity check to prevent duplicated monitor configurations
         final Set<MonitorConfig> seen = Sets.newHashSet();
-        for (final GaugeWrapper wrapper: wrappers) {
+        for (final GaugeWrapper wrapper : wrappers) {
             final MonitorConfig cfg = wrapper.getMonitor().getConfig();
             if (seen.contains(cfg)) {
-                throw new IllegalArgumentException("Duplicated monitor configuration found: " + cfg);
+                throw new IllegalArgumentException("Duplicated monitor configuration found: "
+                        + cfg);
             }
             seen.add(cfg);
         }
@@ -279,15 +294,15 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
     }
 
     /**
-     * Creates a new instance of the timer with a unit of milliseconds, using the {@link ScheduledExecutorService} provided by
-     * the user.
+     * Creates a new instance of the timer with a unit of milliseconds,
+     * using the {@link ScheduledExecutorService} provided by the user.
      */
     public StatsMonitor(final MonitorConfig config,
-    		final StatsConfig statsConfig,
-    		final ScheduledExecutorService executor,
-    		final String totalTagName,
-    		final boolean autoStart,
-    		final Tag...additionalTags) {
+                        final StatsConfig statsConfig,
+                        final ScheduledExecutorService executor,
+                        final String totalTagName,
+                        final boolean autoStart,
+                        final Tag... additionalTags) {
         super(config);
         final Tag statsTotal = Tags.newTag(STATISTIC, totalTagName);
         TagList additionalTagList = new BasicTagList(Arrays.asList(additionalTags));
@@ -297,28 +312,33 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
         this.count = new BasicCounter(baseConfig.withAdditionalTag(STAT_COUNT));
         this.totalMeasurement = new BasicCounter(baseConfig.withAdditionalTag(statsTotal));
         this.gaugeWrappers = getGaugeWrappers(statsConfig);
-        final Collection<Monitor<?>> gaugeMonitors = Collections2.transform(gaugeWrappers, new Function<GaugeWrapper, Monitor<?>>() {
-            public Monitor<?> apply(GaugeWrapper perfStatGauge) {
-                return perfStatGauge.getMonitor();
-            }
-        });
+        final Collection<Monitor<?>> gaugeMonitors = Collections2.transform(gaugeWrappers,
+                new Function<GaugeWrapper, Monitor<?>>() {
+                    public Monitor<?> apply(GaugeWrapper perfStatGauge) {
+                        return perfStatGauge.getMonitor();
+                    }
+                });
         this.monitors = new ImmutableList.Builder<Monitor<?>>()
                 .addAll(getCounters(statsConfig))
                 .addAll(gaugeMonitors)
                 .build();
         this.startComputingAction = new Runnable() {
-        	public void run() {
-        		startComputingStats(executor, statsConfig.getFrequencyMillis());
-        	}
+            public void run() {
+                startComputingStats(executor, statsConfig.getFrequencyMillis());
+            }
         };
         if (autoStart) {
-        	startComputingStats();
+            startComputingStats();
         }
     }
 
-    /** starts computation.   Because of potential race conditions, derived classes may wish to define initial state before calling this function which starts the executor */
+    /**
+     * starts computation.
+     * Because of potential race conditions, derived classes may wish
+     * to define initial state before calling this function which starts the executor
+     */
     public void startComputingStats() {
-    	this.startComputingAction.run();
+        this.startComputingAction.run();
     }
 
     private void startComputingStats(ScheduledExecutorService executor, long frequencyMillis) {
@@ -340,31 +360,38 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
             }
         };
 
-        executor.scheduleWithFixedDelay(command, frequencyMillis, frequencyMillis, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(command, frequencyMillis, frequencyMillis,
+                TimeUnit.MILLISECONDS);
     }
 
     private void updateGauges() {
-        for (GaugeWrapper gauge: gaugeWrappers) {
+        for (GaugeWrapper gauge : gaugeWrappers) {
             gauge.update(prev);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Monitor<?>> getMonitors() {
         return monitors;
     }
 
-    /** Record the measurement we want to perform statistics on */
+    /**
+     * Record the measurement we want to perform statistics on.
+     */
     public void record(long measurement) {
-        synchronized(updateLock) {
+        synchronized (updateLock) {
             cur.record(measurement);
         }
         count.increment();
         totalMeasurement.increment(measurement);
     }
 
-    /** Get the value of the measurement */
+    /**
+     * Get the value of the measurement.
+     */
     @Override
     public Long getValue(int pollerIndex) {
         final long n = getCount(pollerIndex);
@@ -378,15 +405,18 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
     }
 
     /**
-     * This is called when we encounter an exception while processing the values recorded to compute
-     * the stats.
-     * @param e  Exception encountered.
+     * This is called when we encounter an exception while processing the values
+     * recorded to compute the stats.
+     *
+     * @param e Exception encountered.
      */
     protected void handleException(Exception e) {
         LOGGER.warn("Unable to compute stats: ", e);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -395,7 +425,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
                 .toString();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof StatsMonitor)) {
@@ -406,14 +438,16 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
         return baseConfig.equals(m.baseConfig) && monitors.equals(m.monitors);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(baseConfig, monitors);
     }
 
     /**
-     * Get the number of times this timer has been updated
+     * Get the number of times this timer has been updated.
      */
     public long getCount(int pollerIndex) {
         return count.getValue(pollerIndex).longValue();
@@ -421,7 +455,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements CompositeMoni
 
 
     /**
-     * Get the total time recorded for this timer
+     * Get the total time recorded for this timer.
      */
     public long getTotalMeasurement() {
         return totalMeasurement.getValue().longValue();

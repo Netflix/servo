@@ -79,25 +79,27 @@ public final class CounterToRateMetricTransform implements MetricObserver {
      * heartbeat should be some multiple of the sampling interval used when
      * collecting the metrics.
      *
-     * @param observer            downstream observer to forward values to after the rate has
-     *                            been computed.
-     * @param heartbeat           how long to remember a previous value before dropping it and
-     *                            treating new samples as the first report.
-     * @param estPollingInterval  estimated polling interval in to use for the first call. If set
-     *                            to zero no values will be forwarded until the second sample for
-     *                            a given counter. The delta for the first interval will be the
-     *                            total value for the counter as it is assumed it started at 0 and
-     *                            was first created since the last polling interval. If this
-     *                            assumption is not true then this setting should be 0 so it waits
-     *                            for the next sample to compute an accurate delta, otherwise
-     *                            spikes will occur in the output.
-     * @param unit                unit for the heartbeat and estPollingInterval params.
+     * @param observer           downstream observer to forward values to after the rate has
+     *                           been computed.
+     * @param heartbeat          how long to remember a previous value before dropping it and
+     *                           treating new samples as the first report.
+     * @param estPollingInterval estimated polling interval in to use for the first call. If set
+     *                           to zero no values will be forwarded until the second sample for
+     *                           a given counter. The delta for the first interval will be the
+     *                           total value for the counter as it is assumed it started at 0 and
+     *                           was first created since the last polling interval. If this
+     *                           assumption is not true then this setting should be 0 so it waits
+     *                           for the next sample to compute an accurate delta, otherwise
+     *                           spikes will occur in the output.
+     * @param unit               unit for the heartbeat and estPollingInterval params.
+     * @param clock              Clock instance to use for getting the time.
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
         value = "SE_BAD_FIELD_INNER_CLASS",
         justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
     CounterToRateMetricTransform(
-            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit, final Clock clock) {
+            MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit,
+            final Clock clock) {
         this.observer = observer;
         this.intervalMillis = TimeUnit.MILLISECONDS.convert(estPollingInterval, unit);
 
@@ -115,6 +117,25 @@ public final class CounterToRateMetricTransform implements MetricObserver {
         };
     }
 
+    /**
+     * Creates a new instance with the specified heartbeat interval. The
+     * heartbeat should be some multiple of the sampling interval used when
+     * collecting the metrics.
+     *
+     * @param observer           downstream observer to forward values to after the rate has
+     *                           been computed.
+     * @param heartbeat          how long to remember a previous value before dropping it and
+     *                           treating new samples as the first report.
+     * @param estPollingInterval estimated polling interval in to use for the first call. If set
+     *                           to zero no values will be forwarded until the second sample for
+     *                           a given counter. The delta for the first interval will be the
+     *                           total value for the counter as it is assumed it started at 0 and
+     *                           was first created since the last polling interval. If this
+     *                           assumption is not true then this setting should be 0 so it waits
+     *                           for the next sample to compute an accurate delta, otherwise
+     *                           spikes will occur in the output.
+     * @param unit               unit for the heartbeat and estPollingInterval params.
+     */
     public CounterToRateMetricTransform(
             MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit) {
         this(observer, heartbeat, estPollingInterval, unit, ClockWithOffset.INSTANCE);

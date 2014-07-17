@@ -35,6 +35,10 @@ public final class BasicTagList implements TagList {
 
     private final SmallTagMap tagMap;
     private SortedMap<String, String> sortedTaglist;
+
+    /**
+     * Create a BasicTagList from a {@link SmallTagMap}.
+     */
     public BasicTagList(SmallTagMap tagMap) {
         this.tagMap = tagMap;
     }
@@ -115,8 +119,8 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-        return this == obj ||
-                (obj instanceof BasicTagList) && tagMap.equals(((BasicTagList) obj).tagMap);
+        return this == obj
+                || (obj instanceof BasicTagList) && tagMap.equals(((BasicTagList) obj).tagMap);
     }
 
     /** {@inheritDoc} */

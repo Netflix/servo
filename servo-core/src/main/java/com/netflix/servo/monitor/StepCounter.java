@@ -76,10 +76,16 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
         return dp.isUnknown() ? Double.NaN : dp.getValue() / stepSeconds;
     }
 
+    /**
+     * Get the count for the last completed polling interval for the given poller index.
+     */
     public long getCount(int pollerIndex) {
         return count.poll(pollerIndex).getValue();
     }
 
+    /**
+     * Get the current count for the given poller index.
+     */
     @VisibleForTesting
     public long getCurrentCount(int pollerIndex) {
         return count.getCurrent(pollerIndex).get();
@@ -96,15 +102,25 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
                 .toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         StepCounter that = (StepCounter) o;
         return config.equals(that.config) && getCount(0) == that.getCount(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return config.hashCode();

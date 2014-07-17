@@ -29,7 +29,14 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,16 +56,27 @@ public final class ThreadCpuStats {
     private static final long FIVE_MINUTE_NANOS = 5 * ONE_MINUTE_NANOS;
     private static final long FIFTEEN_MINUTE_NANOS = 15 * ONE_MINUTE_NANOS;
 
+    /** Constant representing one minute. */
     public static final String ONE_MIN = "one_min";
+    /** Constant representing five minutes. */
     public static final String FIVE_MIN = "five_min";
+    /** Constant representing fifteen minutes. */
     public static final String FIFTEEN_MIN = "fifteen_min";
+    /** Constant representing the overall time. */
     public static final String OVERALL = "overall";
+    /** Current time in milliseconds. */
     public static final String CURRENT_TIME = "time_ms";
+    /** uptime in milliseconds. */
     public static final String UPTIME_MS = "uptime_ms";
+    /** JVM usage time in nanoseconds. */
     public static final String JVM_USAGE_TIME = "jvm_usage_time_ns";
+    /** JVM usage as a percentage. */
     public static final String JVM_USAGE_PERCENT = "jvm_usage_percent";
+    /** Thread ID. */
     public static final String ID = "id";
+    /** Thread name. */
     public static final String NAME = "name";
+    /** Threads. */
     public static final String THREADS = "threads";
 
     private volatile boolean running = false;
@@ -67,21 +85,29 @@ public final class ThreadCpuStats {
 
     private final Map<Long, CpuUsage> threadCpuUsages = new ConcurrentHashMap<Long, CpuUsage>();
 
-    /** Return the singleton instance. */
+    /**
+     * Return the singleton instance.
+     */
     public static ThreadCpuStats getInstance() {
         return INSTANCE;
     }
 
-    /** Creates a new instance. */
+    /**
+     * Creates a new instance.
+     */
     private ThreadCpuStats() {
     }
 
-    /** Returns true if cpu status are currently being collected. */
+    /**
+     * Returns true if cpu status are currently being collected.
+     */
     public boolean isRunning() {
         return false;
     }
 
-    /** Start collecting cpu stats for the threads. */
+    /**
+     * Start collecting cpu stats for the threads.
+     */
     public synchronized void start() {
         if (!running) {
             running = true;
@@ -90,22 +116,30 @@ public final class ThreadCpuStats {
         }
     }
 
-    /** Stop collecting cpu stats for the threads. */
+    /**
+     * Stop collecting cpu stats for the threads.
+     */
     public void stop() {
         running = false;
     }
 
-    /** Overall usage for the jvm. */
+    /**
+     * Overall usage for the jvm.
+     */
     public CpuUsage getOverallCpuUsage() {
         return jvmCpuUsage;
     }
 
-    /** List of cpu usages for each thread. */
+    /**
+     * List of cpu usages for each thread.
+     */
     public List<CpuUsage> getThreadCpuUsages() {
         return new ArrayList<CpuUsage>(threadCpuUsages.values());
     }
 
-    /** Helper function for computing percentage. */
+    /**
+     * Helper function for computing percentage.
+     */
     public static double toPercent(long value, long total) {
         return (total > 0) ? 100.0 * value / total : 0.0;
     }
@@ -167,7 +201,7 @@ public final class ThreadCpuStats {
      * Utility function that returns a Map containing cpu usages for threads. Output will be sorted
      * based on the {@link CpuUsageComparator} passed.
      *
-     * @param cmp  order to use for the results
+     * @param cmp order to use for the results
      */
     public Map<String, Object> getThreadCpuUsages(CpuUsageComparator cmp) {
         final CpuUsage overall = getOverallCpuUsage();
@@ -192,18 +226,22 @@ public final class ThreadCpuStats {
 
         final Map<String, Double> jvmUsagePercent = Maps.newHashMap();
         final int numProcs = Runtime.getRuntime().availableProcessors();
-        jvmUsagePercent.put(ONE_MIN, toPercent(overall.getOneMinute(), ONE_MINUTE_NANOS * numProcs));
-        jvmUsagePercent.put(FIVE_MIN, toPercent(overall.getFiveMinute(), FIVE_MINUTE_NANOS * numProcs));
-        jvmUsagePercent.put(FIFTEEN_MIN, toPercent(overall.getFifteenMinute(), FIFTEEN_MINUTE_NANOS * numProcs));
+        jvmUsagePercent.put(ONE_MIN, toPercent(overall.getOneMinute(),
+                ONE_MINUTE_NANOS * numProcs));
+        jvmUsagePercent.put(FIVE_MIN, toPercent(overall.getFiveMinute(),
+                FIVE_MINUTE_NANOS * numProcs));
+        jvmUsagePercent.put(FIFTEEN_MIN, toPercent(overall.getFifteenMinute(),
+                FIFTEEN_MINUTE_NANOS * numProcs));
         jvmUsagePercent.put(OVERALL, toPercent(overall.getOverall(), uptimeNanos * numProcs));
         result.put(JVM_USAGE_PERCENT, jvmUsagePercent);
 
-        List<Map<String,Object>> threads = Lists.newArrayList();
+        List<Map<String, Object>> threads = Lists.newArrayList();
         for (CpuUsage usage : usages) {
             Map<String, Object> threadInfo = Maps.newHashMap();
             threadInfo.put(ONE_MIN, toPercent(usage.getOneMinute(), overall.getOneMinute()));
             threadInfo.put(FIVE_MIN, toPercent(usage.getFiveMinute(), overall.getFiveMinute()));
-            threadInfo.put(FIFTEEN_MIN, toPercent(usage.getFifteenMinute(), overall.getFifteenMinute()));
+            threadInfo.put(FIFTEEN_MIN, toPercent(usage.getFifteenMinute(),
+                    overall.getFifteenMinute()));
             threadInfo.put(OVERALL, toPercent(usage.getOverall(), overall.getOverall()));
             threadInfo.put(ID, usage.getThreadId());
             threadInfo.put(NAME, usage.getName());
@@ -217,71 +255,79 @@ public final class ThreadCpuStats {
      * Utility function that dumps the cpu usages for the threads to stdout. Output will be sorted
      * based on the 1-minute usage from highest to lowest.
      *
-     * @param out  stream where output will be written
-     * @param cmp  order to use for the results
+     * @param out stream where output will be written
+     * @param cmp order to use for the results
      */
     public void printThreadCpuUsages(OutputStream out, CpuUsageComparator cmp) {
         final PrintWriter writer = getPrintWriter(out);
         final Map<String, Object> threadCpuUsages = getThreadCpuUsages(cmp);
 
-        writer.printf("Time: %s%n%n", new Date((Long)threadCpuUsages.get(CURRENT_TIME)));
-        final long uptimeMillis = (Long)threadCpuUsages.get(UPTIME_MS);
+        writer.printf("Time: %s%n%n", new Date((Long) threadCpuUsages.get(CURRENT_TIME)));
+        final long uptimeMillis = (Long) threadCpuUsages.get(UPTIME_MS);
         final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
         writer.printf("Uptime: %s%n%n", toDuration(uptimeNanos));
 
         @SuppressWarnings("unchecked")
-        final Map<String, Long> jvmUsageTime = (Map<String, Long>)threadCpuUsages.get(JVM_USAGE_TIME);
+        final Map<String, Long> jvmUsageTime = (Map<String, Long>)
+                threadCpuUsages.get(JVM_USAGE_TIME);
         writer.println("JVM Usage Time: ");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
-            "1-min", "5-min", "15-min", "overall", "id", "name");
+                "1-min", "5-min", "15-min", "overall", "id", "name");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
-            toDuration(jvmUsageTime.get(ONE_MIN)),
-            toDuration(jvmUsageTime.get(FIVE_MIN)),
-            toDuration(jvmUsageTime.get(FIFTEEN_MIN)),
-            toDuration(jvmUsageTime.get(OVERALL)),
-            "-",
-            "jvm");
+                toDuration(jvmUsageTime.get(ONE_MIN)),
+                toDuration(jvmUsageTime.get(FIVE_MIN)),
+                toDuration(jvmUsageTime.get(FIFTEEN_MIN)),
+                toDuration(jvmUsageTime.get(OVERALL)),
+                "-",
+                "jvm");
         writer.println();
 
         @SuppressWarnings("unchecked")
-        final Map<String, Double> jvmUsagePerc = (Map<String, Double>)threadCpuUsages.get(JVM_USAGE_PERCENT);
+        final Map<String, Double> jvmUsagePerc =
+                (Map<String, Double>) threadCpuUsages.get(JVM_USAGE_PERCENT);
         writer.println("JVM Usage Percent: ");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
-            "1-min", "5-min", "15-min", "overall", "id", "name");
+                "1-min", "5-min", "15-min", "overall", "id", "name");
         writer.printf("%10.2f%% %10.2f%% %10.2f%% %10.2f%%   %7s   %s%n",
-            jvmUsagePerc.get(ONE_MIN),
-            jvmUsagePerc.get(FIVE_MIN),
-            jvmUsagePerc.get(FIFTEEN_MIN),
-            jvmUsagePerc.get(OVERALL),
-            "-",
-            "jvm");
+                jvmUsagePerc.get(ONE_MIN),
+                jvmUsagePerc.get(FIVE_MIN),
+                jvmUsagePerc.get(FIFTEEN_MIN),
+                jvmUsagePerc.get(OVERALL),
+                "-",
+                "jvm");
         writer.println();
 
         writer.println("Breakdown by thread (100% = total cpu usage for jvm):");
         writer.printf("%11s %11s %11s %11s   %7s   %s%n",
-            "1-min", "5-min", "15-min", "overall", "id", "name");
+                "1-min", "5-min", "15-min", "overall", "id", "name");
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> threads = (List<Map<String, Object>>)threadCpuUsages.get(THREADS);
+        List<Map<String, Object>> threads =
+                (List<Map<String, Object>>) threadCpuUsages.get(THREADS);
         for (Map<String, Object> thread : threads) {
             writer.printf("%10.2f%% %10.2f%% %10.2f%% %10.2f%%   %7d   %s%n",
-                thread.get(ONE_MIN),
-                thread.get(FIVE_MIN),
-                thread.get(FIFTEEN_MIN),
-                thread.get(OVERALL),
-                thread.get(ID),
-                thread.get(NAME));
+                    thread.get(ONE_MIN),
+                    thread.get(FIVE_MIN),
+                    thread.get(FIFTEEN_MIN),
+                    thread.get(OVERALL),
+                    thread.get(ID),
+                    thread.get(NAME));
         }
         writer.println();
         writer.flush();
     }
 
 
-    /** Remove entries if the last update time is over this value */
-    private final static long AGE_LIMIT = 15 * 60 * 1000;
+    /**
+     * Remove entries if the last update time is over this value.
+     */
+    private static final long AGE_LIMIT = 15 * 60 * 1000;
 
-    /** Update the stats for all threads and the jvm. */
+    /**
+     * Update the stats for all threads and the jvm.
+     */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "REC_CATCH_EXCEPTION",
-            justification = "findBugs wants explicit catch clauses for each of the exceptions thrown. Too verbose until j7.")
+            justification = "findBugs wants explicit catch clauses for each exception. "
+                    + "Too verbose until j7")
     private void updateStats() {
         final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         if (bean.isThreadCpuTimeEnabled()) {
@@ -309,7 +355,8 @@ public final class ThreadCpuStats {
             // in this interval.
             //
             // Total cpu time can be found in:
-            // http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
+            // http://docs.oracle.com/javase/7/docs/jre/api/management/extension/\
+            // com/sun/management/OperatingSystemMXBean.html
             //
             // We use reflection to avoid direct dependency on com.sun.* classes.
             final OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
@@ -341,7 +388,9 @@ public final class ThreadCpuStats {
         }
     }
 
-    /** Update the stats for threads each minute. */
+    /**
+     * Update the stats for threads each minute.
+     */
     private class CpuStatRunnable implements Runnable {
         public void run() {
             final long step = 60000L;
@@ -363,7 +412,9 @@ public final class ThreadCpuStats {
         }
     }
 
-    /** Keeps track of the cpu usage for a single thread. */
+    /**
+     * Keeps track of the cpu usage for a single thread.
+     */
     public static final class CpuUsage {
 
         private static final int BUFFER_SIZE = 16;
@@ -375,7 +426,9 @@ public final class ThreadCpuStats {
 
         private final AtomicInteger nextPos = new AtomicInteger(0);
 
-        /** Cumulative cpu times for the different intervals. */
+        /**
+         * Cumulative cpu times for the different intervals.
+         */
         private final AtomicLongArray totals = new AtomicLongArray(BUFFER_SIZE);
 
         private CpuUsage(long id, String name) {
@@ -391,33 +444,45 @@ public final class ThreadCpuStats {
             return id;
         }
 
-        /** Name of the thread. */
+        /**
+         * Name of the thread.
+         */
         public String getName() {
             return name;
         }
 
-        /** Last time the stats for this object were updated. */
+        /**
+         * Last time the stats for this object were updated.
+         */
         public long getLastUpdateTime() {
             return lastUpdateTime.get();
         }
 
-        /** Returns the overall usage for the lifetime of the thread. */
+        /**
+         * Returns the overall usage for the lifetime of the thread.
+         */
         public long getOverall() {
             final int currentPos = toIndex(nextPos.get() - 1);
             return totals.get(currentPos);
         }
 
-        /** Returns the usage for the last one minute. */
+        /**
+         * Returns the usage for the last one minute.
+         */
         public long getOneMinute() {
             return get(1);
         }
 
-        /** Returns the usage for the last five minutes. */
+        /**
+         * Returns the usage for the last five minutes.
+         */
         public long getFiveMinute() {
             return get(5);
         }
 
-        /** Returns the usage for the last fifteen minutes. */
+        /**
+         * Returns the usage for the last fifteen minutes.
+         */
         public long getFifteenMinute() {
             return get(15);
         }
@@ -450,18 +515,28 @@ public final class ThreadCpuStats {
         }
     }
 
-    /** Comparator for sorting cpu usage based on one of the columns. */
+    /**
+     * Comparator for sorting cpu usage based on one of the columns.
+     */
     public static enum CpuUsageComparator implements Comparator<CpuUsage> {
-        /** Sort based on 1-minute usage column. */
+        /**
+         * Sort based on 1-minute usage column.
+         */
         ONE_MINUTE(0),
 
-        /** Sort based on 5-minute usage column. */
+        /**
+         * Sort based on 5-minute usage column.
+         */
         FIVE_MINUTE(1),
 
-        /** Sort based on 15-minute usage column. */
+        /**
+         * Sort based on 15-minute usage column.
+         */
         FIFTEEN_MINUTE(2),
 
-        /** Sort based on overall usage column. */
+        /**
+         * Sort based on overall usage column.
+         */
         OVERALL(3);
 
         private final int col;
@@ -470,14 +545,24 @@ public final class ThreadCpuStats {
             this.col = col;
         }
 
-        /** {@inheritDoc} */
+        /**
+         * {@inheritDoc}
+         */
         public int compare(CpuUsage u1, CpuUsage u2) {
             long cmp;
             switch (col) {
-                case 0: cmp = u2.getOneMinute() - u1.getOneMinute(); break;
-                case 1: cmp = u2.getFiveMinute() - u1.getFiveMinute(); break;
-                case 2: cmp = u2.getFifteenMinute() - u1.getFifteenMinute(); break;
-                default: cmp = u2.getOverall() - u1.getOverall(); break;
+                case 0:
+                    cmp = u2.getOneMinute() - u1.getOneMinute();
+                    break;
+                case 1:
+                    cmp = u2.getFiveMinute() - u1.getFiveMinute();
+                    break;
+                case 2:
+                    cmp = u2.getFifteenMinute() - u1.getFifteenMinute();
+                    break;
+                default:
+                    cmp = u2.getOverall() - u1.getOverall();
+                    break;
             }
             return (cmp < 0) ? -1 : ((cmp > 0) ? 1 : 0);
         }

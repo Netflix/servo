@@ -32,25 +32,26 @@ public final class Pollers {
     /**
      * A comma separated list of longs indicating the frequency of the pollers. For example: <br/>
      * {@code 60000, 10000 }<br/>
-     * indicates that the main poller runs every 60s and a secondary poller will run every 10 seconds.
-     * This is used to deal with monitors that need to get reset after they're polled. For example a MinGauge
-     * or a ResettableCounter.
+     * indicates that the main poller runs every 60s and a secondary
+     * poller will run every 10 seconds.
+     * This is used to deal with monitors that need to get reset after they're polled.
+     * For example a MinGauge or a MaxGauge.
      */
     public static final String POLLERS = System.getProperty("servo.pollers", "60000,10000");
-    static final long[] DEFAULT_PERIODS = new long[]{60000L,10000L};
+    static final long[] DEFAULT_PERIODS = new long[]{60000L, 10000L};
 
     /**
      * Polling intervals in milliseconds.
      */
     static final long[] POLLING_INTERVALS = parse(POLLERS);
 
-    private static final ImmutableList<Long> pollingIntervals;
+    private static final ImmutableList<Long> POLLING_INTERVALS_AS_LIST;
 
     /**
      * Get list of polling intervals in milliseconds.
      */
     public static List<Long> getPollingIntervals() {
-        return pollingIntervals;
+        return POLLING_INTERVALS_AS_LIST;
     }
 
     /**
@@ -58,7 +59,9 @@ public final class Pollers {
      */
     public static final int NUM_POLLERS = POLLING_INTERVALS.length;
 
-    /** For debugging. Simple toString for non-empty arrays */
+    /**
+     * For debugging. Simple toString for non-empty arrays
+     */
     private static String join(long[] a) {
         assert (a.length > 0);
         StringBuilder builder = new StringBuilder();
@@ -71,7 +74,8 @@ public final class Pollers {
     }
 
     /**
-     * Parse the content of the system property that describes the polling intervals, and in case of errors
+     * Parse the content of the system property that describes the polling intervals,
+     * and in case of errors
      * use the default of one poller running every minute.
      */
     static long[] parse(String pollers) {
@@ -95,7 +99,8 @@ public final class Pollers {
         }
 
         if (errors || periods.length == 0) {
-            logger.info("Using a default configuration for poller intervals: {}", join(DEFAULT_PERIODS));
+            logger.info("Using a default configuration for poller intervals: {}",
+                    join(DEFAULT_PERIODS));
             return DEFAULT_PERIODS;
         } else {
             return result;
@@ -107,6 +112,6 @@ public final class Pollers {
         for (long pollingInterval : POLLING_INTERVALS) {
             builder.add(pollingInterval);
         }
-        pollingIntervals = builder.build();
+        POLLING_INTERVALS_AS_LIST = builder.build();
     }
 }

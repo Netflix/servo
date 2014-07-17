@@ -37,7 +37,8 @@ import static org.testng.Assert.assertNull;
 
 public class DynamicCounterTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounterTest.class);
-    private DynamicCounter getInstance() throws Exception  {
+
+    private DynamicCounter getInstance() throws Exception {
         Field theInstance = DynamicCounter.class.getDeclaredField("INSTANCE");
         theInstance.setAccessible(true);
         return (DynamicCounter) theInstance.get(null);
@@ -48,7 +49,7 @@ public class DynamicCounterTest {
     }
 
     private final TagList tagList = new BasicTagList(ImmutableList.of(
-        (Tag) new BasicTag("PLATFORM", "true")));
+            (Tag) new BasicTag("PLATFORM", "true")));
 
     private StepCounter getByName(String name) throws Exception {
         List<Monitor<?>> counters = getCounters();
@@ -70,8 +71,9 @@ public class DynamicCounterTest {
     }
 
     final ManualClock clock = new ManualClock(0L);
+
     /**
-     * Erase all previous counters by creating a new loading cache with a short expiration time
+     * Erase all previous counters by creating a new loading cache with a short expiration time.
      */
     @BeforeMethod
     public void setupInstance() throws Exception {
@@ -79,13 +81,14 @@ public class DynamicCounterTest {
         DynamicCounter theInstance = getInstance();
         Field counters = DynamicCounter.class.getDeclaredField("counters");
         counters.setAccessible(true);
-        ExpiringCache<MonitorConfig, Counter> newShortExpiringCache = new ExpiringCache<MonitorConfig, Counter>(60000L,
-                new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
-                    @Override
-                    public Counter apply(final MonitorConfig config) {
-                        return new StepCounter(config, clock);
-                    }
-                }, 100L, clock);
+        ExpiringCache<MonitorConfig, Counter> newShortExpiringCache =
+                new ExpiringCache<MonitorConfig, Counter>(60000L,
+                        new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
+                            @Override
+                            public Counter apply(final MonitorConfig config) {
+                                return new StepCounter(config, clock);
+                            }
+                        }, 100L, clock);
 
         counters.set(theInstance, newShortExpiringCache);
     }

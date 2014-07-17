@@ -35,7 +35,8 @@ public class ExpiringCacheTest {
     public void testGet() throws Exception {
         ManualClock clock = new ManualClock(0L);
         CountingFun fun = new CountingFun();
-        ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L, fun, 100L, clock);
+        ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L,
+                fun, 100L, clock);
 
         Integer three = map.get("foo");
         assertEquals(three, Integer.valueOf(3));

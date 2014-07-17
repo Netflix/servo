@@ -94,7 +94,8 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
         for (int i = 0; i < numBuckets; i++) {
             bucketCount[i] = new BasicCounter(unitConfig
                 .withAdditionalTag(STAT_COUNT)
-                .withAdditionalTag(Tags.newTag(BUCKET, String.format("bucket=%0" + numDigits + "d%s", buckets[i], label)))
+                .withAdditionalTag(Tags.newTag(BUCKET,
+                        String.format("bucket=%0" + numDigits + "d%s", buckets[i], label)))
             );
         }
 

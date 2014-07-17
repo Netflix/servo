@@ -40,7 +40,7 @@ public class ExpiringCache<K, V> {
     private final ConcurrentHashMapV8.Fun<K, Entry<V>> entryGetter;
     private final Clock clock;
 
-    private static class Entry<V> {
+    private static final class Entry<V> {
         private volatile long accessTime;
         private final V value;
         private final Clock clock;
@@ -58,8 +58,12 @@ public class ExpiringCache<K, V> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Entry entry = (Entry) o;
 
@@ -75,21 +79,18 @@ public class ExpiringCache<K, V> {
 
         @Override
         public String toString() {
-            return "Entry{" +
-                    "accessTime=" + accessTime +
-                    ", value=" + value +
-                    '}';
+            return "Entry{accessTime=" + accessTime + ", value=" + value + '}';
         }
     }
 
-    private static final ScheduledExecutorService service;
+    private static final ScheduledExecutorService SERVICE;
 
     static {
         final ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setDaemon(true)
                 .setNameFormat("expiringMap-%d")
                 .build();
-        service = Executors.newSingleThreadScheduledExecutor(threadFactory);
+        SERVICE = Executors.newSingleThreadScheduledExecutor(threadFactory);
     }
 
     /**
@@ -110,7 +111,8 @@ public class ExpiringCache<K, V> {
      *
      * @param expireAfterMs    Number of milliseconds after which entries will be evicted
      * @param getter           Function that will be used to compute the values
-     * @param expirationFreqMs Frequency at which to schedule the job that evicts entries from the cache.
+     * @param expirationFreqMs Frequency at which to schedule the job that evicts entries
+     *                         from the cache.
      */
     public ExpiringCache(final long expireAfterMs, final ConcurrentHashMapV8.Fun<K, V> getter,
                          final long expirationFreqMs, final Clock clock) {
@@ -131,10 +133,11 @@ public class ExpiringCache<K, V> {
                 }
             }
         };
-        service.scheduleWithFixedDelay(expirationJob, 1, expirationFreqMs, TimeUnit.MILLISECONDS);
+        SERVICE.scheduleWithFixedDelay(expirationJob, 1, expirationFreqMs, TimeUnit.MILLISECONDS);
     }
 
-    private ConcurrentHashMapV8.Fun<K, Entry<V>> toEntry(final ConcurrentHashMapV8.Fun<K, V> underlying) {
+    private ConcurrentHashMapV8.Fun<K, Entry<V>> toEntry(final ConcurrentHashMapV8.Fun<K, V>
+                                                                 underlying) {
         return new ConcurrentHashMapV8.Fun<K, Entry<V>>() {
             @Override
             public Entry<V> apply(K key) {

@@ -102,7 +102,8 @@ public final class FileMetricObserver extends BaseMetricObserver {
      * @param clock        clock instance to use for getting the time used in the filename
      */
 
-    public FileMetricObserver(String name, String namePattern, File dir, boolean compress, Clock clock) {
+    public FileMetricObserver(String name, String namePattern, File dir,
+                              boolean compress, Clock clock) {
         super(name);
         this.dir = dir;
         this.compress = compress;

@@ -63,8 +63,8 @@ public class DoubleGauge extends NumberGauge {
 
         DoubleGauge that = (DoubleGauge) o;
 
-        return getConfig().equals(that.getConfig()) &&
-                number.get() == that.number.get();
+        return getConfig().equals(that.getConfig())
+                && number.get() == that.number.get();
     }
 
     /**

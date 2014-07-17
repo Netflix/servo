@@ -48,7 +48,9 @@ public class MockMetricPoller extends BaseMetricPoller {
             throw new IllegalStateException("die");
         }
 
-        try { Thread.sleep(delay); } catch (InterruptedException e) { }
+        try { Thread.sleep(delay); } catch (InterruptedException e) {
+            System.err.println("Ignoring " + e.getMessage());
+        }
         return metrics;
     }
 }

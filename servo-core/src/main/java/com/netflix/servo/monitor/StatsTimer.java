@@ -15,28 +15,29 @@
  */
 package com.netflix.servo.monitor;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Objects;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.Tags;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * A {@link Timer} that provides statistics.
- * <p>
+ * <p/>
  * The statistics are collected periodically and are published according to the configuration
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object. Please
  * make sure that the sampleSize corresponds to roughly the number of samples expected in
  * a reporting interval. While the statistics collected are accurate for this machine they will not
- * be correct if they are aggregated across groups of machines. If that is an expected use-case a better
- * approach is to use buckets that correspond to different times. For example you might have a counter
- * that tracks how many calls took &lt; 20ms, one for [ 20ms, 500ms ], and one for &gt; 500ms. This bucketing 
- * approach can be easily aggregated.
+ * be correct if they are aggregated across groups of machines.
+ * If that is an expected use-case a better
+ * approach is to use buckets that correspond to different times.
+ * For example you might have a counter
+ * that tracks how many calls took &lt; 20ms, one for [ 20ms, 500ms ], and one for &gt; 500ms.
+ * This bucketing approach can be easily aggregated.
+ * See {@link com.netflix.servo.monitor.BucketTimer}
  */
 public class StatsTimer extends StatsMonitor implements Timer {
-
-
     private final TimeUnit timeUnit;
     private static final String UNIT = "unit";
 
@@ -56,16 +57,20 @@ public class StatsTimer extends StatsMonitor implements Timer {
 
 
     /**
-     * Creates a new instance of the timer with a unit of milliseconds, using the {@link ScheduledExecutorService} provided by
+     * Creates a new instance of the timer with a unit of milliseconds,
+     * using the {@link ScheduledExecutorService} provided by
      * the user.
      */
-    public StatsTimer(MonitorConfig config, StatsConfig statsConfig, TimeUnit unit, ScheduledExecutorService executor) {
+    public StatsTimer(MonitorConfig config, StatsConfig statsConfig, TimeUnit unit,
+                      ScheduledExecutorService executor) {
         super(config, statsConfig, executor, "totalTime", false, Tags.newTag(UNIT, unit.name()));
         this.timeUnit = unit;
         startComputingStats();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Stopwatch start() {
         Stopwatch s = new TimedStopwatch(this);
@@ -73,43 +78,55 @@ public class StatsTimer extends StatsMonitor implements Timer {
         return s;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void record(long duration, TimeUnit timeUnit) {
         record(this.timeUnit.convert(duration, timeUnit));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-        		.add("StatsMonitor", super.toString())
+                .add("StatsMonitor", super.toString())
                 .add("timeUnit", timeUnit)
                 .toString();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
-    	if (!(obj instanceof StatsTimer)){ return false; }
+        if (!(obj instanceof StatsTimer)) {
+            return false;
+        }
         final StatsTimer m = (StatsTimer) obj;
         return super.equals(obj) && timeUnit.equals(m.timeUnit);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(super.hashCode(), timeUnit);
     }
 
     /**
-     * Get the number of times this timer has been updated
+     * Get the number of times this timer has been updated.
      */
     public long getCount() {
         return count.getValue().longValue();
@@ -117,7 +134,7 @@ public class StatsTimer extends StatsMonitor implements Timer {
 
 
     /**
-     * Get the total time recorded for this timer
+     * Get the total time recorded for this timer.
      */
     public long getTotalTime() {
         return getTotalMeasurement();

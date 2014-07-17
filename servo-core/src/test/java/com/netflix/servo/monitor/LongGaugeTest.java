@@ -45,7 +45,8 @@ public class LongGaugeTest extends AbstractMonitorTest<LongGauge> {
     @Test
     public void testGetConfig() throws Exception {
         LongGauge gauge = newInstance("test");
-        MonitorConfig expectedConfig = MonitorConfig.builder("test").withTag(DataSourceType.KEY, "GAUGE").build();
+        MonitorConfig expectedConfig = MonitorConfig.builder("test")
+                .withTag(DataSourceType.KEY, "GAUGE").build();
         assertEquals(gauge.getConfig(), expectedConfig);
     }
 

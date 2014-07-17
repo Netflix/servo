@@ -27,16 +27,18 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class TimedInterfaceTest  {
+public class TimedInterfaceTest {
     /**
-     * Dummy interface to test our timer
+     * Dummy interface to test our timer.
      */
     private interface IDummy {
         void method1();
+
         boolean method2(int n);
+
         Object method3(Object a, Object b);
     }
-    
+
     private interface IDummyExtended extends IDummy {
         void method4();
     }
@@ -67,7 +69,7 @@ public class TimedInterfaceTest  {
             return a;
         }
     }
-    
+
     private static class ExtendedDummy extends DummyImpl implements IDummyExtended {
 
         @Override
@@ -105,7 +107,7 @@ public class TimedInterfaceTest  {
 
         assertEquals(compositeMonitor.getConfig(), expectedConfig);
 
-        for (Monitor<?> monitor: monitors) {
+        for (Monitor<?> monitor : monitors) {
             final MonitorConfig config = monitor.getConfig();
             final String method = config.getName();
             final MonitorConfig expected = MonitorConfig.builder(method).withTags(tagList).build();
@@ -148,8 +150,10 @@ public class TimedInterfaceTest  {
     @SuppressWarnings("unchecked")
     @Test
     public void testInterfaceInheritence() {
-        final List<String> expectedNames = Lists.newArrayList("method1", "method2", "method3", "method4");
-        final IDummyExtended extendedDummy = TimedInterface.newProxy(IDummyExtended.class, new ExtendedDummy());
+        final List<String> expectedNames = Lists.newArrayList("method1", "method2",
+                "method3", "method4");
+        final IDummyExtended extendedDummy = TimedInterface.newProxy(IDummyExtended.class,
+                new ExtendedDummy());
         final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) extendedDummy;
         DefaultMonitorRegistry.getInstance().register(compositeMonitor);
         assertEquals(compositeMonitor.getMonitors().size(), 4);

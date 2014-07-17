@@ -34,37 +34,49 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class MonitorConfig {
 
-    /** A builder to assist in creating monitor config objects. */
+    /**
+     * A builder to assist in creating monitor config objects.
+     */
     public static class Builder {
         private final String name;
         private SmallTagMap.Builder tagsBuilder = SmallTagMap.builder();
         private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
-        /** Create a new builder initialized with the specified config. */
+        /**
+         * Create a new builder initialized with the specified config.
+         */
         public Builder(MonitorConfig config) {
             this(config.getName());
             withTags(config.getTags());
             withPublishingPolicy(config.getPublishingPolicy());
         }
 
-        /** Create a new builder initialized with the specified name. */
+        /**
+         * Create a new builder initialized with the specified name.
+         */
         public Builder(String name) {
             this.name = name;
         }
 
-        /** Add a tag to the config. */
+        /**
+         * Add a tag to the config.
+         */
         public Builder withTag(String key, String val) {
             tagsBuilder.add(Tags.newTag(key, val));
             return this;
         }
 
-        /** Add a tag to the config. */
+        /**
+         * Add a tag to the config.
+         */
         public Builder withTag(Tag tag) {
             tagsBuilder.add(tag);
             return this;
         }
 
-        /** Add all tags in the list to the config. */
+        /**
+         * Add all tags in the list to the config.
+         */
         public Builder withTags(TagList tagList) {
             if (tagList != null) {
                 for (Tag t : tagList) {
@@ -74,27 +86,33 @@ public final class MonitorConfig {
             return this;
         }
 
-        /** Add all tags in the list to the config. */
+        /**
+         * Add all tags in the list to the config.
+         */
         public Builder withTags(Collection<Tag> tagCollection) {
             tagsBuilder.addAll(tagCollection);
             return this;
         }
 
         /**
-         * Add all tags from a given SmallTagMap
+         * Add all tags from a given SmallTagMap.
          */
         public Builder withTags(SmallTagMap.Builder tagsBuilder) {
             this.tagsBuilder = tagsBuilder;
             return this;
         }
 
-        /** Add the publishing policy to the config. */
+        /**
+         * Add the publishing policy to the config.
+         */
         public Builder withPublishingPolicy(PublishingPolicy policy) {
             this.policy = policy;
             return this;
         }
 
-        /** Create the monitor config object. */
+        /**
+         * Create the monitor config object.
+         */
         public MonitorConfig build() {
             return new MonitorConfig(this);
         }
@@ -121,7 +139,9 @@ public final class MonitorConfig {
         }
     }
 
-    /** Return a builder instance with the specified name. */
+    /**
+     * Return a builder instance with the specified name.
+     */
     public static Builder builder(String name) {
         return new Builder(name);
     }
@@ -130,7 +150,9 @@ public final class MonitorConfig {
     private final TagList tags;
     private final PublishingPolicy policy;
 
-    /** Config is immutable, cache the hash code to improve performance. */
+    /**
+     * Config is immutable, cache the hash code to improve performance.
+     */
     private final AtomicInteger cachedHashCode = new AtomicInteger(0);
 
     /**
@@ -140,8 +162,8 @@ public final class MonitorConfig {
     private MonitorConfig(Builder builder) {
         this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
         this.tags = (builder.tagsBuilder.isEmpty())
-            ? BasicTagList.EMPTY
-            : new BasicTagList(builder.tagsBuilder.result());
+                ? BasicTagList.EMPTY
+                : new BasicTagList(builder.tagsBuilder.result());
         this.policy = builder.policy;
     }
 
@@ -166,7 +188,9 @@ public final class MonitorConfig {
         return policy;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -177,8 +201,8 @@ public final class MonitorConfig {
         }
         MonitorConfig m = (MonitorConfig) obj;
         return name.equals(m.getName())
-            && tags.equals(m.getTags())
-            && policy.equals(m.getPublishingPolicy());
+                && tags.equals(m.getTags())
+                && policy.equals(m.getPublishingPolicy());
     }
 
     /**
@@ -197,7 +221,9 @@ public final class MonitorConfig {
         return hash;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

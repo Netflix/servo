@@ -49,8 +49,8 @@ public enum DataSourceType implements Tag {
      */
     INFORMATIONAL;
 
-    /** 
-     *  Key name used for the data source type tag, configurable via 
+    /**
+     *  Key name used for the data source type tag, configurable via
      *  servo.datasourcetype.key system property.
      */
     public static final String KEY = System.getProperty("servo.datasourcetype.key", "type");
