@@ -72,11 +72,15 @@ subprojects {
 
 project(':servo-core') {
   task(checkCompatibility, dependsOn: 'jar', type: JavaExec) {
+    // There is probably a better way, but we remove "-SNAPSHOT" from the name if the archive
+    // doesn't exist because release plugin changes the name.
     main = 'com.googlecode.japi.checker.cli.Main'
     classpath = files("$projectDir/../codequality/japi-checker-cli-0.2.0-SNAPSHOT.jar")
     args = [
       "$projectDir/../codequality/servo-core-BASELINE.jar",
-      "$projectDir/build/libs/servo-core-${project.version}.jar"
+      (jar.archivePath.exists())
+        ? jar.archivePath.path
+        : jar.archivePath.path.replace("-SNAPSHOT", "")
     ]
   }
 
