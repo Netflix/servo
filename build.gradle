@@ -38,6 +38,8 @@ apply from: file('gradle/license.gradle')
 apply from: file('gradle/release.gradle')
 
 subprojects {
+    apply plugin: 'idea'
+
     group = 'com.netflix.servo' 
 
     tasks.withType(Compile) { 
@@ -119,5 +121,12 @@ project(':servo-example') {
         classpath = sourceSets.main.runtimeClasspath
         args = []
         systemProperties = [ "servo.pollers": "5000" ]
+    }
+}
+
+project(':servo-yammer') {
+    dependencies {
+        compile project(':servo-core')
+        compile 'com.yammer.metrics:metrics-core:2.2.0'
     }
 }
