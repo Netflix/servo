@@ -98,12 +98,10 @@ class StepLong {
 
     @Override
     public String toString() {
-        return "StepLong{" +
-                "init=" + init +
-                ", data=" + Arrays.toString(data) +
-                ", lastPollTime=" + Arrays.toString(lastPollTime) +
-                ", lastInitPos=" + Arrays.toString(lastInitPos) +
-                '}';
+        return "StepLong{init="  + init
+                + ", data=" + Arrays.toString(data)
+                + ", lastPollTime=" + Arrays.toString(lastPollTime)
+                + ", lastInitPos=" + Arrays.toString(lastInitPos) + '}';
     }
 }
 

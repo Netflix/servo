@@ -16,18 +16,14 @@
 package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.AmazonClientException;
-
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-
-import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.Metric;
-
+import com.netflix.servo.tag.BasicTagList;
+import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.Assert;
 
 /**
  * CloudWatchMetricObserver tests.
@@ -83,10 +79,14 @@ public class CloudWatchMetricObserverTest {
     @Test
     public void testTruncate() throws Exception {
         observer.withTruncateEnabled(true);
-        Assert.assertEquals(CloudWatchMetricObserver.MAX_VALUE, observer.truncate(Double.POSITIVE_INFINITY));
-        Assert.assertEquals(-CloudWatchMetricObserver.MAX_VALUE, observer.truncate(Double.NEGATIVE_INFINITY));
-        Assert.assertEquals(CloudWatchMetricObserver.MAX_VALUE, observer.truncate(Double.MAX_VALUE));
-        Assert.assertEquals(-CloudWatchMetricObserver.MAX_VALUE, observer.truncate(-Double.MAX_VALUE));
+        Assert.assertEquals(CloudWatchMetricObserver.MAX_VALUE,
+                observer.truncate(Double.POSITIVE_INFINITY));
+        Assert.assertEquals(-CloudWatchMetricObserver.MAX_VALUE,
+                observer.truncate(Double.NEGATIVE_INFINITY));
+        Assert.assertEquals(CloudWatchMetricObserver.MAX_VALUE,
+                observer.truncate(Double.MAX_VALUE));
+        Assert.assertEquals(-CloudWatchMetricObserver.MAX_VALUE,
+                observer.truncate(-Double.MAX_VALUE));
         Assert.assertEquals(0.0, observer.truncate(Double.MIN_VALUE));
         Assert.assertEquals(0.0, observer.truncate(-Double.MIN_VALUE));
 

@@ -21,11 +21,18 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * Group of Tags who's values will be dynamically set at runtime
+ * Group of Tags whose values will be dynamically set at runtime
  * based on local calls.
  */
 public enum InjectableTag implements Tag {
+    /**
+     * The current hostname.
+     */
     HOSTNAME("hostname", getHostName()),
+
+    /**
+     * The ip for localhost.
+     */
     IP("ip", getIp());
 
     private final String key;
@@ -36,14 +43,26 @@ public enum InjectableTag implements Tag {
         this.value = val;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getKey() {
         return key;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getValue() {
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String tagString() {
         return key + "=" + value;
     }

@@ -15,13 +15,14 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.tag.BasicTagList;
-import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
+
 import java.util.concurrent.TimeUnit;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class BucketConfigTest {
 
@@ -53,30 +54,30 @@ public class BucketConfigTest {
     @Test
     public void testAccessors() throws Exception {
         BucketConfig config = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,9})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 9})
+                .build();
 
         assertEquals(config.getTimeUnit(), TimeUnit.SECONDS);
-        assertEquals(config.getBuckets(), new long[] {7,8,9});
+        assertEquals(config.getBuckets(), new long[]{7, 8, 9});
     }
 
     @Test
     public void testEquals() throws Exception {
         BucketConfig config1 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,9})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 9})
+                .build();
 
         BucketConfig config2 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,9})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 9})
+                .build();
 
         BucketConfig config3 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,91})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 91})
+                .build();
 
         assertNotNull(config1);
         assertFalse(config1.toString().equals(config3.toString()));
@@ -88,19 +89,19 @@ public class BucketConfigTest {
     @Test
     public void testHashCode() throws Exception {
         BucketConfig config1 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,9})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 9})
+                .build();
 
         BucketConfig config2 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,9})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 9})
+                .build();
 
         BucketConfig config3 = new BucketConfig.Builder()
-            .withTimeUnit(TimeUnit.SECONDS)
-            .withBuckets(new long[] {7,8,91})
-            .build();
+                .withTimeUnit(TimeUnit.SECONDS)
+                .withBuckets(new long[]{7, 8, 91})
+                .build();
 
         assertTrue(config1.hashCode() == config1.hashCode());
         assertTrue(config1.hashCode() == config2.hashCode());

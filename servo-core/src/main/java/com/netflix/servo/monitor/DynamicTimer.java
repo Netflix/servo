@@ -43,12 +43,20 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     private final ExpiringCache<ConfigUnit, Timer> timers;
 
     static class ConfigUnit {
-        final MonitorConfig config;
-        final TimeUnit unit;
+        private final MonitorConfig config;
+        private final TimeUnit unit;
 
         ConfigUnit(MonitorConfig config, TimeUnit unit) {
             this.config = config;
             this.unit = unit;
+        }
+
+        MonitorConfig getConfig() {
+            return config;
+        }
+
+        TimeUnit getUnit() {
+            return unit;
         }
 
         @Override
@@ -81,7 +89,8 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
         final long expirationValue = Long.valueOf(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-        timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs, new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
+        timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs,
+                new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
             @Override
             public Timer apply(final ConfigUnit configUnit) {
                 return new BasicTimer(configUnit.config, configUnit.unit);
@@ -121,9 +130,9 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     }
 
     /**
-     * Record a duration to the dynamic timer indicated by the provided config. 
+     * Record a duration to the dynamic timer indicated by the provided config.
      * The units in which the timer is reported and the duration unit  are the same.
-     * @deprecated Use {@link DynamicTimer#record(MonitorConfig, java.util.concurrent.TimeUnit, 
+     * @deprecated Use {@link DynamicTimer#record(MonitorConfig, java.util.concurrent.TimeUnit,
      *                  long, java.util.concurrent.TimeUnit)} instead.
      *   The new method allows you to be specific about the units used for reporting the timer and
      *   the units in which the duration is measured.
@@ -133,12 +142,13 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     }
 
     /**
-     * Record a duration to the dynamic timer indicated by the 
+     * Record a duration to the dynamic timer indicated by the
      * provided config/reportUnit. The duration is specified
-     * by the pair duration and durationUnit. It's recommended to use this method, 
+     * by the pair duration and durationUnit. It's recommended to use this method,
      * specifying a reportUnit of SECONDS.
      */
-    public static void record(MonitorConfig config, TimeUnit reporUnit, long duration, TimeUnit durationUnit) {
+    public static void record(MonitorConfig config, TimeUnit reporUnit, long duration,
+                              TimeUnit durationUnit) {
         INSTANCE.get(config, reporUnit).record(duration, durationUnit);
     }
 

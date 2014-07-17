@@ -62,9 +62,12 @@ public class NormalizationTransformTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             TimeVal timeVal = (TimeVal) o;
             return t == timeVal.t && Double.compare(timeVal.v, v) == 0;
         }
@@ -78,7 +81,8 @@ public class NormalizationTransformTest {
     void assertMetrics(long step, long heartbeat, List<Metric> input, List<TimeVal> expected) {
         ManualClock clock = new ManualClock(0);
         MemoryMetricObserver mmo = new MemoryMetricObserver("m", 1);
-        MetricObserver transform = new NormalizationTransform(mmo, step, heartbeat, TimeUnit.MILLISECONDS, clock);
+        MetricObserver transform = new NormalizationTransform(mmo, step, heartbeat,
+                TimeUnit.MILLISECONDS, clock);
 
         int i = 0;
         for (Metric m : input) {
@@ -169,26 +173,32 @@ public class NormalizationTransformTest {
         return result;
     }
 
+    private static final double DELTA = 1e-6;
+
     @Test
     public void testUpdate() throws Exception {
         BasicCounter basicCounter = new BasicCounter(MonitorConfig.builder("basicCounter").build());
         ManualClock manualClock = new ManualClock(0);
-        StepCounter stepCounter = new StepCounter(MonitorConfig.builder("stepCounter").build(), manualClock);
+        StepCounter stepCounter = new StepCounter(MonitorConfig.builder("stepCounter").build(),
+                manualClock);
         LongGauge gauge = new LongGauge(MonitorConfig.builder("longGauge").build());
 
-        ImmutableList<? extends AbstractMonitor<Number>> monitors = ImmutableList.of(basicCounter, stepCounter, gauge);
+        ImmutableList<? extends AbstractMonitor<Number>> monitors = ImmutableList.of(basicCounter,
+                stepCounter, gauge);
 
         MemoryMetricObserver observer = new MemoryMetricObserver("normalization-test", 1);
-        NormalizationTransform normalizationTransform = new NormalizationTransform(observer, 60, 120, TimeUnit.SECONDS, manualClock);
-        CounterToRateMetricTransform toRateMetricTransform = new CounterToRateMetricTransform(normalizationTransform, 60, 120, TimeUnit.SECONDS, manualClock);
+        NormalizationTransform normalizationTransform = new NormalizationTransform(observer, 60,
+                120, TimeUnit.SECONDS, manualClock);
+        CounterToRateMetricTransform toRateMetricTransform =
+                new CounterToRateMetricTransform(normalizationTransform, 60,
+                        120, TimeUnit.SECONDS, manualClock);
 
-        final double DELTA = 1e-6;
-        double rates[] = {0.5 / 60.0, 2 / 60.0, 3 / 60.0, 4 / 60.0};
-        double expectedNormalized[] = {
-                rates[0] * (2.0/3.0), // 20000L over stepBoundary
-                rates[0] * (1.0/3.0) + rates[1] * (2.0/3.0),
-                rates[1] * (1.0/3.0) + rates[2] * (2.0/3.0),
-                rates[2] * (1.0/3.0) + rates[3] * (2.0/3.0) };
+        double[] rates = {0.5 / 60.0, 2 / 60.0, 3 / 60.0, 4 / 60.0};
+        double[] expectedNormalized = {
+                rates[0] * (2.0 / 3.0), // 20000L over stepBoundary
+                rates[0] * (1.0 / 3.0) + rates[1] * (2.0 / 3.0),
+                rates[1] * (1.0 / 3.0) + rates[2] * (2.0 / 3.0),
+                rates[2] * (1.0 / 3.0) + rates[3] * (2.0 / 3.0)};
 
         for (int i = 1; i < 5; ++i) {
             long now = 20000L + i * 60000L;
@@ -206,7 +216,8 @@ public class NormalizationTransformTest {
             double stepCounterVal = o.get(1).getNumberValue().doubleValue();
             double gaugeVal = o.get(2).getNumberValue().doubleValue();
             assertEquals(gaugeVal, (double) i, DELTA);
-            assertEquals(stepCounterVal, (i - 1) / 60.0, DELTA); // rate per second for the prev interval
+            // rate per second for the prev interval
+            assertEquals(stepCounterVal, (i - 1) / 60.0, DELTA);
             assertEquals(basicCounterVal, expectedNormalized[i - 1], DELTA);
 
             for (Metric m : o) {
@@ -228,7 +239,7 @@ public class NormalizationTransformTest {
 
         assertEquals(gaugeVal, (double) 4, DELTA); // last set value
         assertEquals(stepCounterVal, 4 / 60.0, DELTA);
-        assertEquals(basicCounterVal, (1/3.0) * rates[3]);
+        assertEquals(basicCounterVal, (1 / 3.0) * rates[3]);
     }
 
     @Test
@@ -239,27 +250,30 @@ public class NormalizationTransformTest {
         ManualClock manualClock = new ManualClock(0);
 
         MemoryMetricObserver observer = new MemoryMetricObserver("normalization-test", 1);
-        NormalizationTransform normalizationTransform = new NormalizationTransform(observer, 60, 120, TimeUnit.SECONDS, manualClock);
-        CounterToRateMetricTransform toRateMetricTransform = new CounterToRateMetricTransform(normalizationTransform, 60, 120, TimeUnit.SECONDS, manualClock);
+        NormalizationTransform normalizationTransform = new NormalizationTransform(observer, 60,
+                120, TimeUnit.SECONDS, manualClock);
+        CounterToRateMetricTransform toRateMetricTransform =
+                new CounterToRateMetricTransform(normalizationTransform, 60,
+                        120, TimeUnit.SECONDS, manualClock);
 
         manualClock.set(30000L);
         c1.increment();
         Metric m1 = new Metric(c1.getConfig(), manualClock.now(), c1.getValue(0));
 
         toRateMetricTransform.update(ImmutableList.of(m1));
-        assertEquals(NormalizationTransform.heartbeatExceeded.getValue(0).longValue(), 0);
+        assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 0);
         List<Metric> o = observer.getObservations().get(0);
         assertEquals(o.size(), 1);
 
         manualClock.set(100000L);
         Metric m2 = new Metric(c2.getConfig(), manualClock.now(), c2.getValue());
         toRateMetricTransform.update(ImmutableList.of(m2));
-        assertEquals(NormalizationTransform.heartbeatExceeded.getValue(0).longValue(), 0);
+        assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 0);
 
         manualClock.set(160000L);
         Metric m3 = new Metric(c3.getConfig(), manualClock.now(), c3.getValue());
         toRateMetricTransform.update(ImmutableList.of(m3));
-        assertEquals(NormalizationTransform.heartbeatExceeded.getValue(0).longValue(), 1);
+        assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 1);
 
     }
 }

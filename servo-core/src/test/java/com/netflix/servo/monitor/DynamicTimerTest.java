@@ -89,7 +89,7 @@ public class DynamicTimerTest {
                         new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
                             @Override
                             public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
-                                return new BasicTimer(configUnit.config, configUnit.unit);
+                                return new BasicTimer(configUnit.getConfig(), configUnit.getUnit());
                             }
                         }, 100L, clock);
 

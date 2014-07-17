@@ -18,14 +18,27 @@ package com.netflix.servo.monitor;
 
 /**
  * Counter implementation that keeps track of updates since the last reset.
+ * This class will be removed in the next release. Use a StepCounter directly
+ * if you specifically need the functionality previously provided by this class.
+ *
  * @deprecated Use Monitors.newCounter() instead to get a default implementation
  */
 @Deprecated
 public class ResettableCounter extends StepCounter {
+    /**
+     * Creates a new instance. Prefer a {@link com.netflix.servo.monitor.StepCounter}
+     */
     public ResettableCounter(MonitorConfig config) {
         super(config);
     }
 
+    /**
+     * Creates a new instance configured for a given polling interval. Note that the 'l' parameter
+     * is ignored. The functionality has been replaced by {@link com.netflix.servo.monitor.Pollers}
+     * and {@link com.netflix.servo.monitor.StepCounter}.
+     *
+     * Prefer a {@link com.netflix.servo.monitor.StepCounter}
+     */
     public ResettableCounter(MonitorConfig config, long l) {
         super(config);
     }

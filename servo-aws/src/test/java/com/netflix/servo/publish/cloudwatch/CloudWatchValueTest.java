@@ -15,12 +15,16 @@
  */
 package com.netflix.servo.publish.cloudwatch;
 
-import com.amazonaws.auth.*;
-import com.amazonaws.services.cloudwatch.*;
-import com.amazonaws.services.cloudwatch.model.*;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.MetricDatum;
+import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 
-import java.util.*;
+import java.util.Date;
 
+//CHECKSTYLE.OFF: LineLength
 /**
  * Test program for exploring the limits for values that can be written to cloudwatch.
  *
@@ -36,15 +40,21 @@ import java.util.*;
  * ERROR -2.128980e-109 -361 - com.amazonaws.services.cloudwatch.model.InvalidParameterValueException: The value -0 for parameter MetricData.member.1.Value is invalid.
  * </pre>
  */
-public class CloudWatchValueTest {
+//CHECKSTYLE.ON: LineLength
+final class CloudWatchValueTest {
 
-    private static final String accessKey = "";
-    private static final String secretKey = "";
+    private CloudWatchValueTest() {
+        // utility class
+    }
 
-    private static final AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-    private static final AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
+    private static final String ACCESS_KEY = "";
+    private static final String SECRET_KEY = "";
 
-    private static final double[] specialValues = {
+    private static final AWSCredentials CREDENTIALS = new BasicAWSCredentials(ACCESS_KEY,
+            SECRET_KEY);
+    private static final AmazonCloudWatch CLIENT = new AmazonCloudWatchClient(CREDENTIALS);
+
+    private static final double[] SPECIAL_VALUES = {
         Double.NaN,
         Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY,
@@ -69,9 +79,10 @@ public class CloudWatchValueTest {
     private static boolean putValue(String name, long timestamp, double value) {
         Date d = new Date(timestamp);
         MetricDatum m = new MetricDatum().withMetricName(name).withTimestamp(d).withValue(value);
-        PutMetricDataRequest req = new PutMetricDataRequest().withNamespace("TEST").withMetricData(m);
+        PutMetricDataRequest req = new PutMetricDataRequest().withNamespace("TEST")
+                .withMetricData(m);
         try {
-            client.putMetricData(req);
+            CLIENT.putMetricData(req);
             return true;
         } catch (Exception e) {
             System.out.printf("ERROR %e %d - %s: %s%n",
@@ -80,7 +91,8 @@ public class CloudWatchValueTest {
         }
     }
 
-    private static void putValues(String name, long start, double[] values, boolean ignoreFailures) {
+    private static void putValues(String name, long start, double[] values,
+                                  boolean ignoreFailures) {
         long t = start;
         boolean succeeded = true;
         for (int i = 0; (succeeded || ignoreFailures) && i < values.length; ++i, t += 60000) {
@@ -100,7 +112,7 @@ public class CloudWatchValueTest {
         double[] negLargeValues = getValues(-1.0, 2.0, 500);
         double[] negSmallValues = getValues(-1.0, 0.5, 500);
 
-        putValues(args[0] + "_special", start, specialValues, true);
+        putValues(args[0] + "_special", start, SPECIAL_VALUES, true);
         putValues(args[0] + "_pos_large", start, posLargeValues, false);
         putValues(args[0] + "_pos_small", start, posSmallValues, false);
         putValues(args[0] + "_neg_large", start, negLargeValues, false);

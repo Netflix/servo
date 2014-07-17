@@ -15,10 +15,7 @@
  */
 package com.netflix.servo.example;
 
-import com.google.common.io.Closer;
-
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
 
 import java.io.Closeable;
 import java.io.IOException;

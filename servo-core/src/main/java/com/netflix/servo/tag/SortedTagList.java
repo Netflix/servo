@@ -26,16 +26,32 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 
+/**
+ * A {@link com.netflix.servo.tag.TagList} backed by a {@link SortedMap}.
+ *
+ * Prefer the more efficient {@link com.netflix.servo.tag.BasicTagList} implementation which
+ * also provides an {@code asMap} method that returns a sorted map of tags.
+ */
 public final class SortedTagList implements TagList {
 
+    /**
+     * An empty {@code SortedTagList}.
+     */
     public static final SortedTagList EMPTY = new Builder().build();
 
     private final SortedMap<String, Tag> tagSortedMap;
     private final int size;
 
+    /**
+     * Helper class to construct {@code SortedTagList} objects.
+     */
     public static final class Builder {
         private final Map<String, Tag> data = Maps.newHashMap();
 
+        /**
+         * Add the collection of tags {@code tagsCollection} to this builder and
+         * return self.
+         */
         public Builder withTags(Collection<Tag> tagsCollection) {
             for (Tag tag : tagsCollection) {
                 final Tag t = Tags.internCustom(tag);
@@ -44,6 +60,10 @@ public final class SortedTagList implements TagList {
             return this;
         }
 
+        /**
+         * Add all tags from the {@link com.netflix.servo.tag.TagList} tags to this builder
+         * and return self.
+         */
         public Builder withTags(TagList tags) {
             for (Tag tag : tags) {
                 final Tag t = Tags.internCustom(tag);
@@ -52,16 +72,25 @@ public final class SortedTagList implements TagList {
             return this;
         }
 
+        /**
+         * Add the {@link Tag} to this builder and return self.
+         */
         public Builder withTag(Tag tag) {
             final Tag t = Tags.internCustom(tag);
             data.put(t.getKey(), t);
             return this;
         }
 
+        /**
+         * Add the tag specified by {@code key} and {@code value} to this builder and return self.
+         */
         public Builder withTag(String key, String value) {
             return withTag(Tags.newTag(key, value));
         }
 
+        /**
+         * Construct the {@code SortedTagList}.
+         */
         public SortedTagList build() {
             return new SortedTagList(this);
         }
@@ -118,6 +147,9 @@ public final class SortedTagList implements TagList {
         return stringMap;
     }
 
+    /**
+     * Get a new {@link com.netflix.servo.tag.SortedTagList.Builder}.
+     */
     public static Builder builder() {
         return new Builder();
     }

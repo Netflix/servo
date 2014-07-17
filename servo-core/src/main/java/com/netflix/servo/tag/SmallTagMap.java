@@ -25,24 +25,41 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Simple immutable hash map implementation intended only for dealing with a small set of tags (<= 24 in our case)
- * This class is not intended to be used by 3rd parties and should be considered an implementation detail.
+ * Simple immutable hash map implementation intended only for dealing with a small set of tags
+ * (<= 24 in our case)
+ * This class is not intended to be used by 3rd parties and should be considered an implementation
+ * detail.
  * This implementation is backed by a single array and uses open addressing with
- * linear probing to resolve conflicts. Some performance tests showed that it's significantly faster (2.5x)
- * for the BasicTagList use-case than using a LinkedHashMap as in previous implementations.
+ * linear probing to resolve conflicts. Some performance tests showed that it's significantly
+ * faster (2.5x)  for the BasicTagList use-case than using a LinkedHashMap as in
+ * previous implementations.
  */
 public class SmallTagMap implements Iterable<Tag> {
-    public final static int MAX_TAGS = 32;
-    public final static int INITIAL_TAG_SIZE = 8;
-    private final static Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
+    /**
+     * Max number of tags supported in a tag map. Attempting to add additional tags
+     * will result in a warning logged.
+     */
+    public static final int MAX_TAGS = 32;
+
+    /**
+     * Initial size for the map.
+     */
+    public static final int INITIAL_TAG_SIZE = 8;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
     private volatile ImmutableSet<Tag> entrySet;
 
-    /** Return a new builder to assist in creating a new SmallTagMap using the default tag size (8). */
+    /**
+     * Return a new builder to assist in creating a new SmallTagMap using the default tag size (8).
+     */
     public static Builder builder() {
         return new Builder(INITIAL_TAG_SIZE);
     }
 
+    /**
+     * Helper class to build the immutable map.
+     */
     public static class Builder {
         private int actualSize = 0;
         private int size;
@@ -54,14 +71,25 @@ public class SmallTagMap implements Iterable<Tag> {
             actualSize = 0;
         }
 
+        /**
+         * Create a new builder with the specified capacity.
+         *
+         * @param size Size of the underlying array.
+         */
         public Builder(int size) {
             init(size);
         }
 
+        /**
+         * Get the number of entries in this map..
+         */
         public int size() {
             return actualSize;
         }
 
+        /**
+         * True if this builder does not have any tags added to it.
+         */
         public boolean isEmpty() {
             return actualSize == 0;
         }
@@ -78,15 +106,19 @@ public class SmallTagMap implements Iterable<Tag> {
                 }
                 add(tag);
             } else {
-                final String msg = String.format("Cannot add Tag %s - Maximum number of tags (%d) reached.",
+                final String msg = String.format(
+                        "Cannot add Tag %s - Maximum number of tags (%d) reached.",
                         tag, MAX_TAGS);
                 LOGGER.error(msg);
             }
         }
 
+        /**
+         * Adds a new tag to this builder.
+         */
         public Builder add(Tag tag) {
             String k = tag.getKey();
-            int pos = (int) (Math.abs((long)k.hashCode()) % size);
+            int pos = (int) (Math.abs((long) k.hashCode()) % size);
             int i = pos;
             Object ki = buf[i * 2];
             while (ki != null && !ki.equals(k)) {
@@ -112,6 +144,9 @@ public class SmallTagMap implements Iterable<Tag> {
             return this;
         }
 
+        /**
+         * Adds all tags from the {@link Iterable} tags to this builder.
+         */
         public Builder addAll(Iterable<Tag> tags) {
             for (Tag tag : tags) {
                 add(tag);
@@ -119,14 +154,17 @@ public class SmallTagMap implements Iterable<Tag> {
             return this;
         }
 
+        /**
+         * Get the resulting SmallTagMap.
+         */
         public SmallTagMap result() {
             return new SmallTagMap(buf, actualSize);
         }
     }
 
     private class SmallTagIterator implements Iterator<Tag> {
-        int i = 0;
-        int pos = 0;
+        private int i = 0;
+        private int pos = 0;
 
         @Override
         public boolean hasNext() {
@@ -164,8 +202,9 @@ public class SmallTagMap implements Iterable<Tag> {
     private final int dataLength;
 
     /**
+     * Create a new SmallTagMap using the given array and size.
      *
-     * @param data array with the items
+     * @param data       array with the items
      * @param dataLength number of pairs
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2",
@@ -178,11 +217,13 @@ public class SmallTagMap implements Iterable<Tag> {
     private int hash(String k) {
         final int capacity = data.length / 2;
         // casting to long because of abs(Integer.MIN_VALUE) == Integer.MIN_VALUE
-        long posHashcode = Math.abs((long)k.hashCode());
+        long posHashcode = Math.abs((long) k.hashCode());
         return (int) (posHashcode % capacity);
     }
 
-    /** Get the tag associated with a given key. */
+    /**
+     * Get the tag associated with a given key.
+     */
     public Tag get(String key) {
         final int capacity = data.length / 2;
         final int pos = hash(key);
@@ -196,7 +237,9 @@ public class SmallTagMap implements Iterable<Tag> {
         return key.equals(data[i * 2]) ? (Tag) data[i * 2 + 1] : null;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         if (cachedHashCode == 0) {
@@ -212,27 +255,38 @@ public class SmallTagMap implements Iterable<Tag> {
         return cachedHashCode;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "SmallTagMap{" + Joiner.on(",").join(iterator()) + "}";
     }
 
-    /** Returns true whether this map contains a Tag with the given key. */
+    /**
+     * Returns true whether this map contains a Tag with the given key.
+     */
     public boolean containsKey(String k) {
         return get(k) != null;
     }
 
-    /** Returns true if this map has no entries. */
+    /**
+     * Returns true if this map has no entries.
+     */
     public boolean isEmpty() {
         return dataLength == 0;
     }
 
-    /** Returns the number of Tags stored in this map. */
+    /**
+     * Returns the number of Tags stored in this map.
+     */
     public int size() {
         return dataLength;
     }
 
+    /**
+     * Returns the {@link Set} of tags.
+     */
     public Set<Tag> tagSet() {
         if (entrySet == null) {
             ImmutableSet.Builder<Tag> e = ImmutableSet.builder();

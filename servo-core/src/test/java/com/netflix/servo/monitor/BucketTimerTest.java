@@ -16,22 +16,24 @@
 package com.netflix.servo.monitor;
 
 
-import static org.testng.Assert.*;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import org.testng.annotations.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
     @Override
     public BucketTimer newInstance(String name) {
         return new BucketTimer(
-            MonitorConfig.builder(name).build(),
-            new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build()
+                MonitorConfig.builder(name).build(),
+                new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build()
         );
     }
 
@@ -113,7 +115,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
     private void assertMonitors(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {
         Set<String> exclude = ImmutableSet.of("count", "min", "max");
-        String[] namespaces = new String[] { "statistic", "servo.bucket"};
+        String[] namespaces = new String[]{"statistic", "servo.bucket"};
         for (Monitor<?> monitor : monitors) {
             for (String namespace : namespaces) {
                 final String tag = monitor.getConfig().getTags().getValue(namespace);

@@ -48,7 +48,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     private final List<Monitor<?>> monitors;
 
-    private static class FactorMonitor<T extends Number> extends AbstractMonitor<Double>
+    private static final class FactorMonitor<T extends Number> extends AbstractMonitor<Double>
             implements NumericMonitor<Double> {
         private final Monitor<T> wrapped;
         private final double factor;
@@ -88,9 +88,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN), clock);
         max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
 
-        final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<Number>(totalTime, timeUnitNanosFactor);
-        final FactorMonitor<Long> minFactor = new FactorMonitor<Long>(min, timeUnitNanosFactor);
-        final FactorMonitor<Long> maxFactor = new FactorMonitor<Long>(max, timeUnitNanosFactor);
+        final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<Number>(totalTime,
+                timeUnitNanosFactor);
+        final FactorMonitor<Long> minFactor = new FactorMonitor<Long>(min,
+                timeUnitNanosFactor);
+        final FactorMonitor<Long> maxFactor = new FactorMonitor<Long>(max,
+                timeUnitNanosFactor);
 
         monitors = ImmutableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
     }
@@ -103,13 +106,17 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     }
 
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Monitor<?>> getMonitors() {
         return monitors;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Stopwatch start() {
         Stopwatch s = new TimedStopwatch(this);
@@ -117,7 +124,9 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return s;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TimeUnit getTimeUnit() {
         return timeUnit;
@@ -132,7 +141,9 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Deprecated
     public void record(long duration) {
@@ -140,7 +151,9 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         recordNanos(nanos);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void record(long duration, TimeUnit unit) {
         recordNanos(unit.toNanos(duration));
@@ -150,7 +163,9 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return totalTime.getCurrentCount(pollerIndex) * timeUnitNanosFactor;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Long getValue(int pollerIndex) {
         final long cnt = count.getCurrentCount(pollerIndex);
@@ -158,27 +173,37 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         return (cnt == 0) ? 0L : value;
     }
 
-    /** Get the total time for all updates. */
+    /**
+     * Get the total time for all updates.
+     */
     public Double getTotalTime() {
         return getTotal(0);
     }
 
-    /** Get the total number of updates. */
+    /**
+     * Get the total number of updates.
+     */
     public Long getCount() {
         return count.getCurrentCount(0);
     }
 
-    /** Get the min value since the last reset. */
+    /**
+     * Get the min value since the last reset.
+     */
     public Double getMin() {
         return min.getCurrentValue(0) * timeUnitNanosFactor;
     }
 
-    /** Get the max value since the last reset. */
+    /**
+     * Get the max value since the last reset.
+     */
     public Double getMax() {
         return max.getCurrentValue(0) * timeUnitNanosFactor;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -195,13 +220,17 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
                 && max.equals(m.max);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(config, totalTime, count, min, max);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

@@ -111,7 +111,8 @@ public class SmallTagMapTest {
 
     @Test
     public void testContains() {
-        SmallTagMap map = SmallTagMap.builder().add(new BasicTag("k1", "v")).add(new BasicTag("k2", "v2")).result();
+        SmallTagMap map = SmallTagMap.builder().add(new BasicTag("k1", "v")).add(
+                new BasicTag("k2", "v2")).result();
         assertTrue(map.containsKey("k1"));
         assertTrue(map.containsKey("k2"));
         assertFalse(map.containsKey("k3"));
@@ -133,7 +134,8 @@ public class SmallTagMapTest {
         SmallTagMap map1 = SmallTagMap.builder().add(new BasicTag("k1", "v1")).result();
         SmallTagMap map2 = SmallTagMap.builder().add(new BasicTag("k1", "v2")).result();
         SmallTagMap map3 = SmallTagMap.builder().add(new BasicTag("k1", "v1")).result();
-        SmallTagMap map4 = SmallTagMap.builder().add(new BasicTag("k1", "v1")).add(new BasicTag("k2", "v2")).result();
+        SmallTagMap map4 = SmallTagMap.builder().add(new BasicTag("k1", "v1"))
+                .add(new BasicTag("k2", "v2")).result();
 
         assertTrue(map1.equals(map1));
         assertTrue(map1.equals(map3));
@@ -160,10 +162,10 @@ public class SmallTagMapTest {
     public void testEqualsRandomOrder() {
         SmallTagMap.Builder builder1 = SmallTagMap.builder();
         SmallTagMap.Builder builder2 = SmallTagMap.builder();
-        final int N = 16;
-        for (int i = 0; i < N; i++) {
+        final int n = 16;
+        for (int i = 0; i < n; i++) {
             builder1.add(new BasicTag("k" + i, "0"));
-            builder2.add(new BasicTag("k" + (N - i - 1), "0"));
+            builder2.add(new BasicTag("k" + (n - i - 1), "0"));
         }
         assertEquals(builder1.result(), builder2.result());
     }
@@ -172,10 +174,10 @@ public class SmallTagMapTest {
     public void testHashcodeRandomOrder() {
         SmallTagMap.Builder builder1 = SmallTagMap.builder();
         SmallTagMap.Builder builder2 = SmallTagMap.builder();
-        final int N = 16;
-        for (int i = 0; i < N; i++) {
+        final int n = 16;
+        for (int i = 0; i < n; i++) {
             builder1.add(new BasicTag("k" + i, "0"));
-            builder2.add(new BasicTag("k" + (N - i - 1), "0"));
+            builder2.add(new BasicTag("k" + (n - i - 1), "0"));
         }
         assertEquals(builder1.result().hashCode(), builder2.result().hashCode());
     }

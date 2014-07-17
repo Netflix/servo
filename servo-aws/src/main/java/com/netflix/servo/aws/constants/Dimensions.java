@@ -16,8 +16,9 @@
 package com.netflix.servo.aws.constants;
 
 /**
- * Constants related to the AWS API, and what the labels they use for Dimensions across their services.
- *
+ * Constants related to the AWS API, and what the labels they use for Dimensions
+ * across their services.
+ * <p/>
  * http://docs.amazonwebservices.com/AmazonCloudWatch/latest/DeveloperGuide/CW_Support_For_AWS.html
  */
 public enum Dimensions {
@@ -44,11 +45,11 @@ public enum Dimensions {
 
     private String awsString;
 
-    private Dimensions(String awsString){
+    private Dimensions(String awsString) {
         this.awsString = awsString;
     }
 
-    public String getAwsString(){
+    public String getAwsString() {
         return awsString;
     }
 }

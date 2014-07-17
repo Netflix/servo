@@ -17,23 +17,28 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Configuration options for a {@link com.netflix.servo.monitor.BucketTimer}
- * <p>
+ * Configuration options for a {@link com.netflix.servo.monitor.BucketTimer}.
+ * <p/>
  * By default we publish count (number of times the timer was executed), totalTime, and
- * the counts and times for the following buckets: 0ms, 100ms, 200ms, 500ms 1000ms 2000ms, 3000ms, 5000ms
+ * the counts and times for the following buckets: 0ms, 100ms, 200ms, 500ms,
+ * 1000ms 2000ms, 3000ms, 5000ms
  */
 public final class BucketConfig {
 
+    /**
+     * Helper class for constructing BucketConfigs.
+     */
     public static class Builder {
         private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         private long[] buckets = null;
 
         /**
-         * Sets the timeunit for the buckets.
+         * Sets the timeUnit for the buckets.
          */
         public Builder withTimeUnit(TimeUnit timeUnit) {
             this.timeUnit = Preconditions.checkNotNull(timeUnit);
@@ -42,7 +47,7 @@ public final class BucketConfig {
 
         /**
          * Sets the buckets to be used.
-         *
+         * <p/>
          * <p><ul>
          * <li>Each bucket must be unique.
          * <li>Buckets must be in ascending order (smallest-to-largest).
@@ -53,13 +58,15 @@ public final class BucketConfig {
          * perform the same check on n2, n3, etc. If the duration is greater
          * the largest bucket, it is added to the 'overflow' bucket. The overflow
          * bucket is automatically created.
+         * </ul>
          */
         public Builder withBuckets(long[] buckets) {
             Preconditions.checkNotNull(buckets, "buckets cannot be null");
 
             this.buckets = Arrays.copyOf(buckets, buckets.length);
             Preconditions.checkArgument(this.buckets.length > 0, "buckets cannot be empty");
-            Preconditions.checkArgument(isAscending(this.buckets), "buckets must be in ascending order");
+            Preconditions.checkArgument(isAscending(this.buckets),
+                    "buckets must be in ascending order");
             return this;
         }
 
@@ -74,6 +81,9 @@ public final class BucketConfig {
             return true;
         }
 
+        /**
+         * Builds a new {@link com.netflix.servo.monitor.BucketConfig}.
+         */
         public BucketConfig build() {
             return new BucketConfig(this);
         }
@@ -99,14 +109,22 @@ public final class BucketConfig {
      */
     public String getTimeUnitAbbreviation() {
         switch (timeUnit) {
-            case DAYS: return "day";
-            case HOURS: return "hr";
-            case MICROSECONDS: return "\u00B5s";
-            case MILLISECONDS: return "ms";
-            case MINUTES: return "min";
-            case NANOSECONDS: return "ns";
-            case SECONDS: return "s";
-            default: return "unkwn";
+            case DAYS:
+                return "day";
+            case HOURS:
+                return "hr";
+            case MICROSECONDS:
+                return "\u00B5s";
+            case MILLISECONDS:
+                return "ms";
+            case MINUTES:
+                return "min";
+            case NANOSECONDS:
+                return "ns";
+            case SECONDS:
+                return "s";
+            default:
+                return "unkwn";
         }
     }
 
@@ -117,7 +135,9 @@ public final class BucketConfig {
         return Arrays.copyOf(buckets, buckets.length);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -126,21 +146,25 @@ public final class BucketConfig {
                 .toString();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BucketConfig)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BucketConfig)) {
+            return false;
+        }
 
         final BucketConfig that = (BucketConfig) o;
-
-        if (timeUnit != that.timeUnit) return false;
-        if (!Arrays.equals(buckets, that.buckets)) return false;
-
-        return true;
+        return timeUnit == that.timeUnit && Arrays.equals(buckets, that.buckets);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int result = timeUnit.hashCode();

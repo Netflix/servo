@@ -133,11 +133,6 @@
         <!-- <module name="AvoidInlineConditionals"/> -->
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <module name="HiddenField">
-          <property name="ignoreConstructorParameter" value="true"/>
-          <property name="ignoreSetter" value="true"/>
-          <property name="severity" value="warning"/>
-        </module>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <!--<module name="MagicNumber">
@@ -180,8 +175,8 @@
 
     <!-- Enable suppression comments -->
     <module name="SuppressionCommentFilter">
-      <property name="offCommentFormat" value="CHECKSTYLE IGNORE\s+(\S+)"/>
-      <property name="onCommentFormat" value="CHECKSTYLE END IGNORE\s+(\S+)"/>
+      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: (\w+)"/>
+      <property name="onCommentFormat" value="CHECKSTYLE.ON\: (\w+)"/>
       <property name="checkFormat" value="$1"/>
     </module>
     <module name="SuppressWithNearbyCommentFilter">

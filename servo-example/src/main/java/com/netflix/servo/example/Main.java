@@ -41,7 +41,10 @@ import java.util.List;
 
 import java.util.concurrent.TimeUnit;
 
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
 
     private static MetricObserver rateTransform(MetricObserver observer) {
         final long heartbeat = 2 * Config.getPollInterval();
@@ -66,7 +69,8 @@ public class Main {
     }
 
     private static void schedule(MetricPoller poller, List<MetricObserver> observers) {
-        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL, true, observers);
+        final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL,
+                true, observers);
         PollScheduler.getInstance().addPoller(task, Config.getPollInterval(), TimeUnit.SECONDS);
     }
 

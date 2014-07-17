@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A simple circular buffer that records values, and computes useful stats. This implementation is not thread
- * safe.
+ * A simple circular buffer that records values, and computes useful stats.
+ * This implementation is not thread safe.
  */
 public class StatsBuffer {
     private int count;
@@ -41,16 +41,19 @@ public class StatsBuffer {
     private AtomicBoolean statsComputed = new AtomicBoolean(false);
 
     /**
-     * Create a circular buffer that will be used to record values and compute useful stats
-     * @param size      The capacity of the buffer
-     * @param percentiles  Array of percentiles to compute. For example { 95.0, 99.0 }. If no percentileValues are required
-     *                  pass a 0-sized array.
+     * Create a circular buffer that will be used to record values and compute useful stats.
+     *
+     * @param size        The capacity of the buffer
+     * @param percentiles Array of percentiles to compute. For example { 95.0, 99.0 }.
+     *                    If no percentileValues are required pass a 0-sized array.
      */
     public StatsBuffer(int size, double[] percentiles) {
         Preconditions.checkArgument(size > 0, "Size of the buffer must be greater than 0");
         Preconditions.checkArgument(percentiles != null,
-                "Percents array must be non-null. Pass a 0-sized array if you don't want any percentileValues to be computed.");
-        Preconditions.checkArgument(validPercentiles(percentiles), "All percentiles should be in the interval (0.0, 100.0]");
+                "Percents array must be non-null. Pass a 0-sized array "
+                        + "if you don't want any percentileValues to be computed.");
+        Preconditions.checkArgument(validPercentiles(percentiles),
+                "All percentiles should be in the interval (0.0, 100.0]");
         values = new long[size];
         this.size = size;
         this.percentiles = Arrays.copyOf(percentiles, percentiles.length);
@@ -61,7 +64,9 @@ public class StatsBuffer {
 
     private static boolean validPercentiles(double[] percentiles) {
         for (double percentile : percentiles) {
-            if (percentile <= 0.0 || percentile > 100.0) return false;
+            if (percentile <= 0.0 || percentile > 100.0) {
+                return false;
+            }
         }
         return true;
     }
@@ -97,15 +102,19 @@ public class StatsBuffer {
      * Compute stats for the current set of values.
      */
     public void computeStats() {
-        if (statsComputed.getAndSet(true)) return;
+        if (statsComputed.getAndSet(true)) {
+            return;
+        }
 
-        if (count == 0) return;
+        if (count == 0) {
+            return;
+        }
 
         int curSize = Math.min(count, size);
         Arrays.sort(values, 0, curSize); // to compute percentileValues
         min = values[0];
         max = values[curSize - 1];
-        mean = (double)total / count;
+        mean = (double) total / count;
         variance = (sumSquares / curSize) - (mean * mean);
         stddev = Math.sqrt(variance);
         computePercentiles(curSize);
@@ -199,6 +208,7 @@ public class StatsBuffer {
 
     /**
      * Get the total sum of the values recorded.
+     *
      * @return The sum of the values recorded, or 0.0 if no values were recorded.
      */
     public long getTotalTime() {
@@ -207,7 +217,8 @@ public class StatsBuffer {
 
     /**
      * Get the computed percentileValues. See {@link StatsConfig} for how to request different
-     * percentileValues. Note that for efficiency reasons we return the actual array of computed values.
+     * percentileValues. Note that for efficiency reasons we return the actual array of
+     * computed values.
      * Users must NOT modify this array.
      *
      * @return An array of computed percentileValues.

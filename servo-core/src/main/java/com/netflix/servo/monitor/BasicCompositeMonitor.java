@@ -24,7 +24,8 @@ import java.util.List;
  * Simple composite monitor type with a static list of sub-monitors. The value for the composite
  * is the number of sub-monitors.
  */
-public final class BasicCompositeMonitor extends AbstractMonitor<Integer> implements CompositeMonitor<Integer> {
+public final class BasicCompositeMonitor extends AbstractMonitor<Integer>
+        implements CompositeMonitor<Integer> {
     private final List<Monitor<?>> monitors;
 
     /**

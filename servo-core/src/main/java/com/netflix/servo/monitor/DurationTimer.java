@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li>Number of active tasks.</li>
  * </ul>
  *
- * The names for the monitors will be the base name passed to the constructor plus a suffix of .duration and
- * .activeTasks respectively.
+ * The names for the monitors will be the base name passed to the constructor plus a
+ * suffix of .duration and .activeTasks respectively.
  */
 public class DurationTimer extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
 
@@ -64,8 +64,8 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     }
 
     /**
-     * Create a new DurationTimer using a specific configuration and clock. This is useful for unit tests that
-     * need to manipulate the clock.
+     * Create a new DurationTimer using a specific configuration and clock. This is useful for
+     * unit tests that need to manipulate the clock.
      */
     public DurationTimer(MonitorConfig config, final Clock clock) {
         super(config);
@@ -79,7 +79,8 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
             }
         });
 
-        Monitor<?> activeTasks = new BasicGauge<Long>(subId(config, "activeTasks"), new Callable<Long>() {
+        Monitor<?> activeTasks = new BasicGauge<Long>(subId(config, "activeTasks"),
+                new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return (long) tasks.size();
@@ -118,11 +119,14 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DurationTimer that = (DurationTimer) o;
-
         return getConfig().equals(that.getConfig())
                 && nextTaskId.get() == that.nextTaskId.get()
                 && tasks.equals(that.tasks);
@@ -158,7 +162,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     }
 
     private class DurationStopwatch implements Stopwatch {
-        long id = -1L;
+        private long id = -1L;
 
         @Override
         public void start() {

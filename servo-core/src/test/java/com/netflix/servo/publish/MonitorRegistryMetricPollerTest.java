@@ -90,7 +90,9 @@ public class MonitorRegistryMetricPollerTest {
         int retries = 0;
         for (; retries < 10; ++retries) {
             int currentThreads = countThreadsWithName(threadPrefix);
-            if (currentThreads >= 10 + baseCount) break;
+            if (currentThreads >= 10 + baseCount) {
+                break;
+            }
             System.err.println(String.format("currentThreads: %d/%d", currentThreads, baseCount));
             Thread.sleep(200);
         }

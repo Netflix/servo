@@ -64,8 +64,7 @@ public class LongGauge extends NumberGauge {
 
         LongGauge that = (LongGauge) o;
 
-        return getConfig().equals(that.getConfig()) &&
-                number.get() == that.number.get();
+        return getConfig().equals(that.getConfig()) && number.get() == that.number.get();
     }
 
     /**
