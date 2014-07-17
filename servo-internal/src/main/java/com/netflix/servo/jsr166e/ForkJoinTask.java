@@ -119,9 +119,9 @@ import java.lang.reflect.Constructor;
  *
  * <p>The ForkJoinTask class is not usually directly subclassed.
  * Instead, you subclass one of the abstract classes that support a
- * particular style of fork/join processing, typically {@link
- * RecursiveAction} for most computations that do not return results,
- * {@link RecursiveTask} for those that do, and {@link
+ * particular style of fork/join processing, typically 
+ * RecursiveAction for most computations that do not return results,
+ * RecursiveTask for those that do, and {@link
  * CountedCompleter} for those in which completed actions trigger
  * other actions.  Normally, a concrete ForkJoinTask subclass declares
  * fields comprising its parameters, established in a constructor, and

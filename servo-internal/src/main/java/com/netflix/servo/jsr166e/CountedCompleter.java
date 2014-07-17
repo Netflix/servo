@@ -13,7 +13,7 @@ package com.netflix.servo.jsr166e;
  * presence of subtask stalls and blockage than are other forms of
  * ForkJoinTasks, but are less intuitive to program.  Uses of
  * CountedCompleter are similar to those of other completion based
- * components (such as {@link java.nio.channels.CompletionHandler})
+ * components (such as java.nio.channels.CompletionHandler)
  * except that multiple <em>pending</em> completions may be necessary
  * to trigger the completion action {@link #onCompletion(CountedCompleter)},
  * not just one.
@@ -77,8 +77,8 @@ package com.netflix.servo.jsr166e;
  * <p><b>Sample Usages.</b>
  *
  * <p><b>Parallel recursive decomposition.</b> CountedCompleters may
- * be arranged in trees similar to those often used with {@link
- * RecursiveAction}s, although the constructions involved in setting
+ * be arranged in trees similar to those often used with 
+ * RecursiveActions, although the constructions involved in setting
  * them up typically vary. Here, the completer of each task is its
  * parent in the computation tree. Even though they entail a bit more
  * bookkeeping, CountedCompleters may be better choices when applying
