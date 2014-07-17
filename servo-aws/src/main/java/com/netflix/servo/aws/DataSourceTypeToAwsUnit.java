@@ -21,9 +21,12 @@ import com.netflix.servo.annotations.DataSourceType;
 /**
  * Conversion from internal data types to Amazon Units.
  */
-public class DataSourceTypeToAwsUnit {
-    public static String getUnit(DataSourceType dataSourceType){
-        switch (dataSourceType){
+public final class DataSourceTypeToAwsUnit {
+    private DataSourceTypeToAwsUnit() {
+        // utility class
+    }
+    public static String getUnit(DataSourceType dataSourceType) {
+        switch (dataSourceType) {
             case COUNTER:
                 return StandardUnit.CountSecond.toString();
             case GAUGE:

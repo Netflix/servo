@@ -15,26 +15,22 @@
  */
 package com.netflix.servo.tag.aws;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesCredentials;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
-import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
-
 import com.netflix.servo.aws.AwsPropertyKeys;
 import com.netflix.servo.aws.AwsServiceClients;
-import com.netflix.servo.tag.Tag;
-
 import com.netflix.servo.aws.constants.Dimensions;
-
+import com.netflix.servo.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -90,7 +86,8 @@ public enum AwsInjectableTag implements Tag {
 
     static String getAutoScaleGroup() {
         try {
-            String credFileProperty = System.getProperties().getProperty(AwsPropertyKeys.AWS_CREDENTIALS_FILE.getBundle());
+            String credFileProperty = System.getProperties().getProperty(
+                    AwsPropertyKeys.AWS_CREDENTIALS_FILE.getBundle());
             AWSCredentials credentials;
 
             if (credFileProperty != null) {
@@ -119,14 +116,17 @@ public enum AwsInjectableTag implements Tag {
         BufferedReader reader = null;
         try {
             URL url = new URL(metaDataUrl + path);
-            reader = new BufferedReader(new InputStreamReader(url.openStream(), Charset.forName("UTF-8")));
+            reader = new BufferedReader(new InputStreamReader(url.openStream(),
+                    Charset.forName("UTF-8")));
             return reader.readLine();
         } catch (Exception e) {
             getLogger().warn("Unable to read value from AWS metadata URL", e);
             return undefined;
         } finally {
             try {
-                if (reader != null) reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             } catch (IOException e) {
                 // ignore problems closing the stream
             }

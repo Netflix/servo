@@ -17,23 +17,17 @@ package com.netflix.servo.publish.cloudwatch;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
-
 import com.google.common.base.Preconditions;
-
-import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
-
-import com.netflix.servo.aws.AwsPropertyKeys;
+import com.netflix.servo.Metric;
 import com.netflix.servo.aws.AwsServiceClients;
 import com.netflix.servo.publish.BaseMetricObserver;
-import com.netflix.servo.Metric;
-
+import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +40,7 @@ import java.util.List;
  */
 public class CloudWatchMetricObserver extends BaseMetricObserver {
 
-    private static final Logger log = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
     /**
      * Experimentally derived value for the largest exponent that can be sent to cloudwatch
@@ -74,11 +68,9 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     private final String cloudWatchNamespace;
 
     /**
-     *
-     * @param name Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
+     * @param name        Unique name of the observer.
+     * @param namespace   Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
-     *
      * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
      */
     @Deprecated
@@ -87,46 +79,44 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     }
 
     /**
-     *
-     * @param name Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
+     * @param name        Unique name of the observer.
+     * @param namespace   Namespace to use in CloudWatch.
      * @param credentials Amazon credentials.
-     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
-     *
+     * @param batchSize   Batch size to send to Amazon.  They currently enforce a max of 20.
      * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
      */
     @Deprecated
-    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials, int batchSize) {
+    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials,
+                                    int batchSize) {
         this(name, namespace, credentials);
         this.batchSize = batchSize;
     }
 
     /**
-     *
-     * @param name Unique name of the observer.
+     * @param name      Unique name of the observer.
      * @param namespace Namespace to use in CloudWatch.
-     * @param provider Amazon credentials provider
+     * @param provider  Amazon credentials provider
      */
-    public CloudWatchMetricObserver(String name, String namespace, AWSCredentialsProvider provider) {
+    public CloudWatchMetricObserver(String name, String namespace,
+                                    AWSCredentialsProvider provider) {
         this(name, namespace, AwsServiceClients.cloudWatch(provider));
     }
 
     /**
-     *
-     * @param name Unique name of the observer.
+     * @param name      Unique name of the observer.
      * @param namespace Namespace to use in CloudWatch.
-     * @param provider Amazon credentials provider.
+     * @param provider  Amazon credentials provider.
      * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
      */
-    public CloudWatchMetricObserver(String name, String namespace, AWSCredentialsProvider provider, int batchSize) {
+    public CloudWatchMetricObserver(String name, String namespace,
+                                    AWSCredentialsProvider provider, int batchSize) {
         this(name, namespace, provider);
         this.batchSize = batchSize;
     }
 
     /**
-     *
-     * @param name Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
+     * @param name       Unique name of the observer.
+     * @param namespace  Namespace to use in CloudWatch.
      * @param cloudWatch AWS cloudwatch.
      */
     public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch) {
@@ -137,19 +127,18 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     }
 
     /**
-     *
-     * @param name Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
+     * @param name       Unique name of the observer.
+     * @param namespace  Namespace to use in CloudWatch.
      * @param cloudWatch AWS cloudwatch.
-     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+     * @param batchSize  Batch size to send to Amazon.  They currently enforce a max of 20.
      */
-    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch, int batchSize) {
+    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch,
+                                    int batchSize) {
         this(name, namespace, cloudWatch);
         this.batchSize = batchSize;
     }
 
     /**
-     *
      * @param metrics The list of metrics you want to send to CloudWatch
      */
     public void updateImpl(List<Metric> metrics) {
@@ -179,7 +168,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         try {
             cloudWatch.putMetricData(createPutRequest(batch));
         } catch (Exception e) {
-            log.error("Error while submitting data for metrics : " + batch, e);
+            LOG.error("Error while submitting data for metrics : " + batch, e);
         }
     }
 

@@ -23,25 +23,32 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 
 /**
- * Static helpers for constructing configured AWS service clients
+ * Static helpers for constructing configured AWS service clients.
  */
-public class AwsServiceClients {
+public final class AwsServiceClients {
 
-  /**
-   * Get a CloudWatch client whose endpoint is configured based on properties
-   */
-  public static AmazonCloudWatch cloudWatch(AWSCredentialsProvider credentials ) {
-    AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
-    client.setEndpoint( System.getProperty( AwsPropertyKeys.AWS_CLOUD_WATCH_END_POINT.getBundle(), "monitoring.amazonaws.com" ) );
-    return client;
-  }
+    private AwsServiceClients() {
+        // utility class.
+    }
 
-  /**
-   * Get an AutoScaling client whose endpoint is configured based on properties
-   */
-  public static AmazonAutoScaling autoScaling(AWSCredentials credentials) {
-    AmazonAutoScaling client = new AmazonAutoScalingClient(credentials);
-    client.setEndpoint( System.getProperty( AwsPropertyKeys.AWS_AUTO_SCALING_END_POINT.getBundle(), "autoscaling.amazonaws.com" ) );
-    return client;
-  }
+    /**
+     * Get a CloudWatch client whose endpoint is configured based on properties.
+     */
+    public static AmazonCloudWatch cloudWatch(AWSCredentialsProvider credentials) {
+        AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
+        client.setEndpoint(System.getProperty(AwsPropertyKeys.AWS_CLOUD_WATCH_END_POINT.getBundle(),
+                "monitoring.amazonaws.com"));
+        return client;
+    }
+
+    /**
+     * Get an AutoScaling client whose endpoint is configured based on properties.
+     */
+    public static AmazonAutoScaling autoScaling(AWSCredentials credentials) {
+        AmazonAutoScaling client = new AmazonAutoScalingClient(credentials);
+        client.setEndpoint(System.getProperty(
+                AwsPropertyKeys.AWS_AUTO_SCALING_END_POINT.getBundle(),
+                "autoscaling.amazonaws.com"));
+        return client;
+    }
 }
