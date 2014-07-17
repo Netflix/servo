@@ -22,9 +22,7 @@ import com.netflix.servo.tag.TaggingContext;
 /**
  * Composite that maintains separate simple counters for each distinct set of tags returned by the
  * tagging context.
- * @deprecated This is an abstraction that hasn't proved useful. It will be removed in a future release.
  */
-@Deprecated
 public class ContextualCounter extends AbstractContextualMonitor<Number, Counter>
         implements Counter {
 
