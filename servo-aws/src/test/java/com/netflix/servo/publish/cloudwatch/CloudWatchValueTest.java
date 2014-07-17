@@ -44,7 +44,6 @@ import java.util.Date;
 final class CloudWatchValueTest {
 
     private CloudWatchValueTest() {
-        // utility class
     }
 
     private static final String ACCESS_KEY = "";

@@ -28,7 +28,6 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 public final class AwsServiceClients {
 
     private AwsServiceClients() {
-        // utility class.
     }
 
     /**

@@ -23,8 +23,8 @@ import com.netflix.servo.annotations.DataSourceType;
  */
 public final class DataSourceTypeToAwsUnit {
     private DataSourceTypeToAwsUnit() {
-        // utility class
     }
+
     public static String getUnit(DataSourceType dataSourceType) {
         switch (dataSourceType) {
             case COUNTER:
