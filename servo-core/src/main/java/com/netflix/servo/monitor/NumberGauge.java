@@ -19,21 +19,37 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.annotations.DataSourceType;
 
-public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number>  {
-    private final Number number;
+import java.lang.ref.WeakReference;
 
+/**
+ * A {@link Gauge} that returns the value stored in {@link Number}.
+ */
+public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number> {
+    private final WeakReference<Number> number;
+
+    /**
+     * Construct a gauge that will store weak reference to the number. The value returned
+     * by the monitor will be the value stored in {@code number} or {@code Double.NaN} in case
+     * the referred Number has been garbage collected.
+     */
     public NumberGauge(MonitorConfig config, Number number) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));
         Preconditions.checkNotNull(number);
-        this.number = number;
+        this.number = new WeakReference<Number>(number);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Number getValue(int pollerIdx) {
-        return number;
+        Number n = number.get();
+        return n != null ? n : Double.NaN;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -45,18 +61,24 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
         }
 
         final NumberGauge that = (NumberGauge) o;
-        return config.equals(that.config) && number.equals(that.number);
+        return config.equals(that.config) && getValue().equals(that.getValue());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
-        return Objects.hashCode(number, config);
+        return Objects.hashCode(number.get(), config);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("number", number).add("config", config).toString();
+        return Objects.toStringHelper(this)
+                .add("number", number.get())
+                .add("config", config).toString();
     }
 }
