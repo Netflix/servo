@@ -89,8 +89,9 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
     }
 
     private String cleanValue(Tag tag, boolean allowPeriodsInName) {
-        if (tag == null)
+        if (tag == null) {
             return null;
+        }
 
         return cleanupIllegalCharacters(tag.getValue(), allowPeriodsInName);
     }
