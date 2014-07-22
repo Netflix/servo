@@ -65,6 +65,23 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
     }
 
     @Test
+    public void testRecord0() throws Exception {
+        BasicTimer c = newInstance("foo");
+        assertEquals(c.getCount().longValue(), 0L);
+
+        c.record(42, TimeUnit.MILLISECONDS);
+        assertEquals(c.getCount().longValue(), 1L);
+
+        // Explicit 0 should be counted
+        c.record(0, TimeUnit.MILLISECONDS);
+        assertEquals(c.getCount().longValue(), 2L);
+
+        // Negative values should be ignored
+        c.record(-1, TimeUnit.MILLISECONDS);
+        assertEquals(c.getCount().longValue(), 2L);
+    }
+
+    @Test
     public void testFractional() throws Exception {
         BasicTimer timer = newInstance("foo");
 
