@@ -133,7 +133,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     }
 
     private void recordNanos(long nanos) {
-        if (nanos > 0) {
+        if (nanos >= 0) {
             totalTime.increment(nanos);
             count.increment();
             min.update(nanos);

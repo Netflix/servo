@@ -68,7 +68,7 @@ public class BasicDistributionSummary
      * Updates the statistics kept by the summary with the specified amount.
      */
     public void record(long amount) {
-        if (amount > 0) {
+        if (amount >= 0) {
             totalAmount.increment(amount);
             count.increment();
             max.update(amount);

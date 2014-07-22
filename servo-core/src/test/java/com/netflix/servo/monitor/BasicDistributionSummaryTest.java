@@ -48,4 +48,21 @@ public class BasicDistributionSummaryTest extends AbstractMonitorTest<BasicDistr
         assertEquals(m.getMax().longValue(), 42L);
         assertEquals(m.getMin().longValue(), 21L);
     }
+
+    @Test
+    public void testRecord0() throws Exception {
+        BasicDistributionSummary c = newInstance("foo");
+        assertEquals(c.getCount().longValue(), 0L);
+
+        c.record(42);
+        assertEquals(c.getCount().longValue(), 1L);
+
+        // Explicit 0 should be counted
+        c.record(0);
+        assertEquals(c.getCount().longValue(), 2L);
+
+        // Negative values should be ignored
+        c.record(-1);
+        assertEquals(c.getCount().longValue(), 2L);
+    }
 }
