@@ -31,6 +31,7 @@ allprojects {
     }
 }
 
+
 apply from: file('gradle/convention.gradle')
 apply from: file('gradle/maven.gradle')
 apply from: file('gradle/check.gradle')
@@ -39,6 +40,9 @@ apply from: file('gradle/release.gradle')
 
 subprojects {
     group = 'com.netflix.servo' 
+
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
 
     tasks.withType(Compile) { 
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
