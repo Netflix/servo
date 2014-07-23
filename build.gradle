@@ -117,12 +117,6 @@ project(':servo-apache') {
 }
 
 project(':servo-aws') {
-    configurations.all {
-        resolutionStrategy {
-            force 'org.apache.httpcomponents:httpclient:4.2.1'
-        }
-    }
-
     dependencies {
         compile project(':servo-core')
         compile('com.amazonaws:aws-java-sdk:1.6.10')
