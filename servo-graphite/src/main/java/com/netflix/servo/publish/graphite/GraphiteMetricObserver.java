@@ -105,6 +105,9 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             }
         } catch (IOException e) {
             LOGGER.warn("Graphite connection failed on write", e);
+            incrementFailedCount();
+            // disconnect so next time when connectionAvailable is called it can try to reconnect
+            stop();
         }
     }
 
@@ -124,7 +127,10 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),
                 "UTF-8"));
         int count = writeMetrics(metrics, writer);
-        writer.flush();
+        boolean checkError = writer.checkError();
+        if (checkError) {
+            throw new IOException("Writing to socket has failed");
+        }
         checkNoReturnedData(socket);
 
         LOGGER.debug("Wrote {} metrics to graphite", count);

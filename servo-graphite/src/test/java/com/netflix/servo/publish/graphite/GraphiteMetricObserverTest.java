@@ -73,4 +73,52 @@ public class GraphiteMetricObserverTest {
             gw.stop();
         }
     }
+
+    @Test
+    public void testReconnection() throws Exception {
+        SocketReceiverTester receiver = new SocketReceiverTester(8082);
+        receiver.start();
+
+        String host = getLocalHostIp() + ":8082";
+        GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
+
+        try {
+            List<Metric> metrics = new ArrayList<Metric>();
+            metrics.add(BasicGraphiteNamingConventionTest.getOSMetric("AvailableProcessors"));
+
+            gw.update(metrics);
+
+            receiver.waitForConnected();
+
+            String[] lines = receiver.waitForLines(1);
+            assertEquals(1, lines.length);
+
+            int found = lines[0].indexOf("serverA.java.lang.OperatingSystem.AvailableProcessors");
+            assertEquals(found, 0);
+
+            // restarting the receiver
+            receiver.stop();
+            receiver = new SocketReceiverTester(8082);
+            receiver.start();
+
+            // the first write does not trigger exception given how TCP works
+            gw.update(metrics);
+            assertEquals(0, gw.getFailedUpdateCount());
+
+            // the second update will fail and thus closes the connection
+            gw.update(metrics);
+            assertEquals(1, gw.getFailedUpdateCount());
+
+            // the third update will establish a new connection
+            gw.update(metrics);
+            assertEquals(1, gw.getFailedUpdateCount());
+            receiver.waitForConnected();
+            receiver.waitForLines(1);
+            found = lines[0].indexOf("serverA.java.lang.OperatingSystem.AvailableProcessors");
+            assertEquals(found, 0);
+        } finally {
+            receiver.stop();
+            gw.stop();
+        }
+    }
 }
