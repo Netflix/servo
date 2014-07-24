@@ -28,7 +28,7 @@ public class LongGauge extends NumberGauge {
     /**
      * Create a new instance with the specified configuration.
      *
-     * @param config   configuration for this gauge
+     * @param config configuration for this gauge
      */
     public LongGauge(MonitorConfig config) {
         super(config, new AtomicLong(0L));
@@ -40,9 +40,7 @@ public class LongGauge extends NumberGauge {
      */
     public void set(Long n) {
         AtomicLong number = getNumber();
-        if (number != null) {
-            number.set(n);
-        }
+        number.set(n);
     }
 
     /**
@@ -79,7 +77,8 @@ public class LongGauge extends NumberGauge {
 
     @Override
     public Number getValue(int pollerIdx) {
-        AtomicLong n = getNumber();
-        return n == null ? Double.NaN : n.get();
+        // we return the actual value at the time of the call and not a reference
+        // to the atomic number so the value doesn't change and is also available to jmx viewers
+        return number.get();
     }
 }

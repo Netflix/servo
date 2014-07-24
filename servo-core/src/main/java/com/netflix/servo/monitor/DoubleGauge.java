@@ -27,7 +27,7 @@ public class DoubleGauge extends NumberGauge {
     /**
      * Create a new instance with the specified configuration.
      *
-     * @param config   configuration for this gauge
+     * @param config configuration for this gauge
      */
     public DoubleGauge(MonitorConfig config) {
         super(config, new AtomicDouble(0.0));
@@ -38,10 +38,7 @@ public class DoubleGauge extends NumberGauge {
      * Set the current value.
      */
     public void set(Double n) {
-        AtomicDouble number = getNumber();
-        if (number != null) {
-            number.set(n);
-        }
+        number.set(n);
     }
 
     /**
@@ -80,7 +77,8 @@ public class DoubleGauge extends NumberGauge {
 
     @Override
     public Number getValue(int pollerIdx) {
-        AtomicDouble n = getNumber();
-        return n == null ? Double.NaN : n.get();
+        // we return the actual value at the time of the call and not a reference
+        // to the atomic number so the value doesn't change and is also available to jmx viewers
+        return number.get();
     }
 }
