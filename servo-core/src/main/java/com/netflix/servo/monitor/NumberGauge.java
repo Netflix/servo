@@ -25,7 +25,7 @@ import java.lang.ref.WeakReference;
  * A {@link Gauge} that returns the value stored in {@link Number}.
  */
 public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number> {
-    private final WeakReference<Number> number;
+    private final WeakReference<Number> numberRef;
 
     /**
      * Construct a gauge that will store weak reference to the number. The value returned
@@ -35,7 +35,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
     public NumberGauge(MonitorConfig config, Number number) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));
         Preconditions.checkNotNull(number);
-        this.number = new WeakReference<Number>(number);
+        this.numberRef = new WeakReference<Number>(number);
     }
 
     /**
@@ -43,7 +43,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
      */
     @Override
     public Number getValue(int pollerIdx) {
-        Number n = number.get();
+        Number n = numberRef.get();
         return n != null ? n : Double.NaN;
     }
 
@@ -69,7 +69,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(number.get(), config);
+        return Objects.hashCode(numberRef.get(), config);
     }
 
     /**
@@ -78,7 +78,14 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("number", number.get())
+                .add("number", numberRef.get())
                 .add("config", config).toString();
+    }
+
+    /**
+     * Returns the {@link Number} hold or null if it has been garbage collected.
+     */
+    protected Number getBackingNumber() {
+        return numberRef.get();
     }
 }

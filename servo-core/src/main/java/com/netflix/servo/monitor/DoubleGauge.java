@@ -27,11 +27,11 @@ public class DoubleGauge extends NumberGauge {
     /**
      * Create a new instance with the specified configuration.
      *
-     * @param config   configuration for this gauge
+     * @param config configuration for this gauge
      */
     public DoubleGauge(MonitorConfig config) {
         super(config, new AtomicDouble(0.0));
-        number = (AtomicDouble) getValue();
+        number = (AtomicDouble) getBackingNumber();
     }
 
     /**
@@ -64,7 +64,7 @@ public class DoubleGauge extends NumberGauge {
         DoubleGauge that = (DoubleGauge) o;
 
         return getConfig().equals(that.getConfig())
-                && number.get() == that.number.get();
+                && getValue().equals(that.getValue());
     }
 
     /**
@@ -72,6 +72,13 @@ public class DoubleGauge extends NumberGauge {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(number.get(), getConfig());
+        return Objects.hashCode(getValue(), getConfig());
+    }
+
+    @Override
+    public Number getValue(int pollerIdx) {
+        // we return the actual value at the time of the call and not a reference
+        // to the atomic number so the value doesn't change and is also available to jmx viewers
+        return number.get();
     }
 }
