@@ -105,8 +105,15 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
 
     /**
      * Returns a stopwatch that has been started and will automatically
-     * record its result to the dynamic timer specified by the given config. The timer
-     * uses the specified TimeUnit.
+     * record its result to the dynamic timer specified by the given config.
+     *
+     * @param config
+     *     Config to identify a particular timer instance to update.
+     * @param unit
+     *     The unit to use when reporting values to observers. For example if sent to
+     *     a typical time series graphing system this would be the unit for the y-axis.
+     *     It is generally recommended to use base units for reporting, so
+     *     {@link TimeUnit#SECONDS} is the preferred value.
      */
     public static Stopwatch start(MonitorConfig config, TimeUnit unit) {
         return INSTANCE.get(config, unit).start();
@@ -115,7 +122,9 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     /**
      * Returns a stopwatch that has been started and will automatically
      * record its result to the dynamic timer specified by the given config. The timer
-     * uses a TimeUnit of milliseconds.
+     * will report the times in milliseconds to observers.
+     *
+     * @see #start(MonitorConfig, TimeUnit)
      */
     public static Stopwatch start(MonitorConfig config) {
         return INSTANCE.get(config, TimeUnit.MILLISECONDS).start();
@@ -142,10 +151,21 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     }
 
     /**
-     * Record a duration to the dynamic timer indicated by the
-     * provided config/reportUnit. The duration is specified
-     * by the pair duration and durationUnit. It's recommended to use this method,
-     * specifying a reportUnit of SECONDS.
+     * Record a duration to the dynamic timer indicated by the provided config/reportUnit.
+     *
+     * @param config
+     *     Config to identify a particular timer instance to update.
+     * @param reportUnit
+     *     The unit to use when reporting values to observers. For example if sent to
+     *     a typical time series graphing system this would be the unit for the y-axis.
+     *     It is generally recommended to use base units for reporting, so
+     *     {@link TimeUnit#SECONDS} is the preferred value.
+     * @param duration
+     *     Measured duration to record.
+     * @param durationUnit
+     *     Unit for the measured duration. This should typically be the unit used for
+     *     timing source. For example if using {@link System#nanoTime()} the unit would
+     *     be nanoseconds.
      */
     public static void record(MonitorConfig config, TimeUnit reporUnit, long duration,
                               TimeUnit durationUnit) {
