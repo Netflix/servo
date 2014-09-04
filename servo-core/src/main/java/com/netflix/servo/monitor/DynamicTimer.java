@@ -167,9 +167,9 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
      *     timing source. For example if using {@link System#nanoTime()} the unit would
      *     be nanoseconds.
      */
-    public static void record(MonitorConfig config, TimeUnit reporUnit, long duration,
+    public static void record(MonitorConfig config, TimeUnit reportUnit, long duration,
                               TimeUnit durationUnit) {
-        INSTANCE.get(config, reporUnit).record(duration, durationUnit);
+        INSTANCE.get(config, reportUnit).record(duration, durationUnit);
     }
 
     /**
