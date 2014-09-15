@@ -68,7 +68,7 @@ public class StepCounterTest {
     @Test
     public void testHasRightType() throws Exception {
         assertEquals(newInstance("foo").getConfig().getTags().getValue(DataSourceType.KEY),
-                "GAUGE");
+                "NORMALIZED");
     }
 
     @Test

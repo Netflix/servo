@@ -43,6 +43,12 @@ public enum DataSourceType implements Tag {
     RATE,
 
     /**
+     * A normalized rate per second. For monitors that report values based on step
+     * boundaries.
+     */
+    NORMALIZED,
+
+    /**
      * An informational attribute is for values that might be useful for
      * debugging, but will not be collected as metrics for monitoring purposes.
      * These values are made available in JMX.

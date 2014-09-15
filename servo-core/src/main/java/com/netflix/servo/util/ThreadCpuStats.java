@@ -156,7 +156,7 @@ public final class ThreadCpuStats {
 
     /**
      * Convert time in nanoseconds to a duration string. This is used to provide a more human
-     * readable order of magnitude for the duration. We assume standard fixed size quantites for
+     * readable order of magnitude for the duration. We assume standard fixed size quantities for
      * all units.
      */
     public static String toDuration(long inputTime) {
