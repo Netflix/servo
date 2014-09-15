@@ -43,7 +43,7 @@ public enum DataSourceType implements Tag {
     RATE,
 
     /**
-     * A normalized rate per second. For monitors that report values based on step
+     * A normalized rate per second. For counters that report values based on step
      * boundaries.
      */
     NORMALIZED,
