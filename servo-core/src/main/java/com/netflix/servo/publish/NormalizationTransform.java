@@ -172,12 +172,12 @@ public final class NormalizationTransform implements MetricObserver {
         return dsType.equals(DataSourceType.RATE.name());
     }
 
-    private static boolean isInformational(String dsType) {
-        return dsType.equals(DataSourceType.INFORMATIONAL.name());
+    private static boolean isNormalized(String dsType) {
+        return dsType.equals(DataSourceType.NORMALIZED.name());
     }
 
-    private MonitorConfig toGaugeConfig(MonitorConfig config) {
-        return config.withAdditionalTag(DataSourceType.GAUGE);
+    private static boolean isInformational(String dsType) {
+        return dsType.equals(DataSourceType.INFORMATIONAL.name());
     }
 
     private Metric normalize(Metric m, long stepBoundary) {
@@ -189,7 +189,7 @@ public final class NormalizationTransform implements MetricObserver {
 
         double value = normalizedValue.updateAndGet(m.getTimestamp(),
                 m.getNumberValue().doubleValue());
-        return new Metric(toGaugeConfig(m.getConfig()), stepBoundary, value);
+        return new Metric(m.getConfig(), stepBoundary, value);
     }
 
     /**
@@ -204,7 +204,7 @@ public final class NormalizationTransform implements MetricObserver {
             long offset = m.getTimestamp() % stepMillis;
             long stepBoundary = m.getTimestamp() - offset;
             String dsType = getDataSourceType(m);
-            if (isGauge(dsType)) {
+            if (isGauge(dsType) || isNormalized(dsType)) {
                 Metric atStepBoundary = new Metric(m.getConfig(), stepBoundary, m.getValue());
                 newMetrics.add(atStepBoundary); // gauges are not normalized
             } else if (isRate(dsType)) {

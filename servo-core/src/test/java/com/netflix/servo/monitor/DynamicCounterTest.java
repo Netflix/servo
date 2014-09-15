@@ -67,7 +67,7 @@ public class DynamicCounterTest {
         DynamicCounter.increment("test1", tagList);
         StepCounter c = getByName("test1");
         Tag type = c.getConfig().getTags().getTag(DataSourceType.KEY);
-        assertEquals(type.getValue(), "GAUGE");
+        assertEquals(type.getValue(), "NORMALIZED");
     }
 
     final ManualClock clock = new ManualClock(0L);
