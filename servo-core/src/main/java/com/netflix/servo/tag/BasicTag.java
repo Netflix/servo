@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
@@ -67,7 +66,9 @@ public final class BasicTag implements Tag {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(key, value);
+        int result = key.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
