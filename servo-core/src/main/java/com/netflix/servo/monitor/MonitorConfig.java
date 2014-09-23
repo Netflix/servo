@@ -215,7 +215,9 @@ public final class MonitorConfig {
     public int hashCode() {
         int hash = cachedHashCode.get();
         if (hash == 0) {
-            hash = Objects.hashCode(name, tags, policy);
+            hash = name.hashCode();
+            hash = 31 * hash + tags.hashCode();
+            hash = 31 * hash + policy.hashCode();
             cachedHashCode.set(hash);
         }
         return hash;
