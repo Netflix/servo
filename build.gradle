@@ -119,7 +119,7 @@ project(':servo-apache') {
 project(':servo-aws') {
     dependencies {
         compile project(':servo-core')
-        compile('com.amazonaws:aws-java-sdk:1.8.9.1')
+        compile('com.amazonaws:aws-java-sdk:1.8.10.2')
     }
 }
 
