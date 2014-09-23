@@ -16,10 +16,10 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,7 +48,7 @@ public class SmallTagMap implements Iterable<Tag> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
-    private volatile ImmutableSet<Tag> entrySet;
+    private volatile Set<Tag> entrySet;
 
     /**
      * Return a new builder to assist in creating a new SmallTagMap using the default tag size (8).
@@ -289,15 +289,13 @@ public class SmallTagMap implements Iterable<Tag> {
      */
     public Set<Tag> tagSet() {
         if (entrySet == null) {
-            ImmutableSet.Builder<Tag> e = ImmutableSet.builder();
+            entrySet = new HashSet<Tag>(dataLength);
             for (int i = 1; i < data.length; i += 2) {
                 Object o = data[i];
                 if (o != null) {
-                    e.add((Tag) o);
+                    entrySet.add((Tag) o);
                 }
             }
-
-            entrySet = e.build();
         }
 
         return entrySet;
