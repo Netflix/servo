@@ -15,7 +15,6 @@
  */
 package com.netflix.servo;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.TagList;
@@ -95,16 +94,16 @@ public final class Metric {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, timestamp, value);
+        int result = config.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + value.hashCode();
+        return result;
     }
+
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("config", config)
-            .add("timestamp", timestamp)
-            .add("value", value)
-            .toString();
+        return "Metric{config=" + config + ", timestamp=" + timestamp + ", value=" + value + '}';
     }
 }

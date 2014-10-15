@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.Tags;
 
@@ -99,10 +98,7 @@ public class StatsTimer extends StatsMonitor implements Timer {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("StatsMonitor", super.toString())
-                .add("timeUnit", timeUnit)
-                .toString();
+        return "StatsTimer{StatsMonitor=" + super.toString() + ", timeUnit=" + timeUnit + '}';
     }
 
     /**
@@ -122,7 +118,9 @@ public class StatsTimer extends StatsMonitor implements Timer {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), timeUnit);
+        int result = super.hashCode();
+        result = 31 * result + timeUnit.hashCode();
+        return result;
     }
 
     /**

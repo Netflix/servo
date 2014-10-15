@@ -15,13 +15,12 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
-
 import java.util.concurrent.Callable;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 public class BasicGaugeTest extends AbstractMonitorTest<BasicGauge<Long>> {
 
@@ -38,22 +37,21 @@ public class BasicGaugeTest extends AbstractMonitorTest<BasicGauge<Long>> {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof TestFunc)) {
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            TestFunc m = (TestFunc) obj;
-            return value == m.value;
+
+            TestFunc testFunc = (TestFunc) o;
+            return value == testFunc.value;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(value);
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(this).add("value", value).toString();
+            return (int) (value ^ (value >>> 32));
         }
     }
 

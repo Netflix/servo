@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -103,7 +102,9 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, getValue(0));
+        int result = getConfig().hashCode();
+        result = 31 * result + getValue(0).hashCode();
+        return result;
     }
 
     /**
@@ -111,9 +112,6 @@ public class MinGauge extends AbstractMonitor<Long>
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("min", min)
-                .toString();
+        return "MinGauge{config=" + config + ", min=" + min + '}';
     }
 }

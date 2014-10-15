@@ -15,9 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
-
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.Callable;
@@ -62,15 +60,14 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, function);
+        int result = config.hashCode();
+        result = 31 * result + function.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("function", function)
-                .toString();
+        return "BasicGauge{config=" + config + ", function=" + function + '}';
     }
 }

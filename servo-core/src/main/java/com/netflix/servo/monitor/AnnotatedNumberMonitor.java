@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
 import java.lang.reflect.AccessibleObject;
@@ -64,15 +63,14 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericM
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, field);
+        int result = config.hashCode();
+        result = 31 * result + field.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("field", field)
-                .toString();
+        return "AnnotatedNumberMonitor{config=" + config + ", field=" + field + '}';
     }
 }

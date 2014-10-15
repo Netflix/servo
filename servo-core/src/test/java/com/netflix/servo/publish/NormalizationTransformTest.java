@@ -16,7 +16,6 @@
 package com.netflix.servo.publish;
 
 import com.beust.jcommander.internal.Lists;
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.AbstractMonitor;
@@ -74,7 +73,12 @@ public class NormalizationTransformTest {
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(t, v);
+            int result;
+            long temp;
+            result = (int) (t ^ (t >>> 32));
+            temp = Double.doubleToLongBits(v);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
         }
     }
 

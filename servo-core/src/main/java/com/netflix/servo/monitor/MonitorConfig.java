@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.BasicTagList;
@@ -228,11 +227,7 @@ public final class MonitorConfig {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("name", name)
-                .add("tags", tags)
-                .add("policy", policy)
-                .toString();
+        return "MonitorConfig{name='" + name + ", tags=" + tags + ", policy=" + policy + '}';
     }
 
     /**

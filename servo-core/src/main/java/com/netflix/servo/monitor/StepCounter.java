@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -96,10 +95,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("count", getValue())
-                .toString();
+        return "StepCounter{config=" + config + ", count=" + count + '}';
     }
 
     /**

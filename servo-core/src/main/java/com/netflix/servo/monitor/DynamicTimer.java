@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
@@ -231,10 +230,8 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("baseConfig", BASE_CONFIG)
-                .add("totalTimers", timers.size())
-                .add("timers", timers)
-                .toString();
+        return "DynamicCounter{baseConfig" + BASE_CONFIG +
+                ", totalTimers=" + timers.size() +
+                ", timers=" + timers + '}';
     }
 }

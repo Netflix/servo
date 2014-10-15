@@ -15,9 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.tag.TagList;
 
 import java.util.List;
@@ -68,15 +66,14 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, monitor);
+        int result = config.hashCode();
+        result = 31 * result + monitor.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("monitor", monitor)
-                .toString();
+        return "CompositeMonitorWrapper{config=" + config + ", monitor=" + monitor + '}';
     }
 }

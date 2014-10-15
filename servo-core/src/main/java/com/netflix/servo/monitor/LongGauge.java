@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -64,7 +62,7 @@ public class LongGauge extends NumberGauge {
         }
 
         LongGauge that = (LongGauge) o;
-        return getConfig().equals(that.getConfig()) && getValue().equals(that.getValue());
+        return getConfig().equals(that.getConfig()) && getValue(0).equals(that.getValue(0));
     }
 
     /**
@@ -72,9 +70,14 @@ public class LongGauge extends NumberGauge {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(getValue(), getConfig());
+        int result = getConfig().hashCode();
+        result = 31 * result + getValue(0).hashCode();
+        return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Number getValue(int pollerIdx) {
         // we return the actual value at the time of the call and not a reference

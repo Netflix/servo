@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.netflix.servo.annotations.DataSourceType;
 
@@ -69,7 +68,9 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(numberRef.get(), config);
+        int result = getConfig().hashCode();
+        result = 31 * result + getValue(0).hashCode();
+        return result;
     }
 
     /**
@@ -77,9 +78,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("number", numberRef.get())
-                .add("config", config).toString();
+        return "NumberGauge{config=" + config + ", number=" + numberRef.get() + '}';
     }
 
     /**

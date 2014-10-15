@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -65,15 +64,14 @@ public final class BasicCompositeMonitor extends AbstractMonitor<Integer>
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, monitors);
+        int result = config.hashCode();
+        result = 31 * result + monitors.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("monitors", monitors)
-                .toString();
+        return "BasicCompositeMonitor{config=" + config + ", monitors=" + monitors + '}';
     }
 }

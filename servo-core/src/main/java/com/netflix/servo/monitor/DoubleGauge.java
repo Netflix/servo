@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.util.concurrent.AtomicDouble;
 
 /**
@@ -72,9 +71,15 @@ public class DoubleGauge extends NumberGauge {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(getValue(), getConfig());
+        int result = config.hashCode();
+        final int n = Double.valueOf(number.get()).hashCode();
+        result = 31 * result + n;
+        return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Number getValue(int pollerIdx) {
         // we return the actual value at the time of the call and not a reference

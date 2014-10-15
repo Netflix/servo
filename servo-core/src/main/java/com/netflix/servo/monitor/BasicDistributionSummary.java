@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
@@ -115,17 +114,15 @@ public class BasicDistributionSummary
         return max.getCurrentValue(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("totalAmount", totalAmount)
-                .add("count", count)
-                .add("min", min)
-                .add("max", max).toString();
+        return "BasicDistributionSummary{config=" + config +
+                ", totalAmount=" + totalAmount +
+                ", count=" + count +
+                ", max=" + max +
+                ", min=" + min +
+                ", monitors=" + monitors +
+                '}';
     }
 
     /**
@@ -133,7 +130,13 @@ public class BasicDistributionSummary
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, totalAmount, count, max, min);
+        int result = config.hashCode();
+        result = 31 * result + totalAmount.hashCode();
+        result = 31 * result + count.hashCode();
+        result = 31 * result + max.hashCode();
+        result = 31 * result + min.hashCode();
+        result = 31 * result + monitors.hashCode();
+        return result;
     }
 
     /**

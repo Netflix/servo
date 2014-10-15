@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.stats;
 
-import com.google.common.base.Objects;
-
 import java.util.Arrays;
 
 /**
@@ -253,18 +251,18 @@ public final class StatsConfig {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).
-                add("publishCount", publishCount).
-                add("publishTotal", publishTotal).
-                add("publishMin", publishMin).
-                add("publishMax", publishMax).
-                add("publishMean", publishMean).
-                add("publishVariance", publishVariance).
-                add("publishStdDev", publishStdDev).
-                add("percentiles", percentiles).
-                add("sampleSize", sampleSize).
-                add("frequencyMillis", frequencyMillis).
-                toString();
+        return "StatsConfig{" +
+                "publishCount=" + publishCount +
+                ", publishTotal=" + publishTotal +
+                ", publishMin=" + publishMin +
+                ", publishMax=" + publishMax +
+                ", publishMean=" + publishMean +
+                ", publishVariance=" + publishVariance +
+                ", publishStdDev=" + publishStdDev +
+                ", percentiles=" + Arrays.toString(percentiles) +
+                ", sampleSize=" + sampleSize +
+                ", frequencyMillis=" + frequencyMillis +
+                '}';
     }
 
     /**

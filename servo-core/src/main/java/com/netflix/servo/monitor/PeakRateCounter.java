@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -66,24 +65,25 @@ public class PeakRateCounter extends AbstractMonitor<Number>
         if (obj == null || !(obj instanceof PeakRateCounter)) {
             return false;
         }
-        PeakRateCounter c = (PeakRateCounter) obj;
+        final PeakRateCounter c = (PeakRateCounter) obj;
+        final double v = getValue().doubleValue();
+        final double otherV = c.getValue().doubleValue();
         return config.equals(c.getConfig())
-                && getValue(0).doubleValue() == c.getValue(0).doubleValue();
+                && Double.compare(v, otherV) == 0;
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, getValue(0).doubleValue());
+        int result = getConfig().hashCode();
+        final long n = Double.doubleToLongBits(getValue().doubleValue());
+        result = 31 * result + (int)(n ^ (n >>> 32));
+        return result;
     }
 
     /** {@inheritDoc} */
-    @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("max rate per second", getValue())
-                .toString();
+        return "PeakRateCounter{config=" + config + ", max rate per second=" + getValue() + '}';
     }
 
     /** {@inheritDoc} */

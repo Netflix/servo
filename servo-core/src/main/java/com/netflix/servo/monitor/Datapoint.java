@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-
 /**
  * Tuple for a timestamp and value.
  */
@@ -44,10 +42,14 @@ final class Datapoint {
         return value;
     }
 
+    @Override
     public int hashCode() {
-        return Objects.hashCode(timestamp, value);
+        int result = (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (int) (value ^ (value >>> 32));
+        return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof Datapoint)) {
             return false;
@@ -56,11 +58,9 @@ final class Datapoint {
         return timestamp == dp.timestamp && value == dp.value;
     }
 
+    @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("timestamp", timestamp)
-            .add("value", value)
-            .toString();
+        return "Datapoint{timestamp=" + timestamp + ", value=" + value + '}';
     }
 }
 

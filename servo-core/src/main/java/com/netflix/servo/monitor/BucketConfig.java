@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
@@ -140,10 +139,8 @@ public final class BucketConfig {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("timeUnit", timeUnit)
-                .add("buckets", buckets)
-                .toString();
+        return "BucketConfig{timeUnit=" + timeUnit +
+                ", buckets=" + Arrays.toString(buckets) + '}';
     }
 
     /**

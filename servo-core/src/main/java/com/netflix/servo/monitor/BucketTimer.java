@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
@@ -204,30 +203,28 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(
-            config,
-            bucketConfig,
-            timeUnit,
-            totalTime,
-            min,
-            max,
-            overflowCount,
-            Arrays.hashCode(bucketCount)
-        );
+        int result = config.hashCode();
+        result = 31 * result + timeUnit.hashCode();
+        result = 31 * result + totalTime.hashCode();
+        result = 31 * result + Arrays.hashCode(bucketCount);
+        result = 31 * result + overflowCount.hashCode();
+        result = 31 * result + min.hashCode();
+        result = 31 * result + max.hashCode();
+        result = 31 * result + bucketConfig.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("bucketConfig", bucketConfig)
-                .add("timeUnit", timeUnit)
-                .add("totalTime", totalTime)
-                .add("min", min)
-                .add("max", max)
-                .add("bucketCount", bucketCount)
-                .add("overflowCount", overflowCount)
-                .toString();
+        return "BucketTimer{config=" + config +
+                ", bucketConfig=" + bucketConfig +
+                ", timeUnit=" + timeUnit +
+                ", totalTime=" + totalTime +
+                ", min=" + min +
+                ", max=" + max +
+                ", bucketCount=" + Arrays.toString(bucketCount) +
+                ", overflowCount=" + overflowCount +
+                '}';
     }
 }

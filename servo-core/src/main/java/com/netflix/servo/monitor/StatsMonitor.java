@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -115,7 +114,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("gauge", gauge).toString();
+            return "LongGaugeWrapper{gauge=" + gauge + '}';
         }
     }
 
@@ -150,7 +149,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("gauge", gauge).toString();
+            return "DoubleGaugeWrapper{gauge=" + gauge + '}';
         }
     }
 
@@ -233,12 +232,10 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
             gauge.set(buffer.getPercentileValues()[index]);
         }
 
+
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
-                    .add("gauge", gauge)
-                    .add("percentile", percentile)
-                    .toString();
+            return "PercentileGaugeWrapper{gauge=" + gauge + "percentile=" + percentile + '}';
         }
     }
 
@@ -419,10 +416,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("baseConfig", baseConfig)
-                .add("monitors", monitors)
-                .toString();
+        return "StatsMonitor{baseConfig=" + baseConfig + ", monitors=" + monitors + '}';
     }
 
     /**
@@ -443,7 +437,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(baseConfig, monitors);
+        int result = baseConfig.hashCode();
+        result = 31 * result + monitors.hashCode();
+        return result;
     }
 
     /**
