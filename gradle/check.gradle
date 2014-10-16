@@ -14,9 +14,12 @@ apply plugin: 'findbugs'
 findbugs {
     ignoreFailures = false 
 }
-[findbugsMain, findbugsTest]*.reports {
-    xml.enabled false
-    html.enabled true
+tasks.withType(FindBugs) {
+    findbugs.toolVersion "3.0.0"
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
 }
 
 // PMD
