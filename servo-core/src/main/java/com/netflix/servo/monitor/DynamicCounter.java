@@ -49,7 +49,7 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
                 System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
-        final long expirationValue = Long.valueOf(expiration);
+        final long expirationValue = Long.parseLong(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
         counters = new ExpiringCache<MonitorConfig, Counter>(expireAfterMs,
