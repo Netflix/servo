@@ -86,7 +86,7 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
         final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
         final String expirationUnit =
                 System.getProperty(EXPIRATION_PROP_UNIT, DEFAULT_EXPIRATION_UNIT);
-        final long expirationValue = Long.valueOf(expiration);
+        final long expirationValue = Long.parseLong(expiration);
         final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
         final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
         timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs,

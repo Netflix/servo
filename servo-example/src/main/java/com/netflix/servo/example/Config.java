@@ -30,7 +30,7 @@ public final class Config {
      * Port number for the http server to listen on.
      */
     public static int getPort() {
-        return Integer.valueOf(System.getProperty("servo.example.port", "12345"));
+        return Integer.parseInt(System.getProperty("servo.example.port", "12345"));
     }
 
     /**

@@ -78,6 +78,8 @@ public class CompositeMetricPoller implements MetricPoller {
             increment(e, name);
             LOGGER.warn("uncaught exception from poll method for " + name, e);
         } catch (TimeoutException e) {
+            // The cancel is needed to prevent the slow task from using up all threads
+            future.cancel(true);
             increment(e, name);
             LOGGER.warn("timeout executing poll method for " + name, e);
         } catch (InterruptedException e) {

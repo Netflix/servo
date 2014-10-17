@@ -6,5 +6,6 @@ license {
     header rootProject.file('codequality/HEADER')
     ext.year = Calendar.getInstance().get(Calendar.YEAR)
     skipExistingHeaders true
+    exclude "**/jsr166e/*.java"
 }
 }
