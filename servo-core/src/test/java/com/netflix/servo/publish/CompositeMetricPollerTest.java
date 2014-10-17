@@ -75,10 +75,10 @@ public class CompositeMetricPollerTest {
 
     @Test
     public void testTimeout() throws Exception {
-        // Note: java8 changes the hashing/traversal order os you can see slightly different
+        // Note: java8 changes the hashing/traversal order so you can see slightly different
         // behavior if there is a bug. In particular before we were cancelling the future on
-        // timeout, then if the p2 key timesout it will fail on java7 and pass on java8.
-        // If the p1 key timesout the opposite.
+        // timeout, then if the p2 key times out it will fail on java7 and pass on java8.
+        // If the p1 key times out the opposite.
         Map<String, MetricPoller> pollers = Maps.newHashMap();
         pollers.put("p1", newPoller(120000));
         pollers.put("p2", newPoller(0));
