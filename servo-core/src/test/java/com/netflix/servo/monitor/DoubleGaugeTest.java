@@ -38,7 +38,7 @@ public class DoubleGaugeTest extends AbstractMonitorTest<DoubleGauge> {
     public void testGetConfig() throws Exception {
         DoubleGauge gauge = newInstance("test");
         MonitorConfig expectedConfig = MonitorConfig.builder("test")
-                .withTag(DataSourceType.KEY, "GAUGE").build();
+                .withTag(DataSourceType.GAUGE).build();
         assertEquals(gauge.getConfig(), expectedConfig);
     }
 }
