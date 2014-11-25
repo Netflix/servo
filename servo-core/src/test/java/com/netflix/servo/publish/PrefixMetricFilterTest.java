@@ -16,12 +16,12 @@
 package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import static com.netflix.servo.publish.BasicMetricFilter.MATCH_ALL;
@@ -48,7 +48,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testPrefixFilter() throws Exception {
-        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
+        NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
         filters.put("a.b.c", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
         MetricPoller poller = newPoller();
@@ -59,7 +59,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testLongestPrefixFilter() throws Exception {
-        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
+        NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
         filters.put("a.b.c", MATCH_ALL);
         filters.put("a.b.c.c", MATCH_NONE);
         MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
@@ -71,7 +71,7 @@ public class PrefixMetricFilterTest {
 
     @Test
     public void testPrefixFilterOnName() throws Exception {
-        TreeMap<String, MetricFilter> filters = Maps.newTreeMap();
+        NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
         filters.put("m", MATCH_ALL);
         MetricFilter filter = new PrefixMetricFilter(null, MATCH_NONE, filters);
         MetricPoller poller = newPoller();

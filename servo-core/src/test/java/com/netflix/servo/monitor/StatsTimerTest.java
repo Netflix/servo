@@ -15,12 +15,10 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.Maps;
 import com.netflix.servo.stats.StatsConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +27,6 @@ import java.util.concurrent.Executors;
 import static org.testng.Assert.assertEquals;
 
 public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
-    static final Logger LOGGER = LoggerFactory.getLogger(StatsTimerTest.class);
 
     @Override
     public StatsTimer newInstance(String name) {
@@ -56,7 +53,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     @Test
     public void testStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
-        final Map<String, Number> expectedValues = Maps.newHashMap();
+        final Map<String, Number> expectedValues = new HashMap<String, Number>();
         final int n = 200 * 1000;
         expectedValues.put("count", (long) n);
         expectedValues.put("totalTime", (long) n * (n - 1) / 2);
@@ -105,7 +102,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     @Test
     public void testMultiThreadStats() throws Exception {
         final StatsTimer timer = newInstance("t1");
-        final Map<String, Number> expectedValues = Maps.newHashMap();
+        final Map<String, Number> expectedValues = new HashMap<String, Number>();
         final int n = 10 * 1000;
         expectedValues.put("count", (long) n);
         expectedValues.put("totalTime", (long) n * (n - 1) / 2);

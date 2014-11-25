@@ -15,17 +15,16 @@
  */
 package com.netflix.servo.jmx;
 
-import javax.management.ObjectName;
-
-import org.testng.annotations.Test;
-
-import com.google.common.collect.Lists;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.BasicCounter;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.MonitorConfig;
+import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import javax.management.ObjectName;
+import java.util.Arrays;
+
+import static org.testng.Assert.assertEquals;
 
 public class OrderedObjectNameMapperTest {
 
@@ -53,7 +52,7 @@ public class OrderedObjectNameMapperTest {
     @Test
     public void testOrderedTagsWithoutAppend() {
         ObjectNameMapper mapper = new OrderedObjectNameMapper(false,
-                Lists.newArrayList("name", DataSourceType.KEY, "foo", "notPresentKey"));
+                Arrays.asList("name", DataSourceType.KEY, "foo", "notPresentKey"));
         ObjectName name = mapper.createObjectName(TEST_DOMAIN, TEST_COUNTER);
         assertEquals(name.getDomain(), TEST_DOMAIN);
         assertEquals(name.getKeyPropertyListString(),

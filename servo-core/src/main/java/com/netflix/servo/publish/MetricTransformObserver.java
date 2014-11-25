@@ -16,9 +16,9 @@
 package com.netflix.servo.publish;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,7 +41,11 @@ public class MetricTransformObserver implements MetricObserver {
 
     @Override
     public void update(List<Metric> metrics) {
-        observer.update(Lists.transform(metrics, transformer));
+        List<Metric> transformed = new ArrayList<Metric>(metrics.size());
+        for (Metric m : metrics) {
+            transformed.add(transformer.apply(m));
+        }
+        observer.update(transformed);
     }
 
     @Override

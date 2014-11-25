@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -33,14 +32,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.ThreadMXBean;
 import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Poller for standard JVM metrics.
@@ -426,7 +426,7 @@ public class JvmMetricPoller implements MetricPoller {
 
         public MetricList(MetricFilter filter) {
             this.filter = filter;
-            list = Lists.newArrayList();
+            list = new ArrayList<Metric>();
         }
 
         public void add(Metric m) {

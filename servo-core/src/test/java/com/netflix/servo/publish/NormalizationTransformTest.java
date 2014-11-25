@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.AbstractMonitor;
@@ -27,6 +26,7 @@ import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -168,7 +168,7 @@ public class NormalizationTransformTest {
     }
 
     private List<Metric> getValue(List<? extends AbstractMonitor<Number>> monitors, Clock clock) {
-        List<Metric> result = Lists.newArrayList();
+        List<Metric> result = new ArrayList<Metric>();
         for (AbstractMonitor<Number> m : monitors) {
             Number n = m.getValue(0);
             Metric metric = new Metric(m.getConfig(), clock.now(), n);

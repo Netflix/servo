@@ -17,9 +17,9 @@ package com.netflix.servo.monitor;
 
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
         BucketTimer c = newInstance("foo");
         Map<String, Number> expectedValues;
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 0L);
         expectedValues.put("min", 0L);
         expectedValues.put("max", 0L);
@@ -54,7 +54,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         c.record(40);
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 40L);
         expectedValues.put("min", 40L);
         expectedValues.put("max", 40L);
@@ -66,7 +66,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         c.record(10);
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 50L);
         expectedValues.put("min", 10L);
         expectedValues.put("max", 40L);
@@ -78,7 +78,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         c.record(5);
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 55L);
         expectedValues.put("min", 5L);
         expectedValues.put("max", 40L);
@@ -90,7 +90,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         c.record(20);
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 75L);
         expectedValues.put("min", 5L);
         expectedValues.put("max", 40L);
@@ -102,7 +102,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
 
         c.record(125);
 
-        expectedValues = Maps.newHashMap();
+        expectedValues = new HashMap<String, Number>();
         expectedValues.put("totalTime", 200L);
         expectedValues.put("min", 5L);
         expectedValues.put("max", 125L);

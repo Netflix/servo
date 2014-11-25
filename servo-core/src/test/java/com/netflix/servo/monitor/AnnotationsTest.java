@@ -16,9 +16,9 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,12 +50,12 @@ public class AnnotationsTest {
     @Test
     public void testDefaultNames() throws Exception {
         Metrics m = new Metrics();
-        List<Monitor<?>> monitors = Lists.newArrayList();
+        List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         Monitors.addAnnotatedFields(monitors, null, null, m, m.getClass());
 
         List<String> expectedNames = ImmutableList.of(
             "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
-        List<String> actualNames = Lists.newArrayList();
+        List<String> actualNames = new ArrayList<String>();
         for (Monitor<?> monitor: monitors) {
             actualNames.add(monitor.getConfig().getName());
         }

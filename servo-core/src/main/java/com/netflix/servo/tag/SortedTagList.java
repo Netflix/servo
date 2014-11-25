@@ -17,9 +17,9 @@ package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Maps;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,7 +45,7 @@ public final class SortedTagList implements TagList {
      * Helper class to construct {@code SortedTagList} objects.
      */
     public static final class Builder {
-        private final Map<String, Tag> data = Maps.newHashMap();
+        private final Map<String, Tag> data = new HashMap<String, Tag>();
 
         /**
          * Add the collection of tags {@code tagsCollection} to this builder and

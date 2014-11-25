@@ -18,18 +18,16 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
-import com.google.common.collect.Lists;
-
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.tag.SortedTagList;
-import com.netflix.servo.tag.TaggingContext;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.TaggingContext;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -142,7 +140,7 @@ public final class Monitors {
     public static CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
         final TagList tags = getMonitorTags(obj);
 
-        List<Monitor<?>> monitors = Lists.newArrayList();
+        List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         addMonitors(monitors, id, tags, obj);
 
         final Class<?> c = obj.getClass();

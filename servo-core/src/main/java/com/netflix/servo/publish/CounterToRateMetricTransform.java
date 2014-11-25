@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -27,6 +26,7 @@ import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +150,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics, "metrics");
         LOGGER.debug("received {} metrics", metrics.size());
-        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
+        final List<Metric> newMetrics = new ArrayList<Metric>(metrics.size());
         for (Metric m : metrics) {
             if (isCounter(m)) {
                 final MonitorConfig rateConfig = toRateConfig(m.getConfig());

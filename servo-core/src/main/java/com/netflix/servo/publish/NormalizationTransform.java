@@ -16,7 +16,6 @@
 package com.netflix.servo.publish;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
@@ -30,6 +29,7 @@ import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,7 +198,7 @@ public final class NormalizationTransform implements MetricObserver {
     @Override
     public void update(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics, "metrics");
-        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
+        final List<Metric> newMetrics = new ArrayList<Metric>(metrics.size());
 
         for (Metric m : metrics) {
             long offset = m.getTimestamp() % stepMillis;

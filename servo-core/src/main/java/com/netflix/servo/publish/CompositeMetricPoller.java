@@ -17,11 +17,12 @@ package com.netflix.servo.publish;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import com.netflix.servo.Metric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -29,9 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Combines results from a list of metric pollers. This clas
@@ -96,13 +94,13 @@ public class CompositeMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public final List<Metric> poll(MetricFilter filter, boolean reset) {
-        Map<String, Future<List<Metric>>> futures = Maps.newHashMap();
+        Map<String, Future<List<Metric>>> futures = new HashMap<String, Future<List<Metric>>>();
         for (Map.Entry<String, MetricPoller> e : pollers.entrySet()) {
             PollCallable task = new PollCallable(e.getValue(), filter, reset);
             futures.put(e.getKey(), executor.submit(task));
         }
 
-        List<Metric> allMetrics = Lists.newArrayList();
+        List<Metric> allMetrics = new ArrayList<Metric>();
         for (Map.Entry<String, Future<List<Metric>>> e : futures.entrySet()) {
             allMetrics.addAll(getMetrics(e.getKey(), e.getValue()));
         }
