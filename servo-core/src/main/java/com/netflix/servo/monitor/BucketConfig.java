@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
+import com.netflix.servo.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +40,7 @@ public final class BucketConfig {
          * Sets the timeUnit for the buckets.
          */
         public Builder withTimeUnit(TimeUnit timeUnit) {
-            this.timeUnit = Preconditions.checkNotNull(timeUnit);
+            this.timeUnit = Preconditions.checkNotNull(timeUnit, "timeUnit");
             return this;
         }
 

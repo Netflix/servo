@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.util.Preconditions;
 
 import java.lang.ref.WeakReference;
 
@@ -33,7 +33,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
      */
     public NumberGauge(MonitorConfig config, Number number) {
         super(config.withAdditionalTag(DataSourceType.GAUGE));
-        Preconditions.checkNotNull(number);
+        Preconditions.checkNotNull(number, "number");
         this.numberRef = new WeakReference<Number>(number);
     }
 

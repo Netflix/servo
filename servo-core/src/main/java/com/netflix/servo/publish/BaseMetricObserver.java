@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
@@ -26,6 +25,7 @@ import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.Preconditions;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,7 +51,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
     /** Creates a new instance with a given name. */
     public BaseMetricObserver(String name) {
         final Tag id = Tags.newTag(StandardTagKeys.MONITOR_ID.getKeyName(), name);
-        this.name = Preconditions.checkNotNull(name);
+        this.name = Preconditions.checkNotNull(name, "name");
         this.tags = BasicTagList.of(id);
     }
 
@@ -63,7 +63,7 @@ public abstract class BaseMetricObserver implements MetricObserver {
 
     /** {@inheritDoc} */
     public final void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
+        Preconditions.checkNotNull(metrics, "metrics");
         try {
             updateImpl(metrics);
         } catch (Throwable t) {

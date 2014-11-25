@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
-
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitors;
+import com.netflix.servo.util.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Wraps another observer and asynchronously updates it in the background. The
@@ -69,9 +67,9 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
             long expireTime) {
         super(name);
         this.expireTime = expireTime;
-        wrappedObserver = Preconditions.checkNotNull(observer);
+        wrappedObserver = Preconditions.checkNotNull(observer, "observer");
         Preconditions.checkArgument(queueSize >= 1,
-                "invalid queueSize %d, size must be >= 1", queueSize);
+                String.format("invalid queueSize %d, size must be >= 1", queueSize));
 
         updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 

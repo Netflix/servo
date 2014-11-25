@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.servo.monitor;
+package com.netflix.servo.util;
 
-import com.netflix.servo.util.Preconditions;
+import javax.annotation.Nullable;
 
-import java.util.concurrent.TimeUnit;
 
 /**
- * Stopwatch that will also record to a timer.
+ * Static helpers for {@code String} instances.
  */
-public class TimedStopwatch extends BasicStopwatch {
-    private final Timer timer;
-
-    /** Create a new instance with the specified timer. */
-    public TimedStopwatch(Timer timer) {
-        Preconditions.checkNotNull(timer, "timer");
-        this.timer = timer;
+public class Strings {
+    private Strings() {
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void stop() {
-        super.stop();
-        timer.record(getDuration(), TimeUnit.NANOSECONDS);
+    public static boolean isNullOrEmpty(@Nullable String string) {
+        return string == null || string.isEmpty();
     }
 }

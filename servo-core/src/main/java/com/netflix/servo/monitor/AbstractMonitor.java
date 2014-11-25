@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
+import com.netflix.servo.util.Preconditions;
 
 /**
  * Base type to simplify implementing monitors.
@@ -27,7 +27,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      * Create a new instance with the specified configuration.
      */
     protected AbstractMonitor(MonitorConfig config) {
-        this.config = Preconditions.checkNotNull(config);
+        this.config = Preconditions.checkNotNull(config, "config");
     }
 
     /** {@inheritDoc} */

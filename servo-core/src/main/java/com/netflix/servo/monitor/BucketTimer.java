@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.List;

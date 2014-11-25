@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
@@ -24,6 +23,7 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +148,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
 
     /** {@inheritDoc} */
     public void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
+        Preconditions.checkNotNull(metrics, "metrics");
         LOGGER.debug("received {} metrics", metrics.size());
         final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
         for (Metric m : metrics) {

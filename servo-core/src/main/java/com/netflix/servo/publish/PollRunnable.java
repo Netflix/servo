@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ public class PollRunnable implements Runnable {
             MetricFilter filter,
             boolean reset,
             Collection<MetricObserver> observers) {
-        this.poller = Preconditions.checkNotNull(poller);
-        this.filter = Preconditions.checkNotNull(filter);
+        this.poller = Preconditions.checkNotNull(poller, "poller");
+        this.filter = Preconditions.checkNotNull(filter, "poller");
         this.reset = reset;
         this.observers = ImmutableList.copyOf(observers);
     }
