@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTag;
@@ -48,7 +48,7 @@ public class DynamicCounterTest {
         return getInstance().getMonitors();
     }
 
-    private final TagList tagList = new BasicTagList(ImmutableList.of(
+    private final TagList tagList = new BasicTagList(UnmodifiableList.of(
             (Tag) new BasicTag("PLATFORM", "true")));
 
     private StepCounter getByName(String name) throws Exception {

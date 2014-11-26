@@ -15,10 +15,11 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public final class Pollers {
      */
     static final long[] POLLING_INTERVALS = parse(POLLERS);
 
-    private static final ImmutableList<Long> POLLING_INTERVALS_AS_LIST;
+    private static final List<Long> POLLING_INTERVALS_AS_LIST;
 
     /**
      * Get list of polling intervals in milliseconds.
@@ -108,10 +109,10 @@ public final class Pollers {
     }
 
     static {
-        ImmutableList.Builder<Long> builder = ImmutableList.builder();
-        for (long pollingInterval : POLLING_INTERVALS) {
-            builder.add(pollingInterval);
+        List<Long> intervals = new ArrayList<Long>(POLLING_INTERVALS.length);
+        for (Long interval : POLLING_INTERVALS) {
+            intervals.add(interval);
         }
-        POLLING_INTERVALS_AS_LIST = builder.build();
+        POLLING_INTERVALS_AS_LIST = Collections.unmodifiableList(intervals);
     }
 }

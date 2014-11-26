@@ -15,7 +15,7 @@
  */
 package com.netflix.servo;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.util.Preconditions;
 
@@ -43,7 +43,7 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public Collection<Monitor<?>> getRegisteredMonitors() {
-        return ImmutableList.copyOf(monitors);
+        return UnmodifiableList.copyOf(monitors);
     }
 
     /**
@@ -51,7 +51,7 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public void register(Monitor<?> monitor) {
-        Preconditions.checkNotNull(monitor, "monitor cannot be null");
+        Preconditions.checkNotNull(monitor, "monitor");
         try {
             monitors.add(monitor);
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
      */
     @Override
     public void unregister(Monitor<?> monitor) {
-        Preconditions.checkNotNull(monitor, "monitor cannot be null");
+        Preconditions.checkNotNull(monitor, "monitor");
         try {
             monitors.remove(monitor);
         } catch (Exception e) {

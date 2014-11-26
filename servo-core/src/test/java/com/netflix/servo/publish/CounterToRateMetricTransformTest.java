@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
@@ -41,10 +41,10 @@ public class CounterToRateMetricTransformTest {
         .build();
 
     private List<Metric> mkList(long ts, int value) {
-        return ImmutableList.of(
-            new Metric("m1", SortedTagList.EMPTY, ts, value),
-            new Metric("m2", GAUGE, ts, value),
-            new Metric("m3", COUNTER, ts, value)
+        return UnmodifiableList.of(
+                new Metric("m1", SortedTagList.EMPTY, ts, value),
+                new Metric("m2", GAUGE, ts, value),
+                new Metric("m3", COUNTER, ts, value)
         );
     }
 

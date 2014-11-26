@@ -15,14 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -98,13 +99,13 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
             );
         }
 
-        this.monitors = new ImmutableList.Builder<Monitor<?>>()
-            .add(totalTime)
-            .add(min)
-            .add(max)
-            .addAll(Arrays.asList(bucketCount))
-            .add(overflowCount)
-            .build();
+        List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
+        monitorList.add(totalTime);
+        monitorList.add(min);
+        monitorList.add(max);
+        monitorList.addAll(Arrays.asList(bucketCount));
+        monitorList.add(overflowCount);
+        this.monitors = Collections.unmodifiableList(monitorList);
     }
 
     /** {@inheritDoc} */

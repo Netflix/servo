@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public final class BasicCompositeMonitor extends AbstractMonitor<Integer>
      */
     public BasicCompositeMonitor(MonitorConfig config, List<Monitor<?>> monitors) {
         super(config);
-        this.monitors = ImmutableList.copyOf(monitors);
+        this.monitors = UnmodifiableList.copyOf(monitors);
     }
 
     /** {@inheritDoc} */

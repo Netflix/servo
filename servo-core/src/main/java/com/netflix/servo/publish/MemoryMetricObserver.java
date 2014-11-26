@@ -15,9 +15,10 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,14 +60,14 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
      * Returns the current set of observations.
      */
     public List<List<Metric>> getObservations() {
-        ImmutableList.Builder<List<Metric>> builder = ImmutableList.builder();
+        List<List<Metric>> builder = new ArrayList<List<Metric>>();
         int pos = next;
-        for (List<Metric> observation : observations) {
+        for (List<Metric> ignored : observations) {
             if (observations[pos] != null) {
                 builder.add(observations[pos]);
             }
             pos = (pos + 1) % observations.length;
         }
-        return builder.build();
+        return Collections.unmodifiableList(builder);
     }
 }

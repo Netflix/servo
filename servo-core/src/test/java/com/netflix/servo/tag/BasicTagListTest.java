@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.Test;
 
@@ -36,7 +36,7 @@ public class BasicTagListTest {
     @Test
     public void testCopyOfIterableString() throws Exception {
         Map<String, String> map = ImmutableMap.of("foo", "bar", "dee", "dum");
-        List<String> input = ImmutableList.of("foo=bar", "dee=dum");
+        List<String> input = UnmodifiableList.of("foo=bar", "dee=dum");
         TagList tags = BasicTagList.copyOf(input);
         assertEquals(tags.asMap(), map);
     }

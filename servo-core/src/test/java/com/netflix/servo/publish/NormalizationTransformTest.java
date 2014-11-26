@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.AbstractMonitor;
 import com.netflix.servo.monitor.BasicCounter;
@@ -90,7 +90,7 @@ public class NormalizationTransformTest {
 
         int i = 0;
         for (Metric m : input) {
-            transform.update(ImmutableList.of(m));
+            transform.update(UnmodifiableList.of(m));
             Metric result = mmo.getObservations().get(0).get(0);
             assertEquals(TimeVal.from(result), expected.get(i));
             i++;
@@ -99,7 +99,7 @@ public class NormalizationTransformTest {
 
     @Test
     public void testBasic() throws Exception {
-        List<Metric> inputList = ImmutableList.of(
+        List<Metric> inputList = UnmodifiableList.of(
                 newMetric(5, 1.0),
                 newMetric(15, 2.0),
                 newMetric(25, 2.0),
@@ -107,7 +107,7 @@ public class NormalizationTransformTest {
                 newMetric(85, 1.0),
                 newMetric(95, 2.0),
                 newMetric(105, 2.0));
-        List<TimeVal> expected = ImmutableList.of(
+        List<TimeVal> expected = UnmodifiableList.of(
                 TimeVal.from(0, 0.5),
                 TimeVal.from(10, 1.5),
                 TimeVal.from(20, 2.0),
@@ -122,12 +122,12 @@ public class NormalizationTransformTest {
 
     @Test
     public void testAlreadyNormalized() throws Exception {
-        List<Metric> inputList = ImmutableList.of(
+        List<Metric> inputList = UnmodifiableList.of(
                 newMetric(0, 10.0),
                 newMetric(10, 20.0),
                 newMetric(20, 30.0),
                 newMetric(30, 10.0));
-        List<TimeVal> expected = ImmutableList.of(
+        List<TimeVal> expected = UnmodifiableList.of(
                 TimeVal.from(0, 10.0),
                 TimeVal.from(10, 20.0),
                 TimeVal.from(20, 30.0),
@@ -137,11 +137,11 @@ public class NormalizationTransformTest {
 
     @Test
     public void testNormalizedMissedHeartbeat() throws Exception {
-        List<Metric> inputList = ImmutableList.of(
+        List<Metric> inputList = UnmodifiableList.of(
                 newMetric(0, 10.0),
                 newMetric(10, 10.0),
                 newMetric(30, 10.0));
-        List<TimeVal> expected = ImmutableList.of(
+        List<TimeVal> expected = UnmodifiableList.of(
                 TimeVal.from(0, 10.0),
                 TimeVal.from(10, 10.0),
                 TimeVal.from(30, 10.0));
@@ -154,12 +154,12 @@ public class NormalizationTransformTest {
 
     @Test
     public void testRandomOffset() throws Exception {
-        List<Metric> inputList = ImmutableList.of(
+        List<Metric> inputList = UnmodifiableList.of(
                 newMetric(t(1, 13), 1.0),
                 newMetric(t(2, 13), 1.0),
                 newMetric(t(3, 13), 1.0));
 
-        List<TimeVal> expected = ImmutableList.of(
+        List<TimeVal> expected = UnmodifiableList.of(
                 TimeVal.from(t(1, 0), 47.0 / 60.0),
                 TimeVal.from(t(2, 0), 1.0),
                 TimeVal.from(t(3, 0), 1.0));
@@ -187,7 +187,7 @@ public class NormalizationTransformTest {
                 manualClock);
         LongGauge gauge = new LongGauge(MonitorConfig.builder("longGauge").build());
 
-        ImmutableList<? extends AbstractMonitor<Number>> monitors = ImmutableList.of(basicCounter,
+        List<? extends AbstractMonitor<Number>> monitors = UnmodifiableList.of(basicCounter,
                 stepCounter, gauge);
 
         MemoryMetricObserver observer = new MemoryMetricObserver("normalization-test", 1);
@@ -264,19 +264,19 @@ public class NormalizationTransformTest {
         c1.increment();
         Metric m1 = new Metric(c1.getConfig(), manualClock.now(), c1.getValue(0));
 
-        toRateMetricTransform.update(ImmutableList.of(m1));
+        toRateMetricTransform.update(UnmodifiableList.of(m1));
         assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 0);
         List<Metric> o = observer.getObservations().get(0);
         assertEquals(o.size(), 1);
 
         manualClock.set(100000L);
         Metric m2 = new Metric(c2.getConfig(), manualClock.now(), c2.getValue());
-        toRateMetricTransform.update(ImmutableList.of(m2));
+        toRateMetricTransform.update(UnmodifiableList.of(m2));
         assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 0);
 
         manualClock.set(160000L);
         Metric m3 = new Metric(c3.getConfig(), manualClock.now(), c3.getValue());
-        toRateMetricTransform.update(ImmutableList.of(m3));
+        toRateMetricTransform.update(UnmodifiableList.of(m3));
         assertEquals(NormalizationTransform.HEARTBEAT_EXCEEDED.getValue(0).longValue(), 1);
 
     }

@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
@@ -28,7 +28,7 @@ import static org.testng.Assert.assertTrue;
 public class AsyncMetricObserverTest {
 
     private List<Metric> mkList(int v) {
-        return ImmutableList.of(new Metric("m", SortedTagList.EMPTY, 0L, v));
+        return UnmodifiableList.of(new Metric("m", SortedTagList.EMPTY, 0L, v));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class AsyncMetricObserverTest {
         amo.update(mkList(4));
         Thread.sleep(1000);
         assertEquals(mmo.getObservations(),
-            ImmutableList.of(mkList(1), mkList(2), mkList(3), mkList(4)));
+            UnmodifiableList.of(mkList(1), mkList(2), mkList(3), mkList(4)));
         amo.stop();
     }
 

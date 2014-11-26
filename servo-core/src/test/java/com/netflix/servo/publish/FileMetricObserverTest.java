@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
@@ -26,9 +25,10 @@ import org.testng.annotations.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -44,11 +44,11 @@ public class FileMetricObserverTest {
         .build();
 
     private List<Metric> mkList(int v) {
-        ImmutableList.Builder<Metric> builder = ImmutableList.builder();
+        List<Metric> metrics = new ArrayList<Metric>(v);
         for (int i = 0; i < v; ++i) {
-            builder.add(new Metric("m", TAGS, 0L, i));
+            metrics.add(new Metric("m", TAGS, 0L, i));
         }
-        return builder.build();
+        return metrics;
     }
 
     private void delete(File f) throws IOException {

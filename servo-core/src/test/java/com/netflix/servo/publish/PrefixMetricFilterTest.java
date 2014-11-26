@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
@@ -31,7 +31,7 @@ import static org.testng.Assert.assertEquals;
 public class PrefixMetricFilterTest {
 
     private List<Metric> mkList() {
-        return ImmutableList.of(
+        return UnmodifiableList.of(
                 new Metric("m1", SortedTagList.EMPTY, 0L, 0),
                 new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
                 new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),

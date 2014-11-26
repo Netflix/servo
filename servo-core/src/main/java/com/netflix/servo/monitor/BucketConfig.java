@@ -60,7 +60,7 @@ public final class BucketConfig {
          * </ul>
          */
         public Builder withBuckets(long[] buckets) {
-            Preconditions.checkNotNull(buckets, "buckets cannot be null");
+            Preconditions.checkNotNull(buckets, "buckets");
 
             this.buckets = Arrays.copyOf(buckets, buckets.length);
             Preconditions.checkArgument(this.buckets.length > 0, "buckets cannot be empty");

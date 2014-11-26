@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 
@@ -86,7 +86,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
             }
         });
 
-        monitors = ImmutableList.of(duration, activeTasks);
+        monitors = UnmodifiableList.of(duration, activeTasks);
     }
 
     private long getDurationMillis() {

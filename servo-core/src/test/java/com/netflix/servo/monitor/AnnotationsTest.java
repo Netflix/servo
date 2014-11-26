@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -53,8 +53,8 @@ public class AnnotationsTest {
         List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         Monitors.addAnnotatedFields(monitors, null, null, m, m.getClass());
 
-        List<String> expectedNames = ImmutableList.of(
-            "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
+        List<String> expectedNames = UnmodifiableList.of(
+                "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
         List<String> actualNames = new ArrayList<String>();
         for (Monitor<?> monitor: monitors) {
             actualNames.add(monitor.getConfig().getName());

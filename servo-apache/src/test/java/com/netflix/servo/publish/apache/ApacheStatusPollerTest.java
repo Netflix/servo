@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish.apache;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -101,13 +102,13 @@ public class ApacheStatusPollerTest {
         Metric kBytes = counter("Total_kBytes", KBYTES);
         Metric uptime = counter("Uptime", UPTIME);
 
-        List<Metric> counters = ImmutableList.of(accesses, kBytes, uptime);
+        List<Metric> counters = UnmodifiableList.of(accesses, kBytes, uptime);
         Metric rps = gauge("ReqPerSec", RPS);
         Metric bps = gauge("BytesPerSec", BPS);
         Metric bpr = gauge("BytesPerReq", BPR);
         Metric busyWorkers = gauge("BusyWorkers", BUSY_WORKERS);
         Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
-        List<Metric> gauges = ImmutableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
+        List<Metric> gauges = UnmodifiableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
 
         Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
         Metric startingUp = scoreboard("StartingUp", 0.0);
@@ -120,15 +121,15 @@ public class ApacheStatusPollerTest {
         Metric gracefullyFinishing = scoreboard("GracefullyFinishing", 0.0);
         Metric idleCleanupOfWorker = scoreboard("IdleCleanupOfWorker", 0.0);
         Metric unknownState = scoreboard("UnknownState", 0.0);
-        List<Metric> scoreboard = ImmutableList.of(waitingForConnection,
+        List<Metric> scoreboard = UnmodifiableList.of(waitingForConnection,
                 startingUp, readingRequest, sendingReply, keepalive, dnsLookup, closingConnection,
                 logging, gracefullyFinishing, idleCleanupOfWorker, unknownState);
 
-        List<Metric> expected = new ImmutableList.Builder<Metric>()
-                .addAll(counters)
-                .addAll(gauges)
-                .addAll(scoreboard)
-                .build();
+        List<Metric> expected = new ArrayList<Metric>();
+        expected.addAll(counters);
+        expected.addAll(gauges);
+        expected.addAll(scoreboard);
+
         assertEquals(metrics, expected);
     }
 }

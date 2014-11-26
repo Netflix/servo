@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.servo.Metric;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class CompositeMetricPoller implements MetricPoller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompositeMetricPoller.class);
 
-    private static final List<Metric> EMPTY = ImmutableList.of();
+    private static final List<Metric> EMPTY = UnmodifiableList.of();
 
     private static final String POLLER_KEY = "PollerName";
 

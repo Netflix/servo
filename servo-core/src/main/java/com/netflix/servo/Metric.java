@@ -47,10 +47,9 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(MonitorConfig config, long timestamp, Object value) {
-        this.config = Preconditions.checkNotNull(config, "config cannot be null");
+        this.config = Preconditions.checkNotNull(config, "config");
         this.timestamp = timestamp;
-        this.value = Preconditions.checkNotNull(value, "value cannot be null (config="
-                + config + ")");
+        this.value = Preconditions.checkNotNull(value, "value");
     }
 
     /** Returns the config settings associated with the metric. */

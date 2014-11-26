@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.SmallTagMap;
 import com.netflix.servo.tag.Tag;
@@ -127,7 +127,7 @@ public final class MonitorConfig {
          * Get the list of tags for this monitor config.
          */
         public List<Tag> getTags() {
-            return ImmutableList.copyOf(tagsBuilder.result());
+            return UnmodifiableList.copyOf(tagsBuilder.result());
         }
 
         /**
@@ -159,7 +159,7 @@ public final class MonitorConfig {
      * null an empty tag list will be used.
      */
     private MonitorConfig(Builder builder) {
-        this.name = Preconditions.checkNotNull(builder.name, "name cannot be null");
+        this.name = Preconditions.checkNotNull(builder.name, "name");
         this.tags = (builder.tagsBuilder.isEmpty())
                 ? BasicTagList.EMPTY
                 : new BasicTagList(builder.tagsBuilder.result());

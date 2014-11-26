@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
@@ -94,7 +94,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         final FactorMonitor<Long> maxFactor = new FactorMonitor<Long>(max,
                 timeUnitNanosFactor);
 
-        monitors = ImmutableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
+        monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
     }
 
     /**

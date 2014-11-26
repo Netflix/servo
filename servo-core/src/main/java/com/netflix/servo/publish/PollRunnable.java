@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class PollRunnable implements Runnable {
         this.poller = Preconditions.checkNotNull(poller, "poller");
         this.filter = Preconditions.checkNotNull(filter, "poller");
         this.reset = reset;
-        this.observers = ImmutableList.copyOf(observers);
+        this.observers = UnmodifiableList.copyOf(observers);
     }
 
     /**
@@ -70,7 +70,7 @@ public class PollRunnable implements Runnable {
             MetricPoller poller,
             MetricFilter filter,
             MetricObserver... observers) {
-        this(poller, filter, false, ImmutableList.copyOf(observers));
+        this(poller, filter, false, UnmodifiableList.copyOf(observers));
     }
 
     /** {@inheritDoc} */

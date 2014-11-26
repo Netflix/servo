@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.google.common.collect.ImmutableSet;
 import org.testng.annotations.Test;
 
@@ -60,7 +60,7 @@ public class SmallTagMapTest {
         Tag t1 = new BasicTag("k1", "v1");
         Tag t2 = new BasicTag("k1", "v2");
         Tag t3 = new BasicTag("k2", "v2");
-        List<Tag> tags = ImmutableList.of(t1, t2, t3);
+        List<Tag> tags = UnmodifiableList.of(t1, t2, t3);
         SmallTagMap map = SmallTagMap.builder().addAll(tags).result();
         assertEquals(map.get("k1"), t2);
         assertEquals(map.size(), 2);

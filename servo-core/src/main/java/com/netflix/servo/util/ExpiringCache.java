@@ -15,10 +15,12 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -158,11 +160,12 @@ public class ExpiringCache<K, V> {
      * affect the access time used for eviction.
      */
     public List<V> values() {
-        ImmutableList.Builder<V> builder = ImmutableList.builder();
-        for (Entry<V> e : map.values()) {
-            builder.add(e.value); // avoid updating the access time
+        final Collection<Entry<V>> values = map.values();
+        final List<V> res = new ArrayList<V>(values.size());
+        for (Entry<V> e : values) {
+            res.add(e.value); // avoid updating the access time
         }
-        return builder.build();
+        return Collections.unmodifiableList(res);
     }
 
     /**

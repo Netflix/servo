@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.google.common.collect.Iterables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
@@ -33,12 +33,12 @@ import static org.testng.Assert.assertEquals;
 public class CompositeMetricPollerTest {
 
     private List<Metric> mkList() {
-        return ImmutableList.of(
-            new Metric("m1", SortedTagList.EMPTY, 0L, 0),
-            new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
-            new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),
-            new Metric("m4", SortedTagList.builder().withTag("c", "a.b.c.d.M4").build(), 0L, 0),
-            new Metric("m5", SortedTagList.builder().withTag("c", "a.a.a.a.M5").build(), 0L, 0)
+        return UnmodifiableList.of(
+                new Metric("m1", SortedTagList.EMPTY, 0L, 0),
+                new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
+                new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),
+                new Metric("m4", SortedTagList.builder().withTag("c", "a.b.c.d.M4").build(), 0L, 0),
+                new Metric("m5", SortedTagList.builder().withTag("c", "a.a.a.a.M5").build(), 0L, 0)
         );
     }
 
@@ -70,7 +70,7 @@ public class CompositeMetricPollerTest {
         MetricPoller poller = new CompositeMetricPoller(pollers, exec, 10000);
 
         assertEquals(poller.poll(MATCH_ALL),
-            ImmutableList.copyOf(Iterables.concat(mkList(), mkList())));
+            UnmodifiableList.copyOf(Iterables.concat(mkList(), mkList())));
     }
 
     @Test
