@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
+import com.netflix.servo.util.Throwables;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 

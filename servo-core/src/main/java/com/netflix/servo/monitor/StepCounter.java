@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.netflix.servo.util.VisibleForTesting;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;

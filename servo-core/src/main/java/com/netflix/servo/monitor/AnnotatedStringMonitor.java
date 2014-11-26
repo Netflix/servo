@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Throwables;
+import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

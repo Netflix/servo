@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Throwables;
+import com.netflix.servo.util.Throwables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;

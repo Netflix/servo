@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Throwables;
+import com.netflix.servo.util.Throwables;
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.Callable;

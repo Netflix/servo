@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.netflix.servo.util.VisibleForTesting;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
