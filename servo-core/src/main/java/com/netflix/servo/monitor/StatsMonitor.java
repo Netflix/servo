@@ -18,13 +18,13 @@ package com.netflix.servo.monitor;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.ThreadFactories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +47,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class StatsMonitor extends AbstractMonitor<Long> implements
         CompositeMonitor<Long>, NumericMonitor<Long> {
-    private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("StatsMonitor-%d")
-            .build();
+    private static final ThreadFactory THREAD_FACTORY = ThreadFactories.withName("StatsMonitor-%d");
+
     //CHECKSTYLE.OFF: ConstantName
     protected static final ScheduledExecutorService defaultExecutor =
             Executors.newScheduledThreadPool(1, THREAD_FACTORY);

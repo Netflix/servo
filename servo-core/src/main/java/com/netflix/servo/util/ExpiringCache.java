@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,15 +82,8 @@ public class ExpiringCache<K, V> {
         }
     }
 
-    private static final ScheduledExecutorService SERVICE;
-
-    static {
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setDaemon(true)
-                .setNameFormat("expiringMap-%d")
-                .build();
-        SERVICE = Executors.newSingleThreadScheduledExecutor(threadFactory);
-    }
+    private static final ScheduledExecutorService SERVICE =
+            Executors.newSingleThreadScheduledExecutor(ThreadFactories.withName("expiringMap-%d"));
 
     /**
      * Create a new ExpiringCache that will expire entries after a given number of milliseconds

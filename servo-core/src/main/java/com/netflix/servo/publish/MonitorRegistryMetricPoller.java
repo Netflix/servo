@@ -16,7 +16,6 @@
 package com.netflix.servo.publish;
 
 import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.netflix.servo.DefaultMonitorRegistry;
@@ -26,6 +25,7 @@ import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.ThreadFactories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,10 +120,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         this.clock = clock;
 
         if (useLimiter) {
-            final ThreadFactory factory = new ThreadFactoryBuilder()
-                    .setDaemon(true)
-                    .setNameFormat("ServoMonitorGetValueLimiter-%d")
-                    .build();
+            final ThreadFactory factory = ThreadFactories.withName("ServoMonitorGetValueLimiter-%d");
             service = Executors.newSingleThreadExecutor(factory);
             limiter = new SimpleTimeLimiter(service);
         } else {
