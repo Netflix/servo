@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
@@ -32,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -274,7 +274,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
         }
 
         // do a sanity check to prevent duplicated monitor configurations
-        final Set<MonitorConfig> seen = Sets.newHashSet();
+        final Set<MonitorConfig> seen = new HashSet<MonitorConfig>();
         for (final GaugeWrapper wrapper : wrappers) {
             final MonitorConfig cfg = wrapper.getMonitor().getConfig();
             if (seen.contains(cfg)) {

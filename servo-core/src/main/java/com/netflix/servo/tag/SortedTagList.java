@@ -16,14 +16,15 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSortedMap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * A {@link com.netflix.servo.tag.TagList} backed by a {@link SortedMap}.
@@ -96,7 +97,8 @@ public final class SortedTagList implements TagList {
     }
 
     private SortedTagList(Builder builder) {
-        this.tagSortedMap = ImmutableSortedMap.copyOf(builder.data);
+        this.tagSortedMap = Collections.unmodifiableSortedMap(
+                new TreeMap<String, Tag>(builder.data));
         this.size = tagSortedMap.size();
     }
 

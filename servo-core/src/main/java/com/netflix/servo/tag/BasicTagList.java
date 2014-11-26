@@ -16,22 +16,22 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
 import com.netflix.servo.util.Preconditions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Immutable tag list.
  */
 public final class BasicTagList implements TagList {
     /** An empty tag list. */
-    public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
+    public static final TagList EMPTY = new BasicTagList(Collections.<Tag>emptySet());
 
     private final SmallTagMap tagMap;
     private SortedMap<String, String> sortedTaglist;
@@ -91,11 +91,11 @@ public final class BasicTagList implements TagList {
             return sortedTaglist;
         }
 
-        ImmutableSortedMap.Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
-        for (Tag tag : tagMap) {
-            builder.put(tag.getKey(), tag.getValue());
+        SortedMap<String, String> tagMap = new TreeMap<String, String>();
+        for (Tag tag : this.tagMap) {
+            tagMap.put(tag.getKey(), tag.getValue());
         }
-        sortedTaglist = builder.build();
+        sortedTaglist = Collections.unmodifiableSortedMap(tagMap);
         return sortedTaglist;
     }
 

@@ -16,12 +16,12 @@
 package com.netflix.servo.publish;
 
 import com.netflix.servo.util.UnmodifiableList;
-import com.google.common.collect.ImmutableMap;
 import com.netflix.servo.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class CompositeMetricPoller implements MetricPoller {
      */
     public CompositeMetricPoller(
             Map<String, MetricPoller> pollers, ExecutorService executor, long timeout) {
-        this.pollers = ImmutableMap.copyOf(pollers);
+        this.pollers = Collections.unmodifiableMap(pollers);
         this.executor = executor;
         this.timeout = timeout;
     }

@@ -16,7 +16,7 @@
 package com.netflix.servo.monitor;
 
 
-import com.google.common.collect.ImmutableSet;
+import com.netflix.servo.util.UnmodifiableSet;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -114,7 +114,7 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
     }
 
     private void assertMonitors(List<Monitor<?>> monitors, Map<String, Number> expectedValues) {
-        Set<String> exclude = ImmutableSet.of("count", "min", "max");
+        Set<String> exclude = UnmodifiableSet.of("count", "min", "max");
         String[] namespaces = new String[]{"statistic", "servo.bucket"};
         for (Monitor<?> monitor : monitors) {
             for (String namespace : namespaces) {

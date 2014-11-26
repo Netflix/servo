@@ -16,7 +16,7 @@
 package com.netflix.servo.tag;
 
 import com.netflix.servo.util.UnmodifiableList;
-import com.google.common.collect.ImmutableSet;
+import com.netflix.servo.util.UnmodifiableSet;
 import org.testng.annotations.Test;
 
 import java.util.Iterator;
@@ -24,7 +24,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 public class SmallTagMapTest {
     @Test
@@ -83,8 +87,8 @@ public class SmallTagMapTest {
         final Tag t1 = new BasicTag("k1", "v");
         final Tag t2 = new BasicTag("k2", "v2");
         SmallTagMap map = SmallTagMap.builder().add(t1).add(t2).result();
-        Set<Tag> tags = ImmutableSet.copyOf(map.iterator());
-        assertEquals(tags, ImmutableSet.of(t1, t2));
+        Set<Tag> tags = UnmodifiableSet.copyOf(map.iterator());
+        assertEquals(tags, UnmodifiableSet.of(t1, t2));
     }
 
     @Test
