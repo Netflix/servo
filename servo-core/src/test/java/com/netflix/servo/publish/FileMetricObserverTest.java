@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.io.Files;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
@@ -134,7 +133,7 @@ public class FileMetricObserverTest {
 
     @Test
     public void testUpdateCompressed() throws Exception {
-        File dir = Files.createTempDir();
+        File dir = createTempDir();
         try {
             MetricObserver fmo = new FileMetricObserver("test", dir, true);
             fmo.update(mkList(1));
