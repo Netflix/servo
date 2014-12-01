@@ -15,11 +15,11 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.io.Closer;
 import com.netflix.servo.Metric;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +116,6 @@ public final class FileMetricObserver extends BaseMetricObserver {
     public void updateImpl(List<Metric> metrics) {
         Preconditions.checkNotNull(metrics, "metrics");
         File file = new File(dir, fileFormat.format(new Date(clock.now())));
-        Closer closer = Closer.create();
         Writer out = null;
         try {
             try {
@@ -125,16 +124,22 @@ public final class FileMetricObserver extends BaseMetricObserver {
                 if (compress) {
                     fileOut = new GZIPOutputStream(fileOut);
                 }
-                out = closer.register(new OutputStreamWriter(fileOut, "UTF-8"));
+                out = new OutputStreamWriter(fileOut, "UTF-8");
                 for (Metric m : metrics) {
                     out.append(m.getConfig().getName()).append('\t')
                        .append(m.getConfig().getTags().toString()).append('\t')
                        .append(m.getValue().toString()).append('\n');
                 }
             } catch (Throwable t) {
-                throw closer.rethrow(t);
+                if (out != null) {
+                    out.close();
+                    out = null;
+                }
+                throw Throwables.propagate(t);
             } finally {
-                closer.close();
+                if (out != null) {
+                    out.close();
+                }
             }
         } catch (IOException e) {
             incrementFailedCount();

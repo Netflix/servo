@@ -16,7 +16,7 @@
 package com.netflix.servo.publish;
 
 import com.netflix.servo.util.UnmodifiableList;
-import com.google.common.collect.Iterables;
+import com.netflix.servo.util.Iterables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;

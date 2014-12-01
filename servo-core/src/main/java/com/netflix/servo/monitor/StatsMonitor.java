@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -306,12 +303,10 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
         this.count = new BasicCounter(baseConfig.withAdditionalTag(STAT_COUNT));
         this.totalMeasurement = new BasicCounter(baseConfig.withAdditionalTag(statsTotal));
         this.gaugeWrappers = getGaugeWrappers(statsConfig);
-        final Collection<Monitor<?>> gaugeMonitors = Collections2.transform(gaugeWrappers,
-                new Function<GaugeWrapper, Monitor<?>>() {
-                    public Monitor<?> apply(GaugeWrapper perfStatGauge) {
-                        return perfStatGauge.getMonitor();
-                    }
-                });
+        final List<Monitor<?>> gaugeMonitors = new ArrayList<Monitor<?>>(gaugeWrappers.size());
+        for (GaugeWrapper perfStatsGauge : gaugeWrappers) {
+            gaugeMonitors.add(perfStatsGauge.getMonitor());
+        }
 
         List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
         monitorList.addAll(getCounters(statsConfig));

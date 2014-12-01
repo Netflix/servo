@@ -16,7 +16,7 @@
 package com.netflix.servo.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
+import com.netflix.servo.util.Iterables;
 import com.netflix.servo.util.Preconditions;
 
 import java.util.Arrays;

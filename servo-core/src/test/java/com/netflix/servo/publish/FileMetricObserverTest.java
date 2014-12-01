@@ -97,9 +97,23 @@ public class FileMetricObserverTest {
         }
     }
 
+    private static File createTempDir() {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        String baseName = System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < 3; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IllegalStateException("Failed to create directory within 3 attempts (tried "
+                + baseName + "0 to " + baseName + "2)");
+    }
+
     @Test
     public void testUpdate() throws Exception {
-        File dir = Files.createTempDir();
+        File dir = createTempDir();
         try {
             MetricObserver fmo = new FileMetricObserver("test", dir);
             fmo.update(mkList(1));
