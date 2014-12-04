@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Joiner;
+import com.netflix.servo.util.Strings;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -171,6 +171,6 @@ public final class SortedTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tagSortedMap.values());
+        return Strings.join(",", tagSortedMap.values().iterator());
     }
 }

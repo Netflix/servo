@@ -15,9 +15,9 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Joiner;
 import com.netflix.servo.util.Iterables;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.Strings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -132,7 +132,7 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tagMap.iterator());
+        return Strings.join(",", tagMap.iterator());
     }
 
     /**
