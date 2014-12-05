@@ -116,13 +116,12 @@ public class BasicDistributionSummary
 
     @Override
     public String toString() {
-        return "BasicDistributionSummary{config=" + config +
-                ", totalAmount=" + totalAmount +
-                ", count=" + count +
-                ", max=" + max +
-                ", min=" + min +
-                ", monitors=" + monitors +
-                '}';
+        return "BasicDistributionSummary{config=" + config
+                + ", totalAmount=" + totalAmount
+                + ", count=" + count
+                + ", max=" + max
+                + ", min=" + min
+                + '}';
     }
 
     /**
@@ -135,7 +134,6 @@ public class BasicDistributionSummary
         result = 31 * result + count.hashCode();
         result = 31 * result + max.hashCode();
         result = 31 * result + min.hashCode();
-        result = 31 * result + monitors.hashCode();
         return result;
     }
 
