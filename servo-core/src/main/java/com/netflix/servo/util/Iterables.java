@@ -19,7 +19,7 @@ package com.netflix.servo.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Iterables {
+final public class Iterables {
     private Iterables() {
     }
 

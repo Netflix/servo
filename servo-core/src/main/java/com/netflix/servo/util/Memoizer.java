@@ -33,10 +33,10 @@ public class Memoizer<T> {
         return new Memoizer<T>(getter, duration, unit);
     }
 
-    volatile long whenItExpires = 0L;
-    volatile T value;
-    final Callable<T> getter;
-    final long durationNanos;
+    private volatile long whenItExpires = 0L;
+    private volatile T value;
+    private final Callable<T> getter;
+    private final long durationNanos;
 
     private Memoizer(Callable<T> getter, long duration, TimeUnit unit) {
         this.durationNanos = unit.toNanos(duration);

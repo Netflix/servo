@@ -19,7 +19,8 @@ package com.netflix.servo.util;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -35,9 +36,28 @@ public class StringsTest {
         assertFalse(Strings.isNullOrEmpty("adsf"));
     }
 
+    private static <T> Iterator<T> emptyIterator() {
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public T next() {
+                throw new NoSuchElementException();
+            }
+
+            @Override
+            public void remove() {
+                throw new IllegalStateException();
+            }
+        };
+    }
+
     @Test
     public void testJoin() throws Exception {
-        assertEquals(Strings.join(", ", Collections.emptyIterator()), "");
+        assertEquals(Strings.join(", ", emptyIterator()), "");
         assertEquals(Strings.join(", ", Arrays.asList(1).iterator()), "1");
         assertEquals(Strings.join(", ", Arrays.asList(1, 2).iterator()), "1, 2");
     }

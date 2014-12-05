@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class UnmodifiableList {
+final public class UnmodifiableList {
     private UnmodifiableList() {}
 
     /**

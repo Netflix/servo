@@ -36,7 +36,8 @@ public class ThreadFactories {
      */
     public static ThreadFactory withName(final String fmt) {
         return new ThreadFactory() {
-            AtomicLong count = new AtomicLong(0);
+            private AtomicLong count = new AtomicLong(0);
+
             @Override
             public Thread newThread(Runnable r) {
                 final Thread t = backingFactory.newThread(r);
