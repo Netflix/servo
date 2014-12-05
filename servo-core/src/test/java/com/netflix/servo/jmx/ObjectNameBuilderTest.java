@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,15 @@
  */
 package com.netflix.servo.jmx;
 
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tags;
+import org.testng.annotations.Test;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.testng.annotations.Test;
-
-import com.netflix.servo.tag.BasicTag;
-import com.netflix.servo.tag.BasicTagList;
-
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class ObjectNameBuilderTest {
 
@@ -52,8 +52,8 @@ public class ObjectNameBuilderTest {
         // Order will be in the order tags were added to the builder
         ObjectName name =
                 ObjectNameBuilder.forDomain("testDomain")
-                                 .addProperty(new BasicTag("foo", "bar"))
-                                 .addProperty(new BasicTag("test", "stuff"))
+                        .addProperty(Tags.newTag("foo", "bar"))
+                        .addProperty(Tags.newTag("test", "stuff"))
                                  .build();
         assertEquals(name.getDomain(), "testDomain");
         assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");

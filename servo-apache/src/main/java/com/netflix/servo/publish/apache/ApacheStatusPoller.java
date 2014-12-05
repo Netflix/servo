@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 package com.netflix.servo.publish.apache;
 
-import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.BaseMetricPoller;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.UnmodifiableList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         private static final Pattern STAT_LINE = Pattern.compile("^([^:]+): (\\S+)$");
         private static final char[] SCOREBOARD_CHARS = {
                 '_', 'S', 'R', 'W', 'K', 'D', 'C', 'L', 'G', 'I', '.', '*'};
-        private static final Tag CLASS_TAG = new BasicTag("class", "ApacheStatusPoller");
+        private static final Tag CLASS_TAG = Tags.newTag("class", "ApacheStatusPoller");
         /**
          * Metrics that should not be included. These can be confusing for end users.
          */
@@ -226,7 +226,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         this.fetcher = fetcher;
     }
 
-    List<Metric> pollImpl(boolean reset, long timestamp) {
+    List<Metric> pollImpl(long timestamp) {
         try {
             InputStream statusStream = fetcher.fetchStatus();
             try {
@@ -245,6 +245,6 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      */
     @Override
     public List<Metric> pollImpl(boolean reset) {
-        return pollImpl(reset, System.currentTimeMillis());
+        return pollImpl(System.currentTimeMillis());
     }
 }

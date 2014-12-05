@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.netflix.servo.tag;
 
 import com.netflix.servo.util.Iterables;
@@ -113,7 +114,7 @@ public final class BasicTagList implements TagList {
      * {@code value}.
      */
     public BasicTagList copy(String key, String value) {
-        return concat(this, new BasicTag(key, value));
+        return concat(this, Tags.newTag(key, value));
     }
 
     /** {@inheritDoc} */
@@ -168,7 +169,7 @@ public final class BasicTagList implements TagList {
 
         final SmallTagMap.Builder builder = SmallTagMap.builder();
         for (int i = 0; i < tags.length; i += 2) {
-            Tag t = new BasicTag(tags[i], tags[i + 1]);
+            Tag t = Tags.newTag(tags[i], tags[i + 1]);
             builder.add(t);
         }
         return new BasicTagList(builder.result());
@@ -220,7 +221,7 @@ public final class BasicTagList implements TagList {
     public static BasicTagList copyOf(Map<String, String> tags) {
         SmallTagMap.Builder builder = SmallTagMap.builder();
         for (Map.Entry<String, String> tag : tags.entrySet()) {
-            builder.add(new BasicTag(tag.getKey(), tag.getValue()));
+            builder.add(Tags.newTag(tag.getKey(), tag.getValue()));
         }
         return new BasicTagList(builder.result());
     }

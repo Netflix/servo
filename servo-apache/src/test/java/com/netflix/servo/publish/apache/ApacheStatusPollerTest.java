@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.netflix.servo.publish.apache;
 
-import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.util.UnmodifiableList;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
@@ -96,7 +96,7 @@ public class ApacheStatusPollerTest {
 
         ApacheStatusPoller poller = new ApacheStatusPoller(fetcher);
 
-        List<Metric> metrics = poller.pollImpl(false, TIMESTAMP);
+        List<Metric> metrics = poller.pollImpl(TIMESTAMP);
 
         Metric accesses = counter("Total_Accesses", TOTAL_ACCESSES);
         Metric kBytes = counter("Total_kBytes", KBYTES);
