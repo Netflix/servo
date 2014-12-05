@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheStats;
+import com.netflix.servo.util.Memoizer;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import static com.netflix.servo.annotations.DataSourceType.COUNTER;
+import static com.netflix.servo.annotations.DataSourceType.GAUGE;
 
 /**
  * Wraps a cache to provide common metrics.
@@ -37,59 +38,60 @@ class MonitoredCache {
      * for updated stats so that typically it will only need to be done once per sampling interval
      * for all exposed monitors.
      */
-    private final Supplier<CacheStats> statsSupplier;
+    private final Memoizer<CacheStats> memoStats;
 
     MonitoredCache(final Cache<?, ?> cache) {
-        final Supplier<CacheStats> supplier = new Supplier<CacheStats>() {
-            public CacheStats get() {
+        final Callable<CacheStats> supplier = new Callable<CacheStats>() {
+            @Override
+            public CacheStats call() throws Exception {
                 return cache.stats();
             }
         };
-        statsSupplier = Suppliers.memoizeWithExpiration(supplier, CACHE_TIME, TimeUnit.SECONDS);
+        memoStats = Memoizer.create(supplier, CACHE_TIME, TimeUnit.SECONDS);
     }
 
     @com.netflix.servo.annotations.Monitor(name = "averageLoadPenalty", type = GAUGE)
     double averageLoadPenalty() {
-        return statsSupplier.get().averageLoadPenalty();
+        return memoStats.get().averageLoadPenalty();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "evictionCount", type = COUNTER)
     long evictionCount() {
-        return statsSupplier.get().evictionCount();
+        return memoStats.get().evictionCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "hitCount", type = COUNTER)
     long hitCount() {
-        return statsSupplier.get().hitCount();
+        return memoStats.get().hitCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "loadCount", type = COUNTER)
     long loadCount() {
-        return statsSupplier.get().loadCount();
+        return memoStats.get().loadCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "loadExceptionCount", type = COUNTER)
     long loadExceptionCount() {
-        return statsSupplier.get().loadExceptionCount();
+        return memoStats.get().loadExceptionCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "loadSuccessCount", type = COUNTER)
     long loadSuccessCount() {
-        return statsSupplier.get().loadSuccessCount();
+        return memoStats.get().loadSuccessCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "missCount", type = COUNTER)
     long missCount() {
-        return statsSupplier.get().missCount();
+        return memoStats.get().missCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "requestCount", type = COUNTER)
     long requestCount() {
-        return statsSupplier.get().requestCount();
+        return memoStats.get().requestCount();
     }
 
     @com.netflix.servo.annotations.Monitor(name = "totalLoadTime", type = COUNTER)
     long totalLoadTime() {
-        return statsSupplier.get().totalLoadTime();
+        return memoStats.get().totalLoadTime();
     }
 }
