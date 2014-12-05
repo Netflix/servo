@@ -15,8 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
@@ -95,7 +94,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
         final FactorMonitor<Long> maxFactor = new FactorMonitor<Long>(max,
                 timeUnitNanosFactor);
 
-        monitors = ImmutableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
+        monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
     }
 
     /**
@@ -225,7 +224,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, totalTime, count, min, max);
+        int result = config.hashCode();
+        result = 31 * result + totalTime.hashCode();
+        result = 31 * result + count.hashCode();
+        result = 31 * result + min.hashCode();
+        result = 31 * result + max.hashCode();
+        return result;
     }
 
     /**
@@ -233,12 +237,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("totalTime", totalTime)
-                .add("count", count)
-                .add("min", min)
-                .add("max", max)
-                .toString();
+        return "BasicTimer{config=" + config + ", totalTime=" + totalTime +
+                ", count=" + count + ", min=" + min + ", max=" + max + '}';
     }
 }

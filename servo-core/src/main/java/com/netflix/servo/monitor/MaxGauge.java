@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -95,15 +94,14 @@ public class MaxGauge extends AbstractMonitor<Long>
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, getValue(0));
+        int result = getConfig().hashCode();
+        result = 31 * result + getValue(0).hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("max", max)
-                .toString();
+        return "MaxGauge{config=" + config + ", max=" + max + '}';
     }
 }

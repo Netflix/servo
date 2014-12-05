@@ -17,8 +17,6 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.annotations.DataSourceType;
 
-import com.google.common.base.Objects;
-
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -47,26 +45,33 @@ public final class BasicInformational extends AbstractMonitor<String> implements
 
     /** {@inheritDoc} */
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof BasicInformational)) {
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !(o instanceof BasicInformational)) {
             return false;
         }
-        BasicInformational m = (BasicInformational) obj;
-        return config.equals(m.getConfig()) && Objects.equal(info.get(), m.info.get());
+        BasicInformational that = (BasicInformational) o;
+
+        String thisInfo = info.get();
+        String thatInfo = that.info.get();
+        return config.equals(that.config) &&
+                (thisInfo == null ? thatInfo == null : thisInfo.equals(thatInfo));
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, info.get());
+        int result = config.hashCode();
+        int infoHashcode = info.get() != null ? info.get().hashCode() : 0;
+        result = 31 * result + infoHashcode;
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("info", info.get())
-                .toString();
+        return "BasicInformational{config=" + config + ", info=" + info + '}';
     }
 }

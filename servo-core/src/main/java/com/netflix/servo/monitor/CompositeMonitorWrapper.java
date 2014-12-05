@@ -15,11 +15,10 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
-
 import com.netflix.servo.tag.TagList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,11 +40,11 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
     @Override
     public List<Monitor<?>> getMonitors() {
         List<Monitor<?>> monitors = monitor.getMonitors();
-        ImmutableList.Builder<Monitor<?>> builder = ImmutableList.builder();
+        List<Monitor<?>> wrappedMonitors = new ArrayList<Monitor<?>>(monitors.size());
         for (Monitor<?> m : monitors) {
-            builder.add(Monitors.wrap(tags, m));
+            wrappedMonitors.add(Monitors.wrap(tags, m));
         }
-        return builder.build();
+        return Collections.unmodifiableList(wrappedMonitors);
     }
 
     /** {@inheritDoc} */
@@ -68,15 +67,14 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, monitor);
+        int result = config.hashCode();
+        result = 31 * result + monitor.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("monitor", monitor)
-                .toString();
+        return "CompositeMonitorWrapper{config=" + config + ", monitor=" + monitor + '}';
     }
 }

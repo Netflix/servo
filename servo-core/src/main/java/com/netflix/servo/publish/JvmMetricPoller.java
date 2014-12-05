@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.Lists;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.tag.Tags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +32,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.ThreadMXBean;
 import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Poller for standard JVM metrics.
@@ -228,7 +228,7 @@ public class JvmMetricPoller implements MetricPoller {
     static {
         for (int i = 0; i < VALID_STATES.length; ++i) {
             Thread.State state = VALID_STATES[i];
-            STATE_LOOKUP.put(state, Integer.valueOf(i));
+            STATE_LOOKUP.put(state, i);
             THREAD_COUNTS[i] =
                 MonitorConfig.builder("threadCount")
                     .withTag(CLASS, ThreadMXBean.class.getSimpleName())
@@ -282,7 +282,7 @@ public class JvmMetricPoller implements MetricPoller {
     private void addGarbageCollectorMetrics(long timestamp, MetricList metrics) {
         final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
         for (GarbageCollectorMXBean bean : beans) {
-            final Tag id = new BasicTag("id", bean.getName());
+            final Tag id = Tags.newTag("id", bean.getName());
             metrics.add(new Metric(COLLECTION_COUNT.withAdditionalTag(id),
                     timestamp, bean.getCollectionCount()));
             metrics.add(new Metric(COLLECTION_TIME.withAdditionalTag(id),
@@ -382,7 +382,7 @@ public class JvmMetricPoller implements MetricPoller {
                 BASE_THREAD_COUNTS[IDX_WAITED_COUNT] += lastThreadInfos[l].getWaitedCount();
                 BASE_THREAD_COUNTS[IDX_WAITED_TIME] += lastThreadInfos[l].getWaitedTime();
             }
-            stateCounts[STATE_LOOKUP.get(threadInfo[i].getThreadState()).intValue()]++;
+            stateCounts[STATE_LOOKUP.get(threadInfo[i].getThreadState())]++;
             blockedCount += threadInfo[i].getBlockedCount();
             blockedTime += threadInfo[i].getBlockedTime();
             waitedCount += threadInfo[i].getWaitedCount();
@@ -426,7 +426,7 @@ public class JvmMetricPoller implements MetricPoller {
 
         public MetricList(MetricFilter filter) {
             this.filter = filter;
-            list = Lists.newArrayList();
+            list = new ArrayList<Metric>();
         }
 
         public void add(Metric m) {

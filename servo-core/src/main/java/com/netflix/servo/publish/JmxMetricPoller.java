@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -38,6 +36,8 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +74,7 @@ public final class JmxMetricPoller implements MetricPoller {
     public JmxMetricPoller(
             JmxConnector connector, ObjectName query, MetricFilter counters) {
         this.connector = connector;
-        this.queries = Lists.newArrayList();
+        this.queries = new ArrayList<ObjectName>();
         queries.add(query);
         this.counters = counters;
     }
@@ -100,7 +100,7 @@ public final class JmxMetricPoller implements MetricPoller {
      */
     private TagList createTagList(ObjectName name) {
         Map<String, String> props = name.getKeyPropertyList();
-        List<Tag> tags = Lists.newArrayList();
+        List<Tag> tags = new ArrayList<Tag>();
         for (Map.Entry<String, String> e : props.entrySet()) {
             String key = PROP_KEY_PREFIX + "." + e.getKey();
             tags.add(Tags.newTag(key, e.getValue()));
@@ -162,7 +162,7 @@ public final class JmxMetricPoller implements MetricPoller {
         MBeanAttributeInfo[] attrInfos = info.getAttributes();
 
         // Restrict to attributes that match the filter
-        List<String> matchingNames = Lists.newArrayList();
+        List<String> matchingNames = new ArrayList<String>();
         for (MBeanAttributeInfo attrInfo : attrInfos) {
             String attrName = attrInfo.getName();
             if (filter.matches(new MonitorConfig.Builder(attrName).withTags(tags).build())) {
@@ -175,7 +175,7 @@ public final class JmxMetricPoller implements MetricPoller {
             String attrName = attr.getName();
             Object obj = attr.getValue();
             if (obj instanceof CompositeData) {
-                Map<String, Object> values = Maps.newHashMap();
+                Map<String, Object> values = new HashMap<String, Object>();
                 extractValues(null, values, (CompositeData) obj);
                 for (Map.Entry<String, Object> e : values.entrySet()) {
                     String key = e.getKey();
@@ -217,7 +217,7 @@ public final class JmxMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public List<Metric> poll(MetricFilter filter, boolean reset) {
-        List<Metric> metrics = Lists.newArrayList();
+        List<Metric> metrics = new ArrayList<Metric>();
         try {
             MBeanServerConnection con = connector.getConnection();
             for (ObjectName query : queries) {
@@ -265,7 +265,7 @@ public final class JmxMetricPoller implements MetricPoller {
 
     private static List<Attribute> individuallyLoadAttributes(
             MBeanServerConnection server, ObjectName objectName, List<String> matchingNames) {
-        List<Attribute> attributes = Lists.newArrayList();
+        List<Attribute> attributes = new ArrayList<Attribute>();
         for (String attrName : matchingNames) {
             try {
                 Object value = server.getAttribute(objectName, attrName);

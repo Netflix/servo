@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -83,15 +82,8 @@ public class ExpiringCache<K, V> {
         }
     }
 
-    private static final ScheduledExecutorService SERVICE;
-
-    static {
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setDaemon(true)
-                .setNameFormat("expiringMap-%d")
-                .build();
-        SERVICE = Executors.newSingleThreadScheduledExecutor(threadFactory);
-    }
+    private static final ScheduledExecutorService SERVICE =
+            Executors.newSingleThreadScheduledExecutor(ThreadFactories.withName("expiringMap-%d"));
 
     /**
      * Create a new ExpiringCache that will expire entries after a given number of milliseconds
@@ -159,11 +151,12 @@ public class ExpiringCache<K, V> {
      * affect the access time used for eviction.
      */
     public List<V> values() {
-        ImmutableList.Builder<V> builder = ImmutableList.builder();
-        for (Entry<V> e : map.values()) {
-            builder.add(e.value); // avoid updating the access time
+        final Collection<Entry<V>> values = map.values();
+        final List<V> res = new ArrayList<V>(values.size());
+        for (Entry<V> e : values) {
+            res.add(e.value); // avoid updating the access time
         }
-        return builder.build();
+        return Collections.unmodifiableList(res);
     }
 
     /**

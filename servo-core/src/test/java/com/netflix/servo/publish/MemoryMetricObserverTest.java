@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
@@ -27,14 +27,14 @@ import static org.testng.Assert.assertEquals;
 public class MemoryMetricObserverTest {
 
     private List<Metric> mkList(int v) {
-        return ImmutableList.of(new Metric("m", SortedTagList.EMPTY, 0L, v));
+        return UnmodifiableList.of(new Metric("m", SortedTagList.EMPTY, 0L, v));
     }
 
     @Test
     public void testUpdate() throws Exception {
         MemoryMetricObserver mmo = new MemoryMetricObserver("test", 2);
         mmo.update(mkList(1));
-        assertEquals(mmo.getObservations(), ImmutableList.of(mkList(1)));
+        assertEquals(mmo.getObservations(), UnmodifiableList.of(mkList(1)));
     }
 
     @Test
@@ -44,6 +44,6 @@ public class MemoryMetricObserverTest {
         mmo.update(mkList(2));
         mmo.update(mkList(3));
         assertEquals(mmo.getObservations(),
-            ImmutableList.of(mkList(2), mkList(3)));
+            UnmodifiableList.of(mkList(2), mkList(3)));
     }
 }

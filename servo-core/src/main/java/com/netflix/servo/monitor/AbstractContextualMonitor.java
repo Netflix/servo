@@ -16,7 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 
 import com.netflix.servo.tag.TaggingContext;
 import com.netflix.servo.tag.TagList;
@@ -98,6 +98,6 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
     /** {@inheritDoc} */
     @Override
     public List<Monitor<?>> getMonitors() {
-        return ImmutableList.<Monitor<?>>copyOf(monitors.values());
+        return UnmodifiableList.<Monitor<?>>copyOf(monitors.values());
     }
 }

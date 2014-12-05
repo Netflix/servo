@@ -15,8 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
+import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -36,14 +35,16 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
         this.field = field;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getValue(int pollerIndex) {
         Object v;
         try {
             field.setAccessible(true);
             if (field instanceof Field) {
-                v =  ((Field) field).get(object);
+                v = ((Field) field).get(object);
             } else {
                 v = ((Method) field).invoke(object);
             }
@@ -53,7 +54,9 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
         return (v == null) ? null : v.toString();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof AnnotatedStringMonitor)) {
@@ -63,18 +66,18 @@ class AnnotatedStringMonitor extends AbstractMonitor<String> {
         return config.equals(m.getConfig()) && field.equals(m.field);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, field);
+        int result = config.hashCode();
+        result = 31 * result + field.hashCode();
+        return result;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("field", field)
-                .toString();
+        return "AnnotatedStringMonitor{config=" + config + ", field=" + field + '}';
     }
 }

@@ -15,16 +15,16 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Maps;
+import com.netflix.servo.util.Strings;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * A {@link com.netflix.servo.tag.TagList} backed by a {@link SortedMap}.
@@ -46,7 +46,7 @@ public final class SortedTagList implements TagList {
      * Helper class to construct {@code SortedTagList} objects.
      */
     public static final class Builder {
-        private final Map<String, Tag> data = Maps.newHashMap();
+        private final Map<String, Tag> data = new HashMap<String, Tag>();
 
         /**
          * Add the collection of tags {@code tagsCollection} to this builder and
@@ -97,7 +97,8 @@ public final class SortedTagList implements TagList {
     }
 
     private SortedTagList(Builder builder) {
-        this.tagSortedMap = ImmutableSortedMap.copyOf(builder.data);
+        this.tagSortedMap = Collections.unmodifiableSortedMap(
+                new TreeMap<String, Tag>(builder.data));
         this.size = tagSortedMap.size();
     }
 
@@ -164,12 +165,12 @@ public final class SortedTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(tagSortedMap);
+        return tagSortedMap.hashCode();
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tagSortedMap.values());
+        return Strings.join(",", tagSortedMap.values().iterator());
     }
 }

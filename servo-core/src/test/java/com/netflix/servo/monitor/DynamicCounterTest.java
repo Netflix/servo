@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -48,8 +46,7 @@ public class DynamicCounterTest {
         return getInstance().getMonitors();
     }
 
-    private final TagList tagList = new BasicTagList(ImmutableList.of(
-            (Tag) new BasicTag("PLATFORM", "true")));
+    private final TagList tagList = BasicTagList.of("PLATFORM", "true");
 
     private StepCounter getByName(String name) throws Exception {
         List<Monitor<?>> counters = getCounters();

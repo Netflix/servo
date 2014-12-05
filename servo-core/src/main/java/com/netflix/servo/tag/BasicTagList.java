@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.netflix.servo.tag;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Iterables;
+import com.netflix.servo.util.Iterables;
+import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.Strings;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Immutable tag list.
  */
 public final class BasicTagList implements TagList {
     /** An empty tag list. */
-    public static final TagList EMPTY = new BasicTagList(ImmutableSet.<Tag>of());
+    public static final TagList EMPTY = new BasicTagList(Collections.<Tag>emptySet());
 
     private final SmallTagMap tagMap;
     private SortedMap<String, String> sortedTaglist;
@@ -91,11 +92,11 @@ public final class BasicTagList implements TagList {
             return sortedTaglist;
         }
 
-        ImmutableSortedMap.Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
-        for (Tag tag : tagMap) {
-            builder.put(tag.getKey(), tag.getValue());
+        SortedMap<String, String> tagMap = new TreeMap<String, String>();
+        for (Tag tag : this.tagMap) {
+            tagMap.put(tag.getKey(), tag.getValue());
         }
-        sortedTaglist = builder.build();
+        sortedTaglist = Collections.unmodifiableSortedMap(tagMap);
         return sortedTaglist;
     }
 
@@ -113,7 +114,7 @@ public final class BasicTagList implements TagList {
      * {@code value}.
      */
     public BasicTagList copy(String key, String value) {
-        return concat(this, new BasicTag(key, value));
+        return concat(this, Tags.newTag(key, value));
     }
 
     /** {@inheritDoc} */
@@ -132,7 +133,7 @@ public final class BasicTagList implements TagList {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Joiner.on(",").join(tagMap.iterator());
+        return Strings.join(",", tagMap.iterator());
     }
 
     /**
@@ -168,7 +169,7 @@ public final class BasicTagList implements TagList {
 
         final SmallTagMap.Builder builder = SmallTagMap.builder();
         for (int i = 0; i < tags.length; i += 2) {
-            Tag t = new BasicTag(tags[i], tags[i + 1]);
+            Tag t = Tags.newTag(tags[i], tags[i + 1]);
             builder.add(t);
         }
         return new BasicTagList(builder.result());
@@ -220,7 +221,7 @@ public final class BasicTagList implements TagList {
     public static BasicTagList copyOf(Map<String, String> tags) {
         SmallTagMap.Builder builder = SmallTagMap.builder();
         for (Map.Entry<String, String> tag : tags.entrySet()) {
-            builder.add(new BasicTag(tag.getKey(), tag.getValue()));
+            builder.add(Tags.newTag(tag.getKey(), tag.getValue()));
         }
         return new BasicTagList(builder.result());
     }

@@ -15,13 +15,9 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.collect.Lists;
-
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.NumericMonitor;
-
-import java.util.List;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -33,6 +29,8 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Exposes a {@link com.netflix.servo.monitor.Monitor} as an MBean that can be registered with JMX.
@@ -50,7 +48,7 @@ class MonitorMBean implements DynamicMBean {
      */
     public static List<MonitorMBean> createMBeans(String domain, Monitor<?> monitor,
                                                   ObjectNameMapper mapper) {
-        List<MonitorMBean> mbeans = Lists.newArrayList();
+        List<MonitorMBean> mbeans = new ArrayList<MonitorMBean>();
         createMBeans(mbeans, domain, monitor, mapper);
         return mbeans;
     }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Preconditions;
+import com.netflix.servo.util.Preconditions;
 
 /**
  * Immutable tag.
@@ -34,9 +34,9 @@ public final class BasicTag implements Tag {
     }
 
     /** Verify that the {@code v} is not null or an empty string. */
-    private String checkNotEmpty(String v, String name) {
-        Preconditions.checkNotNull(v, "%s cannot be null", name);
-        Preconditions.checkArgument(!"".equals(v), "%s cannot be empty", name);
+    private static String checkNotEmpty(String v, String name) {
+        Preconditions.checkNotNull(v, name);
+        Preconditions.checkArgument(!v.isEmpty(), name + " cannot be empty");
         return v;
     }
 

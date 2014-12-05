@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.netflix.servo.util.ThreadFactories;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,10 +62,7 @@ public final class PollScheduler {
      */
     public void start() {
         int numThreads = Runtime.getRuntime().availableProcessors();
-        ThreadFactory factory = new ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("ServoPollScheduler-%d")
-            .build();
+        ThreadFactory factory = ThreadFactories.withName("ServoPollScheduler-%d");
         start(Executors.newScheduledThreadPool(numThreads, factory));
     }
 

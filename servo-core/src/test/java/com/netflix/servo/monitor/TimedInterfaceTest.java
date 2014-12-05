@@ -15,13 +15,12 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
-
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -150,8 +149,7 @@ public class TimedInterfaceTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testInterfaceInheritence() {
-        final List<String> expectedNames = Lists.newArrayList("method1", "method2",
-                "method3", "method4");
+        final List<String> expectedNames = Arrays.asList("method1", "method2", "method3", "method4");
         final IDummyExtended extendedDummy = TimedInterface.newProxy(IDummyExtended.class,
                 new ExtendedDummy());
         final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) extendedDummy;

@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.base.Joiner;
+import com.netflix.servo.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,7 +260,7 @@ public class SmallTagMap implements Iterable<Tag> {
      */
     @Override
     public String toString() {
-        return "SmallTagMap{" + Joiner.on(",").join(iterator()) + "}";
+        return "SmallTagMap{" + Strings.join(",", iterator()) + "}";
     }
 
     /**

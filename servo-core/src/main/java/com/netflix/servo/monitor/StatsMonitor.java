@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,20 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.ThreadFactories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -47,10 +44,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class StatsMonitor extends AbstractMonitor<Long> implements
         CompositeMonitor<Long>, NumericMonitor<Long> {
-    private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("StatsMonitor-%d")
-            .build();
+    private static final ThreadFactory THREAD_FACTORY = ThreadFactories.withName("StatsMonitor-%d");
+
     //CHECKSTYLE.OFF: ConstantName
     protected static final ScheduledExecutorService defaultExecutor =
             Executors.newScheduledThreadPool(1, THREAD_FACTORY);
@@ -115,7 +110,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("gauge", gauge).toString();
+            return "LongGaugeWrapper{gauge=" + gauge + '}';
         }
     }
 
@@ -150,7 +145,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("gauge", gauge).toString();
+            return "DoubleGaugeWrapper{gauge=" + gauge + '}';
         }
     }
 
@@ -233,54 +228,50 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
             gauge.set(buffer.getPercentileValues()[index]);
         }
 
+
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
-                    .add("gauge", gauge)
-                    .add("percentile", percentile)
-                    .toString();
+            return "PercentileGaugeWrapper{gauge=" + gauge + "percentile=" + percentile + '}';
         }
     }
 
     private List<Counter> getCounters(StatsConfig config) {
-        ImmutableList.Builder<Counter> monitors = ImmutableList.builder();
+        final List<Counter> counters = new ArrayList<Counter>();
         if (config.getPublishCount()) {
-            monitors.add(count);
+            counters.add(count);
         }
         if (config.getPublishTotal()) {
-            monitors.add(totalMeasurement);
+            counters.add(totalMeasurement);
         }
-        return monitors.build();
+        return counters;
     }
 
     private List<GaugeWrapper> getGaugeWrappers(StatsConfig config) {
-        final ImmutableList.Builder<GaugeWrapper> builder = ImmutableList.builder();
+        final List<GaugeWrapper> wrappers = new ArrayList<GaugeWrapper>();
 
         if (config.getPublishMax()) {
-            builder.add(new MaxGaugeWrapper(baseConfig));
+            wrappers.add(new MaxGaugeWrapper(baseConfig));
         }
         if (config.getPublishMin()) {
-            builder.add(new MinStatGaugeWrapper(baseConfig));
+            wrappers.add(new MinStatGaugeWrapper(baseConfig));
         }
         if (config.getPublishVariance()) {
-            builder.add(new VarianceGaugeWrapper(baseConfig));
+            wrappers.add(new VarianceGaugeWrapper(baseConfig));
         }
         if (config.getPublishStdDev()) {
-            builder.add(new StdDevGaugeWrapper(baseConfig));
+            wrappers.add(new StdDevGaugeWrapper(baseConfig));
         }
         if (config.getPublishMean()) {
-            builder.add(new MeanGaugeWrapper(baseConfig));
+            wrappers.add(new MeanGaugeWrapper(baseConfig));
         }
 
         final double[] percentiles = config.getPercentiles();
         for (int i = 0; i < percentiles.length; ++i) {
-            builder.add(new PercentileGaugeWrapper(baseConfig, percentiles[i], i));
+            wrappers.add(new PercentileGaugeWrapper(baseConfig, percentiles[i], i));
         }
 
-        final List<GaugeWrapper> wrappers = builder.build();
-
         // do a sanity check to prevent duplicated monitor configurations
-        final Set<MonitorConfig> seen = Sets.newHashSet();
+        final Set<MonitorConfig> seen = new HashSet<MonitorConfig>();
         for (final GaugeWrapper wrapper : wrappers) {
             final MonitorConfig cfg = wrapper.getMonitor().getConfig();
             if (seen.contains(cfg)) {
@@ -312,16 +303,16 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
         this.count = new BasicCounter(baseConfig.withAdditionalTag(STAT_COUNT));
         this.totalMeasurement = new BasicCounter(baseConfig.withAdditionalTag(statsTotal));
         this.gaugeWrappers = getGaugeWrappers(statsConfig);
-        final Collection<Monitor<?>> gaugeMonitors = Collections2.transform(gaugeWrappers,
-                new Function<GaugeWrapper, Monitor<?>>() {
-                    public Monitor<?> apply(GaugeWrapper perfStatGauge) {
-                        return perfStatGauge.getMonitor();
-                    }
-                });
-        this.monitors = new ImmutableList.Builder<Monitor<?>>()
-                .addAll(getCounters(statsConfig))
-                .addAll(gaugeMonitors)
-                .build();
+        final List<Monitor<?>> gaugeMonitors = new ArrayList<Monitor<?>>(gaugeWrappers.size());
+        for (GaugeWrapper perfStatsGauge : gaugeWrappers) {
+            gaugeMonitors.add(perfStatsGauge.getMonitor());
+        }
+
+        List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
+        monitorList.addAll(getCounters(statsConfig));
+        monitorList.addAll(gaugeMonitors);
+        this.monitors = Collections.unmodifiableList(monitorList);
+
         this.startComputingAction = new Runnable() {
             public void run() {
                 startComputingStats(executor, statsConfig.getFrequencyMillis());
@@ -419,10 +410,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("baseConfig", baseConfig)
-                .add("monitors", monitors)
-                .toString();
+        return "StatsMonitor{baseConfig=" + baseConfig + ", monitors=" + monitors + '}';
     }
 
     /**
@@ -443,7 +431,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(baseConfig, monitors);
+        int result = baseConfig.hashCode();
+        result = 31 * result + monitors.hashCode();
+        return result;
     }
 
     /**

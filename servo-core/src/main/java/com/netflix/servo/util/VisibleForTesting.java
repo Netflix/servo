@@ -13,28 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.servo.monitor;
 
-import com.netflix.servo.util.Preconditions;
-
-import java.util.concurrent.TimeUnit;
+package com.netflix.servo.util;
 
 /**
- * Stopwatch that will also record to a timer.
+ * Annotates a program element that exists, or is more widely visible than
+ * otherwise necessary, only for use in test code.
  */
-public class TimedStopwatch extends BasicStopwatch {
-    private final Timer timer;
-
-    /** Create a new instance with the specified timer. */
-    public TimedStopwatch(Timer timer) {
-        Preconditions.checkNotNull(timer, "timer");
-        this.timer = timer;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void stop() {
-        super.stop();
-        timer.record(getDuration(), TimeUnit.NANOSECONDS);
-    }
+public @interface VisibleForTesting {
 }

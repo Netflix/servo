@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -99,13 +99,13 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
             );
         }
 
-        this.monitors = new ImmutableList.Builder<Monitor<?>>()
-            .add(totalTime)
-            .add(min)
-            .add(max)
-            .addAll(Arrays.asList(bucketCount))
-            .add(overflowCount)
-            .build();
+        List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
+        monitorList.add(totalTime);
+        monitorList.add(min);
+        monitorList.add(max);
+        monitorList.addAll(Arrays.asList(bucketCount));
+        monitorList.add(overflowCount);
+        this.monitors = Collections.unmodifiableList(monitorList);
     }
 
     /** {@inheritDoc} */
@@ -204,30 +204,28 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(
-            config,
-            bucketConfig,
-            timeUnit,
-            totalTime,
-            min,
-            max,
-            overflowCount,
-            Arrays.hashCode(bucketCount)
-        );
+        int result = config.hashCode();
+        result = 31 * result + timeUnit.hashCode();
+        result = 31 * result + totalTime.hashCode();
+        result = 31 * result + Arrays.hashCode(bucketCount);
+        result = 31 * result + overflowCount.hashCode();
+        result = 31 * result + min.hashCode();
+        result = 31 * result + max.hashCode();
+        result = 31 * result + bucketConfig.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("bucketConfig", bucketConfig)
-                .add("timeUnit", timeUnit)
-                .add("totalTime", totalTime)
-                .add("min", min)
-                .add("max", max)
-                .add("bucketCount", bucketCount)
-                .add("overflowCount", overflowCount)
-                .toString();
+        return "BucketTimer{config=" + config +
+                ", bucketConfig=" + bucketConfig +
+                ", timeUnit=" + timeUnit +
+                ", totalTime=" + totalTime +
+                ", min=" + min +
+                ", max=" + max +
+                ", bucketCount=" + Arrays.toString(bucketCount) +
+                ", overflowCount=" + overflowCount +
+                '}';
     }
 }

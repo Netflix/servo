@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.netflix.servo.util.VisibleForTesting;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
@@ -27,9 +25,11 @@ import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +130,7 @@ public final class NormalizationTransform implements MetricObserver {
      */
     public NormalizationTransform(MetricObserver observer, long step, final long heartbeat,
                                   TimeUnit unit, final Clock clock) {
-        this.observer = Preconditions.checkNotNull(observer);
+        this.observer = Preconditions.checkNotNull(observer, "observer");
         Preconditions.checkArgument(step > 0, "step must be positive");
         this.stepMillis = unit.toMillis(step);
         Preconditions.checkArgument(heartbeat > 0, "heartbeat must be positive");
@@ -197,8 +197,8 @@ public final class NormalizationTransform implements MetricObserver {
      */
     @Override
     public void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
-        final List<Metric> newMetrics = Lists.newArrayListWithCapacity(metrics.size());
+        Preconditions.checkNotNull(metrics, "metrics");
+        final List<Metric> newMetrics = new ArrayList<Metric>(metrics.size());
 
         for (Metric m : metrics) {
             long offset = m.getTimestamp() % stepMillis;

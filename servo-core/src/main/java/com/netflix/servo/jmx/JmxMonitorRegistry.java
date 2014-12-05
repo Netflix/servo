@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.jmx;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -53,7 +53,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
     private final AtomicBoolean updatePending = new AtomicBoolean(false);
     private final AtomicReference<Collection<Monitor<?>>> monitorList =
-        new AtomicReference<Collection<Monitor<?>>>(ImmutableList.<Monitor<?>>of());
+        new AtomicReference<Collection<Monitor<?>>>(UnmodifiableList.<Monitor<?>>of());
 
     /**
      * Creates a new instance that registers metrics with the local mbean
@@ -90,7 +90,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     @Override
     public Collection<Monitor<?>> getRegisteredMonitors() {
         if (updatePending.getAndSet(false)) {
-            monitorList.set(ImmutableList.copyOf(monitors.values()));
+            monitorList.set(UnmodifiableList.copyOf(monitors.values()));
         }
         return monitorList.get();
     }

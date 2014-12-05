@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.Tag;
@@ -26,9 +24,10 @@ import org.testng.annotations.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -44,11 +43,11 @@ public class FileMetricObserverTest {
         .build();
 
     private List<Metric> mkList(int v) {
-        ImmutableList.Builder<Metric> builder = ImmutableList.builder();
+        List<Metric> metrics = new ArrayList<Metric>(v);
         for (int i = 0; i < v; ++i) {
-            builder.add(new Metric("m", TAGS, 0L, i));
+            metrics.add(new Metric("m", TAGS, 0L, i));
         }
-        return builder.build();
+        return metrics;
     }
 
     private void delete(File f) throws IOException {
@@ -97,9 +96,23 @@ public class FileMetricObserverTest {
         }
     }
 
+    private static File createTempDir() {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        String baseName = System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < 3; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IllegalStateException("Failed to create directory within 3 attempts (tried "
+                + baseName + "0 to " + baseName + "2)");
+    }
+
     @Test
     public void testUpdate() throws Exception {
-        File dir = Files.createTempDir();
+        File dir = createTempDir();
         try {
             MetricObserver fmo = new FileMetricObserver("test", dir);
             fmo.update(mkList(1));
@@ -120,7 +133,7 @@ public class FileMetricObserverTest {
 
     @Test
     public void testUpdateCompressed() throws Exception {
-        File dir = Files.createTempDir();
+        File dir = createTempDir();
         try {
             MetricObserver fmo = new FileMetricObserver("test", dir, true);
             fmo.update(mkList(1));

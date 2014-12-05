@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.ExpiringCache;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,10 +139,8 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("baseConfig", BASE_CONFIG)
-                .add("totalCounters", counters.size())
-                .add("counters", counters)
-                .toString();
+        return "DynamicCounter{baseConfig" + BASE_CONFIG +
+                ", totalCounters=" + counters.size() +
+                ", counters=" + counters + '}';
     }
 }

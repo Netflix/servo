@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
-import com.google.common.base.Preconditions;
 import com.netflix.servo.Metric;
 import com.netflix.servo.aws.AwsServiceClients;
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +142,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * @param metrics The list of metrics you want to send to CloudWatch
      */
     public void updateImpl(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics);
+        Preconditions.checkNotNull(metrics, "metrics");
 
         List<Metric> batch = new ArrayList<Metric>(batchSize);
         int batchCount = 1;

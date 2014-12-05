@@ -15,13 +15,13 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
+import com.netflix.servo.util.UnmodifiableList;
+import com.netflix.servo.util.Iterables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.SortedTagList;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -33,12 +33,12 @@ import static org.testng.Assert.assertEquals;
 public class CompositeMetricPollerTest {
 
     private List<Metric> mkList() {
-        return ImmutableList.of(
-            new Metric("m1", SortedTagList.EMPTY, 0L, 0),
-            new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
-            new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),
-            new Metric("m4", SortedTagList.builder().withTag("c", "a.b.c.d.M4").build(), 0L, 0),
-            new Metric("m5", SortedTagList.builder().withTag("c", "a.a.a.a.M5").build(), 0L, 0)
+        return UnmodifiableList.of(
+                new Metric("m1", SortedTagList.EMPTY, 0L, 0),
+                new Metric("m2", SortedTagList.builder().withTag("c", "a.b.c.d.M1").build(), 0L, 0),
+                new Metric("m3", SortedTagList.builder().withTag("c", "a.b.c.c.M3").build(), 0L, 0),
+                new Metric("m4", SortedTagList.builder().withTag("c", "a.b.c.d.M4").build(), 0L, 0),
+                new Metric("m5", SortedTagList.builder().withTag("c", "a.a.a.a.M5").build(), 0L, 0)
         );
     }
 
@@ -51,7 +51,7 @@ public class CompositeMetricPollerTest {
 
     @Test
     public void testBasic() throws Exception {
-        Map<String, MetricPoller> pollers = Maps.newHashMap();
+        Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
         pollers.put("p1", newPoller(0));
 
         ExecutorService exec = Executors.newFixedThreadPool(1);
@@ -62,7 +62,7 @@ public class CompositeMetricPollerTest {
 
     @Test
     public void testMultiple() throws Exception {
-        Map<String, MetricPoller> pollers = Maps.newHashMap();
+        Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
         pollers.put("p1", newPoller(0));
         pollers.put("p2", newPoller(0));
 
@@ -70,7 +70,7 @@ public class CompositeMetricPollerTest {
         MetricPoller poller = new CompositeMetricPoller(pollers, exec, 10000);
 
         assertEquals(poller.poll(MATCH_ALL),
-            ImmutableList.copyOf(Iterables.concat(mkList(), mkList())));
+            UnmodifiableList.copyOf(Iterables.concat(mkList(), mkList())));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CompositeMetricPollerTest {
         // behavior if there is a bug. In particular before we were cancelling the future on
         // timeout, then if the p2 key times out it will fail on java7 and pass on java8.
         // If the p1 key times out the opposite.
-        Map<String, MetricPoller> pollers = Maps.newHashMap();
+        Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
         pollers.put("p1", newPoller(120000));
         pollers.put("p2", newPoller(0));
 
@@ -98,7 +98,7 @@ public class CompositeMetricPollerTest {
         MockMetricPoller mock = new MockMetricPoller();
         mock.setDie(true);
 
-        Map<String, MetricPoller> pollers = Maps.newHashMap();
+        Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
         pollers.put("p1", mock);
         pollers.put("p2", newPoller(0));
 

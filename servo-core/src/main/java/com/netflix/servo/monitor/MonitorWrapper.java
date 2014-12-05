@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
 import com.netflix.servo.tag.TagList;
 
 /**
@@ -51,15 +50,14 @@ class MonitorWrapper<T> extends AbstractMonitor<T> {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, monitor);
+        int result = getConfig().hashCode();
+        result = 31 * result + monitor.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("monitor", monitor)
-                .toString();
+        return "MonitorWrapper{config=" + config + ", monitor=" + monitor + '}';
     }
 }

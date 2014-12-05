@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
+import com.netflix.servo.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +40,7 @@ public final class BucketConfig {
          * Sets the timeUnit for the buckets.
          */
         public Builder withTimeUnit(TimeUnit timeUnit) {
-            this.timeUnit = Preconditions.checkNotNull(timeUnit);
+            this.timeUnit = Preconditions.checkNotNull(timeUnit, "timeUnit");
             return this;
         }
 
@@ -61,7 +60,7 @@ public final class BucketConfig {
          * </ul>
          */
         public Builder withBuckets(long[] buckets) {
-            Preconditions.checkNotNull(buckets, "buckets cannot be null");
+            Preconditions.checkNotNull(buckets, "buckets");
 
             this.buckets = Arrays.copyOf(buckets, buckets.length);
             Preconditions.checkArgument(this.buckets.length > 0, "buckets cannot be empty");
@@ -140,10 +139,8 @@ public final class BucketConfig {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("timeUnit", timeUnit)
-                .add("buckets", buckets)
-                .toString();
+        return "BucketConfig{timeUnit=" + timeUnit +
+                ", buckets=" + Arrays.toString(buckets) + '}';
     }
 
     /**

@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 package com.netflix.servo;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.TagList;
+import com.netflix.servo.util.Preconditions;
 
 /**
  * Represents a metric value at a given point in time.
@@ -48,9 +47,9 @@ public final class Metric {
      * @param value      value of the metric
      */
     public Metric(MonitorConfig config, long timestamp, Object value) {
-        this.config = Preconditions.checkNotNull(config, "config cannot be null");
+        this.config = Preconditions.checkNotNull(config, "config");
         this.timestamp = timestamp;
-        this.value = Preconditions.checkNotNull(value, "value cannot be null (config=%s)", config);
+        this.value = Preconditions.checkNotNull(value, "value");
     }
 
     /** Returns the config settings associated with the metric. */
@@ -95,16 +94,16 @@ public final class Metric {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, timestamp, value);
+        int result = config.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + value.hashCode();
+        return result;
     }
+
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("config", config)
-            .add("timestamp", timestamp)
-            .add("value", value)
-            .toString();
+        return "Metric{config=" + config + ", timestamp=" + timestamp + ", value=" + value + '}';
     }
 }

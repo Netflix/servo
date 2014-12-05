@@ -15,12 +15,12 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.collect.Lists;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -29,7 +29,7 @@ public class MonitorsTest {
 
     @Test
     public void testAddMonitorsAnon() throws Exception {
-        List<Monitor<?>> monitors = Lists.newArrayList();
+        List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         ClassWithMonitors obj = new ClassWithMonitors() {
             final Counter c1 = Monitors.newCounter("publicCounter");
             @com.netflix.servo.annotations.Monitor(
@@ -48,7 +48,7 @@ public class MonitorsTest {
 
     @Test
     public void testAddMonitorFields() throws Exception {
-        List<Monitor<?>> monitors = Lists.newArrayList();
+        List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         ClassWithMonitors obj = new ClassWithMonitors();
 
         TagList tags = SortedTagList.builder().withTag("abc", "def").build();
@@ -65,7 +65,7 @@ public class MonitorsTest {
 
     @Test
     public void testAddAnnotatedFields() throws Exception {
-        List<Monitor<?>> monitors = Lists.newArrayList();
+        List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         ClassWithMonitors obj = new ClassWithMonitors();
         Monitors.addAnnotatedFields(monitors, null, null, obj, obj.getClass());
         Monitors.addAnnotatedFields(monitors, "foo", null, obj, obj.getClass());

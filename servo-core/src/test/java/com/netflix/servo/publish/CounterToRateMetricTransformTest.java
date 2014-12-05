@@ -15,14 +15,14 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -41,15 +41,15 @@ public class CounterToRateMetricTransformTest {
         .build();
 
     private List<Metric> mkList(long ts, int value) {
-        return ImmutableList.of(
-            new Metric("m1", SortedTagList.EMPTY, ts, value),
-            new Metric("m2", GAUGE, ts, value),
-            new Metric("m3", COUNTER, ts, value)
+        return UnmodifiableList.of(
+                new Metric("m1", SortedTagList.EMPTY, ts, value),
+                new Metric("m2", GAUGE, ts, value),
+                new Metric("m3", COUNTER, ts, value)
         );
     }
 
     private Map<String, Double> mkMap(List<List<Metric>> updates) {
-        Map<String, Double> map = Maps.newHashMap();
+        Map<String, Double> map = new HashMap<String, Double>();
         for (Metric m : updates.get(0)) {
             map.put(m.getConfig().getName(), m.getNumberValue().doubleValue());
         }
@@ -57,7 +57,7 @@ public class CounterToRateMetricTransformTest {
     }
 
     private Map<String, String> mkTypeMap(List<List<Metric>> updates) {
-        Map<String, String> map = Maps.newHashMap();
+        Map<String, String> map = new HashMap<String, String>();
         for (Metric m : updates.get(0)) {
             map.put(m.getConfig().getName(), m.getConfig().getTags().getValue(DataSourceType.KEY));
         }

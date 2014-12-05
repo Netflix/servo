@@ -15,8 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 
@@ -87,7 +86,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
             }
         });
 
-        monitors = ImmutableList.of(duration, activeTasks);
+        monitors = UnmodifiableList.of(duration, activeTasks);
     }
 
     private long getDurationMillis() {
@@ -135,18 +134,21 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(getConfig(), tasks, nextTaskId.get());
+        int result = getConfig().hashCode();
+        long id = nextTaskId.get();
+        result = 31 * result + (int)(id ^ (id >>> 32));
+        result = 31 * result + tasks.hashCode();
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", getConfig())
-                .add("tasks", tasks)
-                .add("monitors", monitors)
-                .add("nextTaskId", nextTaskId.get())
-                .toString();
+        return "DurationTimer{config=" + getConfig() +
+                ", tasks=" + tasks +
+                ", monitors=" + monitors +
+                ", nextTaskId=" + nextTaskId.get() +
+                '}';
     }
 
     /**

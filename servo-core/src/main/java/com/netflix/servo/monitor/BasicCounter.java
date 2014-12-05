@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Objects;
-
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,15 +65,15 @@ public final class BasicCounter extends AbstractMonitor<Number> implements Count
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Objects.hashCode(config, count.get());
+        int result = config.hashCode();
+        long n = count.get();
+        result = 31 * result +  (int)(n ^ (n >>> 32));
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("config", config)
-                .add("count", count.get())
-                .toString();
+        return "BasicCounter{config=" + config + ", count=" + count.get() + '}';
     }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
+import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,19 +45,16 @@ public abstract class BaseMetricPoller implements MetricPoller {
 
     /** {@inheritDoc} */
     public final List<Metric> poll(MetricFilter filter, boolean reset) {
-        Preconditions.checkNotNull(filter, "filter cannot be null");
+        Preconditions.checkNotNull(filter, "filter");
         List<Metric> metrics = pollImpl(reset);
-        ImmutableList.Builder<Metric> builder = ImmutableList.builder();
+        List<Metric> retained = new ArrayList<Metric>();
         for (Metric m : metrics) {
             if (filter.matches(m.getConfig())) {
-                builder.add(m);
+                retained.add(m);
             }
         }
+        logger.debug("received {} metrics, retained {} metrics", metrics.size(), retained.size());
 
-        List<Metric> retainedMetrics = builder.build();
-        logger.debug("received {} metrics, retained {} metrics",
-            metrics.size(), retainedMetrics.size());
-
-        return retainedMetrics;
+        return Collections.unmodifiableList(retained);
     }
 }

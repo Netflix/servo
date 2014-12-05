@@ -15,8 +15,6 @@
  */
 package com.netflix.servo.util;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -206,7 +205,7 @@ public final class ThreadCpuStats {
     public Map<String, Object> getThreadCpuUsages(CpuUsageComparator cmp) {
         final CpuUsage overall = getOverallCpuUsage();
         final List<CpuUsage> usages = getThreadCpuUsages();
-        final Map<String, Object> result = Maps.newHashMap();
+        final Map<String, Object> result = new HashMap<String, Object>();
 
         Collections.sort(usages, cmp);
 
@@ -217,14 +216,14 @@ public final class ThreadCpuStats {
         final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
         result.put(UPTIME_MS, uptimeMillis);
 
-        final Map<String, Long> jvmUsageTime = Maps.newHashMap();
+        final Map<String, Long> jvmUsageTime = new HashMap<String, Long>();
         jvmUsageTime.put(ONE_MIN, overall.getOneMinute());
         jvmUsageTime.put(FIVE_MIN, overall.getFiveMinute());
         jvmUsageTime.put(FIFTEEN_MIN, overall.getFifteenMinute());
         jvmUsageTime.put(OVERALL, overall.getOverall());
         result.put(JVM_USAGE_TIME, jvmUsageTime);
 
-        final Map<String, Double> jvmUsagePercent = Maps.newHashMap();
+        final Map<String, Double> jvmUsagePercent = new HashMap<String, Double>();
         final int numProcs = Runtime.getRuntime().availableProcessors();
         jvmUsagePercent.put(ONE_MIN, toPercent(overall.getOneMinute(),
                 ONE_MINUTE_NANOS * numProcs));
@@ -235,9 +234,9 @@ public final class ThreadCpuStats {
         jvmUsagePercent.put(OVERALL, toPercent(overall.getOverall(), uptimeNanos * numProcs));
         result.put(JVM_USAGE_PERCENT, jvmUsagePercent);
 
-        List<Map<String, Object>> threads = Lists.newArrayList();
+        List<Map<String, Object>> threads = new ArrayList<Map<String, Object>>();
         for (CpuUsage usage : usages) {
-            Map<String, Object> threadInfo = Maps.newHashMap();
+            Map<String, Object> threadInfo = new HashMap<String, Object>();
             threadInfo.put(ONE_MIN, toPercent(usage.getOneMinute(), overall.getOneMinute()));
             threadInfo.put(FIVE_MIN, toPercent(usage.getFiveMinute(), overall.getFiveMinute()));
             threadInfo.put(FIFTEEN_MIN, toPercent(usage.getFifteenMinute(),

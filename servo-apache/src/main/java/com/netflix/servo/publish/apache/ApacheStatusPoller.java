@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 package com.netflix.servo.publish.apache;
 
-import com.google.common.collect.ImmutableList;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.BaseMetricPoller;
-import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.UnmodifiableList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -89,11 +90,11 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         private static final Pattern STAT_LINE = Pattern.compile("^([^:]+): (\\S+)$");
         private static final char[] SCOREBOARD_CHARS = {
                 '_', 'S', 'R', 'W', 'K', 'D', 'C', 'L', 'G', 'I', '.', '*'};
-        private static final Tag CLASS_TAG = new BasicTag("class", "ApacheStatusPoller");
+        private static final Tag CLASS_TAG = Tags.newTag("class", "ApacheStatusPoller");
         /**
          * Metrics that should not be included. These can be confusing for end users.
          */
-        private static final List<String> BLACKLISTED_METRICS = ImmutableList.of("CPULoad");
+        private static final List<String> BLACKLISTED_METRICS = UnmodifiableList.of("CPULoad");
         private static final int ASCII_CHARS = 128;
         private static final String SCOREBOARD = "Scoreboard";
 
@@ -146,7 +147,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
                     .withTag(CLASS_TAG)
                     .build();
             Metric metric = new Metric(monitorConfig, timestamp, value);
-            return ImmutableList.of(metric);
+            return UnmodifiableList.of(metric);
         }
 
         /*
@@ -179,7 +180,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
                 tally[idx]++;
             }
 
-            ImmutableList.Builder<Metric> builder = ImmutableList.builder();
+            final List<Metric> scoreboardMetrics = new ArrayList<Metric>();
             for (final char item : SCOREBOARD_CHARS) {
                 if (item == '.') { // Open slots are not particularly useful to track
                     continue;
@@ -192,28 +193,28 @@ public class ApacheStatusPoller extends BaseMetricPoller {
                         .withTag("state", state)
                         .build();
                 final Metric metric = new Metric(monitorConfig, timestamp, value);
-                builder.add(metric);
+                scoreboardMetrics.add(metric);
             }
-            return builder.build();
+            return Collections.unmodifiableList(scoreboardMetrics);
         }
 
         static List<Metric> parse(InputStream input, long timestamp) throws IOException {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
-            final ImmutableList.Builder<Metric> metricsBuilder = ImmutableList.builder();
+            final List<Metric> metrics = new ArrayList<Metric>();
 
             try {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith(SCOREBOARD)) {
-                        metricsBuilder.addAll(parseScoreboardLine(line, timestamp));
+                        metrics.addAll(parseScoreboardLine(line, timestamp));
                     } else {
-                        metricsBuilder.addAll(parseStatLine(line, timestamp));
+                        metrics.addAll(parseStatLine(line, timestamp));
                     }
                 }
             } finally {
                 reader.close();
             }
-            return metricsBuilder.build();
+            return Collections.unmodifiableList(metrics);
         }
     }
 
@@ -225,7 +226,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         this.fetcher = fetcher;
     }
 
-    List<Metric> pollImpl(boolean reset, long timestamp) {
+    List<Metric> pollImpl(long timestamp) {
         try {
             InputStream statusStream = fetcher.fetchStatus();
             try {
@@ -244,6 +245,6 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      */
     @Override
     public List<Metric> pollImpl(boolean reset) {
-        return pollImpl(reset, System.currentTimeMillis());
+        return pollImpl(System.currentTimeMillis());
     }
 }

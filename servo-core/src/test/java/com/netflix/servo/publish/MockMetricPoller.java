@@ -15,7 +15,7 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.Metric;
 
 import java.util.List;
@@ -27,12 +27,12 @@ public class MockMetricPoller extends BaseMetricPoller {
     private boolean die;
 
     public MockMetricPoller() {
-        metrics = ImmutableList.of();
+        metrics = UnmodifiableList.of();
         delay = 0L;
     }
 
     public void setMetrics(List<Metric> metrics) {
-        this.metrics = ImmutableList.copyOf(metrics);
+        this.metrics = UnmodifiableList.copyOf(metrics);
     }
 
     public void setDelay(long delay) {
