@@ -22,8 +22,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-final public class UnmodifiableList {
-    private UnmodifiableList() {}
+/** Utility class to create umodifiable views for lists. */
+public final class UnmodifiableList {
+    private UnmodifiableList() {
+    }
 
     /**
      * Returns an unmodifiable view of the list composed of elements.
@@ -64,11 +66,11 @@ final public class UnmodifiableList {
      */
     public static <E> List<E> copyOf(Iterable<? extends E> elements) {
         Preconditions.checkNotNull(elements, "elements");
-        List<E> result = (elements instanceof Collection) ?
+        List<E> result = (elements instanceof Collection)
                 // can pre-allocate the array
-                new ArrayList<E>(cast(elements).size()) :
+                ? new ArrayList<E>(cast(elements).size())
                 // cannot
-                new ArrayList<E>();
+                : new ArrayList<E>();
         for (E e : elements) {
             result.add(e);
         }

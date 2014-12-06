@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Utility class to create unmodifiable sets.
  */
-final public class UnmodifiableSet {
+public final class UnmodifiableSet {
     private UnmodifiableSet() {
     }
 

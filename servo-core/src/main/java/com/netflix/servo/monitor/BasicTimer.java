@@ -237,7 +237,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
      */
     @Override
     public String toString() {
-        return "BasicTimer{config=" + config + ", totalTime=" + totalTime +
-                ", count=" + count + ", min=" + min + ", max=" + max + '}';
+        return "BasicTimer{config=" + config + ", totalTime=" + totalTime
+                + ", count=" + count + ", min=" + min + ", max=" + max + '}';
     }
 }

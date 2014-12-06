@@ -230,8 +230,8 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
      */
     @Override
     public String toString() {
-        return "DynamicCounter{baseConfig" + BASE_CONFIG +
-                ", totalTimers=" + timers.size() +
-                ", timers=" + timers + '}';
+        return "DynamicCounter{baseConfig" + BASE_CONFIG
+                + ", totalTimers=" + timers.size()
+                + ", timers=" + timers + '}';
     }
 }

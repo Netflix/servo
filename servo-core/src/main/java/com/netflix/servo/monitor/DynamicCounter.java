@@ -139,8 +139,8 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
      */
     @Override
     public String toString() {
-        return "DynamicCounter{baseConfig" + BASE_CONFIG +
-                ", totalCounters=" + counters.size() +
-                ", counters=" + counters + '}';
+        return "DynamicCounter{baseConfig" + BASE_CONFIG
+                + ", totalCounters=" + counters.size()
+                + ", counters=" + counters + '}';
     }
 }

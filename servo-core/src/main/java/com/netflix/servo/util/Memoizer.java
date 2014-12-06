@@ -19,7 +19,11 @@ package com.netflix.servo.util;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class Memoizer<T> {
+/**
+ * A class that can cache the results of computations for a given amount of time.
+ * @param <T> Type of the value cached
+ */
+public final class Memoizer<T> {
     /**
      * Create a memoizer that caches the value produced by getter for a given duration.
      *

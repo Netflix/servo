@@ -139,8 +139,8 @@ public final class BucketConfig {
      */
     @Override
     public String toString() {
-        return "BucketConfig{timeUnit=" + timeUnit +
-                ", buckets=" + Arrays.toString(buckets) + '}';
+        return "BucketConfig{timeUnit=" + timeUnit
+                + ", buckets=" + Arrays.toString(buckets) + '}';
     }
 
     /**

@@ -19,10 +19,16 @@ package com.netflix.servo.util;
 import java.util.ArrayList;
 import java.util.List;
 
-final public class Iterables {
+/**
+ * Utility class for dealing with Iterables. For internal use of servo only.
+ */
+public final class Iterables {
     private Iterables() {
     }
 
+    /**
+     * Creates a new {@link Iterable} by concatenating two iterables.
+     */
     public static <E> Iterable<E> concat(Iterable<E> a, Iterable<E> b) {
         List<E> result = new ArrayList<E>();
         for (E e : a) {

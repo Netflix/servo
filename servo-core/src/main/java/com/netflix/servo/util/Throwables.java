@@ -19,10 +19,9 @@ package com.netflix.servo.util;
 /**
  * Utility class to deal with exceptions. Intended for internal use of servo only.
  */
-final public class Throwables {
+public final class Throwables {
     private Throwables() {
     }
-
 
     /**
      * Propagates {@code throwable} as-is if it is an instance of

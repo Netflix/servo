@@ -22,7 +22,7 @@ import java.util.Iterator;
 /**
  * Static helpers for {@code String} instances.
  */
-public class Strings {
+public final class Strings {
     private Strings() {
     }
 

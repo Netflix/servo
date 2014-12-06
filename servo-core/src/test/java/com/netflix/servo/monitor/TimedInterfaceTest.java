@@ -149,7 +149,8 @@ public class TimedInterfaceTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testInterfaceInheritence() {
-        final List<String> expectedNames = Arrays.asList("method1", "method2", "method3", "method4");
+        final List<String> expectedNames =
+                Arrays.asList("method1", "method2", "method3", "method4");
         final IDummyExtended extendedDummy = TimedInterface.newProxy(IDummyExtended.class,
                 new ExtendedDummy());
         final CompositeMonitor<Long> compositeMonitor = (CompositeMonitor<Long>) extendedDummy;
