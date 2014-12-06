@@ -133,7 +133,7 @@ public class SmallTagMapTest {
         assertNotEquals(map1.hashCode(), map2.hashCode());
     }
 
-    @SuppressWarnings({"EqualsWithItself", "ObjectEqualsNull"})
+    @SuppressWarnings({ "EqualsWithItself", "ObjectEqualsNull" })
     @Test
     public void testEquals() {
         SmallTagMap map1 = SmallTagMap.builder().add(Tags.newTag("k1", "v1")).result();

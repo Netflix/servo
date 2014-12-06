@@ -136,7 +136,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     public int hashCode() {
         int result = getConfig().hashCode();
         long id = nextTaskId.get();
-        result = 31 * result + (int)(id ^ (id >>> 32));
+        result = 31 * result + (int) (id ^ (id >>> 32));
         result = 31 * result + tasks.hashCode();
         return result;
     }
@@ -144,11 +144,11 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "DurationTimer{config=" + getConfig() +
-                ", tasks=" + tasks +
-                ", monitors=" + monitors +
-                ", nextTaskId=" + nextTaskId.get() +
-                '}';
+        return "DurationTimer{config=" + getConfig()
+                + ", tasks=" + tasks
+                + ", monitors=" + monitors
+                + ", nextTaskId=" + nextTaskId.get()
+                + '}';
     }
 
     /**

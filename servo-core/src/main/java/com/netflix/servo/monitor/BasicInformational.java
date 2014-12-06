@@ -56,8 +56,8 @@ public final class BasicInformational extends AbstractMonitor<String> implements
 
         String thisInfo = info.get();
         String thatInfo = that.info.get();
-        return config.equals(that.config) &&
-                (thisInfo == null ? thatInfo == null : thisInfo.equals(thatInfo));
+        return config.equals(that.config)
+                && (thisInfo == null ? thatInfo == null : thisInfo.equals(thatInfo));
     }
 
     /** {@inheritDoc} */

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Simple utility class to create thread factories.
  */
-public class ThreadFactories {
+public final class ThreadFactories {
     private ThreadFactories() {
     }
 

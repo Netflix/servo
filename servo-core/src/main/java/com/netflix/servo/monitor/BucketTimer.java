@@ -218,14 +218,14 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "BucketTimer{config=" + config +
-                ", bucketConfig=" + bucketConfig +
-                ", timeUnit=" + timeUnit +
-                ", totalTime=" + totalTime +
-                ", min=" + min +
-                ", max=" + max +
-                ", bucketCount=" + Arrays.toString(bucketCount) +
-                ", overflowCount=" + overflowCount +
-                '}';
+        return "BucketTimer{config=" + config
+                + ", bucketConfig=" + bucketConfig
+                + ", timeUnit=" + timeUnit
+                + ", totalTime=" + totalTime
+                + ", min=" + min
+                + ", max=" + max
+                + ", bucketCount=" + Arrays.toString(bucketCount)
+                + ", overflowCount=" + overflowCount
+                + '}';
     }
 }

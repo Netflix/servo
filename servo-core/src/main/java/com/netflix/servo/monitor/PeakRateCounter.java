@@ -77,7 +77,7 @@ public class PeakRateCounter extends AbstractMonitor<Number>
     public int hashCode() {
         int result = getConfig().hashCode();
         final long n = Double.doubleToLongBits(getValue().doubleValue());
-        result = 31 * result + (int)(n ^ (n >>> 32));
+        result = 31 * result + (int) (n ^ (n >>> 32));
         return result;
     }
 

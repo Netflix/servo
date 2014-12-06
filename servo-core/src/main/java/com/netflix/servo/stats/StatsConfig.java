@@ -251,18 +251,18 @@ public final class StatsConfig {
      */
     @Override
     public String toString() {
-        return "StatsConfig{" +
-                "publishCount=" + publishCount +
-                ", publishTotal=" + publishTotal +
-                ", publishMin=" + publishMin +
-                ", publishMax=" + publishMax +
-                ", publishMean=" + publishMean +
-                ", publishVariance=" + publishVariance +
-                ", publishStdDev=" + publishStdDev +
-                ", percentiles=" + Arrays.toString(percentiles) +
-                ", sampleSize=" + sampleSize +
-                ", frequencyMillis=" + frequencyMillis +
-                '}';
+        return "StatsConfig{"
+                + "publishCount=" + publishCount
+                + ", publishTotal=" + publishTotal
+                + ", publishMin=" + publishMin
+                + ", publishMax=" + publishMax
+                + ", publishMean=" + publishMean
+                + ", publishVariance=" + publishVariance
+                + ", publishStdDev=" + publishStdDev
+                + ", percentiles=" + Arrays.toString(percentiles)
+                + ", sampleSize=" + sampleSize
+                + ", frequencyMillis=" + frequencyMillis
+                + '}';
     }
 
     /**

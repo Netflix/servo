@@ -120,7 +120,8 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         this.clock = clock;
 
         if (useLimiter) {
-            final ThreadFactory factory = ThreadFactories.withName("ServoMonitorGetValueLimiter-%d");
+            final ThreadFactory factory =
+                    ThreadFactories.withName("ServoMonitorGetValueLimiter-%d");
             service = Executors.newSingleThreadExecutor(factory);
             limiter = new SimpleTimeLimiter(service);
         } else {

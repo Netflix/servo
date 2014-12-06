@@ -67,7 +67,7 @@ public final class BasicCounter extends AbstractMonitor<Number> implements Count
     public int hashCode() {
         int result = config.hashCode();
         long n = count.get();
-        result = 31 * result +  (int)(n ^ (n >>> 32));
+        result = 31 * result +  (int) (n ^ (n >>> 32));
         return result;
     }
 
