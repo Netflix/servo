@@ -128,4 +128,19 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
             LOG.warn("Unable to un-register Monitor:" + monitor.getConfig(), e);
         }
     }
+
+    @Override
+    public boolean isRegistered(Monitor<?> monitor) {
+        try {
+            List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor, mapper);
+            for (MonitorMBean bean : beans) {
+                if (mBeanServer.isRegistered(bean.getObjectName())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
 }

@@ -38,4 +38,9 @@ public interface MonitorRegistry {
      * Unregister a Monitor from the registry.
      */
     void unregister(Monitor<?> monitor);
+
+    /**
+     * Check whether a monitor has been registerd.
+     */
+    boolean isRegistered(Monitor<?> monitor);
 }

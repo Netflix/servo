@@ -149,4 +149,9 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     MonitorRegistry getInnerRegistry() {
         return registry;
     }
+
+    @Override
+    public boolean isRegistered(Monitor<?> monitor) {
+        return registry.isRegistered(monitor);
+    }
 }

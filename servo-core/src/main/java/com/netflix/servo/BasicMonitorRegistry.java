@@ -71,4 +71,9 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
             throw new IllegalArgumentException("invalid object", e);
         }
     }
+
+    @Override
+    public boolean isRegistered(Monitor<?> monitor) {
+        return monitors.contains(monitor);
+    }
 }
