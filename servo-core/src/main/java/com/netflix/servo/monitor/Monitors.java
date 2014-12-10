@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
-import com.netflix.servo.util.Throwables;
 import com.google.common.cache.Cache;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
@@ -24,6 +23,7 @@ import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.TaggingContext;
+import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -203,6 +203,20 @@ public final class Monitors {
      */
     public static void registerObject(String id, Object obj) {
         DefaultMonitorRegistry.getInstance().register(newObjectMonitor(id, obj));
+    }
+
+    /**
+     * Check whether an object is currently registered with the default registry.
+     */
+    public static boolean isObjectRegistered(Object obj) {
+        return isObjectRegistered(null, obj);
+    }
+
+    /**
+     * Check whether an object is currently registered with the default registry.
+     */
+    public static boolean isObjectRegistered(String id, Object obj) {
+        return DefaultMonitorRegistry.getInstance().isRegistered(newObjectMonitor(id, obj));
     }
 
     /**

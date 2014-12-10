@@ -16,7 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 import org.testng.annotations.Test;
 
@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 public class MonitorsTest {
 
@@ -36,7 +38,7 @@ public class MonitorsTest {
                 name = "primitiveGauge", type = DataSourceType.GAUGE)
             static final long A1 = 0L;
         };
-        TagList tags = SortedTagList.builder().withTag("abc", "def").build();
+        TagList tags = BasicTagList.of("abc", "def");
         Monitors.addMonitors(monitors, null, tags, obj);
 
         assertEquals(monitors.size(), 10);
@@ -51,7 +53,7 @@ public class MonitorsTest {
         List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
         ClassWithMonitors obj = new ClassWithMonitors();
 
-        TagList tags = SortedTagList.builder().withTag("abc", "def").build();
+        TagList tags = BasicTagList.of("abc", "def");
 
         Monitors.addMonitorFields(monitors, null, tags, obj, obj.getClass());
         Monitors.addMonitorFields(monitors, "foo", null, obj, obj.getClass());
@@ -97,4 +99,13 @@ public class MonitorsTest {
         }
         assertEquals(monitors.size(), 10);
     }
+
+    @Test
+    public void testIsRegistered() throws Exception {
+        ClassWithMonitors obj = new ClassWithMonitors();
+        assertFalse(Monitors.isObjectRegistered("id", obj));
+        Monitors.registerObject("id", obj);
+        assertTrue(Monitors.isObjectRegistered("id", obj));
+    }
+
 }
