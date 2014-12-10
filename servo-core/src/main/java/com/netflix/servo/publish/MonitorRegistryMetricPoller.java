@@ -15,9 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
@@ -26,6 +23,7 @@ import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.ThreadFactories;
+import com.netflix.servo.util.TimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,22 +121,22 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
             final ThreadFactory factory =
                     ThreadFactories.withName("ServoMonitorGetValueLimiter-%d");
             service = Executors.newSingleThreadExecutor(factory);
-            limiter = new SimpleTimeLimiter(service);
+            limiter = new TimeLimiter(service);
         } else {
             service = null;
             limiter = null;
         }
     }
 
-    private Object getValue(Monitor<?> monitor, boolean reset) {
+    private Object getValue(Monitor<?> monitor) {
         try {
             if (limiter != null) {
                 final MonitorValueCallable c = new MonitorValueCallable(monitor);
-                return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS, true);
+                return limiter.callWithTimeout(c, 1, TimeUnit.SECONDS);
             } else {
                 return monitor.getValue();
             }
-        } catch (UncheckedTimeoutException e) {
+        } catch (TimeLimiter.UncheckedTimeoutException e) {
             LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
         } catch (Exception e) {
             LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
@@ -192,7 +190,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         List<Monitor<?>> monitors = cachedMonitors.get();
         List<Metric> metrics = new ArrayList<Metric>(monitors.size());
         for (Monitor<?> monitor : monitors) {
-            Object v = getValue(monitor, reset);
+            Object v = getValue(monitor);
             if (v != null) {
                 metrics.add(new Metric(monitor.getConfig(), clock.now(), v));
             }
