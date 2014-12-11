@@ -553,8 +553,8 @@ time the counter is incremented. Using the helper class method is a more
 performant way to achieve this, but extra care has to be taken to only create
 needed monitors since they won't be expired after periods of inactivity.
 
-Resettable Monitors and Polling Intervals
------------------------------------------
+Polling Intervals
+-----------------
 
 The previous section explained that all monitors need to be registered. Their
 values are polled at regular intervals. These are called Polling Intervals. At
@@ -570,10 +570,10 @@ interval will only send a very small number of metrics per machine (what we
 consider critical metrics) and usually all the metrics collected during the slow
 polling interval will be sent to a different set of backends.
 
-Note that some Monitors should reset their values when they are polled. For
-example a MaxGauge should report the maximum value that was recorded since the
-last time it was polled. In the case of multiple pollers (a slow and a fast one)
-each will get a different value.  The system property `servo.pollers` is used
+For correctness some Monitors must be aware of the polling intervals. For
+example a MaxGauge should report the maximum value that was recorded during a particular
+interval. In the case of multiple pollers (a slow and a fast one)
+normally each will get a different value.  The system property `servo.pollers` is used
 for this purpose. It tells servo how many pollers will be used and their
 frequency. For example: `-Dservo.pollers=60000,10000` tells servo that there
 will be two pollers: poller at index 0 will run once a minute (60,000 ms) and
