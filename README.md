@@ -1,4 +1,4 @@
-## Servo: Application Metrics in Java
+# Servo: Application Metrics in Java
 
 > servo v. : WATCH OVER, OBSERVE
 
