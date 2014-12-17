@@ -20,13 +20,9 @@ git merge upstream/master
 git checkout my-awesome-bug-fix
 git rebase master
 ```
-* Build your changes.
+* Build your changes and run unit tests.  You will see many warnings and errors because Servo unit tests validate error conditions.  As long as the final result is BUILD SUCCESSFUL, then the tests have passed.
 ```
 ./gradlew build
-```
-* Run unit tests.  You will see many warnings and errors because Servo unit tests validate error conditions.  As long as the final result is BUILD SUCCESSFUL, the tests have passed.
-```
-./gradlew test
 ...
 BUILD SUCCESSFUL
 ```
