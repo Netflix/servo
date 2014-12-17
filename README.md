@@ -21,7 +21,7 @@ This has already been implemented inside of Netflix and most of our applications
 | master | [![Build Status](https://netflixoss.ci.cloudbees.com/job/servo-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/servo-master/) |
 | pull-requests | [![Build Status](https://netflixoss.ci.cloudbees.com/job/servo-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/servo-pull-requests/) |
 
- ### Versioning
+### Versioning
 
 Servo is released with a 0.X.Y version because it has not yet reached full API stability.
 
@@ -78,7 +78,7 @@ Ivy Example:
 
 ## License
 
-Copyright 2013 Netflix, Inc.
+Copyright 2014 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
