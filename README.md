@@ -376,11 +376,11 @@ becomes very useful when you want to create your own. In particular if you want
 to return a variable set of Monitors at runtime this is how to do it.
 DynamicCounter / DynamicTimer are implemented using this feature.
 
-Registration of metrics
+Registration of Metrics
 -----------------------
 
 In servo all monitors need to be registered to be reported.  One critically
-important thing to remember is that they need to be registered exactly once.
+important thing to remember is that they need to be registered exactly once.  Some types of monitors, such as DynamicCounters, will handle registration automatically.
 
 The main ways to achieve this:
 
