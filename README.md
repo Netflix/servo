@@ -7,8 +7,8 @@
 Servo provides a simple interface for exposing and publishing application metrics in Java.  The primary goals are:
 
 * **Leverage JMX**: JMX is the standard monitoring interface for Java and can be queried by many existing tools.
-* **Keep It Simple**: It should be trivial to expose metrics and publish metrics without having to write lots of code such as MBean interfaces.
-* **Flexible Publishing**: Once metrics are exposed, it should be easy to regularly poll the metrics and make them available for internal reporting systems, logs, and services like Amazon’s CloudWatch.
+* **Keep It Simple**: It should be trivial to expose metrics and publish metrics without having to write lots of code such as [MBean interfaces](http://docs.oracle.com/javase/tutorial/jmx/mbeans/standard.html).
+* **Flexible Publishing**: Once metrics are exposed, it should be easy to regularly poll the metrics and make them available for internal reporting systems, logs, and services like [Amazon CloudWatch](http://aws.amazon.com/cloudwatch/).
 
 This has already been implemented inside of Netflix and most of our applications currently use it.
 
