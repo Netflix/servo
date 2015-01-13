@@ -227,7 +227,7 @@ public final class MonitorConfig {
      */
     @Override
     public String toString() {
-        return "MonitorConfig{name='" + name + ", tags=" + tags + ", policy=" + policy + '}';
+        return "MonitorConfig{name=" + name + ", tags=" + tags + ", policy=" + policy + '}';
     }
 
     /**
