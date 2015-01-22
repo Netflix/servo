@@ -1,0 +1,11 @@
+dependencies {
+  compile project(':servo-core')
+  compile project(':servo-graphite')
+}
+
+task(run, dependsOn: 'classes', type: JavaExec) {
+  main = 'com.netflix.servo.example.Main'
+  classpath = sourceSets.main.runtimeClasspath
+  args = []
+  systemProperties = [ "servo.pollers": "5000" ]
+}
