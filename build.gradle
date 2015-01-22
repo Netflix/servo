@@ -14,139 +14,52 @@
  *     limitations under the License.
  */
 
-// Establish version and status
-ext.githubProjectName = rootProject.name // TEMPLATE: change to match github project, if it doesn't match project name
-
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral() // maven { url 'http://jcenter.bintray.com' }
-    }
-    apply from: file('gradle/buildscript.gradle'), to: buildscript 
+plugins {
+  id 'nebula.netflixoss' version '2.2.5'
 }
 
-allprojects {
-    repositories { 
-        mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
-    }
+ext {
+  githubProjectName = 'servo'
 }
 
-
-apply from: file('gradle/convention.gradle')
-apply from: file('gradle/maven.gradle')
 apply from: file('gradle/check.gradle')
-apply from: file('gradle/license.gradle')
-apply from: file('gradle/release.gradle')
-
 
 subprojects {
-    group = 'com.netflix.servo' 
+  apply plugin: 'nebula.netflixoss'
+  apply plugin: 'java'
 
-    sourceCompatibility = '1.6'
-    targetCompatibility = '1.6'
+  group = "com.netflix.${githubProjectName}"
 
-    tasks.withType(Compile) { 
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" 
-    } 
+  repositories {
+    jcenter()
+  }
 
-    if (System.getProperty("java.version").startsWith("1.8.")) {
-        tasks.withType(Javadoc) {
-            // http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
-    }
+  sourceCompatibility = '1.6'
+  targetCompatibility = '1.6'
 
-    tasks.withType(Pmd) {
-          exclude "com/netflix/servo/jsr166e/*"
-    }
+  tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+  }
 
-    test {
-        useTestNG()
-        options.excludeGroups = ['aws']
-        testLogging.showStandardStreams = true
-    }
+  test {
+    useTestNG()
+    options.excludeGroups = ['aws']
+    testLogging.showStandardStreams = true
+  }
 
-    task(testWithCloud, type: Test) {
-        useTestNG()
-        group = 'verification'
-        options.excludeGroups = [] as Set
-    }
+  task(testWithCloud, type: Test) {
+    useTestNG()
+    group = 'verification'
+    options.excludeGroups = [] as Set
+  }
 
-    dependencies {
-        compile 'org.slf4j:slf4j-api:1.7.7'
-        compile 'com.google.guava:guava:14.0.1'
-        compile 'com.google.code.findbugs:annotations:2.0.0'
-        testCompile 'org.testng:testng:6.1.1'
-        testRuntime 'org.slf4j:slf4j-log4j12:1.7.7'
-        testRuntime 'log4j:log4j:1.2.17'
-    }
-}
-
-project(':servo-internal') {
-    compileJava {
-        options.compilerArgs << '-XDignore.symbol.file'
-        options.fork = true
-        options.forkOptions.executable = 'javac'
-    }
-
-    checkstyleMain {
-        enabled = false
-    }
-}
-
-project(':servo-core') {
   dependencies {
-    compile project(':servo-internal')
-  }
-
-  task(checkCompatibility, dependsOn: 'jar', type: JavaExec) {
-    // There is probably a better way, but we remove "-SNAPSHOT" from the name if the archive
-    // status is not "snapshot".
-    main = 'com.googlecode.japi.checker.cli.Main'
-    classpath = files("$projectDir/../codequality/japi-checker-cli-0.2.0-SNAPSHOT.jar")
-    args = [
-      "$projectDir/../codequality/servo-core-BASELINE.jar",
-      (project.status == 'snapshot')
-        ? jar.archivePath.path
-        : jar.archivePath.path.replace("-SNAPSHOT", "")
-    ]
-  }
-
-  build {
-    it.dependsOn checkCompatibility
+    compile 'org.slf4j:slf4j-api:1.7.7'
+    compile 'com.google.guava:guava:14.0.1'
+    compile 'com.google.code.findbugs:annotations:2.0.0'
+    testCompile 'org.testng:testng:6.1.1'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.7'
+    testRuntime 'log4j:log4j:1.2.17'
   }
 }
 
-project(':servo-apache') {
-    dependencies {
-        compile project(':servo-core')
-    }
-}
-
-project(':servo-aws') {
-    dependencies {
-        compile project(':servo-core')
-        compile('com.amazonaws:aws-java-sdk-autoscaling:1.9.16')
-        compile('com.amazonaws:aws-java-sdk-cloudwatch:1.9.16')
-    }
-}
-
-project(':servo-graphite') {
-    dependencies {
-        compile project(':servo-core')
-    }
-}
-
-project(':servo-example') {
-    dependencies {
-        compile project(':servo-core')
-        compile project(':servo-graphite')
-    }
-
-    task(run, dependsOn: 'classes', type: JavaExec) {
-        main = 'com.netflix.servo.example.Main'
-        classpath = sourceSets.main.runtimeClasspath
-        args = []
-        systemProperties = [ "servo.pollers": "5000" ]
-    }
-}

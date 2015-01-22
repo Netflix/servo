@@ -1,36 +1,34 @@
 subprojects {
-// Checkstyle
-apply plugin: 'checkstyle'
-checkstyle {
+  // Checkstyle
+  apply plugin: 'checkstyle'
+  checkstyle {
     ignoreFailures = true 
     configFile = rootProject.file('codequality/checkstyle.xml')
-}
-checkstyleTest {
-    configFile = rootProject.file('codequality/checkstyle_test.xml')
-}
+    //sourceSets = [sourceSets.main]
+  }
 
-// FindBugs
-apply plugin: 'findbugs'
-findbugs {
+  // FindBugs
+  apply plugin: 'findbugs'
+  findbugs {
     ignoreFailures = false 
-}
-tasks.withType(FindBugs) {
+  }
+  tasks.withType(FindBugs) {
     findbugs.toolVersion "3.0.0"
     reports {
-        xml.enabled = false
-        html.enabled = true
+      xml.enabled = false
+      html.enabled = true
     }
-}
+  }
 
-// PMD
-apply plugin: 'pmd'
-//tasks.withType(Pmd) { reports.html.enabled true }
-
-apply plugin: 'cobertura'
-cobertura {
-    sourceDirs = sourceSets.main.java.srcDirs
-    format = 'html'
-    includes = ['**/*.java', '**/*.groovy']
-    excludes = []
-}
+  // PMD
+  apply plugin: 'pmd'
+  pmd {
+    ignoreFailures = true
+    //sourceSets = [sourceSets.main]
+    ruleSets = []
+    ruleSetFiles = rootProject.files("codequality/pmd.xml")
+  }
+  tasks.withType(Pmd) {
+    exclude "com/netflix/servo/jsr166e/*"
+  }
 }
