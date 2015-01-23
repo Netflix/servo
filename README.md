@@ -18,8 +18,9 @@ This has already been implemented inside of Netflix and most of our applications
 
 | Branch | Status |
 | ------ | ------ |
-| master | [![Build Status](https://netflixoss.ci.cloudbees.com/job/servo-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/servo-master/) |
-| pull-requests | [![Build Status](https://netflixoss.ci.cloudbees.com/job/servo-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/servo-pull-requests/) |
+| snapshot | [![Build Status](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-snapshot/badge/icon)](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-snapshot/) |
+| release | [![Build Status](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-release/badge/icon)](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-release/) |
+| pull-requests | [![Build Status](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-pull-requests/badge/icon)](https://netflixoss.ci.cloudbees.com/job/NetflixOSS/job/servo/job/servo-pull-requests/) |
 
 ### Versioning
 
