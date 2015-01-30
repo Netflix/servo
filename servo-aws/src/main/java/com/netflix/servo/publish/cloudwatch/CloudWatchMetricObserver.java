@@ -23,12 +23,16 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
+import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.aws.AwsServiceClients;
+import com.netflix.servo.monitor.BasicTimer;
+import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.DynamicCounter;
-import com.netflix.servo.monitor.DynamicTimer;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.StepCounter;
 import com.netflix.servo.monitor.Stopwatch;
+import com.netflix.servo.monitor.Timer;
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
@@ -68,16 +72,21 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
 
     /** Number of cloudwatch metrics reported. */
-    private static final MonitorConfig METRICS_COUNTER =
-        new MonitorConfig.Builder("servo.cloudwatch.metrics").build();
+    private static final Counter METRICS_COUNTER = new StepCounter(
+        new MonitorConfig.Builder("servo.cloudwatch.metrics").build());
 
     /** Number of cloudwatch put calls. */
-    private static final MonitorConfig PUTS_TIMER =
-        new MonitorConfig.Builder("servo.cloudwatch.puts").build();
+    private static final Timer PUTS_TIMER = new BasicTimer(
+        new MonitorConfig.Builder("servo.cloudwatch.puts").build());
 
     /** Number of cloudwatch errors. */
-    private static final MonitorConfig ERRORS_COUNTER =
+    private static final MonitorConfig ERRORS_COUNTER_ID =
         new MonitorConfig.Builder("servo.cloudwatch.errors").build();
+
+    static {
+        DefaultMonitorRegistry.getInstance().register(METRICS_COUNTER);
+        DefaultMonitorRegistry.getInstance().register(PUTS_TIMER);
+    }
 
     private int batchSize;
     private boolean truncateEnabled = false;
@@ -183,16 +192,16 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     }
 
     private void putMetricData(List<Metric> batch) {
-        DynamicCounter.increment(METRICS_COUNTER, batch.size());
-        final Stopwatch s = DynamicTimer.start(PUTS_TIMER);
+        METRICS_COUNTER.increment(batch.size());
+        final Stopwatch s = PUTS_TIMER.start();
         try {
             cloudWatch.putMetricData(createPutRequest(batch));
         } catch (AmazonServiceException e) {
             final Tag error = new BasicTag("error", e.getErrorCode());
-            DynamicCounter.increment(ERRORS_COUNTER.withAdditionalTag(error));
+            DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
         } catch (Exception e) {
             final Tag error = new BasicTag("error", e.getClass().getSimpleName());
-            DynamicCounter.increment(ERRORS_COUNTER.withAdditionalTag(error));
+            DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
             LOG.error("Error while submitting data for metrics : " + batch, e);
         } finally {
             s.stop();
