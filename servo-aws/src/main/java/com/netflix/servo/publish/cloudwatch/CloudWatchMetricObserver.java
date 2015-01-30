@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.publish.cloudwatch;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
@@ -24,7 +25,12 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.netflix.servo.Metric;
 import com.netflix.servo.aws.AwsServiceClients;
+import com.netflix.servo.monitor.DynamicCounter;
+import com.netflix.servo.monitor.DynamicTimer;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.Stopwatch;
 import com.netflix.servo.publish.BaseMetricObserver;
+import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Preconditions;
@@ -60,6 +66,18 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
      * Maximum value that can be represented in cloudwatch.
      */
     static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
+
+    /** Number of cloudwatch metrics reported. */
+    private static final MonitorConfig METRICS_COUNTER =
+        new MonitorConfig.Builder("servo.cloudwatch.metrics").build();
+
+    /** Number of cloudwatch put calls. */
+    private static final MonitorConfig PUTS_TIMER =
+        new MonitorConfig.Builder("servo.cloudwatch.puts").build();
+
+    /** Number of cloudwatch errors. */
+    private static final MonitorConfig ERRORS_COUNTER =
+        new MonitorConfig.Builder("servo.cloudwatch.errors").build();
 
     private int batchSize;
     private boolean truncateEnabled = false;
@@ -165,10 +183,19 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     }
 
     private void putMetricData(List<Metric> batch) {
+        DynamicCounter.increment(METRICS_COUNTER, batch.size());
+        final Stopwatch s = DynamicTimer.start(PUTS_TIMER);
         try {
             cloudWatch.putMetricData(createPutRequest(batch));
+        } catch (AmazonServiceException e) {
+            final Tag error = new BasicTag("error", e.getErrorCode());
+            DynamicCounter.increment(ERRORS_COUNTER.withAdditionalTag(error));
         } catch (Exception e) {
+            final Tag error = new BasicTag("error", e.getClass().getSimpleName());
+            DynamicCounter.increment(ERRORS_COUNTER.withAdditionalTag(error));
             LOG.error("Error while submitting data for metrics : " + batch, e);
+        } finally {
+            s.stop();
         }
     }
 
