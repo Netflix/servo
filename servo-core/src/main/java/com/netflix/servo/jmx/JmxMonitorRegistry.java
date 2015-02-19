@@ -78,10 +78,12 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     }
 
     private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {
-        if (mBeanServer.isRegistered(objectName)) {
-            mBeanServer.unregisterMBean(objectName);
+        synchronized (mBeanServer) {
+            if (mBeanServer.isRegistered(objectName)) {
+                mBeanServer.unregisterMBean(objectName);
+            }
+            mBeanServer.registerMBean(mbean, objectName);
         }
-        mBeanServer.registerMBean(mbean, objectName);
     }
 
     /**
