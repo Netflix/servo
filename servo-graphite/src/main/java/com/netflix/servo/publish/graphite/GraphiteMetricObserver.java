@@ -41,6 +41,7 @@ import java.util.List;
  */
 public class GraphiteMetricObserver extends BaseMetricObserver {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphiteMetricObserver.class);
+    private static final String STATISTIC_TAG_KEY = "statistic";
 
     private final GraphiteNamingConvention namingConvention;
     private final String serverPrefix;
@@ -145,14 +146,25 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             if (serverPrefix != null) {
                 sb.append(serverPrefix).append(".");
             }
-            sb.append(publishedName).append(" ");
-            sb.append(metric.getValue().toString()).append(" ");
+            sb.append(publishedName);
+            if(hasStatisticTag(metric)) {
+                sb.append(".").append(getStatisticTagValue(metric));
+            }
+            sb.append(" ").append(metric.getValue().toString()).append(" ");
             sb.append(metric.getTimestamp() / 1000);
             LOGGER.debug("{}", sb);
             writer.write(sb.append("\n").toString());
             count++;
         }
         return count;
+    }
+
+    private boolean hasStatisticTag(Metric metric){
+        return metric.getConfig().getTags().containsKey(STATISTIC_TAG_KEY);
+    }
+
+    private String getStatisticTagValue(Metric metric){
+        return metric.getConfig().getTags().getTag(STATISTIC_TAG_KEY).getValue();
     }
 
     /**
