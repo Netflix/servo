@@ -222,11 +222,15 @@ public final class JmxMetricPoller implements MetricPoller {
             MBeanServerConnection con = connector.getConnection();
             for (ObjectName query : queries) {
                 Set<ObjectName> names = con.queryNames(query, null);
-                for (ObjectName name : names) {
-                    try {
-                        getMetrics(con, filter, metrics, name);
-                    } catch (Exception e) {
-                        LOGGER.warn("failed to get metrics for: " + name, e);
+                if (names.isEmpty()) {
+                    LOGGER.warn("no mbeans matched query: {}", query);
+                } else {
+                    for (ObjectName name : names) {
+                        try {
+                            getMetrics(con, filter, metrics, name);
+                        } catch (Exception e) {
+                            LOGGER.warn("failed to get metrics for: " + name, e);
+                        }
                     }
                 }
             }
