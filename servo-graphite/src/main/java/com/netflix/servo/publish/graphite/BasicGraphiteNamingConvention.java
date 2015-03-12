@@ -46,6 +46,7 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         String type = cleanValue(tags.getTag(DataSourceType.KEY), false);
         String instanceName = cleanValue(tags.getTag("instance"), false);
         String name = cleanupIllegalCharacters(config.getName(), false);
+        String statistic = cleanValue(tags.getTag("statistic"), false);
 
         StringBuilder nameBuilder = new StringBuilder();
         if (type != null) {
@@ -56,6 +57,9 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         }
         if (name != null) {
             nameBuilder.append(name).append(".");
+        }
+        if (statistic != null){
+            nameBuilder.append(statistic).append(".");
         }
         // remove trailing "."
         nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
