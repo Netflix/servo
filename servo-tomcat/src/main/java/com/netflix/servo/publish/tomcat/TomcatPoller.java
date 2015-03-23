@@ -45,11 +45,15 @@ public class TomcatPoller extends BaseMetricPoller {
 
     private static Tag catalina = Tags.newTag("source", "Catalina");
 
+    private static String normalizeName(String name) {
+        return name.equals("activeCount") ? "currentThreadsBusy" : name;
+    }
+
     private static Metric toMetric(long t, ObjectName name, Attribute attribute, Tag dsType) {
         Tag pool = Tags.newTag("pool", name.getKeyProperty("name"));
         Tag clazz = Tags.newTag("class", name.getKeyProperty("type"));
         TagList list = BasicTagList.of(catalina, pool, clazz, dsType);
-        return new Metric(attribute.getName(), list, t, attribute.getValue());
+        return new Metric(normalizeName(attribute.getName()), list, t, attribute.getValue());
     }
 
     private static Metric toGauge(long t, ObjectName name, Attribute attribute) {
@@ -76,9 +80,18 @@ public class TomcatPoller extends BaseMetricPoller {
     };
 
     private static final String[] EXECUTOR_ATTRS = new String[]{
+            "maxThreads",
+            "completedTaskCount",
+            "queueSize",
             "poolSize",
             "activeCount"
     };
+
+    private static void addMetric(List<Metric> metrics, Metric metric) {
+        if (metric.getNumberValue().doubleValue() >= 0.0) {
+            metrics.add(metric);
+        }
+    }
 
     private static void fetchRequestProcessorMetrics(long now, MBeanServer mbs,
                                                      List<Metric> metrics) throws JMException {
@@ -91,15 +104,12 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, GLOBAL_REQ_ATTRS);
             for (Attribute a : list.asList()) {
-                if (!a.getName().equals("maxTime")) {
-                    metrics.add(toCounter(now, name, a));
-                } else {
-                    // the only gauge here is maxTime
-                    metrics.add(toGauge(now, name, a));
-                }
+                // the only gauge here is maxTime
+                addMetric(metrics, a.getName().equals("maxTime") ?
+                        toGauge(now, name, a) :
+                        toCounter(now, name, a));
             }
         }
-        LOGGER.info("GlobalReqProc={}", metrics);
     }
 
     private static void fetchThreadPoolMetrics(long now, MBeanServer mbs, List<Metric> metrics)
@@ -113,7 +123,7 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, THREAD_POOL_ATTRS);
             for (Attribute a : list.asList()) {
-                metrics.add(toGauge(now, name, a));
+                    addMetric(metrics, toGauge(now, name, a));
             }
         }
     }
@@ -129,7 +139,9 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, EXECUTOR_ATTRS);
             for (Attribute a : list.asList()) {
-                metrics.add(toGauge(now, name, a));
+                addMetric(metrics, a.getName().equals("completedTaskCount") ?
+                        toCounter(now, name, a) :
+                        toGauge(now, name, a));
             }
         }
     }
