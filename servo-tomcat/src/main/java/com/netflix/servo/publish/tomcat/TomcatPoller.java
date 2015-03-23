@@ -43,12 +43,6 @@ public class TomcatPoller extends BaseMetricPoller {
     private static final List<Metric> EMPTY_LIST = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(TomcatPoller.class);
 
-    /**
-     * Create a new TomcatPoller.
-     */
-    public TomcatPoller() {
-    }
-
     private static Tag catalina = Tags.newTag("source", "Catalina");
 
     private static Metric toMetric(long t, ObjectName name, Attribute attribute, Tag dsType) {
@@ -86,9 +80,10 @@ public class TomcatPoller extends BaseMetricPoller {
             "activeCount"
     };
 
-    private static void fetchRequestProcessorMetrics(long now, MBeanServer mbs, List<Metric> out)
-            throws JMException {
-        Set<ObjectName> names = mbs.queryNames(new ObjectName("Catalina:type=GlobalRequestProcessor,*"), null);
+    private static void fetchRequestProcessorMetrics(long now, MBeanServer mbs,
+                                                     List<Metric> metrics) throws JMException {
+        final ObjectName globalName = new ObjectName("Catalina:type=GlobalRequestProcessor,*");
+        final Set<ObjectName> names = mbs.queryNames(globalName, null);
         if (names == null) {
             return;
         }
@@ -97,19 +92,20 @@ public class TomcatPoller extends BaseMetricPoller {
             AttributeList list = mbs.getAttributes(name, GLOBAL_REQ_ATTRS);
             for (Attribute a : list.asList()) {
                 if (!a.getName().equals("maxTime")) {
-                    out.add(toCounter(now, name, a));
+                    metrics.add(toCounter(now, name, a));
                 } else {
                     // the only gauge here is maxTime
-                    out.add(toGauge(now, name, a));
+                    metrics.add(toGauge(now, name, a));
                 }
             }
         }
-        LOGGER.info("GlobalReqProc={}", out);
+        LOGGER.info("GlobalReqProc={}", metrics);
     }
 
-    private static void fetchThreadPoolMetrics(long now, MBeanServer mbs, List<Metric> out)
+    private static void fetchThreadPoolMetrics(long now, MBeanServer mbs, List<Metric> metrics)
             throws JMException {
-        Set<ObjectName> names = mbs.queryNames(new ObjectName("Catalina:type=ThreadPool,*"), null);
+        final ObjectName threadPoolName = new ObjectName("Catalina:type=ThreadPool,*");
+        final Set<ObjectName> names = mbs.queryNames(threadPoolName, null);
         if (names == null) {
             return;
         }
@@ -117,14 +113,15 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, THREAD_POOL_ATTRS);
             for (Attribute a : list.asList()) {
-                out.add(toGauge(now, name, a));
+                metrics.add(toGauge(now, name, a));
             }
         }
     }
 
-    private static void fetchExecutorMetrics(long now, MBeanServer mbs, List<Metric> out)
+    private static void fetchExecutorMetrics(long now, MBeanServer mbs, List<Metric> metrics)
             throws JMException {
-        Set<ObjectName> names = mbs.queryNames(new ObjectName("Catalina:type=Executor,*"), null);
+        final ObjectName executorName = new ObjectName("Catalina:type=Executor,*");
+        final Set<ObjectName> names = mbs.queryNames(executorName, null);
         if (names == null) {
             return;
         }
@@ -132,7 +129,7 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, EXECUTOR_ATTRS);
             for (Attribute a : list.asList()) {
-                out.add(toGauge(now, name, a));
+                metrics.add(toGauge(now, name, a));
             }
         }
     }
