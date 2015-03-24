@@ -17,6 +17,7 @@ package com.netflix.servo.publish.tomcat;
 
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.BaseMetricPoller;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
@@ -43,16 +44,15 @@ public class TomcatPoller extends BaseMetricPoller {
     private static final List<Metric> EMPTY_LIST = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(TomcatPoller.class);
 
-    private static Tag catalina = Tags.newTag("source", "Catalina");
 
     private static String normalizeName(String name) {
-        return name.equals("activeCount") ? "currentThreadsBusy" : name;
+        return "tomcat." + (name.equals("activeCount") ? "currentThreadsBusy" : name);
     }
 
     private static Metric toMetric(long t, ObjectName name, Attribute attribute, Tag dsType) {
-        Tag pool = Tags.newTag("pool", name.getKeyProperty("name"));
+        Tag id = Tags.newTag("id", name.getKeyProperty("name"));
         Tag clazz = Tags.newTag("class", name.getKeyProperty("type"));
-        TagList list = BasicTagList.of(catalina, pool, clazz, dsType);
+        TagList list = BasicTagList.of(id, clazz, dsType);
         return new Metric(normalizeName(attribute.getName()), list, t, attribute.getValue());
     }
 
@@ -89,7 +89,14 @@ public class TomcatPoller extends BaseMetricPoller {
 
     private static void addMetric(List<Metric> metrics, Metric metric) {
         if (metric.getNumberValue().doubleValue() >= 0.0) {
+            final MonitorConfig c = metric.getConfig();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Adding " + c.getName() + " " + c.getTags() + " "
+                        + metric.getNumberValue());
+            }
             metrics.add(metric);
+        } else {
+            LOGGER.debug("Ignoring {}", metric);
         }
     }
 
@@ -105,9 +112,9 @@ public class TomcatPoller extends BaseMetricPoller {
             AttributeList list = mbs.getAttributes(name, GLOBAL_REQ_ATTRS);
             for (Attribute a : list.asList()) {
                 // the only gauge here is maxTime
-                addMetric(metrics, a.getName().equals("maxTime") ?
-                        toGauge(now, name, a) :
-                        toCounter(now, name, a));
+                addMetric(metrics, a.getName().equals("maxTime")
+                        ? toGauge(now, name, a)
+                        : toCounter(now, name, a));
             }
         }
     }
@@ -122,8 +129,21 @@ public class TomcatPoller extends BaseMetricPoller {
 
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, THREAD_POOL_ATTRS);
+            // determine whether the shared threadPool is used
+            boolean isUsed = true;
             for (Attribute a : list.asList()) {
+                if (a.getName().equals("maxThreads")) {
+                    Number v = (Number) a.getValue();
+                    isUsed = v.doubleValue() >= 0.0;
+                    break;
+                }
+            }
+
+            if (isUsed) {
+                // only add the attributes if the metric is used.
+                for (Attribute a : list.asList()) {
                     addMetric(metrics, toGauge(now, name, a));
+                }
             }
         }
     }
@@ -139,9 +159,9 @@ public class TomcatPoller extends BaseMetricPoller {
         for (ObjectName name : names) {
             AttributeList list = mbs.getAttributes(name, EXECUTOR_ATTRS);
             for (Attribute a : list.asList()) {
-                addMetric(metrics, a.getName().equals("completedTaskCount") ?
-                        toCounter(now, name, a) :
-                        toGauge(now, name, a));
+                addMetric(metrics, a.getName().equals("completedTaskCount")
+                        ? toCounter(now, name, a)
+                        : toGauge(now, name, a));
             }
         }
     }
@@ -153,7 +173,6 @@ public class TomcatPoller extends BaseMetricPoller {
             fetchThreadPoolMetrics(timestamp, mbs, metrics);
             fetchRequestProcessorMetrics(timestamp, mbs, metrics);
             fetchExecutorMetrics(timestamp, mbs, metrics);
-            LOGGER.debug("Generating {}", metrics);
             return metrics;
         } catch (JMException e) {
             logger.error("Could not get Tomcat JMX metrics", e);
