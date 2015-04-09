@@ -23,6 +23,6 @@ The CPULoad metric provided by the server-status page has been blacklisted.
 | Scoreboard | ApacheStatusPoller | StartingUp | GAUGE | S |
 | Scoreboard | ApacheStatusPoller | UnknownState | GAUGE | unknown symbol in the scoreboard |
 | Scoreboard | ApacheStatusPoller | WaitingForConnection | GAUGE | _ |
-| Total_Accesses | ApacheStatusPoller | -- | RATE | total number of accesses |
-| Total_kBytes | ApacheStatusPoller | -- | RATE | total byte count served |
-| Uptime | ApacheStatusPoller | -- | RATE | time the server has been running for |
+| Total_Accesses | ApacheStatusPoller | -- | COUNTER | total number of accesses |
+| Total_kBytes | ApacheStatusPoller | -- | COUNTER | total byte count served |
+| Uptime | ApacheStatusPoller | -- | COUNTER | time the server has been running for |

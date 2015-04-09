@@ -14,11 +14,11 @@ The following Tomcat metrics are collected by Servo from JMX.  The Tomcat servic
 
 | Name | Class | Type |
 |------|-------|------|
-| tomcat.bytesSent | GlobalRequestProcessor | RATE |
-| tomcat.errorCount | GlobalRequestProcessor | RATE |
+| tomcat.bytesSent | GlobalRequestProcessor | COUNTER |
+| tomcat.errorCount | GlobalRequestProcessor | COUNTER |
 | tomcat.maxTime | GlobalRequestProcessor | GAUGE |
-| tomcat.processingTime | GlobalRequestProcessor | RATE |
-| tomcat.requestCount | GlobalRequestProcessor | RATE |
+| tomcat.processingTime | GlobalRequestProcessor | COUNTER |
+| tomcat.requestCount | GlobalRequestProcessor | COUNTER |
 
 ### Thread Pool
 
