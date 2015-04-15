@@ -28,14 +28,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Simple immutable hash map implementation intended only for dealing with a small set of tags
- * (<= 24 in our case)
  * This class is not intended to be used by 3rd parties and should be considered an implementation
  * detail.
- * This implementation is backed by a single array and uses open addressing with
- * linear probing to resolve conflicts. Some performance tests showed that it's significantly
- * faster (2.5x)  for the BasicTagList use-case than using a LinkedHashMap as in
- * previous implementations.
  */
 public class SmallTagMap implements Iterable<Tag> {
     /**
@@ -179,7 +173,7 @@ public class SmallTagMap implements Iterable<Tag> {
                 }
             });
             assert (tagIdx == actualSize);
-            return new SmallTagMap(buf, tagArray);
+            return new SmallTagMap(tagArray);
         }
     }
 
@@ -212,43 +206,49 @@ public class SmallTagMap implements Iterable<Tag> {
     }
 
     private int cachedHashCode = 0;
-    private final Object[] data;
     private final Tag[] tagArray;
 
     /**
      * Create a new SmallTagMap using the given array and size.
      *
-     * @param data       array with the items
      * @param tagArray   sorted array of tags
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2",
             justification = "Only used from the builder")
-    SmallTagMap(Object[] data, Tag[] tagArray) {
-        this.data = Preconditions.checkNotNull(data, "data");
+    SmallTagMap(Tag[] tagArray) {
         this.tagArray = Preconditions.checkNotNull(tagArray, "tagArray");
     }
 
-    private int hash(String k) {
-        final int capacity = data.length / 2;
-        // casting to long because of abs(Integer.MIN_VALUE) == Integer.MIN_VALUE
-        long posHashcode = Math.abs((long) k.hashCode());
-        return (int) (posHashcode % capacity);
+    static int binarySearch(Tag[] a, String key) {
+        int low = 0;
+        int high = a.length - 1;
+
+        while (low <= high) {
+            final int mid = (low + high) >>> 1;
+            final Tag midValTag = a[mid];
+            final String midVal = midValTag.getKey();
+            final int cmp = midVal.compareTo(key);
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return mid; // tag key found
+            }
+        }
+        return -(low + 1);  // tag key not found.
     }
 
     /**
      * Get the tag associated with a given key.
      */
     public Tag get(String key) {
-        final int capacity = data.length / 2;
-        final int pos = hash(key);
-        int i = pos;
-        if (!key.equals(data[i * 2])) {
-            i = (i + 1) % capacity;
-            while (!key.equals(data[i * 2]) && i != pos) {
-                i = (i + 1) % capacity;
-            }
+        int idx = binarySearch(tagArray, key);
+        if (idx < 0) {
+            return null;
+        } else {
+            return tagArray[idx];
         }
-        return key.equals(data[i * 2]) ? (Tag) data[i * 2 + 1] : null;
     }
 
     /**
