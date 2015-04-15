@@ -49,6 +49,7 @@ public class SmallTagMap implements Iterable<Tag> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
 
     private volatile Set<Tag> entrySet;
+    private final Object entrySetLock = new Object();
 
     /**
      * Return a new builder to assist in creating a new SmallTagMap using the default tag size (8).
@@ -289,11 +290,15 @@ public class SmallTagMap implements Iterable<Tag> {
      */
     public Set<Tag> tagSet() {
         if (entrySet == null) {
-            entrySet = new HashSet<Tag>(dataLength);
-            for (int i = 1; i < data.length; i += 2) {
-                Object o = data[i];
-                if (o != null) {
-                    entrySet.add((Tag) o);
+            synchronized (entrySetLock) {
+                if (entrySet == null) {
+                    entrySet = new HashSet<Tag>(dataLength);
+                    for (int i = 1; i < data.length; i += 2) {
+                        Object o = data[i];
+                        if (o != null) {
+                            entrySet.add((Tag) o);
+                        }
+                    }
                 }
             }
         }

@@ -19,9 +19,14 @@ import com.netflix.servo.util.Preconditions;
 import com.netflix.servo.util.UnmodifiableList;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -170,6 +175,35 @@ public class BasicTagListTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testOfOddNumber() {
         BasicTagList.of("foo");
+    }
+
+    @Test
+    public void testConcurrentTagList() throws Exception {
+        final int count = 10;
+        final CountDownLatch latch = new CountDownLatch(count);
+        final Set<BasicTagList> tagLists = Collections
+                .newSetFromMap(new ConcurrentHashMap<BasicTagList, Boolean>());
+
+        final CyclicBarrier barrier = new CyclicBarrier(count);
+
+        for (int i = 0; i < count; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        barrier.await();
+                        tagLists.add(BasicTagList.of("id", "1", "color",
+                                "green"));
+                    } catch (Exception e) {
+                        e.printStackTrace(System.out);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+        latch.await();
+        assertEquals(tagLists.size(), 1);
     }
 }
 
