@@ -35,8 +35,10 @@ public class DefaultObjectNameMapperTest {
         MonitorConfig config = MonitorConfig.builder("testName").withTag("foo", "bar").build();
         ObjectName name = DEFAULT_MAPPER.createObjectName(TEST_DOMAIN, new BasicCounter(config));
         assertEquals(name.getDomain(), TEST_DOMAIN);
+        // note that this assumes that DataSourceType.KEY is greater than 'foo'
+        // for String#compareTo purposes
         assertEquals(name.getKeyPropertyListString(),
-                String.format("name=testName,%s=COUNTER,foo=bar",
+                String.format("name=testName,foo=bar,%s=COUNTER",
                         DataSourceType.KEY));
     }
 
@@ -51,7 +53,7 @@ public class DefaultObjectNameMapperTest {
         ObjectName name = DEFAULT_MAPPER.createObjectName(TEST_DOMAIN, counter);
         assertEquals(name.getDomain(), TEST_DOMAIN);
         assertEquals(name.getKeyPropertyListString(),
-                String.format("name=testName,aaa=bar,bbb=foo,zzz=test,%s=COUNTER",
+                String.format("name=testName,aaa=bar,bbb=foo,%s=COUNTER,zzz=test",
                         DataSourceType.KEY));
     }
 

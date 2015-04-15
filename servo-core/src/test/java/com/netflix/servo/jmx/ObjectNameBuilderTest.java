@@ -44,7 +44,7 @@ public class ObjectNameBuilderTest {
                                  .addProperties(BasicTagList.of("foo", "bar", "test", "stuff"))
                                  .build();
         assertEquals(name.getDomain(), "testDomain");
-        assertEquals(name.getKeyPropertyListString(), "test=stuff,foo=bar");
+        assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");
     }
 
     @Test

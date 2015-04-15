@@ -15,10 +15,13 @@
  */
 package com.netflix.servo.tag;
 
+import com.netflix.servo.util.Preconditions;
 import com.netflix.servo.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -47,9 +50,6 @@ public class SmallTagMap implements Iterable<Tag> {
     public static final int INITIAL_TAG_SIZE = 8;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmallTagMap.class);
-
-    private volatile Set<Tag> entrySet;
-    private final Object entrySetLock = new Object();
 
     /**
      * Return a new builder to assist in creating a new SmallTagMap using the default tag size (8).
@@ -159,32 +159,45 @@ public class SmallTagMap implements Iterable<Tag> {
          * Get the resulting SmallTagMap.
          */
         public SmallTagMap result() {
-            return new SmallTagMap(buf, actualSize);
+            Tag[] tagArray = new Tag[actualSize];
+            int tagIdx = 0;
+
+            for (int i = 1; i < buf.length; i += 2) {
+                Object o = buf[i];
+                if (o != null) {
+                    tagArray[tagIdx++] = (Tag) o;
+                }
+            }
+            Arrays.sort(tagArray, new Comparator<Tag>() {
+                @Override
+                public int compare(Tag o1, Tag o2) {
+                    int keyCmp = o1.getKey().compareTo(o2.getKey());
+                    if (keyCmp != 0) {
+                        return keyCmp;
+                    }
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+            });
+            assert (tagIdx == actualSize);
+            return new SmallTagMap(buf, tagArray);
         }
     }
 
     private class SmallTagIterator implements Iterator<Tag> {
         private int i = 0;
-        private int pos = 0;
 
         @Override
         public boolean hasNext() {
-            return i < dataLength;
+            return i < tagArray.length;
         }
 
         @Override
         public Tag next() {
-            while (pos < data.length && data[pos] == null) {
-                pos += 2;
-            }
-            if (pos >= data.length) {
-                throw new NoSuchElementException();
+            if (i < tagArray.length) {
+                return tagArray[i++];
             }
 
-            final Tag result = (Tag) data[pos + 1];
-            pos += 2;
-            i++;
-            return result;
+            throw new NoSuchElementException();
         }
 
         @Override
@@ -200,19 +213,19 @@ public class SmallTagMap implements Iterable<Tag> {
 
     private int cachedHashCode = 0;
     private final Object[] data;
-    private final int dataLength;
+    private final Tag[] tagArray;
 
     /**
      * Create a new SmallTagMap using the given array and size.
      *
      * @param data       array with the items
-     * @param dataLength number of pairs
+     * @param tagArray   sorted array of tags
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2",
             justification = "Only used from the builder")
-    SmallTagMap(Object[] data, int dataLength) {
-        this.data = data;
-        this.dataLength = dataLength;
+    SmallTagMap(Object[] data, Tag[] tagArray) {
+        this.data = Preconditions.checkNotNull(data, "data");
+        this.tagArray = Preconditions.checkNotNull(tagArray, "tagArray");
     }
 
     private int hash(String k) {
@@ -244,14 +257,7 @@ public class SmallTagMap implements Iterable<Tag> {
     @Override
     public int hashCode() {
         if (cachedHashCode == 0) {
-            int hc = 0;
-            for (int i = 1; i < data.length; i += 2) {
-                Object o = data[i];
-                if (o != null) {
-                    hc += o.hashCode();
-                }
-            }
-            cachedHashCode = hc;
+            cachedHashCode = Arrays.hashCode(tagArray);
         }
         return cachedHashCode;
     }
@@ -275,35 +281,26 @@ public class SmallTagMap implements Iterable<Tag> {
      * Returns true if this map has no entries.
      */
     public boolean isEmpty() {
-        return dataLength == 0;
+        return tagArray.length == 0;
     }
 
     /**
      * Returns the number of Tags stored in this map.
      */
     public int size() {
-        return dataLength;
+        return tagArray.length;
     }
 
     /**
      * Returns the {@link Set} of tags.
+     *
+     * @deprecated This method will be removed in the next version. This is an expensive method
+     * and not in the spirit of this class which is to be more efficient than the standard
+     * collections library.
      */
+    @Deprecated
     public Set<Tag> tagSet() {
-        if (entrySet == null) {
-            synchronized (entrySetLock) {
-                if (entrySet == null) {
-                    entrySet = new HashSet<Tag>(dataLength);
-                    for (int i = 1; i < data.length; i += 2) {
-                        Object o = data[i];
-                        if (o != null) {
-                            entrySet.add((Tag) o);
-                        }
-                    }
-                }
-            }
-        }
-
-        return entrySet;
+        return new HashSet<Tag>(Arrays.asList(tagArray));
     }
 
     @Override
@@ -318,8 +315,7 @@ public class SmallTagMap implements Iterable<Tag> {
         }
 
         SmallTagMap that = (SmallTagMap) obj;
-
-        // quickly check lengths before the more expensive computation
-        return that.dataLength == this.dataLength && tagSet().equals(that.tagSet());
+        return Arrays.equals(tagArray, that.tagArray);
     }
+
 }
