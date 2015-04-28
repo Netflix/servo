@@ -111,6 +111,7 @@ public final class ThreadCpuStats {
         if (!running) {
             running = true;
             Thread t = new Thread(new CpuStatRunnable(), "ThreadCpuStatsCollector");
+            t.setDaemon(true);
             t.start();
         }
     }
