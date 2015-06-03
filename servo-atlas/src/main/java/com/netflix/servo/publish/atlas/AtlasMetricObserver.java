@@ -244,7 +244,8 @@ public class AtlasMetricObserver implements MetricObserver {
 
   @Override
   public void update(List<Metric> rawMetrics) {
-    List<Metric> metrics = identifyDsTypes(filter(rawMetrics));
+    List<Metric> valid = ValidCharacters.toValidValues(rawMetrics);
+    List<Metric> metrics = identifyDsTypes(filter(valid));
     List<Metric> transformed = transformMetrics(metrics);
     sendNow(getUpdateTasks(commonTags, transformed));
   }
