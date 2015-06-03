@@ -30,27 +30,21 @@ import java.io.IOException;
 class AtlasMetric implements JsonPayload {
 
   private final MonitorConfig config;
-  private final long step;
   private final long start;
   private final double value;
 
-  AtlasMetric(Metric m, long step) {
-    this(m.getConfig(), step, m.getTimestamp(), m.getNumberValue());
+  AtlasMetric(Metric m) {
+    this(m.getConfig(), m.getTimestamp(), m.getNumberValue());
   }
 
-  AtlasMetric(MonitorConfig config, long step, long start, Number value) {
+  AtlasMetric(MonitorConfig config, long start, Number value) {
     this.config = Preconditions.checkNotNull(config, "config");
-    this.step = step;
-    this.start = start;
     this.value = Preconditions.checkNotNull(value, "value").doubleValue();
+    this.start = start;
   }
 
   MonitorConfig getConfig() {
     return config;
-  }
-
-  long getStep() {
-    return step;
   }
 
   long getStartTime() {
@@ -64,19 +58,18 @@ class AtlasMetric implements JsonPayload {
     }
     AtlasMetric m = (AtlasMetric) obj;
     return config.equals(m.getConfig())
-        && step == m.getStep()
         && start == m.getStartTime()
         && Double.compare(value, m.value) == 0;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(config, step, start, value);
+    return Objects.hash(config, start, value);
   }
 
   @Override
   public String toString() {
-    return "AtlasMetric{config=" + config + ", step=" + step
+    return "AtlasMetric{config=" + config
         + ", start=" + start + ", value=" + value + '}';
   }
 
@@ -91,7 +84,6 @@ class AtlasMetric implements JsonPayload {
     }
     gen.writeEndObject();
 
-    gen.writeNumberField("step", step);
     gen.writeNumberField("start", start);
     gen.writeNumberField("value", value);
 

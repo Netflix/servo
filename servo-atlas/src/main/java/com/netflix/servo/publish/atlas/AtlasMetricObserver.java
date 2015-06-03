@@ -290,7 +290,7 @@ public class AtlasMetricObserver implements MetricObserver {
   }
 
   protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
-    JsonPayload payload = new UpdateRequest(tags, batch, batch.length, stepMs);
+    JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
     return httpHelper.postSmile(config.getAtlasUri(), payload).map(withBookkeeping(batch.length));
   }
 

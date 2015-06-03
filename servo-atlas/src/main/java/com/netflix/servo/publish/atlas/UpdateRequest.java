@@ -40,9 +40,8 @@ public final class UpdateRequest implements JsonPayload {
    * @param metricsToSend Array of metrics to send.
    * @param numMetrics How many metrics in the array metricsToSend should be sent. Note
    *                   that this value needs to be lower or equal to metricsToSend.length
-   * @param step step-size in milliseconds.
    */
-  public UpdateRequest(TagList tags, Metric[] metricsToSend, int numMetrics, long step) {
+  public UpdateRequest(TagList tags, Metric[] metricsToSend, int numMetrics) {
     Preconditions.checkArgument(metricsToSend.length > 0, "metricsToSend is empty");
     Preconditions.checkArgument(numMetrics > 0 && numMetrics <= metricsToSend.length,
         "numMetrics is 0 or out of bounds");
@@ -51,7 +50,7 @@ public final class UpdateRequest implements JsonPayload {
     for (int i = 0; i < numMetrics; ++i) {
       Metric m = metricsToSend[i];
       if (m.hasNumberValue()) {
-        metrics.add(new AtlasMetric(m, step));
+        metrics.add(new AtlasMetric(m));
       }
     }
 
