@@ -26,22 +26,35 @@ import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
 
+import com.netflix.servo.publish.atlas.AtlasMetricObserver;
+import com.netflix.servo.publish.atlas.ServoAtlasConfig;
 import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
 
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class Main {
+
+
+    private static final String CLUSTER = "nf.cluster";
+    private static final String NODE = "nf.node";
+    private static final String UNKNOWN = "unknown";
 
     private Main() {
     }
@@ -68,6 +81,24 @@ public final class Main {
         return rateTransform(async("graphite", new GraphiteMetricObserver(prefix, addr)));
     }
 
+    private static TagList getCommonTags() {
+        final Map<String, String> tags = new HashMap<String, String>();
+        final String cluster = System.getenv("NETFLIX_CLUSTER");
+        tags.put(CLUSTER, (cluster == null) ? UNKNOWN : cluster);
+        try {
+            tags.put(NODE, InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            tags.put(NODE, UNKNOWN);
+        }
+        return BasicTagList.copyOf(tags);
+    }
+
+    private static MetricObserver createAtlasObserver() {
+        final ServoAtlasConfig cfg = Config.getAtlasConfig();
+        final TagList common = getCommonTags();
+        return rateTransform(async("atlas", new AtlasMetricObserver(cfg, common)));
+    }
+
     private static void schedule(MetricPoller poller, List<MetricObserver> observers) {
         final PollRunnable task = new PollRunnable(poller, BasicMetricFilter.MATCH_ALL,
                 true, observers);
@@ -78,6 +109,10 @@ public final class Main {
         final List<MetricObserver> observers = new ArrayList<MetricObserver>();
         if (Config.isFileObserverEnabled()) {
             observers.add(createFileObserver());
+        }
+
+        if (Config.isAtlasObserverEnabled()) {
+            observers.add(createAtlasObserver());
         }
 
         if (Config.isGraphiteObserverEnabled()) {
