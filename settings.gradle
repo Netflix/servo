@@ -15,4 +15,4 @@
  */
 
 include 'servo-internal', 'servo-core','servo-apache','servo-aws','servo-graphite','servo-example', 
-    'servo-tomcat'
+    'servo-tomcat', 'servo-atlas'
