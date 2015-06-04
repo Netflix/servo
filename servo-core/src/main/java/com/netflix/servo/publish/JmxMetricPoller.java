@@ -35,6 +35,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -174,21 +175,47 @@ public final class JmxMetricPoller implements MetricPoller {
         for (Attribute attr : attributeList) {
             String attrName = attr.getName();
             Object obj = attr.getValue();
-            if (obj instanceof CompositeData) {
-                Map<String, Object> values = new HashMap<String, Object>();
-                extractValues(null, values, (CompositeData) obj);
-                for (Map.Entry<String, Object> e : values.entrySet()) {
-                    String key = e.getKey();
-                    TagList newTags = SortedTagList.builder()
-                        .withTags(tags)
-                        .withTag(COMPOSITE_PATH_KEY, key)
-                        .build();
-                    if (filter.matches(MonitorConfig.builder(attrName).withTags(newTags).build())) {
-                        addMetric(metrics, attrName, newTags, e.getValue());
+            if (obj instanceof TabularData) {
+                for (Object key : ((TabularData) obj).values()) {
+                    if (key instanceof CompositeData) {
+                        addTabularMetrics(filter, metrics, tags, attrName, (CompositeData) key);
                     }
                 }
+            } else if (obj instanceof CompositeData) {
+                addCompositeMetrics(filter, metrics, tags, attrName, (CompositeData) obj);
             } else {
                 addMetric(metrics, attrName, tags, obj);
+            }
+        }
+    }
+
+    private void addCompositeMetrics(MetricFilter filter, List<Metric> metrics, TagList tags, String attrName, CompositeData obj) {
+        Map<String, Object> values = new HashMap<String, Object>();
+        extractValues(null, values, obj);
+        for (Map.Entry<String, Object> e : values.entrySet()) {
+            String key = e.getKey();
+            TagList newTags = SortedTagList.builder()
+                    .withTags(tags)
+                    .withTag(COMPOSITE_PATH_KEY, key)
+                    .build();
+            if (filter.matches(MonitorConfig.builder(attrName).withTags(newTags).build())) {
+                addMetric(metrics, attrName, newTags, e.getValue());
+            }
+        }
+    }
+
+    private void addTabularMetrics(MetricFilter filter, List<Metric> metrics, TagList tags, String attrName, CompositeData obj) {
+        Map<String, Object> values = new HashMap<String, Object>();
+        // tabular composite data has a value called key and one called value
+        values.put(obj.get("key").toString(), obj.get("value"));
+        for (Map.Entry<String, Object> e : values.entrySet()) {
+            String key = e.getKey();
+            TagList newTags = SortedTagList.builder()
+                    .withTags(tags)
+                    .withTag(COMPOSITE_PATH_KEY, key)
+                    .build();
+            if (filter.matches(MonitorConfig.builder(attrName).withTags(newTags).build())) {
+                addMetric(metrics, attrName, newTags, e.getValue());
             }
         }
     }
