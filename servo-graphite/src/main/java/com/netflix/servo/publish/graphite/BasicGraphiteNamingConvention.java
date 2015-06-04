@@ -58,7 +58,7 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
         if (name != null) {
             nameBuilder.append(name).append(".");
         }
-        if (statistic != null){
+        if (statistic != null) {
             nameBuilder.append(statistic).append(".");
         }
         // remove trailing "."
@@ -101,9 +101,10 @@ public class BasicGraphiteNamingConvention implements GraphiteNamingConvention {
     }
 
     private String cleanupIllegalCharacters(String s, boolean allowPeriodsInName) {
+        String legalName = s.replace(" ", "_");
         if (!allowPeriodsInName) {
-            s = s.replace(".", "_");
+            legalName = legalName.replace(".", "_");
         }
-        return s.replace(" ", "_");
+        return legalName;
     }
 }

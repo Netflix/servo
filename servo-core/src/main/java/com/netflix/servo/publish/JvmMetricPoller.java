@@ -240,10 +240,6 @@ public class JvmMetricPoller implements MetricPoller {
 
     private ThreadInfo[] lastThreadInfos = new ThreadInfo[0];
 
-    /** Create a new instance. */
-    public JvmMetricPoller() {
-    }
-
     /** {@inheritDoc} */
     @Override
     public final List<Metric> poll(MetricFilter filter) {

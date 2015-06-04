@@ -29,6 +29,9 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 
+/**
+ * Abstract base class for handling HTTP requests.
+ */
 public abstract class BaseHandler implements HttpHandler {
 
     private final Timer latency = Monitors.newTimer("latency");

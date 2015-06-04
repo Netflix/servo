@@ -16,3 +16,8 @@ task(checkCompatibility, dependsOn: 'jar', type: JavaExec) {
 build {
   it.dependsOn checkCompatibility
 }
+
+pmd {
+  ignoreFailures = true
+}
+

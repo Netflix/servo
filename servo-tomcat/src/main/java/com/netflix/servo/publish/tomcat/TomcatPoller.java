@@ -46,7 +46,7 @@ public class TomcatPoller extends BaseMetricPoller {
 
 
     private static String normalizeName(String name) {
-        return "tomcat." + (name.equals("activeCount") ? "currentThreadsBusy" : name);
+        return "tomcat." + ("activeCount".equals(name) ? "currentThreadsBusy" : name);
     }
 
     private static Metric toMetric(long t, ObjectName name, Attribute attribute, Tag dsType) {

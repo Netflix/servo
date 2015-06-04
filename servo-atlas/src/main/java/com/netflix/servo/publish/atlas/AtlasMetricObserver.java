@@ -70,7 +70,7 @@ public class AtlasMetricObserver implements MetricObserver {
   private final Counter numMetricsSent = Monitors.newCounter("numMetricsSent");
   private final TagList commonTags;
   private final BlockingQueue<UpdateTasks> pushQueue;
-  @SuppressWarnings("UnusedDeclaration")
+  @SuppressWarnings("unused")
   private final Gauge<Integer> pushQueueSize = new BasicGauge<Integer>(
       MonitorConfig.builder("pushQueue").build(), new Callable<Integer>() {
     @Override
@@ -185,8 +185,9 @@ public class AtlasMetricObserver implements MetricObserver {
     final UpdateTasks tasks = getUpdateTasks(BasicTagList.EMPTY,
         identifyCountersForPush(metrics));
     final int maxAttempts = 5;
-    int attempts = 0;
-    while (!pushQueue.offer(tasks) && ++attempts < maxAttempts) {
+    int attempts = 1;
+    while (!pushQueue.offer(tasks) && attempts <= maxAttempts) {
+      ++attempts;
       final UpdateTasks droppedTasks = pushQueue.remove();
       LOGGER.warn("Removing old push task due to queue full. Dropping {} metrics.",
           droppedTasks.numMetrics);

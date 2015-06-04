@@ -22,12 +22,9 @@ import java.lang.management.ManagementFactory;
  * Retrieves a connection to the local mbean server running in the same JVM.
  */
 public final class LocalJmxConnector implements JmxConnector {
-
-    /** Creates a new instance. */
-    public LocalJmxConnector() {
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public MBeanServerConnection getConnection() {
         return ManagementFactory.getPlatformMBeanServer();
     }

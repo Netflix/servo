@@ -25,6 +25,7 @@ public class ExitHandler extends BaseHandler {
     private final Closeable server;
 
     public ExitHandler(Closeable server) {
+        super();
         this.server = server;
         init();
     }

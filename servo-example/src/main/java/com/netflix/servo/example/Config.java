@@ -16,7 +16,6 @@
 package com.netflix.servo.example;
 
 import com.netflix.servo.monitor.Pollers;
-import com.netflix.servo.publish.atlas.BasicAtlasConfig;
 import com.netflix.servo.publish.atlas.ServoAtlasConfig;
 
 import java.io.File;
@@ -60,7 +59,8 @@ public final class Config {
      * Should we report metrics to graphite? Default is false.
      */
     public static boolean isGraphiteObserverEnabled() {
-        return Boolean.valueOf(System.getProperty("servo.example.isGraphiteObserverEnabled", "false"));
+        return Boolean.valueOf(System.getProperty("servo.example.isGraphiteObserverEnabled",
+              "false"));
     }
 
     /**
@@ -88,7 +88,8 @@ public final class Config {
      * Prefix to use when reporting data to graphite. Default is servo.
      */
     public static String getAtlasObserverUri() {
-        return System.getProperty("servo.example.atlasObserverUri", "http://localhost:7101/api/v1/publish");
+        return System.getProperty("servo.example.atlasObserverUri",
+            "http://localhost:7101/api/v1/publish");
     }
 
     /**

@@ -45,7 +45,8 @@ public final class TimeLimiter {
      * other hand, the time limit is reached, we attempt to abort the call to the
      * Callable and throw an exception.
      */
-    public <T> T callWithTimeout(Callable<T> callable, long duration, TimeUnit unit) throws Exception {
+    public <T> T callWithTimeout(Callable<T> callable, long duration, TimeUnit unit)
+        throws Exception {
         Future<T> future = executor.submit(callable);
         try {
             return future.get(duration, unit);
