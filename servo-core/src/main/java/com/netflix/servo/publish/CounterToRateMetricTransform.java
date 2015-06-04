@@ -193,7 +193,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private boolean isCounter(Metric m) {
         final TagList tags = m.getConfig().getTags();
         final String value = tags.getValue(DataSourceType.KEY);
-        return value != null && COUNTER_VALUE.equals(value);
+        return COUNTER_VALUE.equals(value);
     }
 
     private static class CounterValue {

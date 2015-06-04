@@ -51,8 +51,8 @@ public enum AwsInjectableTag implements Tag {
     PUBLIC_HOSTNAME("public-hostname", getPublicHostname()),
     PUBLIC_IPV4("public-ipv4", getPublicIpv4());
 
-    private static final String metaDataUrl = "http://instance-data/latest/meta-data";
-    private static final String undefined = "undefined";
+    private static final String METADATA_URL = "http://instance-data/latest/meta-data";
+    private static final String UNDEFINED = "undefined";
 
     private static Logger getLogger() {
         return LoggerFactory.getLogger(AwsInjectableTag.class);
@@ -103,7 +103,7 @@ public enum AwsInjectableTag implements Tag {
                     .getAutoScalingInstances().get(0).getAutoScalingGroupName();
         } catch (Exception e) {
             getLogger().error("Unable to get ASG name.", e);
-            return undefined;
+            return UNDEFINED;
         }
     }
 
@@ -115,13 +115,13 @@ public enum AwsInjectableTag implements Tag {
     static String getUrlValue(String path) {
         BufferedReader reader = null;
         try {
-            URL url = new URL(metaDataUrl + path);
+            URL url = new URL(METADATA_URL + path);
             reader = new BufferedReader(new InputStreamReader(url.openStream(),
                     Charset.forName("UTF-8")));
             return reader.readLine();
         } catch (Exception e) {
             getLogger().warn("Unable to read value from AWS metadata URL", e);
-            return undefined;
+            return UNDEFINED;
         } finally {
             try {
                 if (reader != null) {

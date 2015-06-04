@@ -27,10 +27,6 @@ public class BasicStopwatch implements Stopwatch {
     private final AtomicLong endTime = new AtomicLong(0L);
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    /** Create a new stopwatch with no associated timer. */
-    public BasicStopwatch() {
-    }
-
     /** {@inheritDoc} */
     @Override
     public void start() {

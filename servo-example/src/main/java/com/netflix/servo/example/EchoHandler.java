@@ -24,6 +24,7 @@ import java.io.IOException;
 public class EchoHandler extends BaseHandler {
 
     public EchoHandler() {
+        super();
         init();
     }
 

@@ -64,7 +64,7 @@ subprojects {
   }
 
   checkstyle {
-    ignoreFailures = true 
+    ignoreFailures = false 
     configFile = rootProject.file('codequality/checkstyle.xml')
     sourceSets = [sourceSets.main]
   }
@@ -86,7 +86,7 @@ subprojects {
   }
 
   pmd {
-    ignoreFailures = true
+    ignoreFailures = false
     ruleSets = []
     ruleSetFiles = rootProject.files("codequality/pmd.xml")
     sourceSets = [sourceSets.main]
@@ -94,6 +94,10 @@ subprojects {
 
   tasks.withType(Pmd) {
     exclude "**/jsr166e/**"
+  }
+
+  javadoc {
+    options.addStringOption("sourcepath", "")
   }
 }
 

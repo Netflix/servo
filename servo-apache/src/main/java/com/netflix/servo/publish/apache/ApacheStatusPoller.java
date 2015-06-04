@@ -85,7 +85,11 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         }
     }
 
-    private static class StatusPageParser {
+    private static final class StatusPageParser {
+        private StatusPageParser() {
+            // utility class
+        }
+
         private static final Pattern INVALID_CHARS = Pattern.compile("[^a-zA-Z0-9_\\-\\.]");
         private static final Pattern STAT_LINE = Pattern.compile("^([^:]+): (\\S+)$");
         private static final char[] SCOREBOARD_CHARS = {
@@ -203,13 +207,14 @@ public class ApacheStatusPoller extends BaseMetricPoller {
             final List<Metric> metrics = new ArrayList<Metric>();
 
             try {
-                String line;
-                while ((line = reader.readLine()) != null) {
+                String line = reader.readLine();
+                while (line != null) {
                     if (line.startsWith(SCOREBOARD)) {
                         metrics.addAll(parseScoreboardLine(line, timestamp));
                     } else {
                         metrics.addAll(parseStatLine(line, timestamp));
                     }
+                    line = reader.readLine();
                 }
             } finally {
                 reader.close();
@@ -223,6 +228,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      * @param fetcher The {@link StatusFetcher} that will be used to refresh the metrics.
      */
     public ApacheStatusPoller(StatusFetcher fetcher) {
+        super();
         this.fetcher = fetcher;
     }
 

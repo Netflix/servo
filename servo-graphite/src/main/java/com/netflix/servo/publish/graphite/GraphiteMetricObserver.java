@@ -145,9 +145,10 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             if (serverPrefix != null) {
                 sb.append(serverPrefix).append(".");
             }
-            sb.append(publishedName).append(" ");
-            sb.append(metric.getValue().toString()).append(" ");
-            sb.append(metric.getTimestamp() / 1000);
+            sb.append(publishedName).append(" ")
+                .append(metric.getValue().toString())
+                .append(" ")
+                .append(metric.getTimestamp() / 1000);
             LOGGER.debug("{}", sb);
             writer.write(sb.append("\n").toString());
             count++;
@@ -193,8 +194,8 @@ public class GraphiteMetricObserver extends BaseMetricObserver {
             }
             return uri;
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(
-                    "Graphite server address needs to be defined as {host}:{port}.");
+            throw (IllegalArgumentException) new IllegalArgumentException(
+                "Graphite server address needs to be defined as {host}:{port}.").initCause(e);
         }
     }
 }

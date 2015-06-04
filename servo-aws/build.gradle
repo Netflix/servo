@@ -3,3 +3,7 @@ dependencies {
   compile('com.amazonaws:aws-java-sdk-autoscaling:1.9.16')
   compile('com.amazonaws:aws-java-sdk-cloudwatch:1.9.16')
 }
+
+checkstyle {
+  ignoreFailures = true
+}

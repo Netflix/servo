@@ -204,21 +204,21 @@ public final class HttpHelper {
               final Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream> accumulator =
                   new Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream>() {
                     @Override
-                    public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
+                    public ByteArrayOutputStream call(ByteArrayOutputStream baos, ByteBuf bb) {
                       try {
-                        bb.readBytes(out, bb.readableBytes());
+                        bb.readBytes(baos, bb.readableBytes());
                       } catch (IOException e) {
                         throw new RuntimeException(e);
                       }
-                      return out;
+                      return baos;
                     }
                   };
               return response.getContent()
                   .reduce(new ByteArrayOutputStream(), accumulator)
                   .map(new Func1<ByteArrayOutputStream, byte[]>() {
                     @Override
-                    public byte[] call(ByteArrayOutputStream out) {
-                      return out.toByteArray();
+                    public byte[] call(ByteArrayOutputStream baos) {
+                      return baos.toByteArray();
                     }
                   });
             }

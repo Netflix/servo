@@ -63,7 +63,8 @@ public final class Tags {
      * @return           tag parsed from the string
      */
     public static Tag parseTag(String tagString) {
-        String k, v;
+        String k;
+        String v;
         int eqIndex = tagString.indexOf("=");
 
         if (eqIndex < 0) {
