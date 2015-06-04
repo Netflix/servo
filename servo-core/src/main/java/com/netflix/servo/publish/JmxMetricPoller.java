@@ -102,9 +102,10 @@ public final class JmxMetricPoller implements MetricPoller {
      * @param queries    object name patterns for selecting mbeans
      * @param counters   metrics matching this filter will be treated as
      *                   counters, all others will be gauges
-     * @param onlyNumericMetrics only produce metrics that can be converted to a Number (filter out all strings, etc)
-     * @param defaultTags a list of tags to attach to all metrics, usually useful to identify all metrics from
-     *                    a given application or hostname
+     * @param onlyNumericMetrics only produce metrics that can be converted to a Number
+     *                           (filter out all strings, etc)
+     * @param defaultTags a list of tags to attach to all metrics, usually
+     *                    useful to identify all metrics from a given application or hostname
      */
     public JmxMetricPoller(
             JmxConnector connector, List<ObjectName> queries, MetricFilter counters,
@@ -128,7 +129,7 @@ public final class JmxMetricPoller implements MetricPoller {
         }
         tags.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
         tags.add(CLASS_TAG);
-        if(defaultTags != null) {
+        if (defaultTags != null) {
             for (Tag defaultTag : defaultTags) {
                 tags.add(defaultTag);
             }
@@ -216,7 +217,8 @@ public final class JmxMetricPoller implements MetricPoller {
         }
     }
 
-    private void addCompositeMetrics(MetricFilter filter, List<Metric> metrics, TagList tags, String attrName, CompositeData obj) {
+    private void addCompositeMetrics(MetricFilter filter, List<Metric> metrics, TagList tags,
+                                     String attrName, CompositeData obj) {
         Map<String, Object> values = new HashMap<String, Object>();
         extractValues(null, values, obj);
         for (Map.Entry<String, Object> e : values.entrySet()) {
@@ -231,7 +233,8 @@ public final class JmxMetricPoller implements MetricPoller {
         }
     }
 
-    private void addTabularMetrics(MetricFilter filter, List<Metric> metrics, TagList tags, String attrName, CompositeData obj) {
+    private void addTabularMetrics(MetricFilter filter, List<Metric> metrics, TagList tags,
+                                   String attrName, CompositeData obj) {
         Map<String, Object> values = new HashMap<String, Object>();
         // tabular composite data has a value called key and one called value
         values.put(obj.get("key").toString(), obj.get("value"));
