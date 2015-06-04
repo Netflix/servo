@@ -18,13 +18,13 @@ package com.netflix.servo.publish;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.Tags;
 import org.testng.annotations.Test;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +116,8 @@ public class JmxMetricPollerTest {
 
     public interface TestMapMXBean {
         Map<String, Integer> getCount();
+
+        String getStringValue();
     }
 
     public static class MapMXBean implements TestMapMXBean {
@@ -142,6 +144,51 @@ public class JmxMetricPollerTest {
             map.put("Entry1", 111);
             map.put("Entry2", 222);
             return map;
+        }
+
+        @Override
+        public String getStringValue() {
+            return "AStringResult";
+        }
+    }
+
+    @Test
+    public void testDefaultTags() throws Exception {
+        MetricPoller poller = new JmxMetricPoller(
+                new LocalJmxConnector(),
+                Collections.singletonList(new ObjectName("java.lang:type=OperatingSystem")),
+                MATCH_ALL,
+                true,
+                Collections.singletonList(Tags.newTag("HostName", "localhost")));
+
+        List<Metric> metrics = poller.poll(MATCH_ALL);
+        for (Metric m : metrics) {
+            Map<String, String> tags = m.getConfig().getTags().asMap();
+            assertEquals(tags.get("HostName"), "localhost");
+        }
+    }
+
+    @Test
+    public void testNonNumericMetrics() throws Exception {
+        MapMXBean mapMXBean = new MapMXBean();
+        try {
+            MetricPoller poller = new JmxMetricPoller(
+                    new LocalJmxConnector(),
+                    Collections.singletonList(new ObjectName("com.netflix.servo.test:*")),
+                    MATCH_ALL,
+                    false,
+                    null);
+
+            List<Metric> metrics = poller.poll(new MetricFilter() {
+                @Override
+                public boolean matches(MonitorConfig config) {
+                    return config.getName().equals("StringValue");
+                }
+            });
+            assertEquals(metrics.size(), 1);
+            assertEquals(metrics.get(0).getValue(), "AStringResult");
+        } finally {
+            mapMXBean.destroy();
         }
     }
 }

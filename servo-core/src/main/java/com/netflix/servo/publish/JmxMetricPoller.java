@@ -38,6 +38,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,8 @@ public final class JmxMetricPoller implements MetricPoller {
     private final JmxConnector connector;
     private final List<ObjectName> queries;
     private final MetricFilter counters;
+    private final boolean onlyNumericMetrics;
+    private final List<Tag> defaultTags;
 
     /**
      * Creates a new instance that polls mbeans matching the provided object
@@ -74,10 +77,7 @@ public final class JmxMetricPoller implements MetricPoller {
      */
     public JmxMetricPoller(
             JmxConnector connector, ObjectName query, MetricFilter counters) {
-        this.connector = connector;
-        this.queries = new ArrayList<ObjectName>();
-        queries.add(query);
-        this.counters = counters;
+        this(connector, Arrays.asList(query), counters, true, null);
     }
 
     /**
@@ -91,9 +91,29 @@ public final class JmxMetricPoller implements MetricPoller {
      */
     public JmxMetricPoller(
             JmxConnector connector, List<ObjectName> queries, MetricFilter counters) {
+        this(connector, queries, counters, true, null);
+    }
+
+    /**
+     * Creates a new instance that polls mbeans matching the provided object
+     * name pattern.
+     *
+     * @param connector  used to get a connection to an MBeanServer
+     * @param queries    object name patterns for selecting mbeans
+     * @param counters   metrics matching this filter will be treated as
+     *                   counters, all others will be gauges
+     * @param onlyNumericMetrics only produce metrics that can be converted to a Number (filter out all strings, etc)
+     * @param defaultTags a list of tags to attach to all metrics, usually useful to identify all metrics from
+     *                    a given application or hostname
+     */
+    public JmxMetricPoller(
+            JmxConnector connector, List<ObjectName> queries, MetricFilter counters,
+            boolean onlyNumericMetrics, List<Tag> defaultTags) {
         this.connector = connector;
         this.queries = queries;
         this.counters = counters;
+        this.onlyNumericMetrics = onlyNumericMetrics;
+        this.defaultTags = defaultTags;
     }
 
     /**
@@ -108,6 +128,11 @@ public final class JmxMetricPoller implements MetricPoller {
         }
         tags.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
         tags.add(CLASS_TAG);
+        if(defaultTags != null) {
+            for (Tag defaultTag : defaultTags) {
+                tags.add(defaultTag);
+            }
+        }
         return SortedTagList.builder().withTags(tags).build();
     }
 
@@ -120,12 +145,14 @@ public final class JmxMetricPoller implements MetricPoller {
             TagList tags,
             Object value) {
         long now = System.currentTimeMillis();
-        Number num = asNumber(value);
-        if (num != null) {
+        if (onlyNumericMetrics) {
+            value = asNumber(value);
+        }
+        if (value != null) {
             TagList newTags = counters.matches(MonitorConfig.builder(name).withTags(tags).build())
                 ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
                 : SortedTagList.builder().withTags(tags).withTag(DataSourceType.GAUGE).build();
-            Metric m = new Metric(name, newTags, now, num);
+            Metric m = new Metric(name, newTags, now, value);
             metrics.add(m);
         }
     }
