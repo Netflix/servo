@@ -18,7 +18,8 @@ package com.netflix.servo.publish;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.SortedTagList;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.SmallTagMap;
 import com.netflix.servo.tag.StandardTagKeys;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -38,7 +39,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,7 @@ public final class JmxMetricPoller implements MetricPoller {
      */
     public JmxMetricPoller(
             JmxConnector connector, ObjectName query, MetricFilter counters) {
-        this(connector, Arrays.asList(query), counters, true, null);
+        this(connector, Collections.singletonList(query), counters, true, null);
     }
 
     /**
@@ -122,21 +123,24 @@ public final class JmxMetricPoller implements MetricPoller {
      */
     private TagList createTagList(ObjectName name) {
         Map<String, String> props = name.getKeyPropertyList();
-        List<Tag> tags = new ArrayList<Tag>();
+        SmallTagMap.Builder tagsBuilder = SmallTagMap.builder();
         for (Map.Entry<String, String> e : props.entrySet()) {
             String key = PROP_KEY_PREFIX + "." + e.getKey();
-            tags.add(Tags.newTag(key, e.getValue()));
+            tagsBuilder.add(Tags.newTag(key, e.getValue()));
         }
-        tags.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
-        tags.add(CLASS_TAG);
+        tagsBuilder.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
+        tagsBuilder.add(CLASS_TAG);
         if (defaultTags != null) {
             for (Tag defaultTag : defaultTags) {
-                tags.add(defaultTag);
+                tagsBuilder.add(defaultTag);
             }
         }
-        return SortedTagList.builder().withTags(tags).build();
+        return new BasicTagList(tagsBuilder.result());
     }
 
+    private static TagList getTagListWithAdditionalTag(TagList tags, Tag extra) {
+        return new BasicTagList(SmallTagMap.builder().addAll(tags).add(extra).result());
+    }
     /**
      * Create a new metric object and add it to the list.
      */
@@ -150,9 +154,10 @@ public final class JmxMetricPoller implements MetricPoller {
             value = asNumber(value);
         }
         if (value != null) {
+
             TagList newTags = counters.matches(MonitorConfig.builder(name).withTags(tags).build())
-                ? SortedTagList.builder().withTags(tags).withTag(DataSourceType.COUNTER).build()
-                : SortedTagList.builder().withTags(tags).withTag(DataSourceType.GAUGE).build();
+                ? getTagListWithAdditionalTag(tags, DataSourceType.COUNTER)
+                : getTagListWithAdditionalTag(tags, DataSourceType.GAUGE);
             Metric m = new Metric(name, newTags, now, value);
             metrics.add(m);
         }
@@ -222,11 +227,8 @@ public final class JmxMetricPoller implements MetricPoller {
         Map<String, Object> values = new HashMap<String, Object>();
         extractValues(null, values, obj);
         for (Map.Entry<String, Object> e : values.entrySet()) {
-            String key = e.getKey();
-            TagList newTags = SortedTagList.builder()
-                    .withTags(tags)
-                    .withTag(COMPOSITE_PATH_KEY, key)
-                    .build();
+            final Tag compositeTag = Tags.newTag(COMPOSITE_PATH_KEY, e.getKey());
+            final TagList newTags = getTagListWithAdditionalTag(tags, compositeTag);
             if (filter.matches(MonitorConfig.builder(attrName).withTags(newTags).build())) {
                 addMetric(metrics, attrName, newTags, e.getValue());
             }
@@ -239,11 +241,8 @@ public final class JmxMetricPoller implements MetricPoller {
         // tabular composite data has a value called key and one called value
         values.put(obj.get("key").toString(), obj.get("value"));
         for (Map.Entry<String, Object> e : values.entrySet()) {
-            String key = e.getKey();
-            TagList newTags = SortedTagList.builder()
-                    .withTags(tags)
-                    .withTag(COMPOSITE_PATH_KEY, key)
-                    .build();
+            final Tag compositeTag = Tags.newTag(COMPOSITE_PATH_KEY, e.getKey());
+            final TagList newTags = getTagListWithAdditionalTag(tags, compositeTag);
             if (filter.matches(MonitorConfig.builder(attrName).withTags(newTags).build())) {
                 addMetric(metrics, attrName, newTags, e.getValue());
             }
