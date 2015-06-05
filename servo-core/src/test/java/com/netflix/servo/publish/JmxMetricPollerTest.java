@@ -17,9 +17,15 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.Tags;
 import org.testng.annotations.Test;
 
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,4 +82,113 @@ public class JmxMetricPollerTest {
         assertTrue(found);
     }
 
+    /**
+     * Tabular JMX values are very useful for cases where we want the same behavior as CompositePath but we
+     * don't know up front what the values are going to be.
+     */
+    @Test
+    public void testTabularData() throws Exception {
+
+        MapMXBean mapMXBean = new MapMXBean();
+        try {
+            MetricPoller poller = new JmxMetricPoller(
+                    new LocalJmxConnector(),
+                    new ObjectName("com.netflix.servo.test:*"),
+                    MATCH_ALL);
+
+            List<Metric> metrics = poller.poll(new MetricFilter() {
+                @Override
+                public boolean matches(MonitorConfig config) {
+                    return config.getName().equals("Count");
+                }
+            });
+            assertEquals(metrics.size(), 2);
+            Map<String, Integer> values = new HashMap<String, Integer>();
+            for (Metric m : metrics) {
+                values.put(m.getConfig().getTags().getTag("JmxCompositePath").getValue(), (Integer)m.getValue());
+            }
+            assertEquals(values.get("Entry1"), (Integer)111);
+            assertEquals(values.get("Entry2"), (Integer)222);
+        } finally {
+            mapMXBean.destroy();
+        }
+    }
+
+    public interface TestMapMXBean {
+        Map<String, Integer> getCount();
+
+        String getStringValue();
+    }
+
+    public static class MapMXBean implements TestMapMXBean {
+
+        private final ObjectName objectName;
+
+        MapMXBean() throws Exception {
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            objectName = new ObjectName("com.netflix.servo.test", "Test", "Obj");
+            destroy();
+            mbs.registerMBean(this, objectName);
+        }
+
+        public void destroy() throws Exception {
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            if (mbs.isRegistered(objectName)) {
+                mbs.unregisterMBean(objectName);
+            }
+        }
+
+        @Override
+        public Map<String, Integer> getCount() {
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            map.put("Entry1", 111);
+            map.put("Entry2", 222);
+            return map;
+        }
+
+        @Override
+        public String getStringValue() {
+            return "AStringResult";
+        }
+    }
+
+    @Test
+    public void testDefaultTags() throws Exception {
+        MetricPoller poller = new JmxMetricPoller(
+                new LocalJmxConnector(),
+                Collections.singletonList(new ObjectName("java.lang:type=OperatingSystem")),
+                MATCH_ALL,
+                true,
+                Collections.singletonList(Tags.newTag("HostName", "localhost")));
+
+        List<Metric> metrics = poller.poll(MATCH_ALL);
+        for (Metric m : metrics) {
+            Map<String, String> tags = m.getConfig().getTags().asMap();
+            assertEquals(tags.get("HostName"), "localhost");
+        }
+    }
+
+    @Test
+    public void testNonNumericMetrics() throws Exception {
+        MapMXBean mapMXBean = new MapMXBean();
+        try {
+            MetricPoller poller = new JmxMetricPoller(
+                    new LocalJmxConnector(),
+                    Collections.singletonList(new ObjectName("com.netflix.servo.test:*")),
+                    MATCH_ALL,
+                    false,
+                    null);
+
+            List<Metric> metrics = poller.poll(new MetricFilter() {
+                @Override
+                public boolean matches(MonitorConfig config) {
+                    return config.getName().equals("StringValue");
+                }
+            });
+            assertEquals(metrics.size(), 1);
+            assertEquals(metrics.get(0).getValue(), "AStringResult");
+        } finally {
+            mapMXBean.destroy();
+        }
+    }
 }
