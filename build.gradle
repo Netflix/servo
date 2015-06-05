@@ -38,12 +38,6 @@ subprojects {
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
 
-  javadoc {
-    options {
-      verbose = true
-    }
-  }
-
   tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
   }
