@@ -21,11 +21,23 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Configuration options for a {@link com.netflix.servo.monitor.BucketTimer}.
- * <p/>
- * By default we publish count (number of times the timer was executed), totalTime, and
- * the counts and times for the following buckets: 0ms, 100ms, 200ms, 500ms,
- * 1000ms 2000ms, 3000ms, 5000ms
+ * Configuration options for buckets for a {@link BucketTimer}
+ *
+ * For example:
+ *
+ * <pre>
+ *      BucketConfig cfg = new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build());
+ * </pre>
+ *
+ * will create a configuration that will report buckets for &lt;= 10ms, (10ms, 20ms], and higher
+ * than 20ms. The default timeUnit is milliseconds but can be changed using the
+ * {@link BucketConfig.Builder#withTimeUnit(TimeUnit)} method.
+ *
+ * <p>
+ * The user must specify buckets otherwise a {@link NullPointerException} will be generated.
+ * </p>
+ *
+ * See {@link BucketTimer} for more details.
  */
 public final class BucketConfig {
 

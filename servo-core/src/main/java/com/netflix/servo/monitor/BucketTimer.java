@@ -29,9 +29,40 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * A simple timer implementation providing the total time, count, min, and max for the times that
- * have been recorded.
+ * A timer implementation using a bucketing approach
+ * that provides a way to get the distribution of samples if the primary
+ * range of values is known.
+ *
+ * For example the following code:
+ *
+ * <pre>
+ * BucketTimer t = new BucketTimer(
+ *    MonitorConfig.builder(name).build(),
+ *    new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build());
+ * </pre>
+ *
+ * will create a <code>BucketTimer</code> that in addition to the statistics:
+ *  <code>totalTime</code>, <code>min</code>, <code>max </code> will report:
+ *  <ul>
+ *     <li>statistic=count bucket=10ms</li>
+ *     <li>statistic=count bucket=20ms</li>
+ *     <li>statistic=count bucket=overflow</li>
+ *  </ul>
+ *
+ *  <ul>
+ *  <li>bucket=10ms will contain the number of samples that were recorded that were
+ *  lower or equal to 10.</li>
+ *
+ *  <li>bucket=20ms will contain the number of samples where the value was lower or equal to 20ms
+ *  and higher than 10.</li>
+ *
+ *  <li>bucket=overflow will contain the remaining entries.</li>
+ * </ul>
+ * Please note that there are no default pre-configured buckets since it is highly dependant
+ * on the use-case. If you fail to specify buckets in {@link BucketConfig} you will get a NPE.
+ *
  */
+
 public class BucketTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
 
     private static final String STATISTIC = "statistic";
