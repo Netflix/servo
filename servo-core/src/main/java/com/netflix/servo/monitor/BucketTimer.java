@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
  * For example the following code:
  *
  * <pre>
- BucketTimer t = new BucketTimer(
-     MonitorConfig.builder(name).build(),
-     new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build());
+ * BucketTimer t = new BucketTimer(
+ *    MonitorConfig.builder(name).build(),
+ *    new BucketConfig.Builder().withBuckets(new long[]{10L, 20L}).build());
  * </pre>
  *
  * will create a <code>BucketTimer</code> that in addition to the statistics:
