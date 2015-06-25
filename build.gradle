@@ -89,6 +89,7 @@ subprojects {
 
   findbugs {
     ignoreFailures = false 
+    sourceSets = [sourceSets.main]
   }
 
   tasks.withType(FindBugs) {
