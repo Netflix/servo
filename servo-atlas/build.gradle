@@ -4,4 +4,5 @@ dependencies {
   compile 'com.netflix.iep-shadow:iepshadow-iep-rxhttp:0.1.22.0' 
   compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
   compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jackson_version}"
+  jmh project(':servo-core')
 }

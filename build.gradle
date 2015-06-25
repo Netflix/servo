@@ -15,11 +15,16 @@
  */
 
 plugins {
-  id 'nebula.netflixoss' version '2.2.5'
+  id 'nebula.netflixoss' version '2.2.9'
+  id 'me.champeau.gradle.jmh' version '0.2.0'
 }
 
 ext {
   githubProjectName = 'servo'
+}
+
+allprojects {
+  apply plugin: 'me.champeau.gradle.jmh'
 }
 
 subprojects {
@@ -61,6 +66,15 @@ subprojects {
     testCompile 'org.testng:testng:6.1.1'
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
     testRuntime 'log4j:log4j:1.2.17'
+    jmh 'org.slf4j:slf4j-simple:1.7.12'
+  }
+
+  jmh {
+    warmupIterations = 2
+    iterations = 10
+    fork = 5
+    profilers = ['STACK']
+    include '.*'
   }
 
   checkstyle {
