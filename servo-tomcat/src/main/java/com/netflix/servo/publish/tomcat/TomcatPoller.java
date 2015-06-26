@@ -75,6 +75,7 @@ public class TomcatPoller extends BaseMetricPoller {
             "requestCount",
             "errorCount",
             "bytesSent",
+            "bytesReceived",
             "processingTime",
             "maxTime"
     };
