@@ -31,80 +31,81 @@ import java.util.List;
  */
 public final class UpdateRequest implements JsonPayload {
 
-  private final TagList tags;
-  private final List<AtlasMetric> metrics;
+    private final TagList tags;
+    private final List<AtlasMetric> metrics;
 
-  /**
-   * Create an UpdateRequest to be sent to atlas.
-   * @param tags common tags for all metrics in the request.
-   * @param metricsToSend Array of metrics to send.
-   * @param numMetrics How many metrics in the array metricsToSend should be sent. Note
-   *                   that this value needs to be lower or equal to metricsToSend.length
-   */
-  public UpdateRequest(TagList tags, Metric[] metricsToSend, int numMetrics) {
-    Preconditions.checkArgument(metricsToSend.length > 0, "metricsToSend is empty");
-    Preconditions.checkArgument(numMetrics > 0 && numMetrics <= metricsToSend.length,
-        "numMetrics is 0 or out of bounds");
+    /**
+     * Create an UpdateRequest to be sent to atlas.
+     *
+     * @param tags          common tags for all metrics in the request.
+     * @param metricsToSend Array of metrics to send.
+     * @param numMetrics    How many metrics in the array metricsToSend should be sent. Note
+     *                      that this value needs to be lower or equal to metricsToSend.length
+     */
+    public UpdateRequest(TagList tags, Metric[] metricsToSend, int numMetrics) {
+        Preconditions.checkArgument(metricsToSend.length > 0, "metricsToSend is empty");
+        Preconditions.checkArgument(numMetrics > 0 && numMetrics <= metricsToSend.length,
+                "numMetrics is 0 or out of bounds");
 
-    this.metrics = new ArrayList<AtlasMetric>(numMetrics);
-    for (int i = 0; i < numMetrics; ++i) {
-      Metric m = metricsToSend[i];
-      if (m.hasNumberValue()) {
-        metrics.add(new AtlasMetric(m));
-      }
+        this.metrics = new ArrayList<AtlasMetric>(numMetrics);
+        for (int i = 0; i < numMetrics; ++i) {
+            Metric m = metricsToSend[i];
+            if (m.hasNumberValue()) {
+                metrics.add(new AtlasMetric(m));
+            }
+        }
+
+        this.tags = tags;
     }
 
-    this.tags = tags;
-  }
-
-  TagList getTags() {
-    return tags;
-  }
-
-  List<AtlasMetric> getMetrics() {
-    return metrics;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof UpdateRequest)) {
-      return false;
+    TagList getTags() {
+        return tags;
     }
-    UpdateRequest req = (UpdateRequest) obj;
-    return tags.equals(req.getTags())
-        && metrics.equals(req.getMetrics());
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(tags, metrics);
-  }
-
-  @Override
-  public String toString() {
-    return "UpdateRequest{tags=" + tags + ", metrics=" + metrics + '}';
-  }
-
-  @Override
-  public void toJson(JsonGenerator gen) throws IOException {
-    gen.writeStartObject();
-
-    // common tags
-    gen.writeObjectFieldStart("tags");
-    for (Tag tag : tags) {
-      gen.writeStringField(
-          ValidCharacters.toValidCharset(tag.getKey()),
-          ValidCharacters.toValidCharset(tag.getValue()));
+    List<AtlasMetric> getMetrics() {
+        return metrics;
     }
-    gen.writeEndObject();
 
-    gen.writeArrayFieldStart("metrics");
-    for (AtlasMetric m : metrics) {
-      m.toJson(gen);
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof UpdateRequest)) {
+            return false;
+        }
+        UpdateRequest req = (UpdateRequest) obj;
+        return tags.equals(req.getTags())
+                && metrics.equals(req.getMetrics());
     }
-    gen.writeEndArray();
 
-    gen.writeEndObject();
-    gen.flush();
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(tags, metrics);
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateRequest{tags=" + tags + ", metrics=" + metrics + '}';
+    }
+
+    @Override
+    public void toJson(JsonGenerator gen) throws IOException {
+        gen.writeStartObject();
+
+        // common tags
+        gen.writeObjectFieldStart("tags");
+        for (Tag tag : tags) {
+            gen.writeStringField(
+                    ValidCharacters.toValidCharset(tag.getKey()),
+                    ValidCharacters.toValidCharset(tag.getValue()));
+        }
+        gen.writeEndObject();
+
+        gen.writeArrayFieldStart("metrics");
+        for (AtlasMetric m : metrics) {
+            m.toJson(gen);
+        }
+        gen.writeEndArray();
+
+        gen.writeEndObject();
+        gen.flush();
+    }
 }
