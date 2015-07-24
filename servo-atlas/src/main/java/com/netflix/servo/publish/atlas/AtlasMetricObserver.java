@@ -143,7 +143,8 @@ public class AtlasMetricObserver implements MetricObserver {
     protected static boolean isRate(Metric m) {
         final TagList tags = m.getConfig().getTags();
         final String value = tags.getValue(DataSourceType.KEY);
-        return value != null && value.equals(DataSourceType.RATE.name());
+        return DataSourceType.RATE.name().equals(value)
+                || DataSourceType.NORMALIZED.name().equals(value);
     }
 
     protected static List<Metric> identifyDsTypes(List<Metric> metrics) {
