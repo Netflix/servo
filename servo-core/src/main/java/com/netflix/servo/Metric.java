@@ -23,87 +23,101 @@ import com.netflix.servo.util.Preconditions;
  * Represents a metric value at a given point in time.
  */
 public final class Metric {
-    private final MonitorConfig config;
-    private final long timestamp;
-    private final Object value;
+  private final MonitorConfig config;
+  private final long timestamp;
+  private final Object value;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param name       name of the metric
-     * @param tags       tags associated with the metric
-     * @param timestamp  point in time when the metric value was sampled
-     * @param value      value of the metric
-     */
-    public Metric(String name, TagList tags, long timestamp, Object value) {
-        this(new MonitorConfig.Builder(name).withTags(tags).build(), timestamp, value);
+  /**
+   * Creates a new instance.
+   *
+   * @param name      name of the metric
+   * @param tags      tags associated with the metric
+   * @param timestamp point in time when the metric value was sampled
+   * @param value     value of the metric
+   */
+  public Metric(String name, TagList tags, long timestamp, Object value) {
+    this(new MonitorConfig.Builder(name).withTags(tags).build(), timestamp, value);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param config    config settings associated with the metric
+   * @param timestamp point in time when the metric value was sampled
+   * @param value     value of the metric
+   */
+  public Metric(MonitorConfig config, long timestamp, Object value) {
+    this.config = Preconditions.checkNotNull(config, "config");
+    this.timestamp = timestamp;
+    this.value = Preconditions.checkNotNull(value, "value");
+  }
+
+  /**
+   * Returns the config settings associated with the metric.
+   */
+  public MonitorConfig getConfig() {
+    return config;
+  }
+
+  /**
+   * Returns the point in time when the metric was sampled.
+   */
+  public long getTimestamp() {
+    return timestamp;
+  }
+
+  /**
+   * Returns the value of the metric.
+   */
+  public Object getValue() {
+    return value;
+  }
+
+  /**
+   * Returns the value of the metric as a number.
+   */
+  public Number getNumberValue() {
+    return (Number) value;
+  }
+
+  /**
+   * Returns true if the value for this metric is numeric.
+   */
+  public boolean hasNumberValue() {
+    return (value instanceof Number);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null || !(obj instanceof Metric)) {
+      return false;
     }
+    Metric m = (Metric) obj;
+    return config.equals(m.getConfig())
+        && timestamp == m.getTimestamp()
+        && value.equals(m.getValue());
+  }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param config     config settings associated with the metric
-     * @param timestamp  point in time when the metric value was sampled
-     * @param value      value of the metric
-     */
-    public Metric(MonitorConfig config, long timestamp, Object value) {
-        this.config = Preconditions.checkNotNull(config, "config");
-        this.timestamp = timestamp;
-        this.value = Preconditions.checkNotNull(value, "value");
-    }
-
-    /** Returns the config settings associated with the metric. */
-    public MonitorConfig getConfig() {
-        return config;
-    }
-
-    /** Returns the point in time when the metric was sampled. */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /** Returns the value of the metric. */
-    public Object getValue() {
-        return value;
-    }
-
-    /**
-     * Returns the value of the metric as a number.
-     */
-    public Number getNumberValue() {
-        return (Number) value;
-    }
-
-    /** Returns true if the value for this metric is numeric. */
-    public boolean hasNumberValue() {
-        return (value instanceof Number);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Metric)) {
-            return false;
-        }
-        Metric m = (Metric) obj;
-        return config.equals(m.getConfig())
-            && timestamp == m.getTimestamp()
-            && value.equals(m.getValue());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        int result = config.hashCode();
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + value.hashCode();
-        return result;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    int result = config.hashCode();
+    result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+    result = 31 * result + value.hashCode();
+    return result;
+  }
 
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "Metric{config=" + config + ", timestamp=" + timestamp + ", value=" + value + '}';
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return "Metric{config=" + config + ", timestamp=" + timestamp + ", value=" + value + '}';
+  }
 }

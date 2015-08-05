@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,51 +26,59 @@ import java.lang.reflect.Method;
  */
 class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericMonitor<Number> {
 
-    private final Object object;
-    private final AccessibleObject field;
+  private final Object object;
+  private final AccessibleObject field;
 
-    AnnotatedNumberMonitor(MonitorConfig config, Object object, AccessibleObject field) {
-        super(config);
-        this.object = object;
-        this.field = field;
-    }
+  AnnotatedNumberMonitor(MonitorConfig config, Object object, AccessibleObject field) {
+    super(config);
+    this.object = object;
+    this.field = field;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public Number getValue(int pollerIdx) {
-        try {
-            field.setAccessible(true);
-            if (field instanceof Field) {
-                return (Number) ((Field) field).get(object);
-            } else {
-                return (Number) ((Method) field).invoke(object);
-            }
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Number getValue(int pollerIdx) {
+    try {
+      field.setAccessible(true);
+      if (field instanceof Field) {
+        return (Number) ((Field) field).get(object);
+      } else {
+        return (Number) ((Method) field).invoke(object);
+      }
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
     }
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof AnnotatedNumberMonitor)) {
-            return false;
-        }
-        AnnotatedNumberMonitor m = (AnnotatedNumberMonitor) obj;
-        return config.equals(m.getConfig()) && field.equals(m.field);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null || !(obj instanceof AnnotatedNumberMonitor)) {
+      return false;
     }
+    AnnotatedNumberMonitor m = (AnnotatedNumberMonitor) obj;
+    return config.equals(m.getConfig()) && field.equals(m.field);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        int result = config.hashCode();
-        result = 31 * result + field.hashCode();
-        return result;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    int result = config.hashCode();
+    result = 31 * result + field.hashCode();
+    return result;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "AnnotatedNumberMonitor{config=" + config + ", field=" + field + '}';
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return "AnnotatedNumberMonitor{config=" + config + ", field=" + field + '}';
+  }
 }

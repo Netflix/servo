@@ -34,114 +34,115 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 public class DynamicTimerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimerTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTimerTest.class);
 
-    private DynamicTimer getInstance() throws Exception {
-        Field theInstance = DynamicTimer.class.getDeclaredField("INSTANCE");
-        theInstance.setAccessible(true);
-        return (DynamicTimer) theInstance.get(null);
+  private DynamicTimer getInstance() throws Exception {
+    Field theInstance = DynamicTimer.class.getDeclaredField("INSTANCE");
+    theInstance.setAccessible(true);
+    return (DynamicTimer) theInstance.get(null);
+  }
+
+  private List<Monitor<?>> getTimers() throws Exception {
+    return getInstance().getMonitors();
+  }
+
+  private final TagList tagList = BasicTagList.of("PLATFORM", "true");
+
+
+  private Timer getByName(String name) throws Exception {
+    List<Monitor<?>> timers = getTimers();
+    for (Monitor<?> m : timers) {
+      String monitorName = m.getConfig().getName();
+      if (name.equals(monitorName)) {
+        return (Timer) m;
+      }
     }
+    return null;
+  }
 
-    private List<Monitor<?>> getTimers() throws Exception {
-        return getInstance().getMonitors();
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testHasUnitTag() throws Exception {
+    DynamicTimer.start("test1", tagList);
+    CompositeMonitor c = (CompositeMonitor<Long>) getByName("test1");
+    List<Monitor<?>> monitors = c.getMonitors();
+    for (Monitor<?> m : monitors) {
+      Tag type = m.getConfig().getTags().getTag("unit");
+      assertEquals(type.getValue(), "MILLISECONDS");
     }
+  }
 
-    private final TagList tagList = BasicTagList.of("PLATFORM", "true");
+  final ManualClock clock = new ManualClock(0L);
 
+  /**
+   * Erase all previous timers by creating a new loading cache with a short expiration time
+   */
+  @BeforeMethod
+  public void setupInstance() throws Exception {
+    LOGGER.info("Setting up DynamicTimer instance with a new cache");
+    DynamicTimer theInstance = getInstance();
+    Field timers = DynamicTimer.class.getDeclaredField("timers");
+    timers.setAccessible(true);
+    ExpiringCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
+        new ExpiringCache<DynamicTimer.ConfigUnit, Timer>(1000L,
+            new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
+              @Override
+              public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
+                return new BasicTimer(configUnit.getConfig(), configUnit.getUnit());
+              }
+            }, 100L, clock);
 
-    private Timer getByName(String name) throws Exception {
-        List<Monitor<?>> timers = getTimers();
-        for (Monitor<?> m : timers) {
-            String monitorName = m.getConfig().getName();
-            if (name.equals(monitorName)) {
-                return (Timer) m;
-            }
-        }
-        return null;
-    }
+    timers.set(theInstance, newShortExpiringCache);
+  }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testHasUnitTag() throws Exception {
-        DynamicTimer.start("test1", tagList);
-        CompositeMonitor c = (CompositeMonitor<Long>) getByName("test1");
-        List<Monitor<?>> monitors = c.getMonitors();
-        for (Monitor<?> m : monitors) {
-            Tag type = m.getConfig().getTags().getTag("unit");
-            assertEquals(type.getValue(), "MILLISECONDS");
-        }
-    }
+  @Test
+  public void testGetValue() throws Exception {
+    Stopwatch s = DynamicTimer.start("test1", tagList);
+    Timer c = getByName("test1");
+    s.stop();
+    // we don't call s.stop(), so we only have one recorded value
+    assertEquals(c.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
+    c.record(13, TimeUnit.MILLISECONDS);
 
-    final ManualClock clock = new ManualClock(0L);
-    /**
-     * Erase all previous timers by creating a new loading cache with a short expiration time
-     */
-    @BeforeMethod
-    public void setupInstance() throws Exception {
-        LOGGER.info("Setting up DynamicTimer instance with a new cache");
-        DynamicTimer theInstance = getInstance();
-        Field timers = DynamicTimer.class.getDeclaredField("timers");
-        timers.setAccessible(true);
-        ExpiringCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
-                new ExpiringCache<DynamicTimer.ConfigUnit, Timer>(1000L,
-                        new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
-                            @Override
-                            public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
-                                return new BasicTimer(configUnit.getConfig(), configUnit.getUnit());
-                            }
-                        }, 100L, clock);
+    long expected = (13 + s.getDuration(TimeUnit.MILLISECONDS)) / 2;
+    assertEquals(c.getValue().longValue(), expected);
+  }
 
-        timers.set(theInstance, newShortExpiringCache);
-    }
+  @Test
+  public void testExpiration() throws Exception {
+    clock.set(0L);
+    DynamicTimer.start("test1", tagList);
+    DynamicTimer.start("test2", tagList);
+    clock.set(500L);
 
-    @Test
-    public void testGetValue() throws Exception {
-        Stopwatch s = DynamicTimer.start("test1", tagList);
-        Timer c = getByName("test1");
-        s.stop();
-        // we don't call s.stop(), so we only have one recorded value
-        assertEquals(c.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
-        c.record(13, TimeUnit.MILLISECONDS);
+    DynamicTimer.start("test1", tagList);
+    clock.set(1000L);
 
-        long expected = (13 + s.getDuration(TimeUnit.MILLISECONDS)) / 2;
-        assertEquals(c.getValue().longValue(), expected);
-    }
+    Stopwatch s = DynamicTimer.start("test1", tagList);
+    clock.set(1200L);
+    s.stop();
+    Timer c1 = getByName("test1");
+    assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
 
-    @Test
-    public void testExpiration() throws Exception {
-        clock.set(0L);
-        DynamicTimer.start("test1", tagList);
-        DynamicTimer.start("test2", tagList);
-        clock.set(500L);
+    Thread.sleep(200L);
+    Timer c2 = getByName("test2");
+    assertNull(c2, "Timers not used in a while should expire");
+  }
 
-        DynamicTimer.start("test1", tagList);
-        clock.set(1000L);
+  @Test
+  public void testByStrings() throws Exception {
+    Stopwatch s = DynamicTimer.start("byName");
+    Stopwatch s2 = DynamicTimer.start("byName2", "key", "value");
 
-        Stopwatch s = DynamicTimer.start("test1", tagList);
-        clock.set(1200L);
-        s.stop();
-        Timer c1 = getByName("test1");
-        assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
+    Thread.sleep(100L);
 
-        Thread.sleep(200L);
-        Timer c2 = getByName("test2");
-        assertNull(c2, "Timers not used in a while should expire");
-    }
+    s.stop();
+    s2.stop();
 
-    @Test
-    public void testByStrings() throws Exception {
-        Stopwatch s = DynamicTimer.start("byName");
-        Stopwatch s2 = DynamicTimer.start("byName2", "key", "value");
+    Timer c1 = getByName("byName");
+    assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
 
-        Thread.sleep(100L);
-
-        s.stop();
-        s2.stop();
-
-        Timer c1 = getByName("byName");
-        assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
-
-        Timer c2 = getByName("byName2");
-        assertEquals(c2.getValue().longValue(), s2.getDuration(TimeUnit.MILLISECONDS));
-    }
+    Timer c2 = getByName("byName2");
+    assertEquals(c2.getValue().longValue(), s2.getDuration(TimeUnit.MILLISECONDS));
+  }
 }

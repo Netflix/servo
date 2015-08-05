@@ -23,34 +23,35 @@ import java.util.Iterator;
  * Static helpers for {@code String} instances.
  */
 public final class Strings {
-    private Strings() {
-    }
+  private Strings() {
+  }
 
-    /**
-     * Returns true if the given string is null or is the empty string.
-     */
-    public static boolean isNullOrEmpty(@Nullable String string) {
-        return string == null || string.isEmpty();
-    }
+  /**
+   * Returns true if the given string is null or is the empty string.
+   */
+  public static boolean isNullOrEmpty(@Nullable String string) {
+    return string == null || string.isEmpty();
+  }
 
-    /**
-     * Join the string representation of each part separated by the given separator string.
-     * @param separator Separator string. For example ","
-     * @param parts An iterator of the parts to join
-     * @return The string formed by joining each part separated by the given separator.
-     */
-    public static String join(String separator, Iterator<?> parts) {
-        Preconditions.checkNotNull(separator, "separator");
-        Preconditions.checkNotNull(parts, "parts");
+  /**
+   * Join the string representation of each part separated by the given separator string.
+   *
+   * @param separator Separator string. For example ","
+   * @param parts     An iterator of the parts to join
+   * @return The string formed by joining each part separated by the given separator.
+   */
+  public static String join(String separator, Iterator<?> parts) {
+    Preconditions.checkNotNull(separator, "separator");
+    Preconditions.checkNotNull(parts, "parts");
 
-        StringBuilder builder = new StringBuilder();
-        if (parts.hasNext()) {
-            builder.append(parts.next().toString());
-            while (parts.hasNext()) {
-                builder.append(separator);
-                builder.append(parts.next().toString());
-            }
-        }
-        return builder.toString();
+    StringBuilder builder = new StringBuilder();
+    if (parts.hasNext()) {
+      builder.append(parts.next().toString());
+      while (parts.hasNext()) {
+        builder.append(separator);
+        builder.append(parts.next().toString());
+      }
     }
+    return builder.toString();
+  }
 }

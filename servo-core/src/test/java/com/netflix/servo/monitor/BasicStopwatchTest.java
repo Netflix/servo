@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,51 +17,52 @@ package com.netflix.servo.monitor;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
+
+import static org.testng.Assert.assertTrue;
 
 public class BasicStopwatchTest {
-    private BasicStopwatch testStopwatch;
+  private BasicStopwatch testStopwatch;
 
-    @BeforeMethod
-    public void setupTest() throws Exception {
-        testStopwatch = new BasicStopwatch();
-    }
+  @BeforeMethod
+  public void setupTest() throws Exception {
+    testStopwatch = new BasicStopwatch();
+  }
 
-    @Test
-    public void testReset() throws Exception {
-        testStopwatch.start();
-        Thread.sleep(10);
-        testStopwatch.stop();
-        assertTrue(testStopwatch.getDuration() > 0);
+  @Test
+  public void testReset() throws Exception {
+    testStopwatch.start();
+    Thread.sleep(10);
+    testStopwatch.stop();
+    assertTrue(testStopwatch.getDuration() > 0);
 
-        testStopwatch.reset();
-        assertTrue(testStopwatch.getDuration() == 0);
-    }
+    testStopwatch.reset();
+    assertTrue(testStopwatch.getDuration() == 0);
+  }
 
-    @Test
-    public void testGetDuration() throws Exception {
-        testStopwatch.start();
-        Thread.sleep(10);
-        testStopwatch.stop();
+  @Test
+  public void testGetDuration() throws Exception {
+    testStopwatch.start();
+    Thread.sleep(10);
+    testStopwatch.stop();
 
-        assertTrue(testStopwatch.getDuration() > 9000000);
-    }
+    assertTrue(testStopwatch.getDuration() > 9000000);
+  }
 
-    @Test
-    public void testGetDurationBeforeStop() throws Exception {
-        testStopwatch.start();
-        Thread.sleep(10);
-        assertTrue(testStopwatch.getDuration() > 9000000);
-        testStopwatch.stop();
-        assertTrue(testStopwatch.getDuration() > 9000000);
-    }
+  @Test
+  public void testGetDurationBeforeStop() throws Exception {
+    testStopwatch.start();
+    Thread.sleep(10);
+    assertTrue(testStopwatch.getDuration() > 9000000);
+    testStopwatch.stop();
+    assertTrue(testStopwatch.getDuration() > 9000000);
+  }
 
-    @Test
-    public void testGetDurationWithUnit() throws Exception {
-        testStopwatch.start();
-        Thread.sleep(10);
-        testStopwatch.stop();
+  @Test
+  public void testGetDurationWithUnit() throws Exception {
+    testStopwatch.start();
+    Thread.sleep(10);
+    testStopwatch.stop();
 
-        assertTrue(testStopwatch.getDuration() > 12);
-    }
+    assertTrue(testStopwatch.getDuration() > 12);
+  }
 }

@@ -31,30 +31,34 @@ import java.util.List;
  */
 public abstract class BaseMetricPoller implements MetricPoller {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    /**
-     * Return a list of all current metrics for this poller.
-     */
-    public abstract List<Metric> pollImpl(boolean reset);
+  /**
+   * Return a list of all current metrics for this poller.
+   */
+  public abstract List<Metric> pollImpl(boolean reset);
 
-    /** {@inheritDoc} */
-    public final List<Metric> poll(MetricFilter filter) {
-        return poll(filter, false);
+  /**
+   * {@inheritDoc}
+   */
+  public final List<Metric> poll(MetricFilter filter) {
+    return poll(filter, false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public final List<Metric> poll(MetricFilter filter, boolean reset) {
+    Preconditions.checkNotNull(filter, "filter");
+    List<Metric> metrics = pollImpl(reset);
+    List<Metric> retained = new ArrayList<Metric>();
+    for (Metric m : metrics) {
+      if (filter.matches(m.getConfig())) {
+        retained.add(m);
+      }
     }
+    logger.debug("received {} metrics, retained {} metrics", metrics.size(), retained.size());
 
-    /** {@inheritDoc} */
-    public final List<Metric> poll(MetricFilter filter, boolean reset) {
-        Preconditions.checkNotNull(filter, "filter");
-        List<Metric> metrics = pollImpl(reset);
-        List<Metric> retained = new ArrayList<Metric>();
-        for (Metric m : metrics) {
-            if (filter.matches(m.getConfig())) {
-                retained.add(m);
-            }
-        }
-        logger.debug("received {} metrics, retained {} metrics", metrics.size(), retained.size());
-
-        return Collections.unmodifiableList(retained);
-    }
+    return Collections.unmodifiableList(retained);
+  }
 }

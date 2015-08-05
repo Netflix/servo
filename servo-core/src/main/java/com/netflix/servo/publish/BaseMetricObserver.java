@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.publish;
 
-import com.netflix.servo.util.Throwables;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
@@ -26,6 +25,7 @@ import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.Throwables;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,65 +35,79 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and number of failures.
  */
 public abstract class BaseMetricObserver implements MetricObserver {
-    @MonitorTags
-    private final TagList tags;
+  @MonitorTags
+  private final TagList tags;
 
-    private final String name;
+  private final String name;
 
-    /** Total number of times update has been called. */
-    @Monitor(name = "updateCount", type = DataSourceType.COUNTER)
-    private final AtomicInteger updateCount = new AtomicInteger(0);
+  /**
+   * Total number of times update has been called.
+   */
+  @Monitor(name = "updateCount", type = DataSourceType.COUNTER)
+  private final AtomicInteger updateCount = new AtomicInteger(0);
 
-    /** Number of times update failed with an exception. */
-    @Monitor(name = "updateFailureCount", type = DataSourceType.COUNTER)
-    private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
+  /**
+   * Number of times update failed with an exception.
+   */
+  @Monitor(name = "updateFailureCount", type = DataSourceType.COUNTER)
+  private final AtomicInteger failedUpdateCount = new AtomicInteger(0);
 
-    /** Creates a new instance with a given name. */
-    public BaseMetricObserver(String name) {
-        final Tag id = Tags.newTag(StandardTagKeys.MONITOR_ID.getKeyName(), name);
-        this.name = Preconditions.checkNotNull(name, "name");
-        this.tags = BasicTagList.of(id);
+  /**
+   * Creates a new instance with a given name.
+   */
+  public BaseMetricObserver(String name) {
+    final Tag id = Tags.newTag(StandardTagKeys.MONITOR_ID.getKeyName(), name);
+    this.name = Preconditions.checkNotNull(name, "name");
+    this.tags = BasicTagList.of(id);
+  }
+
+  /**
+   * Update method that should be defined by sub-classes. This method will
+   * get invoked and counts will be maintained in the base observer.
+   */
+  public abstract void updateImpl(List<Metric> metrics);
+
+  /**
+   * {@inheritDoc}
+   */
+  public final void update(List<Metric> metrics) {
+    Preconditions.checkNotNull(metrics, "metrics");
+    try {
+      updateImpl(metrics);
+    } catch (Throwable t) {
+      failedUpdateCount.incrementAndGet();
+      throw Throwables.propagate(t);
+    } finally {
+      updateCount.incrementAndGet();
     }
+  }
 
-    /**
-     * Update method that should be defined by sub-classes. This method will
-     * get invoked and counts will be maintained in the base observer.
-     */
-    public abstract void updateImpl(List<Metric> metrics);
+  /**
+   * {@inheritDoc}
+   */
+  public final String getName() {
+    return name;
+  }
 
-    /** {@inheritDoc} */
-    public final void update(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics, "metrics");
-        try {
-            updateImpl(metrics);
-        } catch (Throwable t) {
-            failedUpdateCount.incrementAndGet();
-            throw Throwables.propagate(t);
-        } finally {
-            updateCount.incrementAndGet();
-        }
-    }
+  /**
+   * Can be used by sub-classes to increment the failed count if they handle
+   * exception internally.
+   */
+  protected final void incrementFailedCount() {
+    failedUpdateCount.incrementAndGet();
+  }
 
-    /** {@inheritDoc} */
-    public final String getName() {
-        return name;
-    }
+  /**
+   * Returns the total number of times update has been called.
+   */
+  public int getUpdateCount() {
+    return updateCount.get();
+  }
 
-    /**
-     * Can be used by sub-classes to increment the failed count if they handle
-     * exception internally.
-     */
-    protected final void incrementFailedCount() {
-        failedUpdateCount.incrementAndGet();
-    }
-
-    /** Returns the total number of times update has been called. */
-    public int getUpdateCount() {
-        return updateCount.get();
-    }
-
-    /** Returns the number of times update failed with an exception. */
-    public int getFailedUpdateCount() {
-        return failedUpdateCount.get();
-    }
+  /**
+   * Returns the number of times update failed with an exception.
+   */
+  public int getFailedUpdateCount() {
+    return failedUpdateCount.get();
+  }
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,14 +15,14 @@
  */
 package com.netflix.servo.monitor;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
-
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.netflix.servo.annotations.DataSourceType.GAUGE;
 
 public class ParentHasMonitors extends ClassWithMonitors {
 
-    private final Counter c = Monitors.newCounter("myCounter");
+  private final Counter c = Monitors.newCounter("myCounter");
 
-    @com.netflix.servo.annotations.Monitor(name = "myGauge", type = GAUGE)
-    private final AtomicLong a1 = new AtomicLong(0L);
+  @com.netflix.servo.annotations.Monitor(name = "myGauge", type = GAUGE)
+  private final AtomicLong a1 = new AtomicLong(0L);
 }

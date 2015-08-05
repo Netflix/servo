@@ -28,37 +28,37 @@ import static org.testng.Assert.assertTrue;
 
 public class StringsTest {
 
-    @Test
-    public void testIsNullOrEmpty() throws Exception {
-        assertTrue(Strings.isNullOrEmpty(null));
-        assertTrue(Strings.isNullOrEmpty(""));
-        assertFalse(Strings.isNullOrEmpty(" "));
-        assertFalse(Strings.isNullOrEmpty("adsf"));
-    }
+  @Test
+  public void testIsNullOrEmpty() throws Exception {
+    assertTrue(Strings.isNullOrEmpty(null));
+    assertTrue(Strings.isNullOrEmpty(""));
+    assertFalse(Strings.isNullOrEmpty(" "));
+    assertFalse(Strings.isNullOrEmpty("adsf"));
+  }
 
-    private static <T> Iterator<T> emptyIterator() {
-        return new Iterator<T>() {
-            @Override
-            public boolean hasNext() {
-                return false;
-            }
+  private static <T> Iterator<T> emptyIterator() {
+    return new Iterator<T>() {
+      @Override
+      public boolean hasNext() {
+        return false;
+      }
 
-            @Override
-            public T next() {
-                throw new NoSuchElementException();
-            }
+      @Override
+      public T next() {
+        throw new NoSuchElementException();
+      }
 
-            @Override
-            public void remove() {
-                throw new IllegalStateException();
-            }
-        };
-    }
+      @Override
+      public void remove() {
+        throw new IllegalStateException();
+      }
+    };
+  }
 
-    @Test
-    public void testJoin() throws Exception {
-        assertEquals(Strings.join(", ", emptyIterator()), "");
-        assertEquals(Strings.join(", ", Arrays.asList(1).iterator()), "1");
-        assertEquals(Strings.join(", ", Arrays.asList(1, 2).iterator()), "1, 2");
-    }
+  @Test
+  public void testJoin() throws Exception {
+    assertEquals(Strings.join(", ", emptyIterator()), "");
+    assertEquals(Strings.join(", ", Arrays.asList(1).iterator()), "1");
+    assertEquals(Strings.join(", ", Arrays.asList(1, 2).iterator()), "1, 2");
+  }
 }

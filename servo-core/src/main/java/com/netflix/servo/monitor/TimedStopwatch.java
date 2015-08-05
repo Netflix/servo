@@ -23,18 +23,22 @@ import java.util.concurrent.TimeUnit;
  * Stopwatch that will also record to a timer.
  */
 public class TimedStopwatch extends BasicStopwatch {
-    private final Timer timer;
+  private final Timer timer;
 
-    /** Create a new instance with the specified timer. */
-    public TimedStopwatch(Timer timer) {
-        Preconditions.checkNotNull(timer, "timer");
-        this.timer = timer;
-    }
+  /**
+   * Create a new instance with the specified timer.
+   */
+  public TimedStopwatch(Timer timer) {
+    Preconditions.checkNotNull(timer, "timer");
+    this.timer = timer;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public void stop() {
-        super.stop();
-        timer.record(getDuration(), TimeUnit.NANOSECONDS);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop() {
+    super.stop();
+    timer.record(getDuration(), TimeUnit.NANOSECONDS);
+  }
 }

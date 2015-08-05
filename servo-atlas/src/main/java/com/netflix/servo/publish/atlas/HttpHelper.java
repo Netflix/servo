@@ -51,199 +51,199 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Singleton
 public final class HttpHelper {
-    private static final JsonFactory SMILE_FACTORY = new SmileFactory();
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
-    private static final String SMILE_CONTENT_TYPE = "application/x-jackson-smile";
+  private static final JsonFactory SMILE_FACTORY = new SmileFactory();
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
+  private static final String SMILE_CONTENT_TYPE = "application/x-jackson-smile";
 
-    private final RxHttp rxHttp;
+  private final RxHttp rxHttp;
+
+  /**
+   * An HTTP Response. For internal use of servo only.
+   */
+  public static class Response {
+    private int status;
+    private byte[] body;
+    private HttpResponseHeaders headers;
 
     /**
-     * An HTTP Response. For internal use of servo only.
+     * Get the HTTP status code.
      */
-    public static class Response {
-        private int status;
-        private byte[] body;
-        private HttpResponseHeaders headers;
-
-        /**
-         * Get the HTTP status code.
-         */
-        public int getStatus() {
-            return status;
-        }
-
-        /**
-         * Get the body of the response as a byte array.
-         * You must treat the returned array as read-only.
-         */
-        @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "EI_EXPOSE_REP",
-                justification =
-                        "For efficiency we trust callers will treat the array as read-only.")
-        public byte[] getBody() {
-            return body;
-        }
-
-        /**
-         * Get the rxnetty {@link HttpResponseHeaders} for this response.
-         */
-        public HttpResponseHeaders getHeaders() {
-            return headers;
-        }
+    public int getStatus() {
+      return status;
     }
 
     /**
-     * Create a new HttpHelper using the given {@link RxHttp} instance.
+     * Get the body of the response as a byte array.
+     * You must treat the returned array as read-only.
      */
-    @Inject
-    public HttpHelper(RxHttp rxHttp) {
-        this.rxHttp = rxHttp;
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "EI_EXPOSE_REP",
+        justification =
+            "For efficiency we trust callers will treat the array as read-only.")
+    public byte[] getBody() {
+      return body;
     }
 
     /**
-     * Get the underlying {@link RxHttp} instance.
+     * Get the rxnetty {@link HttpResponseHeaders} for this response.
      */
-    public RxHttp getRxHttp() {
-        return rxHttp;
+    public HttpResponseHeaders getHeaders() {
+      return headers;
     }
+  }
 
-    /**
-     * POST to the given URI the passed {@link JsonPayload}.
-     */
-    public Observable<HttpClientResponse<ByteBuf>>
-    postSmile(String uriStr, JsonPayload payload) {
-        byte[] entity = toByteArray(SMILE_FACTORY, payload);
-        URI uri = URI.create(uriStr);
-        return rxHttp.post(uri, SMILE_CONTENT_TYPE, entity);
+  /**
+   * Create a new HttpHelper using the given {@link RxHttp} instance.
+   */
+  @Inject
+  public HttpHelper(RxHttp rxHttp) {
+    this.rxHttp = rxHttp;
+  }
+
+  /**
+   * Get the underlying {@link RxHttp} instance.
+   */
+  public RxHttp getRxHttp() {
+    return rxHttp;
+  }
+
+  /**
+   * POST to the given URI the passed {@link JsonPayload}.
+   */
+  public Observable<HttpClientResponse<ByteBuf>>
+  postSmile(String uriStr, JsonPayload payload) {
+    byte[] entity = toByteArray(SMILE_FACTORY, payload);
+    URI uri = URI.create(uriStr);
+    return rxHttp.post(uri, SMILE_CONTENT_TYPE, entity);
+  }
+
+  private byte[] toByteArray(JsonFactory factory, JsonPayload payload) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      JsonGenerator gen = factory.createGenerator(baos, JsonEncoding.UTF8);
+      payload.toJson(gen);
+      gen.close();
+      baos.close();
+      return baos.toByteArray();
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
     }
+  }
 
-    private byte[] toByteArray(JsonFactory factory, JsonPayload payload) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            JsonGenerator gen = factory.createGenerator(baos, JsonEncoding.UTF8);
-            payload.toJson(gen);
-            gen.close();
-            baos.close();
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw Throwables.propagate(e);
+  private void logErr(String prefix, Throwable e, int sent, int total) {
+    if (LOGGER.isWarnEnabled()) {
+      final Throwable cause = e.getCause() != null ? e.getCause() : e;
+      String msg = String.format("%s exception %s:%s Sent %d/%d",
+          prefix,
+          cause.getClass().getSimpleName(), cause.getMessage(),
+          sent, total);
+      LOGGER.warn(msg);
+      if (cause instanceof CompositeException) {
+        CompositeException ce = (CompositeException) cause;
+        for (Throwable t : ce.getExceptions()) {
+          LOGGER.warn(" Exception {}: {}", t.getClass().getSimpleName(), t.getMessage());
         }
+      }
+    }
+  }
+
+  /**
+   * Attempt to send all the batches totalling numMetrics in the allowed time.
+   *
+   * @return The total number of metrics sent.
+   */
+  public int sendAll(Iterable<Observable<Integer>> batches,
+                     final int numMetrics, long timeoutMillis) {
+    final AtomicBoolean err = new AtomicBoolean(false);
+    final AtomicInteger updated = new AtomicInteger(0);
+    LOGGER.debug("Got {} ms to send {} metrics", timeoutMillis, numMetrics);
+    try {
+      final CountDownLatch completed = new CountDownLatch(1);
+      final Subscription s = Observable.mergeDelayError(Observable.from(batches))
+          .timeout(timeoutMillis, TimeUnit.MILLISECONDS)
+          .subscribeOn(Schedulers.immediate())
+          .subscribe(new Action1<Integer>() {
+            @Override
+            public void call(Integer batchSize) {
+              updated.addAndGet(batchSize);
+            }
+          }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable exc) {
+              logErr("onError caught", exc, updated.get(), numMetrics);
+              err.set(true);
+              completed.countDown();
+            }
+          }, new Action0() {
+            @Override
+            public void call() {
+              completed.countDown();
+            }
+          });
+      try {
+        completed.await(timeoutMillis, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException interrupted) {
+        err.set(true);
+        s.unsubscribe();
+        LOGGER.warn("Timed out sending metrics. {}/{} sent", updated.get(), numMetrics);
+      }
+    } catch (Exception e) {
+      err.set(true);
+      logErr("Unexpected ", e, updated.get(), numMetrics);
     }
 
-    private void logErr(String prefix, Throwable e, int sent, int total) {
-        if (LOGGER.isWarnEnabled()) {
-            final Throwable cause = e.getCause() != null ? e.getCause() : e;
-            String msg = String.format("%s exception %s:%s Sent %d/%d",
-                    prefix,
-                    cause.getClass().getSimpleName(), cause.getMessage(),
-                    sent, total);
-            LOGGER.warn(msg);
-            if (cause instanceof CompositeException) {
-                CompositeException ce = (CompositeException) cause;
-                for (Throwable t : ce.getExceptions()) {
-                    LOGGER.warn(" Exception {}: {}", t.getClass().getSimpleName(), t.getMessage());
+    if (updated.get() < numMetrics && !err.get()) {
+      LOGGER.warn("No error caught, but only {}/{} sent.", updated.get(), numMetrics);
+    }
+    return updated.get();
+  }
+
+  /**
+   * Perform an HTTP get in the allowed time.
+   */
+  public Response get(HttpClientRequest<ByteBuf> req, long timeout, TimeUnit timeUnit) {
+    final String uri = req.getUri();
+    final Response result = new Response();
+    try {
+      final Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>> process = new
+          Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>>() {
+            @Override
+            public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
+              result.status = response.getStatus().code();
+              result.headers = response.getHeaders();
+              final Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream>
+                  accumulator = new Func2<ByteArrayOutputStream, ByteBuf,
+                  ByteArrayOutputStream>() {
+                @Override
+                public ByteArrayOutputStream call(
+                    ByteArrayOutputStream baos, ByteBuf bb) {
+                  try {
+                    bb.readBytes(baos, bb.readableBytes());
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                  return baos;
                 }
+              };
+              return response.getContent()
+                  .reduce(new ByteArrayOutputStream(), accumulator)
+                  .map(new Func1<ByteArrayOutputStream, byte[]>() {
+                    @Override
+                    public byte[] call(ByteArrayOutputStream baos) {
+                      return baos.toByteArray();
+                    }
+                  });
             }
-        }
+          };
+
+      result.body = rxHttp.submit(req)
+          .flatMap(process)
+          .subscribeOn(Schedulers.io())
+          .toBlocking()
+          .toFuture()
+          .get(timeout, timeUnit);
+      return result;
+    } catch (Exception e) {
+      throw new RuntimeException("failed to get url: " + uri, e);
     }
-
-    /**
-     * Attempt to send all the batches totalling numMetrics in the allowed time.
-     *
-     * @return The total number of metrics sent.
-     */
-    public int sendAll(Iterable<Observable<Integer>> batches,
-                       final int numMetrics, long timeoutMillis) {
-        final AtomicBoolean err = new AtomicBoolean(false);
-        final AtomicInteger updated = new AtomicInteger(0);
-        LOGGER.debug("Got {} ms to send {} metrics", timeoutMillis, numMetrics);
-        try {
-            final CountDownLatch completed = new CountDownLatch(1);
-            final Subscription s = Observable.mergeDelayError(Observable.from(batches))
-                    .timeout(timeoutMillis, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.immediate())
-                    .subscribe(new Action1<Integer>() {
-                        @Override
-                        public void call(Integer batchSize) {
-                            updated.addAndGet(batchSize);
-                        }
-                    }, new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable exc) {
-                            logErr("onError caught", exc, updated.get(), numMetrics);
-                            err.set(true);
-                            completed.countDown();
-                        }
-                    }, new Action0() {
-                        @Override
-                        public void call() {
-                            completed.countDown();
-                        }
-                    });
-            try {
-                completed.await(timeoutMillis, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException interrupted) {
-                err.set(true);
-                s.unsubscribe();
-                LOGGER.warn("Timed out sending metrics. {}/{} sent", updated.get(), numMetrics);
-            }
-        } catch (Exception e) {
-            err.set(true);
-            logErr("Unexpected ", e, updated.get(), numMetrics);
-        }
-
-        if (updated.get() < numMetrics && !err.get()) {
-            LOGGER.warn("No error caught, but only {}/{} sent.", updated.get(), numMetrics);
-        }
-        return updated.get();
-    }
-
-    /**
-     * Perform an HTTP get in the allowed time.
-     */
-    public Response get(HttpClientRequest<ByteBuf> req, long timeout, TimeUnit timeUnit) {
-        final String uri = req.getUri();
-        final Response result = new Response();
-        try {
-            final Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>> process = new
-                    Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>>() {
-                        @Override
-                        public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-                            result.status = response.getStatus().code();
-                            result.headers = response.getHeaders();
-                            final Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream>
-                                    accumulator = new Func2<ByteArrayOutputStream, ByteBuf,
-                                    ByteArrayOutputStream>() {
-                                        @Override
-                                        public ByteArrayOutputStream call(
-                                                ByteArrayOutputStream baos, ByteBuf bb) {
-                                            try {
-                                                bb.readBytes(baos, bb.readableBytes());
-                                            } catch (IOException e) {
-                                                throw new RuntimeException(e);
-                                            }
-                                            return baos;
-                                        }
-                                    };
-                            return response.getContent()
-                                    .reduce(new ByteArrayOutputStream(), accumulator)
-                                    .map(new Func1<ByteArrayOutputStream, byte[]>() {
-                                        @Override
-                                        public byte[] call(ByteArrayOutputStream baos) {
-                                            return baos.toByteArray();
-                                        }
-                                    });
-                        }
-                    };
-
-            result.body = rxHttp.submit(req)
-                    .flatMap(process)
-                    .subscribeOn(Schedulers.io())
-                    .toBlocking()
-                    .toFuture()
-                    .get(timeout, timeUnit);
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("failed to get url: " + uri, e);
-        }
-    }
+  }
 }

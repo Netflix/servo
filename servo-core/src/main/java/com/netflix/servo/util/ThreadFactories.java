@@ -24,27 +24,28 @@ import java.util.concurrent.atomic.AtomicLong;
  * Simple utility class to create thread factories.
  */
 public final class ThreadFactories {
-    private ThreadFactories() {
-    }
+  private ThreadFactories() {
+  }
 
-    private static ThreadFactory backingFactory = Executors.defaultThreadFactory();
+  private static ThreadFactory backingFactory = Executors.defaultThreadFactory();
 
-    /**
-     * Create a new {@link ThreadFactory} that produces daemon threads with a given name format.
-     * @param fmt String format: for example foo-%d
-     * @return a new {@link ThreadFactory}
-     */
-    public static ThreadFactory withName(final String fmt) {
-        return new ThreadFactory() {
-            private AtomicLong count = new AtomicLong(0);
+  /**
+   * Create a new {@link ThreadFactory} that produces daemon threads with a given name format.
+   *
+   * @param fmt String format: for example foo-%d
+   * @return a new {@link ThreadFactory}
+   */
+  public static ThreadFactory withName(final String fmt) {
+    return new ThreadFactory() {
+      private AtomicLong count = new AtomicLong(0);
 
-            @Override
-            public Thread newThread(Runnable r) {
-                final Thread t = backingFactory.newThread(r);
-                t.setDaemon(true);
-                t.setName(String.format(fmt, count.getAndIncrement()));
-                return t;
-            }
-        };
-    }
+      @Override
+      public Thread newThread(Runnable r) {
+        final Thread t = backingFactory.newThread(r);
+        t.setDaemon(true);
+        t.setName(String.format(fmt, count.getAndIncrement()));
+        return t;
+      }
+    };
+  }
 }

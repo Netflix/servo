@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import java.util.Date;
 
 //CHECKSTYLE.OFF: LineLength
+
 /**
  * Test program for exploring the limits for values that can be written to cloudwatch.
  *
@@ -43,79 +44,79 @@ import java.util.Date;
 //CHECKSTYLE.ON: LineLength
 final class CloudWatchValueTest {
 
-    private CloudWatchValueTest() {
+  private CloudWatchValueTest() {
+  }
+
+  private static final String ACCESS_KEY = "";
+  private static final String SECRET_KEY = "";
+
+  private static final AWSCredentials CREDENTIALS = new BasicAWSCredentials(ACCESS_KEY,
+      SECRET_KEY);
+  private static final AmazonCloudWatch CLIENT = new AmazonCloudWatchClient(CREDENTIALS);
+
+  private static final double[] SPECIAL_VALUES = {
+      Double.NaN,
+      Double.NEGATIVE_INFINITY,
+      Double.POSITIVE_INFINITY,
+      Double.MIN_VALUE,
+      Double.MAX_VALUE,
+      Math.pow(2.0, 360),
+      -Math.pow(2.0, 360),
+      0.0,
+      1.0,
+      -1.0
+  };
+
+  private static double[] getValues(double start, double multiplier, int n) {
+    double[] values = new double[n];
+    values[0] = start;
+    for (int i = 1; i < n; ++i) {
+      values[i] = values[i - 1] * multiplier;
+    }
+    return values;
+  }
+
+  private static boolean putValue(String name, long timestamp, double value) {
+    Date d = new Date(timestamp);
+    MetricDatum m = new MetricDatum().withMetricName(name).withTimestamp(d).withValue(value);
+    PutMetricDataRequest req = new PutMetricDataRequest().withNamespace("TEST")
+        .withMetricData(m);
+    try {
+      CLIENT.putMetricData(req);
+      return true;
+    } catch (Exception e) {
+      System.out.printf("ERROR %e %d - %s: %s%n",
+          value, Math.getExponent(value), e.getClass().getName(), e.getMessage());
+      return false;
+    }
+  }
+
+  private static void putValues(String name, long start, double[] values,
+                                boolean ignoreFailures) {
+    long t = start;
+    boolean succeeded = true;
+    for (int i = 0; (succeeded || ignoreFailures) && i < values.length; ++i, t += 60000) {
+      succeeded = putValue(name, t, values[i]);
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    if (args.length != 1) {
+      System.err.println("Usage: cwtest <test-name>");
+      System.exit(1);
     }
 
-    private static final String ACCESS_KEY = "";
-    private static final String SECRET_KEY = "";
+    long start = System.currentTimeMillis() - (1000 * 60 * 1000);
+    double[] posLargeValues = getValues(1.0, 2.0, 500);
+    double[] posSmallValues = getValues(1.0, 0.5, 500);
+    double[] negLargeValues = getValues(-1.0, 2.0, 500);
+    double[] negSmallValues = getValues(-1.0, 0.5, 500);
 
-    private static final AWSCredentials CREDENTIALS = new BasicAWSCredentials(ACCESS_KEY,
-            SECRET_KEY);
-    private static final AmazonCloudWatch CLIENT = new AmazonCloudWatchClient(CREDENTIALS);
-
-    private static final double[] SPECIAL_VALUES = {
-        Double.NaN,
-        Double.NEGATIVE_INFINITY,
-        Double.POSITIVE_INFINITY,
-        Double.MIN_VALUE,
-        Double.MAX_VALUE,
-        Math.pow(2.0, 360),
-        -Math.pow(2.0, 360),
-        0.0,
-        1.0,
-        -1.0
-    };
-
-    private static double[] getValues(double start, double multiplier, int n) {
-        double[] values = new double[n];
-        values[0] = start;
-        for (int i = 1; i < n; ++i) {
-            values[i] = values[i - 1] * multiplier;
-        }
-        return values;
-    }
-
-    private static boolean putValue(String name, long timestamp, double value) {
-        Date d = new Date(timestamp);
-        MetricDatum m = new MetricDatum().withMetricName(name).withTimestamp(d).withValue(value);
-        PutMetricDataRequest req = new PutMetricDataRequest().withNamespace("TEST")
-                .withMetricData(m);
-        try {
-            CLIENT.putMetricData(req);
-            return true;
-        } catch (Exception e) {
-            System.out.printf("ERROR %e %d - %s: %s%n",
-                value, Math.getExponent(value), e.getClass().getName(), e.getMessage());
-            return false;
-        }
-    }
-
-    private static void putValues(String name, long start, double[] values,
-                                  boolean ignoreFailures) {
-        long t = start;
-        boolean succeeded = true;
-        for (int i = 0; (succeeded || ignoreFailures) && i < values.length; ++i, t += 60000) {
-            succeeded = putValue(name, t, values[i]);
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Usage: cwtest <test-name>");
-            System.exit(1);
-        }
-
-        long start = System.currentTimeMillis() - (1000 * 60 * 1000);
-        double[] posLargeValues = getValues(1.0, 2.0, 500);
-        double[] posSmallValues = getValues(1.0, 0.5, 500);
-        double[] negLargeValues = getValues(-1.0, 2.0, 500);
-        double[] negSmallValues = getValues(-1.0, 0.5, 500);
-
-        putValues(args[0] + "_special", start, SPECIAL_VALUES, true);
-        putValues(args[0] + "_pos_large", start, posLargeValues, false);
-        putValues(args[0] + "_pos_small", start, posSmallValues, false);
-        putValues(args[0] + "_neg_large", start, negLargeValues, false);
-        putValues(args[0] + "_neg_small", start, negSmallValues, false);
-    }
+    putValues(args[0] + "_special", start, SPECIAL_VALUES, true);
+    putValues(args[0] + "_pos_large", start, posLargeValues, false);
+    putValues(args[0] + "_pos_small", start, posSmallValues, false);
+    putValues(args[0] + "_neg_large", start, negLargeValues, false);
+    putValues(args[0] + "_neg_small", start, negSmallValues, false);
+  }
 }
 

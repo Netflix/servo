@@ -25,32 +25,34 @@ import java.util.Set;
  * Utility class to create unmodifiable sets.
  */
 public final class UnmodifiableSet {
-    private UnmodifiableSet() {
-    }
+  private UnmodifiableSet() {
+  }
 
-    /**
-     * Returns an unmodifiable view of the set created from the given elements.
-     * @param elements Array of elements
-     * @param <E> type of the elements
-     * @return an unmodifiable view of the set created from the given elements.
-     */
-    public static <E> Set<E> of(E... elements) {
-        Set<E> result = new HashSet<E>();
-        Collections.addAll(result, elements);
-        return Collections.unmodifiableSet(result);
-    }
+  /**
+   * Returns an unmodifiable view of the set created from the given elements.
+   *
+   * @param elements Array of elements
+   * @param <E>      type of the elements
+   * @return an unmodifiable view of the set created from the given elements.
+   */
+  public static <E> Set<E> of(E... elements) {
+    Set<E> result = new HashSet<E>();
+    Collections.addAll(result, elements);
+    return Collections.unmodifiableSet(result);
+  }
 
-    /**
-     * Returns an unmodifiable view of the set created from the given elements.
-     * @param elementsIterator iterator to get the elements of the set.
-     * @param <E> type of the elements
-     * @return an unmodifiable view of the set created from the given elements.
-     */
-    public static <E> Set<E> copyOf(Iterator<? extends E> elementsIterator) {
-        Set<E> result = new HashSet<E>();
-        while (elementsIterator.hasNext()) {
-            result.add(elementsIterator.next());
-        }
-        return Collections.unmodifiableSet(result);
+  /**
+   * Returns an unmodifiable view of the set created from the given elements.
+   *
+   * @param elementsIterator iterator to get the elements of the set.
+   * @param <E>              type of the elements
+   * @return an unmodifiable view of the set created from the given elements.
+   */
+  public static <E> Set<E> copyOf(Iterator<? extends E> elementsIterator) {
+    Set<E> result = new HashSet<E>();
+    while (elementsIterator.hasNext()) {
+      result.add(elementsIterator.next());
     }
+    return Collections.unmodifiableSet(result);
+  }
 }

@@ -28,65 +28,65 @@ import java.io.IOException;
  * A metric that can be reported to Atlas.
  */
 class AtlasMetric implements JsonPayload {
-    private final MonitorConfig config;
-    private final long start;
-    private final double value;
+  private final MonitorConfig config;
+  private final long start;
+  private final double value;
 
-    AtlasMetric(Metric m) {
-        this(m.getConfig(), m.getTimestamp(), m.getNumberValue());
+  AtlasMetric(Metric m) {
+    this(m.getConfig(), m.getTimestamp(), m.getNumberValue());
+  }
+
+  AtlasMetric(MonitorConfig config, long start, Number value) {
+    this.config = Preconditions.checkNotNull(config, "config");
+    this.value = Preconditions.checkNotNull(value, "value").doubleValue();
+    this.start = start;
+  }
+
+  MonitorConfig getConfig() {
+    return config;
+  }
+
+  long getStartTime() {
+    return start;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof AtlasMetric)) {
+      return false;
     }
+    AtlasMetric m = (AtlasMetric) obj;
+    return config.equals(m.getConfig())
+        && start == m.getStartTime()
+        && Double.compare(value, m.value) == 0;
+  }
 
-    AtlasMetric(MonitorConfig config, long start, Number value) {
-        this.config = Preconditions.checkNotNull(config, "config");
-        this.value = Preconditions.checkNotNull(value, "value").doubleValue();
-        this.start = start;
+  @Override
+  public int hashCode() {
+    return Objects.hash(config, start, value);
+  }
+
+  @Override
+  public String toString() {
+    return "AtlasMetric{config=" + config
+        + ", start=" + start + ", value=" + value + '}';
+  }
+
+  @Override
+  public void toJson(JsonGenerator gen) throws IOException {
+    gen.writeStartObject();
+
+    gen.writeObjectFieldStart("tags");
+    gen.writeStringField("name", config.getName());
+    for (Tag tag : config.getTags()) {
+      gen.writeStringField(tag.getKey(), tag.getValue());
     }
+    gen.writeEndObject();
 
-    MonitorConfig getConfig() {
-        return config;
-    }
+    gen.writeNumberField("start", start);
+    gen.writeNumberField("value", value);
 
-    long getStartTime() {
-        return start;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof AtlasMetric)) {
-            return false;
-        }
-        AtlasMetric m = (AtlasMetric) obj;
-        return config.equals(m.getConfig())
-                && start == m.getStartTime()
-                && Double.compare(value, m.value) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(config, start, value);
-    }
-
-    @Override
-    public String toString() {
-        return "AtlasMetric{config=" + config
-                + ", start=" + start + ", value=" + value + '}';
-    }
-
-    @Override
-    public void toJson(JsonGenerator gen) throws IOException {
-        gen.writeStartObject();
-
-        gen.writeObjectFieldStart("tags");
-        gen.writeStringField("name", config.getName());
-        for (Tag tag : config.getTags()) {
-            gen.writeStringField(tag.getKey(), tag.getValue());
-        }
-        gen.writeEndObject();
-
-        gen.writeNumberField("start", start);
-        gen.writeNumberField("value", value);
-
-        gen.writeEndObject();
-        gen.flush();
-    }
+    gen.writeEndObject();
+    gen.flush();
+  }
 }

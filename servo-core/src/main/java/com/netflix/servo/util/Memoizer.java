@@ -21,54 +21,55 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A class that can cache the results of computations for a given amount of time.
+ *
  * @param <T> Type of the value cached
  */
 public final class Memoizer<T> {
-    /**
-     * Create a memoizer that caches the value produced by getter for a given duration.
-     *
-     * @param getter   A {@link Callable} that returns a new value. This should not throw.
-     * @param duration how long we should keep the cached value before refreshing it.
-     * @param unit     unit of time for {@code duration}
-     * @param <T>      type of the value produced by the {@code getter}
-     * @return A thread safe memoizer.
-     */
-    public static <T> Memoizer<T> create(Callable<T> getter, long duration, TimeUnit unit) {
-        return new Memoizer<T>(getter, duration, unit);
-    }
+  /**
+   * Create a memoizer that caches the value produced by getter for a given duration.
+   *
+   * @param getter   A {@link Callable} that returns a new value. This should not throw.
+   * @param duration how long we should keep the cached value before refreshing it.
+   * @param unit     unit of time for {@code duration}
+   * @param <T>      type of the value produced by the {@code getter}
+   * @return A thread safe memoizer.
+   */
+  public static <T> Memoizer<T> create(Callable<T> getter, long duration, TimeUnit unit) {
+    return new Memoizer<T>(getter, duration, unit);
+  }
 
-    private volatile long whenItExpires = 0L;
-    private volatile T value;
-    private final Callable<T> getter;
-    private final long durationNanos;
+  private volatile long whenItExpires = 0L;
+  private volatile T value;
+  private final Callable<T> getter;
+  private final long durationNanos;
 
-    private Memoizer(Callable<T> getter, long duration, TimeUnit unit) {
-        this.durationNanos = unit.toNanos(duration);
-        this.getter = getter;
-    }
+  private Memoizer(Callable<T> getter, long duration, TimeUnit unit) {
+    this.durationNanos = unit.toNanos(duration);
+    this.getter = getter;
+  }
 
-    /**
-     * Get or refresh and return the latest value.
-     */
-    public T get() {
-        long expiration = whenItExpires;
-        long now = System.nanoTime();
+  /**
+   * Get or refresh and return the latest value.
+   */
+  public T get() {
+    long expiration = whenItExpires;
+    long now = System.nanoTime();
 
-        // if uninitialized or expired update value
-        if (expiration == 0 || now >= expiration) {
-            synchronized (this) {
-                // ensure a different thread didn't update it
-                if (whenItExpires == expiration) {
-                    whenItExpires = now + durationNanos;
-                    try {
-                        value = getter.call();
-                    } catch (Exception e) {
-                        // shouldn't happen
-                        throw Throwables.propagate(e);
-                    }
-                }
-            }
+    // if uninitialized or expired update value
+    if (expiration == 0 || now >= expiration) {
+      synchronized (this) {
+        // ensure a different thread didn't update it
+        if (whenItExpires == expiration) {
+          whenItExpires = now + durationNanos;
+          try {
+            value = getter.call();
+          } catch (Exception e) {
+            // shouldn't happen
+            throw Throwables.propagate(e);
+          }
         }
-        return value;
+      }
     }
+    return value;
+  }
 }

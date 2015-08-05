@@ -20,26 +20,26 @@ package com.netflix.servo.publish.atlas;
  * values.
  */
 public class BasicAtlasConfig implements ServoAtlasConfig {
-    @Override
-    public String getAtlasUri() {
-        return System.getProperty("servo.atlas.uri");
-    }
+  @Override
+  public String getAtlasUri() {
+    return System.getProperty("servo.atlas.uri");
+  }
 
-    @Override
-    public int getPushQueueSize() {
-        String pushQueueSize = System.getProperty("servo.atlas.queueSize", "1000");
-        return Integer.parseInt(pushQueueSize);
-    }
+  @Override
+  public int getPushQueueSize() {
+    String pushQueueSize = System.getProperty("servo.atlas.queueSize", "1000");
+    return Integer.parseInt(pushQueueSize);
+  }
 
-    @Override
-    public boolean shouldSendMetrics() {
-        String enabled = System.getProperty("servo.atlas.enabled", "true");
-        return Boolean.parseBoolean(enabled);
-    }
+  @Override
+  public boolean shouldSendMetrics() {
+    String enabled = System.getProperty("servo.atlas.enabled", "true");
+    return Boolean.parseBoolean(enabled);
+  }
 
-    @Override
-    public int batchSize() {
-        String batch = System.getProperty("servo.atlas.batchSize", "10000");
-        return Integer.parseInt(batch);
-    }
+  @Override
+  public int batchSize() {
+    String batch = System.getProperty("servo.atlas.batchSize", "10000");
+    return Integer.parseInt(batch);
+  }
 }

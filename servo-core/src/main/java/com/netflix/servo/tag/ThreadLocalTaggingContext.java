@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,31 +23,39 @@ package com.netflix.servo.tag;
  */
 public final class ThreadLocalTaggingContext implements TaggingContext {
 
-    private final ThreadLocal<TagList> context = new ThreadLocal<TagList>();
+  private final ThreadLocal<TagList> context = new ThreadLocal<TagList>();
 
-    private static final ThreadLocalTaggingContext INSTANCE = new ThreadLocalTaggingContext();
+  private static final ThreadLocalTaggingContext INSTANCE = new ThreadLocalTaggingContext();
 
-    /** Get the instance. */
-    public static ThreadLocalTaggingContext getInstance() {
-        return INSTANCE;
-    }
+  /**
+   * Get the instance.
+   */
+  public static ThreadLocalTaggingContext getInstance() {
+    return INSTANCE;
+  }
 
-    private ThreadLocalTaggingContext() {
-    }
+  private ThreadLocalTaggingContext() {
+  }
 
-    /** Set the tags to be associated with the current thread. */
-    public void setTags(TagList tags) {
-        context.set(tags);
-    }
+  /**
+   * Set the tags to be associated with the current thread.
+   */
+  public void setTags(TagList tags) {
+    context.set(tags);
+  }
 
-    /** Get the tags associated with the current thread. */
-    @Override
-    public TagList getTags() {
-        return context.get();
-    }
+  /**
+   * Get the tags associated with the current thread.
+   */
+  @Override
+  public TagList getTags() {
+    return context.get();
+  }
 
-    /** Remove the tags associated with the current thread. */
-    public void reset() {
-        context.remove();
-    }
+  /**
+   * Remove the tags associated with the current thread.
+   */
+  public void reset() {
+    context.remove();
+  }
 }

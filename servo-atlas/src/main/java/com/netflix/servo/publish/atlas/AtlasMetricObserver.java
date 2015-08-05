@@ -51,312 +51,312 @@ import java.util.concurrent.LinkedBlockingQueue;
  * a push model that sends metrics as soon as possible (asynchronously).
  */
 public class AtlasMetricObserver implements MetricObserver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AtlasMetricObserver.class);
-    private static final Tag ATLAS_COUNTER_TAG = new BasicTag("atlas.dstype", "counter");
-    private static final Tag ATLAS_GAUGE_TAG = new BasicTag("atlas.dstype", "gauge");
-    private static final UpdateTasks NO_TASKS = new UpdateTasks(0, null, -1L);
-    protected final HttpHelper httpHelper;
-    protected final ServoAtlasConfig config;
-    protected final long sendTimeoutMs; // in milliseconds
-    protected final long stepMs; // in milliseconds
-    private final Counter numMetricsTotal = Monitors.newCounter("numMetricsTotal");
-    private final Timer updateTimer = Monitors.newTimer("update");
-    private final Counter numMetricsDroppedSendTimeout = newErrCounter("numMetricsDropped",
-            "sendTimeout");
-    private final Counter numMetricsDroppedQueueFull = newErrCounter("numMetricsDropped",
-            "sendQueueFull");
-    private final Counter numMetricsDroppedHttpErr = newErrCounter("numMetricsDropped",
-            "httpError");
-    private final Counter numMetricsSent = Monitors.newCounter("numMetricsSent");
-    private final TagList commonTags;
-    private final BlockingQueue<UpdateTasks> pushQueue;
-    @SuppressWarnings("unused")
-    private final Gauge<Integer> pushQueueSize = new BasicGauge<Integer>(
-            MonitorConfig.builder("pushQueue").build(), new Callable<Integer>() {
-        @Override
-        public Integer call() throws Exception {
-            return pushQueue.size();
-        }
-    });
-
-    /**
-     * Create an observer that can send metrics to atlas with a given
-     * config and list of common tags.
-     * This method will use the default poller index of 0.
-     */
-    public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags) {
-        this(config, commonTags, 0);
-    }
-
-    /**
-     * Create an observer that can send metrics to atlas with a given config, list of common tags,
-     * and poller index.
-     */
-    public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags, int pollerIdx) {
-        this(config, commonTags, pollerIdx, new HttpHelper(new RxHttp(new BasicServerRegistry())));
-    }
-
-    /**
-     * Create an atlas observer. For internal use of servo only.
-     */
-    public AtlasMetricObserver(ServoAtlasConfig config,
-                               TagList commonTags,
-                               int pollerIdx,
-                               HttpHelper httpHelper) {
-        this.httpHelper = httpHelper;
-        this.config = config;
-        this.stepMs = Pollers.getPollingIntervals().get(pollerIdx);
-        this.sendTimeoutMs = stepMs * 9 / 10;
-        this.commonTags = commonTags;
-        pushQueue = new LinkedBlockingQueue<UpdateTasks>(config.getPushQueueSize());
-        final Thread pushThread = new Thread(new PushProcessor(), "BaseAtlasMetricObserver-Push");
-        pushThread.setDaemon(true);
-        pushThread.start();
-    }
-
-    protected static Counter newErrCounter(String name, String err) {
-        return new BasicCounter(MonitorConfig.builder(name).withTag("error", err).build());
-    }
-
-    protected static Metric asGauge(Metric m) {
-        return new Metric(m.getConfig().withAdditionalTag(ATLAS_GAUGE_TAG),
-                m.getTimestamp(), m.getValue());
-    }
-
-    protected static Metric asCounter(Metric m) {
-        return new Metric(m.getConfig().withAdditionalTag(ATLAS_COUNTER_TAG),
-                m.getTimestamp(), m.getValue());
-    }
-
-    protected static boolean isCounter(Metric m) {
-        final TagList tags = m.getConfig().getTags();
-        final String value = tags.getValue(DataSourceType.KEY);
-        return value != null && value.equals(DataSourceType.COUNTER.name());
-    }
-
-    protected static boolean isGauge(Metric m) {
-        final TagList tags = m.getConfig().getTags();
-        final String value = tags.getValue(DataSourceType.KEY);
-        return value != null && value.equals(DataSourceType.GAUGE.name());
-    }
-
-    protected static boolean isRate(Metric m) {
-        final TagList tags = m.getConfig().getTags();
-        final String value = tags.getValue(DataSourceType.KEY);
-        return DataSourceType.RATE.name().equals(value)
-                || DataSourceType.NORMALIZED.name().equals(value);
-    }
-
-    protected static List<Metric> identifyDsTypes(List<Metric> metrics) {
-        List<Metric> result = new ArrayList<Metric>(metrics.size());
-        for (Metric m : metrics) {
-            // since we never generate atlas.dstype = counter we can do the following:
-            result.add(isRate(m) ? m : asGauge(m));
-        }
-        return result;
-    }
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(AtlasMetricObserver.class);
+  private static final Tag ATLAS_COUNTER_TAG = new BasicTag("atlas.dstype", "counter");
+  private static final Tag ATLAS_GAUGE_TAG = new BasicTag("atlas.dstype", "gauge");
+  private static final UpdateTasks NO_TASKS = new UpdateTasks(0, null, -1L);
+  protected final HttpHelper httpHelper;
+  protected final ServoAtlasConfig config;
+  protected final long sendTimeoutMs; // in milliseconds
+  protected final long stepMs; // in milliseconds
+  private final Counter numMetricsTotal = Monitors.newCounter("numMetricsTotal");
+  private final Timer updateTimer = Monitors.newTimer("update");
+  private final Counter numMetricsDroppedSendTimeout = newErrCounter("numMetricsDropped",
+      "sendTimeout");
+  private final Counter numMetricsDroppedQueueFull = newErrCounter("numMetricsDropped",
+      "sendQueueFull");
+  private final Counter numMetricsDroppedHttpErr = newErrCounter("numMetricsDropped",
+      "httpError");
+  private final Counter numMetricsSent = Monitors.newCounter("numMetricsSent");
+  private final TagList commonTags;
+  private final BlockingQueue<UpdateTasks> pushQueue;
+  @SuppressWarnings("unused")
+  private final Gauge<Integer> pushQueueSize = new BasicGauge<Integer>(
+      MonitorConfig.builder("pushQueue").build(), new Callable<Integer>() {
     @Override
-    public String getName() {
-        return "atlas";
+    public Integer call() throws Exception {
+      return pushQueue.size();
+    }
+  });
+
+  /**
+   * Create an observer that can send metrics to atlas with a given
+   * config and list of common tags.
+   * This method will use the default poller index of 0.
+   */
+  public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags) {
+    this(config, commonTags, 0);
+  }
+
+  /**
+   * Create an observer that can send metrics to atlas with a given config, list of common tags,
+   * and poller index.
+   */
+  public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags, int pollerIdx) {
+    this(config, commonTags, pollerIdx, new HttpHelper(new RxHttp(new BasicServerRegistry())));
+  }
+
+  /**
+   * Create an atlas observer. For internal use of servo only.
+   */
+  public AtlasMetricObserver(ServoAtlasConfig config,
+                             TagList commonTags,
+                             int pollerIdx,
+                             HttpHelper httpHelper) {
+    this.httpHelper = httpHelper;
+    this.config = config;
+    this.stepMs = Pollers.getPollingIntervals().get(pollerIdx);
+    this.sendTimeoutMs = stepMs * 9 / 10;
+    this.commonTags = commonTags;
+    pushQueue = new LinkedBlockingQueue<UpdateTasks>(config.getPushQueueSize());
+    final Thread pushThread = new Thread(new PushProcessor(), "BaseAtlasMetricObserver-Push");
+    pushThread.setDaemon(true);
+    pushThread.start();
+  }
+
+  protected static Counter newErrCounter(String name, String err) {
+    return new BasicCounter(MonitorConfig.builder(name).withTag("error", err).build());
+  }
+
+  protected static Metric asGauge(Metric m) {
+    return new Metric(m.getConfig().withAdditionalTag(ATLAS_GAUGE_TAG),
+        m.getTimestamp(), m.getValue());
+  }
+
+  protected static Metric asCounter(Metric m) {
+    return new Metric(m.getConfig().withAdditionalTag(ATLAS_COUNTER_TAG),
+        m.getTimestamp(), m.getValue());
+  }
+
+  protected static boolean isCounter(Metric m) {
+    final TagList tags = m.getConfig().getTags();
+    final String value = tags.getValue(DataSourceType.KEY);
+    return value != null && value.equals(DataSourceType.COUNTER.name());
+  }
+
+  protected static boolean isGauge(Metric m) {
+    final TagList tags = m.getConfig().getTags();
+    final String value = tags.getValue(DataSourceType.KEY);
+    return value != null && value.equals(DataSourceType.GAUGE.name());
+  }
+
+  protected static boolean isRate(Metric m) {
+    final TagList tags = m.getConfig().getTags();
+    final String value = tags.getValue(DataSourceType.KEY);
+    return DataSourceType.RATE.name().equals(value)
+        || DataSourceType.NORMALIZED.name().equals(value);
+  }
+
+  protected static List<Metric> identifyDsTypes(List<Metric> metrics) {
+    List<Metric> result = new ArrayList<Metric>(metrics.size());
+    for (Metric m : metrics) {
+      // since we never generate atlas.dstype = counter we can do the following:
+      result.add(isRate(m) ? m : asGauge(m));
+    }
+    return result;
+  }
+
+  @Override
+  public String getName() {
+    return "atlas";
+  }
+
+  private List<Metric> identifyCountersForPush(List<Metric> metrics) {
+    List<Metric> transformed = new ArrayList<Metric>(metrics.size());
+    for (Metric m : metrics) {
+      Metric toAdd = m;
+      if (isCounter(m)) {
+        toAdd = asCounter(m);
+      } else if (isGauge(m)) {
+        toAdd = asGauge(m);
+      }
+      transformed.add(toAdd);
+    }
+    return transformed;
+  }
+
+  /**
+   * Immediately send metrics to the backend.
+   *
+   * @param rawMetrics Metrics to be sent. Names and tags will be sanitized.
+   */
+  public void push(List<Metric> rawMetrics) {
+    List<Metric> validMetrics = ValidCharacters.toValidValues(filter(rawMetrics));
+    List<Metric> metrics = transformMetrics(validMetrics);
+
+    LOGGER.debug("Scheduling push of {} metrics", metrics.size());
+    final UpdateTasks tasks = getUpdateTasks(BasicTagList.EMPTY,
+        identifyCountersForPush(metrics));
+    final int maxAttempts = 5;
+    int attempts = 1;
+    while (!pushQueue.offer(tasks) && attempts <= maxAttempts) {
+      ++attempts;
+      final UpdateTasks droppedTasks = pushQueue.remove();
+      LOGGER.warn("Removing old push task due to queue full. Dropping {} metrics.",
+          droppedTasks.numMetrics);
+      numMetricsDroppedQueueFull.increment(droppedTasks.numMetrics);
+    }
+    if (attempts >= maxAttempts) {
+      LOGGER.error("Unable to push update of {}", tasks);
+      numMetricsDroppedQueueFull.increment(tasks.numMetrics);
+    } else {
+      LOGGER.debug("Queued push of {}", tasks);
+    }
+  }
+
+  protected void sendNow(UpdateTasks updateTasks) {
+    if (updateTasks.numMetrics == 0) {
+      return;
     }
 
-    private List<Metric> identifyCountersForPush(List<Metric> metrics) {
-        List<Metric> transformed = new ArrayList<Metric>(metrics.size());
-        for (Metric m : metrics) {
-            Metric toAdd = m;
-            if (isCounter(m)) {
-                toAdd = asCounter(m);
-            } else if (isGauge(m)) {
-                toAdd = asGauge(m);
-            }
-            transformed.add(toAdd);
-        }
-        return transformed;
+    final Stopwatch s = updateTimer.start();
+    int totalSent = 0;
+    try {
+      totalSent = httpHelper.sendAll(updateTasks.tasks,
+          updateTasks.numMetrics, sendTimeoutMs);
+      LOGGER.debug("Sent {}/{} metrics to atlas", totalSent, updateTasks.numMetrics);
+    } finally {
+      s.stop();
+      int dropped = updateTasks.numMetrics - totalSent;
+      numMetricsDroppedSendTimeout.increment(dropped);
+    }
+  }
+
+  protected boolean shouldIncludeMetric(Metric metric) {
+    return true;
+  }
+
+  /**
+   * Return metrics to be sent to the main atlas deployment.
+   * Metrics will be sent if their publishing policy matches atlas and if they
+   * will *not* be sent to the aggregation cluster.
+   */
+  protected List<Metric> filter(List<Metric> metrics) {
+    final List<Metric> filtered = new ArrayList<Metric>(metrics.size());
+    for (Metric metric : metrics) {
+      if (shouldIncludeMetric(metric)) {
+        filtered.add(metric);
+      }
+    }
+    LOGGER.debug("Filter: input {} metrics, output {} metrics",
+        metrics.size(), filtered.size());
+    return filtered;
+  }
+
+  protected List<Metric> transformMetrics(List<Metric> metrics) {
+    return metrics;
+  }
+
+  @Override
+  public void update(List<Metric> rawMetrics) {
+    List<Metric> valid = ValidCharacters.toValidValues(rawMetrics);
+    List<Metric> metrics = identifyDsTypes(filter(valid));
+    List<Metric> transformed = transformMetrics(metrics);
+    sendNow(getUpdateTasks(commonTags, transformed));
+  }
+
+  private UpdateTasks getUpdateTasks(TagList tags, List<Metric> metrics) {
+    if (!config.shouldSendMetrics()) {
+      LOGGER.debug("Plugin disabled or running on a dev environment. Not sending metrics.");
+      return NO_TASKS;
     }
 
-    /**
-     * Immediately send metrics to the backend.
-     *
-     * @param rawMetrics Metrics to be sent. Names and tags will be sanitized.
-     */
-    public void push(List<Metric> rawMetrics) {
-        List<Metric> validMetrics = ValidCharacters.toValidValues(filter(rawMetrics));
-        List<Metric> metrics = transformMetrics(validMetrics);
+    if (metrics.isEmpty()) {
+      LOGGER.debug("metrics list is empty, no data being sent to server");
+      return NO_TASKS;
+    }
 
-        LOGGER.debug("Scheduling push of {} metrics", metrics.size());
-        final UpdateTasks tasks = getUpdateTasks(BasicTagList.EMPTY,
-                identifyCountersForPush(metrics));
-        final int maxAttempts = 5;
-        int attempts = 1;
-        while (!pushQueue.offer(tasks) && attempts <= maxAttempts) {
-            ++attempts;
-            final UpdateTasks droppedTasks = pushQueue.remove();
-            LOGGER.warn("Removing old push task due to queue full. Dropping {} metrics.",
-                    droppedTasks.numMetrics);
-            numMetricsDroppedQueueFull.increment(droppedTasks.numMetrics);
-        }
-        if (attempts >= maxAttempts) {
-            LOGGER.error("Unable to push update of {}", tasks);
-            numMetricsDroppedQueueFull.increment(tasks.numMetrics);
+    final int numMetrics = metrics.size();
+    final Metric[] atlasMetrics = new Metric[metrics.size()];
+    metrics.toArray(atlasMetrics);
+
+    numMetricsTotal.increment(numMetrics);
+    final List<Observable<Integer>> tasks = new ArrayList<Observable<Integer>>();
+    final String uri = config.getAtlasUri();
+    LOGGER.debug("writing {} metrics to atlas ({})", numMetrics, uri);
+    int i = 0;
+    while (i < numMetrics) {
+      final int remaining = numMetrics - i;
+      final int batchSize = Math.min(remaining, config.batchSize());
+      final Metric[] batch = new Metric[batchSize];
+      System.arraycopy(atlasMetrics, i, batch, 0, batchSize);
+      final Observable<Integer> sender = getSenderObservable(tags, batch);
+      tasks.add(sender);
+      i += batchSize;
+    }
+    assert i == numMetrics;
+    LOGGER.debug("succeeded in creating {} observable(s) to send metrics with total size {}",
+        tasks.size(), numMetrics);
+
+    return new UpdateTasks(numMetrics * getNumberOfCopies(), tasks,
+        System.currentTimeMillis());
+  }
+
+  protected int getNumberOfCopies() {
+    return 1;
+  }
+
+  protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
+    JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
+    return httpHelper.postSmile(config.getAtlasUri(), payload)
+        .map(withBookkeeping(batch.length));
+  }
+
+  /**
+   * Utility function to map an Observable&lt;ByteBuf> to an Observable&lt;Integer> while also
+   * updating our counters for metrics sent and errors.
+   */
+  protected Func1<HttpClientResponse<ByteBuf>, Integer> withBookkeeping(final int batchSize) {
+    return new Func1<HttpClientResponse<ByteBuf>, Integer>() {
+      @Override
+      public Integer call(HttpClientResponse<ByteBuf> response) {
+        boolean ok = response.getStatus().code() == 200;
+        if (ok) {
+          numMetricsSent.increment(batchSize);
         } else {
-            LOGGER.debug("Queued push of {}", tasks);
-        }
-    }
-
-    protected void sendNow(UpdateTasks updateTasks) {
-        if (updateTasks.numMetrics == 0) {
-            return;
+          LOGGER.info("Status code: {} - Lost {} metrics",
+              response.getStatus().code(), batchSize);
+          numMetricsDroppedHttpErr.increment(batchSize);
         }
 
-        final Stopwatch s = updateTimer.start();
-        int totalSent = 0;
-        try {
-            totalSent = httpHelper.sendAll(updateTasks.tasks,
-                    updateTasks.numMetrics, sendTimeoutMs);
-            LOGGER.debug("Sent {}/{} metrics to atlas", totalSent, updateTasks.numMetrics);
-        } finally {
-            s.stop();
-            int dropped = updateTasks.numMetrics - totalSent;
-            numMetricsDroppedSendTimeout.increment(dropped);
-        }
-    }
+        return batchSize;
+      }
+    };
+  }
 
-    protected boolean shouldIncludeMetric(Metric metric) {
-        return true;
-    }
+  private static class UpdateTasks {
+    private final int numMetrics;
+    private final List<Observable<Integer>> tasks;
+    private final long timestamp;
 
-    /**
-     * Return metrics to be sent to the main atlas deployment.
-     * Metrics will be sent if their publishing policy matches atlas and if they
-     * will *not* be sent to the aggregation cluster.
-     */
-    protected List<Metric> filter(List<Metric> metrics) {
-        final List<Metric> filtered = new ArrayList<Metric>(metrics.size());
-        for (Metric metric : metrics) {
-            if (shouldIncludeMetric(metric)) {
-                filtered.add(metric);
-            }
-        }
-        LOGGER.debug("Filter: input {} metrics, output {} metrics",
-                metrics.size(), filtered.size());
-        return filtered;
-    }
-
-    protected List<Metric> transformMetrics(List<Metric> metrics) {
-        return metrics;
+    UpdateTasks(int numMetrics, List<Observable<Integer>> tasks, long timestamp) {
+      this.numMetrics = numMetrics;
+      this.tasks = tasks;
+      this.timestamp = timestamp;
     }
 
     @Override
-    public void update(List<Metric> rawMetrics) {
-        List<Metric> valid = ValidCharacters.toValidValues(rawMetrics);
-        List<Metric> metrics = identifyDsTypes(filter(valid));
-        List<Metric> transformed = transformMetrics(metrics);
-        sendNow(getUpdateTasks(commonTags, transformed));
+    public String toString() {
+      return "UpdateTasks{numMetrics=" + numMetrics + ", tasks="
+          + tasks + ", timestamp=" + timestamp + '}';
     }
+  }
 
-    private UpdateTasks getUpdateTasks(TagList tags, List<Metric> metrics) {
-        if (!config.shouldSendMetrics()) {
-            LOGGER.debug("Plugin disabled or running on a dev environment. Not sending metrics.");
-            return NO_TASKS;
+  private class PushProcessor implements Runnable {
+    @Override
+    public void run() {
+      boolean interrupted = false;
+      while (!interrupted) {
+        try {
+          sendNow(pushQueue.take());
+        } catch (InterruptedException e) {
+          LOGGER.debug("Interrupted trying to get next UpdateTask to push");
+          interrupted = true;
+        } catch (Exception t) {
+          LOGGER.info("Caught unexpected exception pushing metrics", t);
         }
-
-        if (metrics.isEmpty()) {
-            LOGGER.debug("metrics list is empty, no data being sent to server");
-            return NO_TASKS;
-        }
-
-        final int numMetrics = metrics.size();
-        final Metric[] atlasMetrics = new Metric[metrics.size()];
-        metrics.toArray(atlasMetrics);
-
-        numMetricsTotal.increment(numMetrics);
-        final List<Observable<Integer>> tasks = new ArrayList<Observable<Integer>>();
-        final String uri = config.getAtlasUri();
-        LOGGER.debug("writing {} metrics to atlas ({})", numMetrics, uri);
-        int i = 0;
-        while (i < numMetrics) {
-            final int remaining = numMetrics - i;
-            final int batchSize = Math.min(remaining, config.batchSize());
-            final Metric[] batch = new Metric[batchSize];
-            System.arraycopy(atlasMetrics, i, batch, 0, batchSize);
-            final Observable<Integer> sender = getSenderObservable(tags, batch);
-            tasks.add(sender);
-            i += batchSize;
-        }
-        assert i == numMetrics;
-        LOGGER.debug("succeeded in creating {} observable(s) to send metrics with total size {}",
-                tasks.size(), numMetrics);
-
-        return new UpdateTasks(numMetrics * getNumberOfCopies(), tasks,
-                System.currentTimeMillis());
+      }
     }
-
-    protected int getNumberOfCopies() {
-        return 1;
-    }
-
-    protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
-        JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
-        return httpHelper.postSmile(config.getAtlasUri(), payload)
-                .map(withBookkeeping(batch.length));
-    }
-
-    /**
-     * Utility function to map an Observable&lt;ByteBuf> to an Observable&lt;Integer> while also
-     * updating our counters for metrics sent and errors.
-     */
-    protected Func1<HttpClientResponse<ByteBuf>, Integer> withBookkeeping(final int batchSize) {
-        return new Func1<HttpClientResponse<ByteBuf>, Integer>() {
-            @Override
-            public Integer call(HttpClientResponse<ByteBuf> response) {
-                boolean ok = response.getStatus().code() == 200;
-                if (ok) {
-                    numMetricsSent.increment(batchSize);
-                } else {
-                    LOGGER.info("Status code: {} - Lost {} metrics",
-                            response.getStatus().code(), batchSize);
-                    numMetricsDroppedHttpErr.increment(batchSize);
-                }
-
-                return batchSize;
-            }
-        };
-    }
-
-    private static class UpdateTasks {
-        private final int numMetrics;
-        private final List<Observable<Integer>> tasks;
-        private final long timestamp;
-
-        UpdateTasks(int numMetrics, List<Observable<Integer>> tasks, long timestamp) {
-            this.numMetrics = numMetrics;
-            this.tasks = tasks;
-            this.timestamp = timestamp;
-        }
-
-        @Override
-        public String toString() {
-            return "UpdateTasks{numMetrics=" + numMetrics + ", tasks="
-                    + tasks + ", timestamp=" + timestamp + '}';
-        }
-    }
-
-    private class PushProcessor implements Runnable {
-        @Override
-        public void run() {
-            boolean interrupted = false;
-            while (!interrupted) {
-                try {
-                    sendNow(pushQueue.take());
-                } catch (InterruptedException e) {
-                    LOGGER.debug("Interrupted trying to get next UpdateTask to push");
-                    interrupted = true;
-                } catch (Exception t) {
-                    LOGGER.info("Caught unexpected exception pushing metrics", t);
-                }
-            }
-        }
-    }
+  }
 
 }
