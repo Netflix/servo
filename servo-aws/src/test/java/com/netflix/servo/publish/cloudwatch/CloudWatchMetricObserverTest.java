@@ -29,7 +29,7 @@ import java.util.List;
  * CloudWatchMetricObserver tests.
  */
 public class CloudWatchMetricObserverTest {
-  private CloudWatchMetricObserver observer = new CloudWatchMetricObserver(
+  private final CloudWatchMetricObserver observer = new CloudWatchMetricObserver(
       "testObserver", "testDomain", new InstanceProfileCredentialsProvider());
 
   private static final int NUM_METRICS = 33;
@@ -40,7 +40,7 @@ public class CloudWatchMetricObserverTest {
    */
   @Test
   public void testUpdate() throws Exception {
-    List<Metric> metrics = new ArrayList<Metric>(NUM_METRICS);
+    List<Metric> metrics = new ArrayList<>(NUM_METRICS);
     for (int i = 0; i < NUM_METRICS; i++) {
       metrics.add(new Metric("test", BasicTagList.EMPTY, System.currentTimeMillis(), VALUE));
     }

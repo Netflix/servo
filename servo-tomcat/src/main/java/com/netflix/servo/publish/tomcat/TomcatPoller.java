@@ -170,7 +170,7 @@ public class TomcatPoller extends BaseMetricPoller {
   List<Metric> pollImpl(long timestamp) {
     try {
       MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-      List<Metric> metrics = new ArrayList<Metric>();
+      List<Metric> metrics = new ArrayList<>();
       fetchThreadPoolMetrics(timestamp, mbs, metrics);
       fetchRequestProcessorMetrics(timestamp, mbs, metrics);
       fetchExecutorMetrics(timestamp, mbs, metrics);

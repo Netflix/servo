@@ -23,7 +23,7 @@ package com.netflix.servo.tag;
  */
 public final class ThreadLocalTaggingContext implements TaggingContext {
 
-  private final ThreadLocal<TagList> context = new ThreadLocal<TagList>();
+  private final ThreadLocal<TagList> context = new ThreadLocal<>();
 
   private static final ThreadLocalTaggingContext INSTANCE = new ThreadLocalTaggingContext();
 

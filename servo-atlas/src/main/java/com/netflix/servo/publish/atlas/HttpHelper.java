@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
 import rx.exceptions.CompositeException;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
@@ -161,24 +159,11 @@ public final class HttpHelper {
       final Subscription s = Observable.mergeDelayError(Observable.from(batches))
           .timeout(timeoutMillis, TimeUnit.MILLISECONDS)
           .subscribeOn(Schedulers.immediate())
-          .subscribe(new Action1<Integer>() {
-            @Override
-            public void call(Integer batchSize) {
-              updated.addAndGet(batchSize);
-            }
-          }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable exc) {
-              logErr("onError caught", exc, updated.get(), numMetrics);
-              err.set(true);
-              completed.countDown();
-            }
-          }, new Action0() {
-            @Override
-            public void call() {
-              completed.countDown();
-            }
-          });
+          .subscribe(updated::addAndGet, exc -> {
+            logErr("onError caught", exc, updated.get(), numMetrics);
+            err.set(true);
+            completed.countDown();
+          }, completed::countDown);
       try {
         completed.await(timeoutMillis, TimeUnit.MILLISECONDS);
       } catch (InterruptedException interrupted) {
@@ -204,36 +189,22 @@ public final class HttpHelper {
     final String uri = req.getUri();
     final Response result = new Response();
     try {
-      final Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>> process = new
-          Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>>() {
-            @Override
-            public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-              result.status = response.getStatus().code();
-              result.headers = response.getHeaders();
-              final Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream>
-                  accumulator = new Func2<ByteArrayOutputStream, ByteBuf,
-                  ByteArrayOutputStream>() {
-                @Override
-                public ByteArrayOutputStream call(
-                    ByteArrayOutputStream baos, ByteBuf bb) {
-                  try {
-                    bb.readBytes(baos, bb.readableBytes());
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                  return baos;
-                }
-              };
-              return response.getContent()
-                  .reduce(new ByteArrayOutputStream(), accumulator)
-                  .map(new Func1<ByteArrayOutputStream, byte[]>() {
-                    @Override
-                    public byte[] call(ByteArrayOutputStream baos) {
-                      return baos.toByteArray();
-                    }
-                  });
-            }
-          };
+      final Func1<HttpClientResponse<ByteBuf>, Observable<byte[]>> process = response -> {
+        result.status = response.getStatus().code();
+        result.headers = response.getHeaders();
+        final Func2<ByteArrayOutputStream, ByteBuf, ByteArrayOutputStream>
+            accumulator = (baos, bb) -> {
+          try {
+            bb.readBytes(baos, bb.readableBytes());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          return baos;
+        };
+        return response.getContent()
+            .reduce(new ByteArrayOutputStream(), accumulator)
+            .map(ByteArrayOutputStream::toByteArray);
+      };
 
       result.body = rxHttp.submit(req)
           .flatMap(process)

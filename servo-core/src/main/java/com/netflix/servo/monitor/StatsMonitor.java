@@ -35,6 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * A {@link Timer} that provides statistics.
@@ -236,7 +237,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   }
 
   private List<Counter> getCounters(StatsConfig config) {
-    final List<Counter> counters = new ArrayList<Counter>();
+    final List<Counter> counters = new ArrayList<>();
     if (config.getPublishCount()) {
       counters.add(count);
     }
@@ -247,7 +248,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   }
 
   private List<GaugeWrapper> getGaugeWrappers(StatsConfig config) {
-    final List<GaugeWrapper> wrappers = new ArrayList<GaugeWrapper>();
+    final List<GaugeWrapper> wrappers = new ArrayList<>();
 
     if (config.getPublishMax()) {
       wrappers.add(new MaxGaugeWrapper(baseConfig));
@@ -271,7 +272,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
     }
 
     // do a sanity check to prevent duplicated monitor configurations
-    final Set<MonitorConfig> seen = new HashSet<MonitorConfig>();
+    final Set<MonitorConfig> seen = new HashSet<>();
     for (final GaugeWrapper wrapper : wrappers) {
       final MonitorConfig cfg = wrapper.getMonitor().getConfig();
       if (seen.contains(cfg)) {
@@ -303,21 +304,16 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
     this.count = new BasicCounter(baseConfig.withAdditionalTag(STAT_COUNT));
     this.totalMeasurement = new BasicCounter(baseConfig.withAdditionalTag(statsTotal));
     this.gaugeWrappers = getGaugeWrappers(statsConfig);
-    final List<Monitor<?>> gaugeMonitors = new ArrayList<Monitor<?>>(gaugeWrappers.size());
-    for (GaugeWrapper perfStatsGauge : gaugeWrappers) {
-      gaugeMonitors.add(perfStatsGauge.getMonitor());
-    }
+    final List<Monitor<?>> gaugeMonitors = gaugeWrappers.stream()
+        .map(GaugeWrapper::getMonitor).collect(Collectors.toList());
 
-    List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitorList = new ArrayList<>();
     monitorList.addAll(getCounters(statsConfig));
     monitorList.addAll(gaugeMonitors);
     this.monitors = Collections.unmodifiableList(monitorList);
 
-    this.startComputingAction = new Runnable() {
-      public void run() {
+    this.startComputingAction = () ->
         startComputingStats(executor, statsConfig.getFrequencyMillis());
-      }
-    };
     if (autoStart) {
       startComputingStats();
     }
@@ -333,21 +329,18 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   }
 
   private void startComputingStats(ScheduledExecutorService executor, long frequencyMillis) {
-    Runnable command = new Runnable() {
-      @Override
-      public void run() {
-        try {
-          synchronized (updateLock) {
-            final StatsBuffer tmp = prev;
-            prev = cur;
-            cur = tmp;
-          }
-          prev.computeStats();
-          updateGauges();
-          prev.reset();
-        } catch (Exception e) {
-          handleException(e);
+    Runnable command = () -> {
+      try {
+        synchronized (updateLock) {
+          final StatsBuffer tmp = prev;
+          prev = cur;
+          cur = tmp;
         }
+        prev.computeStats();
+        updateGauges();
+        prev.reset();
+      } catch (Exception e) {
+        handleException(e);
       }
     };
 

@@ -198,7 +198,7 @@ public final class NormalizationTransform implements MetricObserver {
   @Override
   public void update(List<Metric> metrics) {
     Preconditions.checkNotNull(metrics, "metrics");
-    final List<Metric> newMetrics = new ArrayList<Metric>(metrics.size());
+    final List<Metric> newMetrics = new ArrayList<>(metrics.size());
 
     for (Metric m : metrics) {
       long offset = m.getTimestamp() % stepMillis;

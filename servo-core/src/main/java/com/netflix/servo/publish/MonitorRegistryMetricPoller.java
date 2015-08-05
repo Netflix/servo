@@ -50,7 +50,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
   private final long cacheTTL;
 
   private final AtomicReference<List<Monitor<?>>> cachedMonitors =
-      new AtomicReference<List<Monitor<?>>>();
+      new AtomicReference<>();
 
   private final AtomicLong cacheLastUpdateTime = new AtomicLong(0L);
 
@@ -157,7 +157,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
   private void refreshMonitorCache(MetricFilter filter) {
     final long age = System.currentTimeMillis() - cacheLastUpdateTime.get();
     if (age > cacheTTL) {
-      List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+      List<Monitor<?>> monitors = new ArrayList<>();
       for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
         try {
           getMonitors(monitors, filter, monitor);
@@ -188,7 +188,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
   public List<Metric> poll(MetricFilter filter, boolean reset) {
     refreshMonitorCache(filter);
     List<Monitor<?>> monitors = cachedMonitors.get();
-    List<Metric> metrics = new ArrayList<Metric>(monitors.size());
+    List<Metric> metrics = new ArrayList<>(monitors.size());
     for (Monitor<?> monitor : monitors) {
       Object v = getValue(monitor);
       if (v != null) {

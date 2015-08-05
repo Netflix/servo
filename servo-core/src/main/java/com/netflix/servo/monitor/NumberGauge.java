@@ -34,7 +34,7 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
   public NumberGauge(MonitorConfig config, Number number) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
     Preconditions.checkNotNull(number, "number");
-    this.numberRef = new WeakReference<Number>(number);
+    this.numberRef = new WeakReference<>(number);
   }
 
   /**

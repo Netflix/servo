@@ -44,7 +44,7 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
   @Override
   public List<Monitor<?>> getMonitors() {
     List<Monitor<?>> monitors = monitor.getMonitors();
-    List<Monitor<?>> wrappedMonitors = new ArrayList<Monitor<?>>(monitors.size());
+    List<Monitor<?>> wrappedMonitors = new ArrayList<>(monitors.size());
     for (Monitor<?> m : monitors) {
       wrappedMonitors.add(Monitors.wrap(tags, m));
     }

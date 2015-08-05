@@ -87,11 +87,11 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN), clock);
     max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
 
-    final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<Number>(totalTime,
+    final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<>(totalTime,
         timeUnitNanosFactor);
-    final FactorMonitor<Long> minFactor = new FactorMonitor<Long>(min,
+    final FactorMonitor<Long> minFactor = new FactorMonitor<>(min,
         timeUnitNanosFactor);
-    final FactorMonitor<Long> maxFactor = new FactorMonitor<Long>(max,
+    final FactorMonitor<Long> maxFactor = new FactorMonitor<>(max,
         timeUnitNanosFactor);
 
     monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);

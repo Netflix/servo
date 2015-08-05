@@ -34,11 +34,11 @@ public class StatsBuffer {
   private long max;
   private long total;
 
-  private double[] percentiles;
-  private double[] percentileValues;
+  private final double[] percentiles;
+  private final double[] percentileValues;
   private final int size;
   private final long[] values;
-  private AtomicBoolean statsComputed = new AtomicBoolean(false);
+  private final AtomicBoolean statsComputed = new AtomicBoolean(false);
 
   /**
    * Create a circular buffer that will be used to record values and compute useful stats.

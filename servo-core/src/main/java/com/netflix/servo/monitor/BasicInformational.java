@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * A simple informational implementation that maintains a string value.
  */
 public final class BasicInformational extends AbstractMonitor<String> implements Informational {
-  private final AtomicReference<String> info = new AtomicReference<String>();
+  private final AtomicReference<String> info = new AtomicReference<>();
 
   /**
    * Creates a new instance of the counter.

@@ -108,7 +108,7 @@ public final class BasicTagList implements TagList {
       return sortedTaglist;
     }
 
-    SortedMap<String, String> tagMap = new TreeMap<String, String>();
+    SortedMap<String, String> tagMap = new TreeMap<>();
     for (Tag tag : this.tagMap) {
       tagMap.put(tag.getKey(), tag.getValue());
     }

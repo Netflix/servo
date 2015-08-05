@@ -43,7 +43,7 @@ public class FileMetricObserverTest {
       .build();
 
   private List<Metric> mkList(int v) {
-    List<Metric> metrics = new ArrayList<Metric>(v);
+    List<Metric> metrics = new ArrayList<>(v);
     for (int i = 0; i < v; ++i) {
       metrics.add(new Metric("m", TAGS, 0L, i));
     }
@@ -83,16 +83,13 @@ public class FileMetricObserverTest {
     if (compressed) {
       is = new GZIPInputStream(is);
     }
-    BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-    try {
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
       int i = 0;
       String line;
       while ((line = in.readLine()) != null) {
         checkLine(i, line);
         ++i;
       }
-    } finally {
-      in.close();
     }
   }
 
@@ -122,6 +119,7 @@ public class FileMetricObserverTest {
       fmo.update(mkList(3));
 
       File[] files = dir.listFiles();
+      assert files != null;
       assertEquals(files.length, 3);
       for (File f : files) {
         checkFile(f, false);
@@ -143,6 +141,7 @@ public class FileMetricObserverTest {
       fmo.update(mkList(3));
 
       File[] files = dir.listFiles();
+      assert files != null;
       assertEquals(files.length, 3);
       for (File f : files) {
         checkFile(f, true);

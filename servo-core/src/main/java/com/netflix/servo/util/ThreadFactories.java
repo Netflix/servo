@@ -27,7 +27,7 @@ public final class ThreadFactories {
   private ThreadFactories() {
   }
 
-  private static ThreadFactory backingFactory = Executors.defaultThreadFactory();
+  private static final ThreadFactory BACKING_FACTORY = Executors.defaultThreadFactory();
 
   /**
    * Create a new {@link ThreadFactory} that produces daemon threads with a given name format.
@@ -37,11 +37,11 @@ public final class ThreadFactories {
    */
   public static ThreadFactory withName(final String fmt) {
     return new ThreadFactory() {
-      private AtomicLong count = new AtomicLong(0);
+      private final AtomicLong count = new AtomicLong(0);
 
       @Override
       public Thread newThread(Runnable r) {
-        final Thread t = backingFactory.newThread(r);
+        final Thread t = BACKING_FACTORY.newThread(r);
         t.setDaemon(true);
         t.setName(String.format(fmt, count.getAndIncrement()));
         return t;

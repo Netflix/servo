@@ -104,7 +104,7 @@ public final class ThreadCpuStats {
 
   private final CpuUsage jvmCpuUsage = new CpuUsage(-1, "jvm");
 
-  private final Map<Long, CpuUsage> threadCpuUsages = new ConcurrentHashMap<Long, CpuUsage>();
+  private final Map<Long, CpuUsage> threadCpuUsages = new ConcurrentHashMap<>();
 
   /**
    * Return the singleton instance.
@@ -156,7 +156,7 @@ public final class ThreadCpuStats {
    * List of cpu usages for each thread.
    */
   public List<CpuUsage> getThreadCpuUsages() {
-    return new ArrayList<CpuUsage>(threadCpuUsages.values());
+    return new ArrayList<>(threadCpuUsages.values());
   }
 
   /**
@@ -228,7 +228,7 @@ public final class ThreadCpuStats {
   public Map<String, Object> getThreadCpuUsages(CpuUsageComparator cmp) {
     final CpuUsage overall = getOverallCpuUsage();
     final List<CpuUsage> usages = getThreadCpuUsages();
-    final Map<String, Object> result = new HashMap<String, Object>();
+    final Map<String, Object> result = new HashMap<>();
 
     Collections.sort(usages, cmp);
 
@@ -239,14 +239,14 @@ public final class ThreadCpuStats {
     final long uptimeNanos = TimeUnit.NANOSECONDS.convert(uptimeMillis, TimeUnit.MILLISECONDS);
     result.put(UPTIME_MS, uptimeMillis);
 
-    final Map<String, Long> jvmUsageTime = new HashMap<String, Long>();
+    final Map<String, Long> jvmUsageTime = new HashMap<>();
     jvmUsageTime.put(ONE_MIN, overall.getOneMinute());
     jvmUsageTime.put(FIVE_MIN, overall.getFiveMinute());
     jvmUsageTime.put(FIFTEEN_MIN, overall.getFifteenMinute());
     jvmUsageTime.put(OVERALL, overall.getOverall());
     result.put(JVM_USAGE_TIME, jvmUsageTime);
 
-    final Map<String, Double> jvmUsagePercent = new HashMap<String, Double>();
+    final Map<String, Double> jvmUsagePercent = new HashMap<>();
     final int numProcs = Runtime.getRuntime().availableProcessors();
     jvmUsagePercent.put(ONE_MIN, toPercent(overall.getOneMinute(),
         ONE_MINUTE_NANOS * numProcs));
@@ -257,9 +257,9 @@ public final class ThreadCpuStats {
     jvmUsagePercent.put(OVERALL, toPercent(overall.getOverall(), uptimeNanos * numProcs));
     result.put(JVM_USAGE_PERCENT, jvmUsagePercent);
 
-    List<Map<String, Object>> threads = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> threads = new ArrayList<>();
     for (CpuUsage usage : usages) {
-      Map<String, Object> threadInfo = new HashMap<String, Object>();
+      Map<String, Object> threadInfo = new HashMap<>();
       threadInfo.put(ONE_MIN, toPercent(usage.getOneMinute(), overall.getOneMinute()));
       threadInfo.put(FIVE_MIN, toPercent(usage.getFiveMinute(), overall.getFiveMinute()));
       threadInfo.put(FIFTEEN_MIN, toPercent(usage.getFifteenMinute(),
@@ -540,7 +540,7 @@ public final class ThreadCpuStats {
   /**
    * Comparator for sorting cpu usage based on one of the columns.
    */
-  public static enum CpuUsageComparator implements Comparator<CpuUsage> {
+  public enum CpuUsageComparator implements Comparator<CpuUsage> {
     /**
      * Sort based on 1-minute usage column.
      */
@@ -563,7 +563,7 @@ public final class ThreadCpuStats {
 
     private final int col;
 
-    private CpuUsageComparator(int col) {
+    CpuUsageComparator(int col) {
       this.col = col;
     }
 

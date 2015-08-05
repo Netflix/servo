@@ -168,7 +168,7 @@ public class NormalizationTransformTest {
   }
 
   private List<Metric> getValue(List<? extends AbstractMonitor<Number>> monitors, Clock clock) {
-    List<Metric> result = new ArrayList<Metric>();
+    List<Metric> result = new ArrayList<>();
     for (AbstractMonitor<Number> m : monitors) {
       Number n = m.getValue(0);
       Metric metric = new Metric(m.getConfig(), clock.now(), n);

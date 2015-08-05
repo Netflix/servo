@@ -144,7 +144,7 @@ public final class Monitors {
   public static CompositeMonitor<?> newObjectMonitor(String id, Object obj) {
     final TagList tags = getMonitorTags(obj);
 
-    List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitors = new ArrayList<>();
     addMonitors(monitors, id, tags, obj);
 
     final Class<?> c = obj.getClass();
@@ -233,11 +233,11 @@ public final class Monitors {
   static <T> Monitor<T> wrap(TagList tags, Monitor<T> monitor) {
     Monitor<T> m;
     if (monitor instanceof CompositeMonitor<?>) {
-      m = new CompositeMonitorWrapper<T>(tags, (CompositeMonitor<T>) monitor);
+      m = new CompositeMonitorWrapper<>(tags, (CompositeMonitor<T>) monitor);
     } else if (monitor instanceof NumericMonitor<?>) {
       m = (Monitor<T>) new NumericMonitorWrapper(tags, (NumericMonitor<?>) monitor);
     } else {
-      m = new MonitorWrapper<T>(tags, monitor);
+      m = new MonitorWrapper<>(tags, monitor);
     }
     return m;
   }

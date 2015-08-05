@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -63,6 +62,7 @@ public class DynamicCounterTest {
   public void testHasRightType() throws Exception {
     DynamicCounter.increment("test1", tagList);
     StepCounter c = getByName("test1");
+    assert c != null;
     Tag type = c.getConfig().getTags().getTag(DataSourceType.KEY);
     assertEquals(type.getValue(), "NORMALIZED");
   }
@@ -79,13 +79,7 @@ public class DynamicCounterTest {
     Field counters = DynamicCounter.class.getDeclaredField("counters");
     counters.setAccessible(true);
     ExpiringCache<MonitorConfig, Counter> newShortExpiringCache =
-        new ExpiringCache<MonitorConfig, Counter>(60000L,
-            new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
-              @Override
-              public Counter apply(final MonitorConfig config) {
-                return new StepCounter(config, clock);
-              }
-            }, 100L, clock);
+        new ExpiringCache<>(60000L, config -> new StepCounter(config, clock), 100L, clock);
 
     counters.set(theInstance, newShortExpiringCache);
   }
@@ -96,6 +90,7 @@ public class DynamicCounterTest {
     DynamicCounter.increment("test1", tagList);
     StepCounter c = getByName("test1");
     clock.set(60000L);
+    assert c != null;
     assertEquals(c.getCount(0), 1L);
     c.increment(13);
     clock.set(120000L);
@@ -116,6 +111,7 @@ public class DynamicCounterTest {
 
     clock.set(60200L);
     StepCounter c1 = getByName("test1");
+    assert c1 != null;
     assertEquals(c1.getCount(0), 3L);
 
     // the expiration task is not using Clock
@@ -132,12 +128,14 @@ public class DynamicCounterTest {
     DynamicCounter.increment("byName");
     StepCounter c = getByName("byName");
     clock.set(60001L);
+    assert c != null;
     assertEquals(c.getCount(0), 2L);
 
     DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
     DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
     StepCounter c2 = getByName("byName2");
     clock.set(120001L);
+    assert c2 != null;
     assertEquals(c2.getCount(0), 2L);
   }
 

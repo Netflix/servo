@@ -111,20 +111,27 @@ public class TimedInterfaceTest {
       final String method = config.getName();
       final MonitorConfig expected = MonitorConfig.builder(method).withTags(tagList).build();
       assertEquals(config, expected);
-      if (method.equals("method1")) {
-        // expected result is 20, but let's give it a fudge factor to account for
-        // slow machines
-        long value = ((Monitor<Long>) monitor).getValue() - 20;
-        assertTrue(value >= 0 && value <= 9);
-      } else if (method.equals("method2")) {
-        // expected result is 40, but let's give it a fudge factor to account for
-        // slow machines
-        long value = ((Monitor<Long>) monitor).getValue() - 40;
-        assertTrue(value >= 0 && value <= 9);
-      } else {
-        assertEquals(method, "method3");
-        long value = ((Monitor<Long>) monitor).getValue();
-        assertEquals(value, 0);
+      switch (method) {
+        case "method1": {
+          // expected result is 20, but let's give it a fudge factor to account for
+          // slow machines
+          long value = ((Monitor<Long>) monitor).getValue() - 20;
+          assertTrue(value >= 0 && value <= 9);
+          break;
+        }
+        case "method2": {
+          // expected result is 40, but let's give it a fudge factor to account for
+          // slow machines
+          long value = ((Monitor<Long>) monitor).getValue() - 40;
+          assertTrue(value >= 0 && value <= 9);
+          break;
+        }
+        default: {
+          assertEquals(method, "method3");
+          long value = ((Monitor<Long>) monitor).getValue();
+          assertEquals(value, 0);
+          break;
+        }
       }
     }
   }

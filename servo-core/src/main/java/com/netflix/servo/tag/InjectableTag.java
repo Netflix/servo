@@ -38,7 +38,7 @@ public enum InjectableTag implements Tag {
   private final String key;
   private final String value;
 
-  private InjectableTag(String key, String val) {
+  InjectableTag(String key, String val) {
     this.key = key;
     this.value = val;
   }

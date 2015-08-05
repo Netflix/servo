@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * Observer that forwards metrics to atlas. In addition to being MetricObserver, it also supports
@@ -71,7 +72,7 @@ public class AtlasMetricObserver implements MetricObserver {
   private final TagList commonTags;
   private final BlockingQueue<UpdateTasks> pushQueue;
   @SuppressWarnings("unused")
-  private final Gauge<Integer> pushQueueSize = new BasicGauge<Integer>(
+  private final Gauge<Integer> pushQueueSize = new BasicGauge<>(
       MonitorConfig.builder("pushQueue").build(), new Callable<Integer>() {
     @Override
     public Integer call() throws Exception {
@@ -108,7 +109,7 @@ public class AtlasMetricObserver implements MetricObserver {
     this.stepMs = Pollers.getPollingIntervals().get(pollerIdx);
     this.sendTimeoutMs = stepMs * 9 / 10;
     this.commonTags = commonTags;
-    pushQueue = new LinkedBlockingQueue<UpdateTasks>(config.getPushQueueSize());
+    pushQueue = new LinkedBlockingQueue<>(config.getPushQueueSize());
     final Thread pushThread = new Thread(new PushProcessor(), "BaseAtlasMetricObserver-Push");
     pushThread.setDaemon(true);
     pushThread.start();
@@ -148,12 +149,8 @@ public class AtlasMetricObserver implements MetricObserver {
   }
 
   protected static List<Metric> identifyDsTypes(List<Metric> metrics) {
-    List<Metric> result = new ArrayList<Metric>(metrics.size());
-    for (Metric m : metrics) {
-      // since we never generate atlas.dstype = counter we can do the following:
-      result.add(isRate(m) ? m : asGauge(m));
-    }
-    return result;
+    // since we never generate atlas.dstype = counter we can do the following:
+    return metrics.stream().map(m -> isRate(m) ? m : asGauge(m)).collect(Collectors.toList());
   }
 
   @Override
@@ -162,7 +159,7 @@ public class AtlasMetricObserver implements MetricObserver {
   }
 
   private List<Metric> identifyCountersForPush(List<Metric> metrics) {
-    List<Metric> transformed = new ArrayList<Metric>(metrics.size());
+    List<Metric> transformed = new ArrayList<>(metrics.size());
     for (Metric m : metrics) {
       Metric toAdd = m;
       if (isCounter(m)) {
@@ -232,12 +229,8 @@ public class AtlasMetricObserver implements MetricObserver {
    * will *not* be sent to the aggregation cluster.
    */
   protected List<Metric> filter(List<Metric> metrics) {
-    final List<Metric> filtered = new ArrayList<Metric>(metrics.size());
-    for (Metric metric : metrics) {
-      if (shouldIncludeMetric(metric)) {
-        filtered.add(metric);
-      }
-    }
+    final List<Metric> filtered = metrics.stream().filter(this::shouldIncludeMetric)
+        .collect(Collectors.toList());
     LOGGER.debug("Filter: input {} metrics, output {} metrics",
         metrics.size(), filtered.size());
     return filtered;
@@ -271,7 +264,7 @@ public class AtlasMetricObserver implements MetricObserver {
     metrics.toArray(atlasMetrics);
 
     numMetricsTotal.increment(numMetrics);
-    final List<Observable<Integer>> tasks = new ArrayList<Observable<Integer>>();
+    final List<Observable<Integer>> tasks = new ArrayList<>();
     final String uri = config.getAtlasUri();
     LOGGER.debug("writing {} metrics to atlas ({})", numMetrics, uri);
     int i = 0;
@@ -307,20 +300,17 @@ public class AtlasMetricObserver implements MetricObserver {
    * updating our counters for metrics sent and errors.
    */
   protected Func1<HttpClientResponse<ByteBuf>, Integer> withBookkeeping(final int batchSize) {
-    return new Func1<HttpClientResponse<ByteBuf>, Integer>() {
-      @Override
-      public Integer call(HttpClientResponse<ByteBuf> response) {
-        boolean ok = response.getStatus().code() == 200;
-        if (ok) {
-          numMetricsSent.increment(batchSize);
-        } else {
-          LOGGER.info("Status code: {} - Lost {} metrics",
-              response.getStatus().code(), batchSize);
-          numMetricsDroppedHttpErr.increment(batchSize);
-        }
-
-        return batchSize;
+    return response -> {
+      boolean ok = response.getStatus().code() == 200;
+      if (ok) {
+        numMetricsSent.increment(batchSize);
+      } else {
+        LOGGER.info("Status code: {} - Lost {} metrics",
+            response.getStatus().code(), batchSize);
+        numMetricsDroppedHttpErr.increment(batchSize);
       }
+
+      return batchSize;
     };
   }
 

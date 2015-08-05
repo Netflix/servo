@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
@@ -65,6 +64,7 @@ public class DynamicTimerTest {
   public void testHasUnitTag() throws Exception {
     DynamicTimer.start("test1", tagList);
     CompositeMonitor c = (CompositeMonitor<Long>) getByName("test1");
+    assert c != null;
     List<Monitor<?>> monitors = c.getMonitors();
     for (Monitor<?> m : monitors) {
       Tag type = m.getConfig().getTags().getTag("unit");
@@ -84,13 +84,8 @@ public class DynamicTimerTest {
     Field timers = DynamicTimer.class.getDeclaredField("timers");
     timers.setAccessible(true);
     ExpiringCache<DynamicTimer.ConfigUnit, Timer> newShortExpiringCache =
-        new ExpiringCache<DynamicTimer.ConfigUnit, Timer>(1000L,
-            new ConcurrentHashMapV8.Fun<DynamicTimer.ConfigUnit, Timer>() {
-              @Override
-              public Timer apply(final DynamicTimer.ConfigUnit configUnit) {
-                return new BasicTimer(configUnit.getConfig(), configUnit.getUnit());
-              }
-            }, 100L, clock);
+        new ExpiringCache<>(1000L, configUnit -> new BasicTimer(configUnit.getConfig(),
+            configUnit.getUnit()), 100L, clock);
 
     timers.set(theInstance, newShortExpiringCache);
   }
@@ -101,6 +96,7 @@ public class DynamicTimerTest {
     Timer c = getByName("test1");
     s.stop();
     // we don't call s.stop(), so we only have one recorded value
+    assert c != null;
     assertEquals(c.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
     c.record(13, TimeUnit.MILLISECONDS);
 
@@ -122,6 +118,7 @@ public class DynamicTimerTest {
     clock.set(1200L);
     s.stop();
     Timer c1 = getByName("test1");
+    assert c1 != null;
     assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
 
     Thread.sleep(200L);
@@ -140,9 +137,11 @@ public class DynamicTimerTest {
     s2.stop();
 
     Timer c1 = getByName("byName");
+    assert c1 != null;
     assertEquals(c1.getValue().longValue(), s.getDuration(TimeUnit.MILLISECONDS));
 
     Timer c2 = getByName("byName2");
+    assert c2 != null;
     assertEquals(c2.getValue().longValue(), s2.getDuration(TimeUnit.MILLISECONDS));
   }
 }

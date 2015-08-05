@@ -43,9 +43,9 @@ public enum Dimensions {
   AVAILABILITY_ZONE("AvailabilityZone");
 
 
-  private String awsString;
+  private final String awsString;
 
-  private Dimensions(String awsString) {
+  Dimensions(String awsString) {
     this.awsString = awsString;
   }
 

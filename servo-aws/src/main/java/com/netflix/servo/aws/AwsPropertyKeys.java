@@ -24,12 +24,12 @@ public enum AwsPropertyKeys {
   AWS_AUTO_SCALING_END_POINT("com.netflix.servo.aws.endpoint.autoscaling"),
   AWS_CLOUD_WATCH_END_POINT("com.netflix.servo.aws.endpoint.cloudwatch");
 
-  private String bundle;
+  private final String bundle;
 
   /**
    * Constructor responsible to instantiate the type of bundle.
    */
-  private AwsPropertyKeys(String bundle) {
+  AwsPropertyKeys(String bundle) {
     this.bundle = bundle;
   }
 

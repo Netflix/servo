@@ -131,9 +131,7 @@ public final class JmxMetricPoller implements MetricPoller {
     tagsBuilder.add(Tags.newTag(DOMAIN_KEY, name.getDomain()));
     tagsBuilder.add(CLASS_TAG);
     if (defaultTags != null) {
-      for (Tag defaultTag : defaultTags) {
-        tagsBuilder.add(defaultTag);
-      }
+      defaultTags.forEach(tagsBuilder::add);
     }
     return new BasicTagList(tagsBuilder.result());
   }
@@ -197,7 +195,7 @@ public final class JmxMetricPoller implements MetricPoller {
     MBeanAttributeInfo[] attrInfos = info.getAttributes();
 
     // Restrict to attributes that match the filter
-    List<String> matchingNames = new ArrayList<String>();
+    List<String> matchingNames = new ArrayList<>();
     for (MBeanAttributeInfo attrInfo : attrInfos) {
       String attrName = attrInfo.getName();
       if (filter.matches(new MonitorConfig.Builder(attrName).withTags(tags).build())) {
@@ -210,11 +208,10 @@ public final class JmxMetricPoller implements MetricPoller {
       String attrName = attr.getName();
       Object obj = attr.getValue();
       if (obj instanceof TabularData) {
-        for (Object key : ((TabularData) obj).values()) {
-          if (key instanceof CompositeData) {
-            addTabularMetrics(filter, metrics, tags, attrName, (CompositeData) key);
-          }
-        }
+        ((TabularData) obj).values().stream()
+            .filter(key -> key instanceof CompositeData)
+            .forEach(key -> addTabularMetrics(filter, metrics, tags, attrName,
+                (CompositeData) key));
       } else if (obj instanceof CompositeData) {
         addCompositeMetrics(filter, metrics, tags, attrName, (CompositeData) obj);
       } else {
@@ -225,7 +222,7 @@ public final class JmxMetricPoller implements MetricPoller {
 
   private void addCompositeMetrics(MetricFilter filter, List<Metric> metrics, TagList tags,
                                    String attrName, CompositeData obj) {
-    Map<String, Object> values = new HashMap<String, Object>();
+    Map<String, Object> values = new HashMap<>();
     extractValues(null, values, obj);
     for (Map.Entry<String, Object> e : values.entrySet()) {
       final Tag compositeTag = Tags.newTag(COMPOSITE_PATH_KEY, e.getKey());
@@ -238,7 +235,7 @@ public final class JmxMetricPoller implements MetricPoller {
 
   private void addTabularMetrics(MetricFilter filter, List<Metric> metrics, TagList tags,
                                  String attrName, CompositeData obj) {
-    Map<String, Object> values = new HashMap<String, Object>();
+    Map<String, Object> values = new HashMap<>();
     // tabular composite data has a value called key and one called value
     values.put(obj.get("key").toString(), obj.get("value"));
     for (Map.Entry<String, Object> e : values.entrySet()) {
@@ -278,7 +275,7 @@ public final class JmxMetricPoller implements MetricPoller {
    * {@inheritDoc}
    */
   public List<Metric> poll(MetricFilter filter, boolean reset) {
-    List<Metric> metrics = new ArrayList<Metric>();
+    List<Metric> metrics = new ArrayList<>();
     try {
       MBeanServerConnection con = connector.getConnection();
       for (ObjectName query : queries) {
@@ -330,7 +327,7 @@ public final class JmxMetricPoller implements MetricPoller {
 
   private static List<Attribute> individuallyLoadAttributes(
       MBeanServerConnection server, ObjectName objectName, List<String> matchingNames) {
-    List<Attribute> attributes = new ArrayList<Attribute>();
+    List<Attribute> attributes = new ArrayList<>();
     for (String attrName : matchingNames) {
       try {
         Object value = server.getAttribute(objectName, attrName);

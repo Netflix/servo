@@ -22,7 +22,7 @@ import static org.testng.Assert.assertEquals;
 
 public class MaxGaugeTest extends AbstractMonitorTest<MaxGauge> {
 
-  private ManualClock clock = new ManualClock(0L);
+  private final ManualClock clock = new ManualClock(0L);
 
   @Override
   public MaxGauge newInstance(String name) {

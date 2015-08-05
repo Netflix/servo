@@ -28,7 +28,7 @@ public class SocketReceiverTester implements Runnable {
   private final ServerSocket acceptor;
   private Socket s;
 
-  private String[] lines = new String[100];
+  private final String[] lines = new String[100];
   private volatile boolean running = true;
   private volatile boolean connected = false;
   private volatile int linesRead = 0;

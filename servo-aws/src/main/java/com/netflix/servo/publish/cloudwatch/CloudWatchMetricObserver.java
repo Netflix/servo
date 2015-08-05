@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Writes observations to Amazon's CloudWatch.
@@ -177,7 +178,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
   public void updateImpl(List<Metric> metrics) {
     Preconditions.checkNotNull(metrics, "metrics");
 
-    List<Metric> batch = new ArrayList<Metric>(batchSize);
+    List<Metric> batch = new ArrayList<>(batchSize);
     int batchCount = 1;
 
     while (!metrics.isEmpty()) {
@@ -216,11 +217,8 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
   }
 
   PutMetricDataRequest createPutRequest(List<Metric> batch) {
-    List<MetricDatum> datumList = new ArrayList<MetricDatum>(batch.size());
-
-    for (Metric m : batch) {
-      datumList.add(createMetricDatum(m));
-    }
+    List<MetricDatum> datumList = batch.stream().map(this::createMetricDatum)
+        .collect(Collectors.toList());
 
     return new PutMetricDataRequest().withNamespace(cloudWatchNamespace)
         .withMetricData(datumList);
@@ -255,11 +253,11 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
         doubleValue = 0.0;
       }
     }
-    return Double.valueOf(doubleValue);
+    return doubleValue;
   }
 
   List<Dimension> createDimensions(TagList tags) {
-    List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
+    List<Dimension> dimensionList = new ArrayList<>(tags.size());
 
     for (Tag tag : tags) {
       dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));

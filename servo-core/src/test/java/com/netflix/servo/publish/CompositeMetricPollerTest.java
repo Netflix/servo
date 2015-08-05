@@ -51,7 +51,7 @@ public class CompositeMetricPollerTest {
 
   @Test
   public void testBasic() throws Exception {
-    Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
+    Map<String, MetricPoller> pollers = new HashMap<>();
     pollers.put("p1", newPoller(0));
 
     ExecutorService exec = Executors.newFixedThreadPool(1);
@@ -62,7 +62,7 @@ public class CompositeMetricPollerTest {
 
   @Test
   public void testMultiple() throws Exception {
-    Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
+    Map<String, MetricPoller> pollers = new HashMap<>();
     pollers.put("p1", newPoller(0));
     pollers.put("p2", newPoller(0));
 
@@ -79,7 +79,7 @@ public class CompositeMetricPollerTest {
     // behavior if there is a bug. In particular before we were cancelling the future on
     // timeout, then if the p2 key times out it will fail on java7 and pass on java8.
     // If the p1 key times out the opposite.
-    Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
+    Map<String, MetricPoller> pollers = new HashMap<>();
     pollers.put("p1", newPoller(120000));
     pollers.put("p2", newPoller(0));
 
@@ -98,7 +98,7 @@ public class CompositeMetricPollerTest {
     MockMetricPoller mock = new MockMetricPoller();
     mock.setDie(true);
 
-    Map<String, MetricPoller> pollers = new HashMap<String, MetricPoller>();
+    Map<String, MetricPoller> pollers = new HashMap<>();
     pollers.put("p1", mock);
     pollers.put("p2", newPoller(0));
 

@@ -18,8 +18,8 @@ package com.netflix.servo.publish;
 import com.google.common.base.Function;
 import com.netflix.servo.Metric;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * An observer that will transform the list of metrics using a given function.
@@ -41,10 +41,8 @@ public class MetricTransformObserver implements MetricObserver {
 
   @Override
   public void update(List<Metric> metrics) {
-    List<Metric> transformed = new ArrayList<Metric>(metrics.size());
-    for (Metric m : metrics) {
-      transformed.add(transformer.apply(m));
-    }
+    List<Metric> transformed = metrics.stream()
+        .map(transformer::apply).collect(Collectors.toList());
     observer.update(transformed);
   }
 

@@ -41,12 +41,7 @@ class MonitoredCache {
   private final Memoizer<CacheStats> memoStats;
 
   MonitoredCache(final Cache<?, ?> cache) {
-    final Callable<CacheStats> supplier = new Callable<CacheStats>() {
-      @Override
-      public CacheStats call() throws Exception {
-        return cache.stats();
-      }
-    };
+    final Callable<CacheStats> supplier = cache::stats;
     memoStats = Memoizer.create(supplier, CACHE_TIME, TimeUnit.SECONDS);
   }
 

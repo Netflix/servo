@@ -129,7 +129,7 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
       );
     }
 
-    List<Monitor<?>> monitorList = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitorList = new ArrayList<>();
     monitorList.add(totalTime);
     monitorList.add(min);
     monitorList.add(max);

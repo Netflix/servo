@@ -35,8 +35,9 @@ public final class UnmodifiableSet {
    * @param <E>      type of the elements
    * @return an unmodifiable view of the set created from the given elements.
    */
+  @SafeVarargs
   public static <E> Set<E> of(E... elements) {
-    Set<E> result = new HashSet<E>();
+    Set<E> result = new HashSet<>();
     Collections.addAll(result, elements);
     return Collections.unmodifiableSet(result);
   }
@@ -49,7 +50,7 @@ public final class UnmodifiableSet {
    * @return an unmodifiable view of the set created from the given elements.
    */
   public static <E> Set<E> copyOf(Iterator<? extends E> elementsIterator) {
-    Set<E> result = new HashSet<E>();
+    Set<E> result = new HashSet<>();
     while (elementsIterator.hasNext()) {
       result.add(elementsIterator.next());
     }

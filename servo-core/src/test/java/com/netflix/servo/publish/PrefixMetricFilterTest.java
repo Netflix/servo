@@ -48,7 +48,7 @@ public class PrefixMetricFilterTest {
 
   @Test
   public void testPrefixFilter() throws Exception {
-    NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
+    NavigableMap<String, MetricFilter> filters = new TreeMap<>();
     filters.put("a.b.c", MATCH_ALL);
     MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
     MetricPoller poller = newPoller();
@@ -59,7 +59,7 @@ public class PrefixMetricFilterTest {
 
   @Test
   public void testLongestPrefixFilter() throws Exception {
-    NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
+    NavigableMap<String, MetricFilter> filters = new TreeMap<>();
     filters.put("a.b.c", MATCH_ALL);
     filters.put("a.b.c.c", MATCH_NONE);
     MetricFilter filter = new PrefixMetricFilter("c", MATCH_NONE, filters);
@@ -71,7 +71,7 @@ public class PrefixMetricFilterTest {
 
   @Test
   public void testPrefixFilterOnName() throws Exception {
-    NavigableMap<String, MetricFilter> filters = new TreeMap<String, MetricFilter>();
+    NavigableMap<String, MetricFilter> filters = new TreeMap<>();
     filters.put("m", MATCH_ALL);
     MetricFilter filter = new PrefixMetricFilter(null, MATCH_NONE, filters);
     MetricPoller poller = newPoller();

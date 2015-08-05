@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -162,15 +161,12 @@ public class SmallTagMap implements Iterable<Tag> {
           tagArray[tagIdx++] = (Tag) o;
         }
       }
-      Arrays.sort(tagArray, new Comparator<Tag>() {
-        @Override
-        public int compare(Tag o1, Tag o2) {
-          int keyCmp = o1.getKey().compareTo(o2.getKey());
-          if (keyCmp != 0) {
-            return keyCmp;
-          }
-          return o1.getValue().compareTo(o2.getValue());
+      Arrays.sort(tagArray, (o1, o2) -> {
+        int keyCmp = o1.getKey().compareTo(o2.getKey());
+        if (keyCmp != 0) {
+          return keyCmp;
         }
+        return o1.getValue().compareTo(o2.getValue());
       });
       assert (tagIdx == actualSize);
       return new SmallTagMap(tagArray);
@@ -300,7 +296,7 @@ public class SmallTagMap implements Iterable<Tag> {
    */
   @Deprecated
   public Set<Tag> tagSet() {
-    return new HashSet<Tag>(Arrays.asList(tagArray));
+    return new HashSet<>(Arrays.asList(tagArray));
   }
 
   @Override

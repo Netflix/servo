@@ -34,7 +34,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -77,7 +76,7 @@ public final class Main {
   }
 
   private static TagList getCommonTags() {
-    final Map<String, String> tags = new HashMap<String, String>();
+    final Map<String, String> tags = new HashMap<>();
     final String cluster = System.getenv("NETFLIX_CLUSTER");
     tags.put(CLUSTER, (cluster == null) ? UNKNOWN : cluster);
     try {
@@ -101,7 +100,7 @@ public final class Main {
   }
 
   private static void initMetricsPublishing() throws Exception {
-    final List<MetricObserver> observers = new ArrayList<MetricObserver>();
+    final List<MetricObserver> observers = new ArrayList<>();
     if (Config.isFileObserverEnabled()) {
       observers.add(createFileObserver());
     }
@@ -128,11 +127,9 @@ public final class Main {
     server.createContext("/echo", new EchoHandler());
 
     // Hook to allow for graceful exit
-    final Closeable c = new Closeable() {
-      public void close() throws IOException {
-        PollScheduler.getInstance().stop();
-        server.stop(5);
-      }
+    final Closeable c = () -> {
+      PollScheduler.getInstance().stop();
+      server.stop(5);
     };
     server.createContext("/exit", new ExitHandler(c));
 

@@ -1,11 +1,7 @@
-dependencies {
-  compile project(':servo-internal')
-}
-
 task(checkCompatibility, dependsOn: 'jar', type: JavaExec) {
   doFirst {
     main = 'com.googlecode.japi.checker.cli.Main'
-    classpath = files("$projectDir/../codequality/japi-checker-cli-0.2.0-SNAPSHOT.jar")
+    classpath = files("$projectDir/../codequality/japi-checker-cli-0.2.1-SNAPSHOT.jar")
     args = [
       "$projectDir/../codequality/servo-core-BASELINE.jar",
       jar.archivePath.path

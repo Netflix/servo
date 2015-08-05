@@ -46,7 +46,7 @@ public final class SortedTagList implements TagList {
    * Helper class to construct {@code SortedTagList} objects.
    */
   public static final class Builder {
-    private final Map<String, Tag> data = new HashMap<String, Tag>();
+    private final Map<String, Tag> data = new HashMap<>();
 
     /**
      * Add the collection of tags {@code tagsCollection} to this builder and
@@ -98,7 +98,7 @@ public final class SortedTagList implements TagList {
 
   private SortedTagList(Builder builder) {
     this.tagSortedMap = Collections.unmodifiableSortedMap(
-        new TreeMap<String, Tag>(builder.data));
+        new TreeMap<>(builder.data));
     this.size = tagSortedMap.size();
   }
 
@@ -155,7 +155,7 @@ public final class SortedTagList implements TagList {
    */
   @Override
   public Map<String, String> asMap() {
-    Map<String, String> stringMap = new LinkedHashMap<String, String>(size);
+    Map<String, String> stringMap = new LinkedHashMap<>(size);
     for (Tag t : tagSortedMap.values()) {
       stringMap.put(t.getKey(), t.getValue());
     }

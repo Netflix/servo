@@ -20,9 +20,9 @@ import com.netflix.servo.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Base class for simple pollers that do not benefit from filtering in advance.
@@ -51,12 +51,8 @@ public abstract class BaseMetricPoller implements MetricPoller {
   public final List<Metric> poll(MetricFilter filter, boolean reset) {
     Preconditions.checkNotNull(filter, "filter");
     List<Metric> metrics = pollImpl(reset);
-    List<Metric> retained = new ArrayList<Metric>();
-    for (Metric m : metrics) {
-      if (filter.matches(m.getConfig())) {
-        retained.add(m);
-      }
-    }
+    List<Metric> retained = metrics.stream().filter(m -> filter.matches(m.getConfig()))
+        .collect(Collectors.toList());
     logger.debug("received {} metrics, retained {} metrics", metrics.size(), retained.size());
 
     return Collections.unmodifiableList(retained);

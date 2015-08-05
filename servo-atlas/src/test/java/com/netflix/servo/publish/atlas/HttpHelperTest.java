@@ -17,7 +17,6 @@ package com.netflix.servo.publish.atlas;
 
 import org.testng.annotations.Test;
 import rx.Observable;
-import rx.functions.Func1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ import static org.testng.Assert.assertEquals;
 public class HttpHelperTest {
   @Test
   public void testSendAll() throws Exception {
-    List<Observable<Integer>> batches = new ArrayList<Observable<Integer>>();
+    List<Observable<Integer>> batches = new ArrayList<>();
     int expectedSum = 0;
     for (int i = 1; i <= 5; ++i) {
       batches.add(Observable.just(i));
@@ -51,15 +50,10 @@ public class HttpHelperTest {
   @Test
   public void testSendAllSlow() throws Exception {
     Observable<Integer> interval = Observable.interval(400,
-        TimeUnit.MILLISECONDS).map(new Func1<Long, Integer>() {
-      @Override
-      public Integer call(Long l) {
-        return l.intValue() + 1;
-      }
-    });
+        TimeUnit.MILLISECONDS).map(l -> l.intValue() + 1);
 
     // now add an observable that should timeout
-    List<Observable<Integer>> batches = new ArrayList<Observable<Integer>>();
+    List<Observable<Integer>> batches = new ArrayList<>();
     batches.add(interval);
 
     int expectedSum = 3; // 1 + 2 should have been received from interval

@@ -48,7 +48,7 @@ class MonitorMBean implements DynamicMBean {
    */
   public static List<MonitorMBean> createMBeans(String domain, Monitor<?> monitor,
                                                 ObjectNameMapper mapper) {
-    List<MonitorMBean> mbeans = new ArrayList<MonitorMBean>();
+    List<MonitorMBean> mbeans = new ArrayList<>();
     createMBeans(mbeans, domain, monitor, mapper);
     return mbeans;
   }

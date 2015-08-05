@@ -53,7 +53,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
   @Test
   public void testStats() throws Exception {
     final StatsTimer timer = newInstance("t1");
-    final Map<String, Number> expectedValues = new HashMap<String, Number>();
+    final Map<String, Number> expectedValues = new HashMap<>();
     final int n = 200 * 1000;
     expectedValues.put("count", (long) n);
     expectedValues.put("totalTime", (long) n * (n - 1) / 2);
@@ -104,7 +104,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
   @Test
   public void testMultiThreadStats() throws Exception {
     final StatsTimer timer = newInstance("t1");
-    final Map<String, Number> expectedValues = new HashMap<String, Number>();
+    final Map<String, Number> expectedValues = new HashMap<>();
     final int n = 10 * 1000;
     expectedValues.put("count", (long) n);
     expectedValues.put("totalTime", (long) n * (n - 1) / 2);

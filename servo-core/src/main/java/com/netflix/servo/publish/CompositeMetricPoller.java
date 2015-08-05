@@ -98,13 +98,13 @@ public class CompositeMetricPoller implements MetricPoller {
    * {@inheritDoc}
    */
   public final List<Metric> poll(MetricFilter filter, boolean reset) {
-    Map<String, Future<List<Metric>>> futures = new HashMap<String, Future<List<Metric>>>();
+    Map<String, Future<List<Metric>>> futures = new HashMap<>();
     for (Map.Entry<String, MetricPoller> e : pollers.entrySet()) {
       PollCallable task = new PollCallable(e.getValue(), filter, reset);
       futures.put(e.getKey(), executor.submit(task));
     }
 
-    List<Metric> allMetrics = new ArrayList<Metric>();
+    List<Metric> allMetrics = new ArrayList<>();
     for (Map.Entry<String, Future<List<Metric>>> e : futures.entrySet()) {
       allMetrics.addAll(getMetrics(e.getKey(), e.getValue()));
     }

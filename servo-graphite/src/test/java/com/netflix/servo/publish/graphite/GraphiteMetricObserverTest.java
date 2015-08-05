@@ -55,7 +55,7 @@ public class GraphiteMetricObserverTest {
     GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
 
     try {
-      List<Metric> metrics = new ArrayList<Metric>();
+      List<Metric> metrics = new ArrayList<>();
       metrics.add(BasicGraphiteNamingConventionTest.getOSMetric("AvailableProcessors"));
 
       gw.update(metrics);
@@ -83,7 +83,7 @@ public class GraphiteMetricObserverTest {
     GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
 
     try {
-      List<Metric> metrics = new ArrayList<Metric>();
+      List<Metric> metrics = new ArrayList<>();
       metrics.add(BasicGraphiteNamingConventionTest.getOSMetric("AvailableProcessors"));
 
       gw.update(metrics);

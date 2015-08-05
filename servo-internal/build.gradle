@@ -1,9 +1,0 @@
-compileJava {
-  options.compilerArgs << '-XDignore.symbol.file'
-  options.fork = true
-  options.forkOptions.executable = 'javac'
-}
-
-checkstyleMain {
-  enabled = false
-}

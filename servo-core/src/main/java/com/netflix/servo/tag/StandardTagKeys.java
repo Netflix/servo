@@ -31,7 +31,7 @@ public enum StandardTagKeys {
 
   private final String keyName;
 
-  private StandardTagKeys(String keyName) {
+  StandardTagKeys(String keyName) {
     this.keyName = keyName;
   }
 

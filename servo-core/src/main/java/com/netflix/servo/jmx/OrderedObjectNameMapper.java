@@ -64,7 +64,7 @@ public final class OrderedObjectNameMapper implements ObjectNameMapper {
    * @param orderedKeys     the list of keys in the order that should be used
    */
   public OrderedObjectNameMapper(boolean appendRemaining, List<String> orderedKeys) {
-    this.keyOrder = new ArrayList<String>(orderedKeys);
+    this.keyOrder = new ArrayList<>(orderedKeys);
     this.appendRemaining = appendRemaining;
     this.orderIncludesName = keyOrder.contains("name");
   }
@@ -72,7 +72,7 @@ public final class OrderedObjectNameMapper implements ObjectNameMapper {
   @Override
   public ObjectName createObjectName(String domain, Monitor<?> monitor) {
     ObjectNameBuilder objBuilder = ObjectNameBuilder.forDomain(domain);
-    Map<String, String> tags = new TreeMap<String, String>(
+    Map<String, String> tags = new TreeMap<>(
         monitor.getConfig().getTags().asMap());
     // For the known ordered keys, try to add them if they're present in the monitor's tags
     for (String knownKey : keyOrder) {
