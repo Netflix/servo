@@ -153,13 +153,14 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
    *
    * @param config       Config to identify a particular timer instance to update.
    * @param reportUnit   The unit to use when reporting values to observers. For example if sent to
-   *                     a typical time series graphing system this would be the unit for the y-axis.
+   *                     a typical time series graphing system this would be the unit
+   *                     for the y-axis.
    *                     It is generally recommended to use base units for reporting, so
    *                     {@link TimeUnit#SECONDS} is the preferred value.
    * @param duration     Measured duration to record.
    * @param durationUnit Unit for the measured duration. This should typically be the unit used for
-   *                     timing source. For example if using {@link System#nanoTime()} the unit would
-   *                     be nanoseconds.
+   *                     timing source. For example if using {@link System#nanoTime()}
+   *                     the unit would be nanoseconds.
    */
   public static void record(MonitorConfig config, TimeUnit reportUnit, long duration,
                             TimeUnit durationUnit) {
