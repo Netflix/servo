@@ -50,220 +50,226 @@ import java.util.List;
  */
 public class CloudWatchMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CloudWatchMetricObserver.class);
 
-    /**
-     * Experimentally derived value for the largest exponent that can be sent to cloudwatch
-     * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
-     * program that was used.
-     */
-    private static final int MAX_EXPONENT = 360;
+  /**
+   * Experimentally derived value for the largest exponent that can be sent to cloudwatch
+   * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
+   * program that was used.
+   */
+  private static final int MAX_EXPONENT = 360;
 
-    /**
-     * Experimentally derived value for the smallest exponent that can be sent to cloudwatch
-     * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
-     * program that was used.
-     */
-    private static final int MIN_EXPONENT = -360;
+  /**
+   * Experimentally derived value for the smallest exponent that can be sent to cloudwatch
+   * without triggering an InvalidParameterValue exception. See CloudWatchValueTest for the test
+   * program that was used.
+   */
+  private static final int MIN_EXPONENT = -360;
 
-    /**
-     * Maximum value that can be represented in cloudwatch.
-     */
-    static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
+  /**
+   * Maximum value that can be represented in cloudwatch.
+   */
+  static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
 
-    /** Number of cloudwatch metrics reported. */
-    private static final Counter METRICS_COUNTER = new StepCounter(
-        new MonitorConfig.Builder("servo.cloudwatch.metrics").build());
+  /**
+   * Number of cloudwatch metrics reported.
+   */
+  private static final Counter METRICS_COUNTER = new StepCounter(
+      new MonitorConfig.Builder("servo.cloudwatch.metrics").build());
 
-    /** Number of cloudwatch put calls. */
-    private static final Timer PUTS_TIMER = new BasicTimer(
-        new MonitorConfig.Builder("servo.cloudwatch.puts").build());
+  /**
+   * Number of cloudwatch put calls.
+   */
+  private static final Timer PUTS_TIMER = new BasicTimer(
+      new MonitorConfig.Builder("servo.cloudwatch.puts").build());
 
-    /** Number of cloudwatch errors. */
-    private static final MonitorConfig ERRORS_COUNTER_ID =
-        new MonitorConfig.Builder("servo.cloudwatch.errors").build();
+  /**
+   * Number of cloudwatch errors.
+   */
+  private static final MonitorConfig ERRORS_COUNTER_ID =
+      new MonitorConfig.Builder("servo.cloudwatch.errors").build();
 
-    static {
-        DefaultMonitorRegistry.getInstance().register(METRICS_COUNTER);
-        DefaultMonitorRegistry.getInstance().register(PUTS_TIMER);
-    }
+  static {
+    DefaultMonitorRegistry.getInstance().register(METRICS_COUNTER);
+    DefaultMonitorRegistry.getInstance().register(PUTS_TIMER);
+  }
 
-    private int batchSize;
-    private boolean truncateEnabled = false;
+  private int batchSize;
+  private boolean truncateEnabled = false;
 
-    private final AmazonCloudWatch cloudWatch;
-    private final String cloudWatchNamespace;
+  private final AmazonCloudWatch cloudWatch;
+  private final String cloudWatchNamespace;
 
-    /**
-     * @param name        Unique name of the observer.
-     * @param namespace   Namespace to use in CloudWatch.
-     * @param credentials Amazon credentials.
-     * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
-     */
-    @Deprecated
-    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials) {
-        this(name, namespace, new AmazonCloudWatchClient(credentials));
-    }
+  /**
+   * @param name        Unique name of the observer.
+   * @param namespace   Namespace to use in CloudWatch.
+   * @param credentials Amazon credentials.
+   * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
+   */
+  @Deprecated
+  public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials) {
+    this(name, namespace, new AmazonCloudWatchClient(credentials));
+  }
 
-    /**
-     * @param name        Unique name of the observer.
-     * @param namespace   Namespace to use in CloudWatch.
-     * @param credentials Amazon credentials.
-     * @param batchSize   Batch size to send to Amazon.  They currently enforce a max of 20.
-     * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
-     */
-    @Deprecated
-    public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials,
-                                    int batchSize) {
-        this(name, namespace, credentials);
-        this.batchSize = batchSize;
-    }
+  /**
+   * @param name        Unique name of the observer.
+   * @param namespace   Namespace to use in CloudWatch.
+   * @param credentials Amazon credentials.
+   * @param batchSize   Batch size to send to Amazon.  They currently enforce a max of 20.
+   * @deprecated use equivalent constructor that accepts an AWSCredentialsProvider.
+   */
+  @Deprecated
+  public CloudWatchMetricObserver(String name, String namespace, AWSCredentials credentials,
+                                  int batchSize) {
+    this(name, namespace, credentials);
+    this.batchSize = batchSize;
+  }
 
-    /**
-     * @param name      Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
-     * @param provider  Amazon credentials provider
-     */
-    public CloudWatchMetricObserver(String name, String namespace,
-                                    AWSCredentialsProvider provider) {
-        this(name, namespace, AwsServiceClients.cloudWatch(provider));
-    }
+  /**
+   * @param name      Unique name of the observer.
+   * @param namespace Namespace to use in CloudWatch.
+   * @param provider  Amazon credentials provider
+   */
+  public CloudWatchMetricObserver(String name, String namespace,
+                                  AWSCredentialsProvider provider) {
+    this(name, namespace, AwsServiceClients.cloudWatch(provider));
+  }
 
-    /**
-     * @param name      Unique name of the observer.
-     * @param namespace Namespace to use in CloudWatch.
-     * @param provider  Amazon credentials provider.
-     * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
-     */
-    public CloudWatchMetricObserver(String name, String namespace,
-                                    AWSCredentialsProvider provider, int batchSize) {
-        this(name, namespace, provider);
-        this.batchSize = batchSize;
-    }
+  /**
+   * @param name      Unique name of the observer.
+   * @param namespace Namespace to use in CloudWatch.
+   * @param provider  Amazon credentials provider.
+   * @param batchSize Batch size to send to Amazon.  They currently enforce a max of 20.
+   */
+  public CloudWatchMetricObserver(String name, String namespace,
+                                  AWSCredentialsProvider provider, int batchSize) {
+    this(name, namespace, provider);
+    this.batchSize = batchSize;
+  }
 
-    /**
-     * @param name       Unique name of the observer.
-     * @param namespace  Namespace to use in CloudWatch.
-     * @param cloudWatch AWS cloudwatch.
-     */
-    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch) {
-        super(name);
-        this.cloudWatch = cloudWatch;
-        this.cloudWatchNamespace = namespace;
-        batchSize = 20;
-    }
+  /**
+   * @param name       Unique name of the observer.
+   * @param namespace  Namespace to use in CloudWatch.
+   * @param cloudWatch AWS cloudwatch.
+   */
+  public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch) {
+    super(name);
+    this.cloudWatch = cloudWatch;
+    this.cloudWatchNamespace = namespace;
+    batchSize = 20;
+  }
 
-    /**
-     * @param name       Unique name of the observer.
-     * @param namespace  Namespace to use in CloudWatch.
-     * @param cloudWatch AWS cloudwatch.
-     * @param batchSize  Batch size to send to Amazon.  They currently enforce a max of 20.
-     */
-    public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch,
-                                    int batchSize) {
-        this(name, namespace, cloudWatch);
-        this.batchSize = batchSize;
-    }
+  /**
+   * @param name       Unique name of the observer.
+   * @param namespace  Namespace to use in CloudWatch.
+   * @param cloudWatch AWS cloudwatch.
+   * @param batchSize  Batch size to send to Amazon.  They currently enforce a max of 20.
+   */
+  public CloudWatchMetricObserver(String name, String namespace, AmazonCloudWatch cloudWatch,
+                                  int batchSize) {
+    this(name, namespace, cloudWatch);
+    this.batchSize = batchSize;
+  }
 
-    /**
-     * @param metrics The list of metrics you want to send to CloudWatch
-     */
-    public void updateImpl(List<Metric> metrics) {
-        Preconditions.checkNotNull(metrics, "metrics");
+  /**
+   * @param metrics The list of metrics you want to send to CloudWatch
+   */
+  public void updateImpl(List<Metric> metrics) {
+    Preconditions.checkNotNull(metrics, "metrics");
 
-        List<Metric> batch = new ArrayList<Metric>(batchSize);
-        int batchCount = 1;
+    List<Metric> batch = new ArrayList<Metric>(batchSize);
+    int batchCount = 1;
 
-        while (!metrics.isEmpty()) {
-            Metric m = metrics.remove(0);
-            if (m.hasNumberValue()) {
-                batch.add(m);
+    while (!metrics.isEmpty()) {
+      Metric m = metrics.remove(0);
+      if (m.hasNumberValue()) {
+        batch.add(m);
 
-                if (batchCount % batchSize == 0) {
-                    ++batchCount;
-                    putMetricData(batch);
-                    batch.clear();
-                }
-            }
+        if (batchCount % batchSize == 0) {
+          ++batchCount;
+          putMetricData(batch);
+          batch.clear();
         }
-
-        if (!batch.isEmpty()) {
-            putMetricData(batch);
-        }
+      }
     }
 
-    private void putMetricData(List<Metric> batch) {
-        METRICS_COUNTER.increment(batch.size());
-        final Stopwatch s = PUTS_TIMER.start();
-        try {
-            cloudWatch.putMetricData(createPutRequest(batch));
-        } catch (AmazonServiceException e) {
-            final Tag error = new BasicTag("error", e.getErrorCode());
-            DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
-        } catch (Exception e) {
-            final Tag error = new BasicTag("error", e.getClass().getSimpleName());
-            DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
-            LOG.error("Error while submitting data for metrics : " + batch, e);
-        } finally {
-            s.stop();
-        }
+    if (!batch.isEmpty()) {
+      putMetricData(batch);
+    }
+  }
+
+  private void putMetricData(List<Metric> batch) {
+    METRICS_COUNTER.increment(batch.size());
+    final Stopwatch s = PUTS_TIMER.start();
+    try {
+      cloudWatch.putMetricData(createPutRequest(batch));
+    } catch (AmazonServiceException e) {
+      final Tag error = new BasicTag("error", e.getErrorCode());
+      DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
+    } catch (Exception e) {
+      final Tag error = new BasicTag("error", e.getClass().getSimpleName());
+      DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
+      LOG.error("Error while submitting data for metrics : " + batch, e);
+    } finally {
+      s.stop();
+    }
+  }
+
+  PutMetricDataRequest createPutRequest(List<Metric> batch) {
+    List<MetricDatum> datumList = new ArrayList<MetricDatum>(batch.size());
+
+    for (Metric m : batch) {
+      datumList.add(createMetricDatum(m));
     }
 
-    PutMetricDataRequest createPutRequest(List<Metric> batch) {
-        List<MetricDatum> datumList = new ArrayList<MetricDatum>(batch.size());
+    return new PutMetricDataRequest().withNamespace(cloudWatchNamespace)
+        .withMetricData(datumList);
+  }
 
-        for (Metric m : batch) {
-            datumList.add(createMetricDatum(m));
-        }
+  MetricDatum createMetricDatum(Metric metric) {
+    MetricDatum metricDatum = new MetricDatum();
 
-        return new PutMetricDataRequest().withNamespace(cloudWatchNamespace)
-                .withMetricData(datumList);
+    return metricDatum.withMetricName(metric.getConfig().getName())
+        .withDimensions(createDimensions(metric.getConfig().getTags()))
+        .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
+        .withTimestamp(new Date(metric.getTimestamp()))
+        .withValue(truncate(metric.getNumberValue()));
+    //TODO Need to convert into reasonable units based on DataType
+  }
+
+  /**
+   * Adjust a double value so it can be successfully written to cloudwatch. This involves capping
+   * values with large exponents to an experimentally determined max value and converting values
+   * with large negative exponents to 0. In addition, NaN values will be converted to 0.
+   */
+  Double truncate(Number numberValue) {
+    // http://docs.amazonwebservices.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html
+    double doubleValue = numberValue.doubleValue();
+    if (truncateEnabled) {
+      final int exponent = Math.getExponent(doubleValue);
+      if (Double.isNaN(doubleValue)) {
+        doubleValue = 0.0;
+      } else if (exponent >= MAX_EXPONENT) {
+        doubleValue = (doubleValue < 0.0) ? -MAX_VALUE : MAX_VALUE;
+      } else if (exponent <= MIN_EXPONENT) {
+        doubleValue = 0.0;
+      }
+    }
+    return Double.valueOf(doubleValue);
+  }
+
+  List<Dimension> createDimensions(TagList tags) {
+    List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
+
+    for (Tag tag : tags) {
+      dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));
     }
 
-    MetricDatum createMetricDatum(Metric metric) {
-        MetricDatum metricDatum = new MetricDatum();
+    return dimensionList;
+  }
 
-        return metricDatum.withMetricName(metric.getConfig().getName())
-                .withDimensions(createDimensions(metric.getConfig().getTags()))
-                .withUnit("None")//DataSourceTypeToAwsUnit.getUnit(metric.))
-                .withTimestamp(new Date(metric.getTimestamp()))
-                .withValue(truncate(metric.getNumberValue()));
-        //TODO Need to convert into reasonable units based on DataType
-    }
-
-    /**
-     * Adjust a double value so it can be successfully written to cloudwatch. This involves capping
-     * values with large exponents to an experimentally determined max value and converting values
-     * with large negative exponents to 0. In addition, NaN values will be converted to 0.
-     */
-    Double truncate(Number numberValue) {
-        // http://docs.amazonwebservices.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html
-        double doubleValue = numberValue.doubleValue();
-        if (truncateEnabled) {
-            final int exponent = Math.getExponent(doubleValue);
-            if (Double.isNaN(doubleValue)) {
-                doubleValue = 0.0;
-            } else if (exponent >= MAX_EXPONENT) {
-                doubleValue = (doubleValue < 0.0) ? -MAX_VALUE : MAX_VALUE;
-            } else if (exponent <= MIN_EXPONENT) {
-                doubleValue = 0.0;
-            }
-        }
-        return Double.valueOf(doubleValue);
-    }
-
-    List<Dimension> createDimensions(TagList tags) {
-        List<Dimension> dimensionList = new ArrayList<Dimension>(tags.size());
-
-        for (Tag tag : tags) {
-            dimensionList.add(new Dimension().withName(tag.getKey()).withValue(tag.getValue()));
-        }
-
-        return dimensionList;
-    }
-
-    public CloudWatchMetricObserver withTruncateEnabled(boolean truncateEnabled) {
-        this.truncateEnabled = truncateEnabled;
-        return this;
-    }
+  public CloudWatchMetricObserver withTruncateEnabled(boolean truncateEnabled) {
+    this.truncateEnabled = truncateEnabled;
+    return this;
+  }
 }

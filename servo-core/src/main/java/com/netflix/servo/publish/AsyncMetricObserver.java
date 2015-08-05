@@ -36,142 +36,146 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public final class AsyncMetricObserver extends BaseMetricObserver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncMetricObserver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AsyncMetricObserver.class);
 
-    private final MetricObserver wrappedObserver;
+  private final MetricObserver wrappedObserver;
 
-    private final long expireTime;
-    private final BlockingQueue<TimestampedUpdate> updateQueue;
+  private final long expireTime;
+  private final BlockingQueue<TimestampedUpdate> updateQueue;
 
-    private volatile boolean stopUpdateThread = false;
+  private volatile boolean stopUpdateThread = false;
 
-    private final Thread processingThread;
+  private final Thread processingThread;
 
-    /** The number of updates that have been expired and dropped. */
-    private final Counter expiredUpdateCount = Monitors.newCounter("expiredUpdateCount");
+  /**
+   * The number of updates that have been expired and dropped.
+   */
+  private final Counter expiredUpdateCount = Monitors.newCounter("expiredUpdateCount");
 
-    /**
-     * Creates a new instance.
-     *
-     * @param name        name of this observer
-     * @param observer    a wrapped observer that will be updated asynchronously
-     * @param queueSize   maximum size of the update queue, if the queue fills
-     *                    up older entries will be dropped
-     * @param expireTime  age in milliseconds before an update expires and will
-     *                    not be passed on to the wrapped observer
-     */
-    public AsyncMetricObserver(
-            String name,
-            MetricObserver observer,
-            int queueSize,
-            long expireTime) {
-        super(name);
-        this.expireTime = expireTime;
-        wrappedObserver = Preconditions.checkNotNull(observer, "observer");
-        Preconditions.checkArgument(queueSize >= 1,
-                String.format("invalid queueSize %d, size must be >= 1", queueSize));
+  /**
+   * Creates a new instance.
+   *
+   * @param name       name of this observer
+   * @param observer   a wrapped observer that will be updated asynchronously
+   * @param queueSize  maximum size of the update queue, if the queue fills
+   *                   up older entries will be dropped
+   * @param expireTime age in milliseconds before an update expires and will
+   *                   not be passed on to the wrapped observer
+   */
+  public AsyncMetricObserver(
+      String name,
+      MetricObserver observer,
+      int queueSize,
+      long expireTime) {
+    super(name);
+    this.expireTime = expireTime;
+    wrappedObserver = Preconditions.checkNotNull(observer, "observer");
+    Preconditions.checkArgument(queueSize >= 1,
+        String.format("invalid queueSize %d, size must be >= 1", queueSize));
 
-        updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
+    updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
 
-        String threadName = getClass().getSimpleName() + "-" + name;
-        processingThread = new Thread(new UpdateProcessor(), threadName);
-        processingThread.setDaemon(true);
-        processingThread.start();
+    String threadName = getClass().getSimpleName() + "-" + name;
+    processingThread = new Thread(new UpdateProcessor(), threadName);
+    processingThread.setDaemon(true);
+    processingThread.start();
+  }
+
+  /**
+   * Creates a new instance with an unbounded queue and no expiration time.
+   *
+   * @param name     name of this observer
+   * @param observer a wrapped observer that will be updated asynchronously
+   */
+  public AsyncMetricObserver(String name, MetricObserver observer) {
+    this(name, observer, Integer.MAX_VALUE, Long.MAX_VALUE);
+  }
+
+  /**
+   * Creates a new instance with no expiration time.
+   *
+   * @param name      name of this observer
+   * @param observer  a wrapped observer that will be updated asynchronously
+   * @param queueSize maximum size of the update queue, if the queue fills
+   *                  up older entries will be dropped
+   */
+  public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
+    this(name, observer, queueSize, Long.MAX_VALUE);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void updateImpl(List<Metric> metrics) {
+    long now = System.currentTimeMillis();
+    TimestampedUpdate update = new TimestampedUpdate(now, metrics);
+
+    boolean result = updateQueue.offer(update);
+    final int maxAttempts = 5;
+    int attempts = 0;
+    while (!result && attempts < maxAttempts) {
+      updateQueue.remove();
+      result = updateQueue.offer(update);
+      ++attempts;
     }
 
-    /**
-     * Creates a new instance with an unbounded queue and no expiration time.
-     *
-     * @param name        name of this observer
-     * @param observer    a wrapped observer that will be updated asynchronously
-     */
-    public AsyncMetricObserver(String name, MetricObserver observer) {
-        this(name, observer, Integer.MAX_VALUE, Long.MAX_VALUE);
+    if (!result) {
+      incrementFailedCount();
+    }
+  }
+
+  /**
+   * Stop the background thread that pushes updates to the wrapped observer.
+   */
+  public void stop() {
+    stopUpdateThread = true;
+    processingThread.interrupt(); // in case it is blocked on an empty queue
+  }
+
+  private void processUpdate() {
+    TimestampedUpdate update;
+    try {
+      update = updateQueue.take();
+
+      long cutoff = System.currentTimeMillis() - expireTime;
+      if (update.getTimestamp() < cutoff) {
+        expiredUpdateCount.increment();
+        return;
+      }
+
+      wrappedObserver.update(update.getMetrics());
+    } catch (InterruptedException ie) {
+      LOGGER.warn("interrupted while adding to queue, update dropped");
+      incrementFailedCount();
+    } catch (Throwable t) {
+      LOGGER.warn("update failed for downstream queue", t);
+      incrementFailedCount();
+    }
+  }
+
+  private class UpdateProcessor implements Runnable {
+    public void run() {
+      while (!stopUpdateThread) {
+        processUpdate();
+      }
+    }
+  }
+
+  private static class TimestampedUpdate {
+    private final long timestamp;
+    private final List<Metric> metrics;
+
+    public TimestampedUpdate(long timestamp, List<Metric> metrics) {
+      this.timestamp = timestamp;
+      this.metrics = metrics;
     }
 
-    /**
-     * Creates a new instance with no expiration time.
-     *
-     * @param name        name of this observer
-     * @param observer    a wrapped observer that will be updated asynchronously
-     * @param queueSize   maximum size of the update queue, if the queue fills
-     *                    up older entries will be dropped
-     */
-    public AsyncMetricObserver(String name, MetricObserver observer, int queueSize) {
-        this(name, observer, queueSize, Long.MAX_VALUE);
+    long getTimestamp() {
+      return timestamp;
     }
 
-    /** {@inheritDoc} */
-    public void updateImpl(List<Metric> metrics) {
-        long now = System.currentTimeMillis();
-        TimestampedUpdate update = new TimestampedUpdate(now, metrics);
-
-        boolean result = updateQueue.offer(update);
-        final int maxAttempts = 5;
-        int attempts = 0;
-        while (!result && attempts < maxAttempts) {
-            updateQueue.remove();
-            result = updateQueue.offer(update);
-            ++attempts;
-        }
-
-        if (!result) {
-            incrementFailedCount();
-        }
+    List<Metric> getMetrics() {
+      return metrics;
     }
-
-    /**
-     * Stop the background thread that pushes updates to the wrapped observer.
-     */
-    public void stop() {
-        stopUpdateThread = true;
-        processingThread.interrupt(); // in case it is blocked on an empty queue
-    }
-
-    private void processUpdate() {
-        TimestampedUpdate update;
-        try {
-            update = updateQueue.take();
-
-            long cutoff = System.currentTimeMillis() - expireTime;
-            if (update.getTimestamp() < cutoff) {
-                expiredUpdateCount.increment();
-                return;
-            }
-
-            wrappedObserver.update(update.getMetrics());
-        } catch (InterruptedException ie) {
-            LOGGER.warn("interrupted while adding to queue, update dropped");
-            incrementFailedCount();
-        } catch (Throwable t) {
-            LOGGER.warn("update failed for downstream queue", t);
-            incrementFailedCount();
-        }
-    }
-
-    private class UpdateProcessor implements Runnable {
-        public void run() {
-            while (!stopUpdateThread) {
-                processUpdate();
-            }
-        }
-    }
-
-    private static class TimestampedUpdate {
-        private final long timestamp;
-        private final List<Metric> metrics;
-
-        public TimestampedUpdate(long timestamp, List<Metric> metrics) {
-            this.timestamp = timestamp;
-            this.metrics = metrics;
-        }
-
-        long getTimestamp() {
-            return timestamp;
-        }
-
-        List<Metric> getMetrics() {
-            return metrics;
-        }
-    }
+  }
 }

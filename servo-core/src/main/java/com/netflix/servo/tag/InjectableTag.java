@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,62 +25,62 @@ import java.net.UnknownHostException;
  * based on local calls.
  */
 public enum InjectableTag implements Tag {
-    /**
-     * The current hostname.
-     */
-    HOSTNAME("hostname", getHostName()),
+  /**
+   * The current hostname.
+   */
+  HOSTNAME("hostname", getHostName()),
 
-    /**
-     * The ip for localhost.
-     */
-    IP("ip", getIp());
+  /**
+   * The ip for localhost.
+   */
+  IP("ip", getIp());
 
-    private final String key;
-    private final String value;
+  private final String key;
+  private final String value;
 
-    private InjectableTag(String key, String val) {
-        this.key = key;
-        this.value = val;
+  private InjectableTag(String key, String val) {
+    this.key = key;
+    this.value = val;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String tagString() {
+    return key + "=" + value;
+  }
+
+  private static String getHostName() {
+    return (loadAddress() != null) ? loadAddress().getHostName() : "unkownHost";
+  }
+
+  private static String getIp() {
+    return (loadAddress() != null) ? loadAddress().getHostAddress() : "unknownHost";
+  }
+
+  private static InetAddress loadAddress() {
+    try {
+      return InetAddress.getLocalHost();
+    } catch (UnknownHostException e) {
+      LoggerFactory.getLogger(InjectableTag.class).warn("Unable to load INET info.", e);
+      return null;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String tagString() {
-        return key + "=" + value;
-    }
-
-    private static String getHostName() {
-        return (loadAddress() != null) ? loadAddress().getHostName() : "unkownHost";
-    }
-
-    private static String getIp() {
-        return (loadAddress() != null) ? loadAddress().getHostAddress() : "unknownHost";
-    }
-
-    private static InetAddress loadAddress() {
-        try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            LoggerFactory.getLogger(InjectableTag.class).warn("Unable to load INET info.", e);
-            return null;
-        }
-    }
+  }
 }

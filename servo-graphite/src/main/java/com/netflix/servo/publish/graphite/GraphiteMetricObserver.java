@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,162 +40,162 @@ import java.util.List;
  * http://graphite.wikidot.com/
  */
 public class GraphiteMetricObserver extends BaseMetricObserver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphiteMetricObserver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GraphiteMetricObserver.class);
 
-    private final GraphiteNamingConvention namingConvention;
-    private final String serverPrefix;
-    private final SocketFactory socketFactory = SocketFactory.getDefault();
-    private final URI graphiteServerURI;
-    private Socket socket = null;
+  private final GraphiteNamingConvention namingConvention;
+  private final String serverPrefix;
+  private final SocketFactory socketFactory = SocketFactory.getDefault();
+  private final URI graphiteServerURI;
+  private Socket socket = null;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param metricPrefix          base name to attach onto each metric published
-     *                              ("metricPrefix.{rest of name}". If null
-     *                              this section isn't attached. This section is useful to
-     *                              differentiate between multiple
-     *                              nodes of the same application server in a cluster.
-     * @param graphiteServerAddress address of the graphite data port in "host:port" format.
-     */
-    public GraphiteMetricObserver(String metricPrefix, String graphiteServerAddress) {
-        this(metricPrefix, graphiteServerAddress, new BasicGraphiteNamingConvention());
+  /**
+   * Creates a new instance.
+   *
+   * @param metricPrefix          base name to attach onto each metric published
+   *                              ("metricPrefix.{rest of name}". If null
+   *                              this section isn't attached. This section is useful to
+   *                              differentiate between multiple
+   *                              nodes of the same application server in a cluster.
+   * @param graphiteServerAddress address of the graphite data port in "host:port" format.
+   */
+  public GraphiteMetricObserver(String metricPrefix, String graphiteServerAddress) {
+    this(metricPrefix, graphiteServerAddress, new BasicGraphiteNamingConvention());
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param metricPrefix          base name to attach onto each metric published
+   *                              ("metricPrefix.{rest of name}". If null
+   *                              this section isn't attached. This section is useful to
+   *                              differentiate between multiple
+   *                              nodes of the same application server in a cluster.
+   * @param graphiteServerAddress address of the graphite data port in "host:port" format.
+   * @param namingConvention      naming convention to extract a graphite compatible name from
+   *                              each Metric
+   */
+  public GraphiteMetricObserver(String metricPrefix, String graphiteServerAddress,
+                                GraphiteNamingConvention namingConvention) {
+    super("GraphiteMetricObserver" + metricPrefix);
+    this.namingConvention = namingConvention;
+    this.serverPrefix = metricPrefix;
+    this.graphiteServerURI = parseStringAsUri(graphiteServerAddress);
+  }
+
+  /**
+   * Stop sending metrics to the graphite server.
+   */
+  public void stop() {
+    try {
+      if (socket != null) {
+        socket.close();
+        socket = null;
+        LOGGER.info("Disconnected from graphite server: {}", graphiteServerURI);
+      }
+    } catch (IOException e) {
+      LOGGER.warn("Error Stopping", e);
     }
+  }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param metricPrefix          base name to attach onto each metric published
-     *                              ("metricPrefix.{rest of name}". If null
-     *                              this section isn't attached. This section is useful to
-     *                              differentiate between multiple
-     *                              nodes of the same application server in a cluster.
-     * @param graphiteServerAddress address of the graphite data port in "host:port" format.
-     * @param namingConvention      naming convention to extract a graphite compatible name from
-     *                              each Metric
-     */
-    public GraphiteMetricObserver(String metricPrefix, String graphiteServerAddress,
-                                  GraphiteNamingConvention namingConvention) {
-        super("GraphiteMetricObserver" + metricPrefix);
-        this.namingConvention = namingConvention;
-        this.serverPrefix = metricPrefix;
-        this.graphiteServerURI = parseStringAsUri(graphiteServerAddress);
+  @Override
+  public void updateImpl(List<Metric> metrics) {
+    try {
+      if (connectionAvailable()) {
+        write(socket, metrics);
+      }
+    } catch (IOException e) {
+      LOGGER.warn("Graphite connection failed on write", e);
+      incrementFailedCount();
+      // disconnect so next time when connectionAvailable is called it can try to reconnect
+      stop();
     }
+  }
 
-    /**
-     * Stop sending metrics to the graphite server.
-     */
-    public void stop() {
-        try {
-            if (socket != null) {
-                socket.close();
-                socket = null;
-                LOGGER.info("Disconnected from graphite server: {}", graphiteServerURI);
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Error Stopping", e);
-        }
+  private boolean connectionAvailable() throws IOException {
+    if (socket == null || !socket.isConnected()) {
+      if (socket != null) {
+        socket.close();
+      }
+      socket = socketFactory.createSocket(graphiteServerURI.getHost(),
+          graphiteServerURI.getPort());
+      LOGGER.info("Connected to graphite server: {}", graphiteServerURI);
     }
+    return socket.isConnected();
+  }
 
-    @Override
-    public void updateImpl(List<Metric> metrics) {
-        try {
-            if (connectionAvailable()) {
-                write(socket, metrics);
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Graphite connection failed on write", e);
-            incrementFailedCount();
-            // disconnect so next time when connectionAvailable is called it can try to reconnect
-            stop();
-        }
+  private void write(Socket socket, Iterable<Metric> metrics) throws IOException {
+    PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),
+        "UTF-8"));
+    int count = writeMetrics(metrics, writer);
+    boolean checkError = writer.checkError();
+    if (checkError) {
+      throw new IOException("Writing to socket has failed");
     }
+    checkNoReturnedData(socket);
 
-    private boolean connectionAvailable() throws IOException {
-        if (socket == null || !socket.isConnected()) {
-            if (socket != null) {
-                socket.close();
-            }
-            socket = socketFactory.createSocket(graphiteServerURI.getHost(),
-                    graphiteServerURI.getPort());
-            LOGGER.info("Connected to graphite server: {}", graphiteServerURI);
-        }
-        return socket.isConnected();
+    LOGGER.debug("Wrote {} metrics to graphite", count);
+  }
+
+  private int writeMetrics(Iterable<Metric> metrics, PrintWriter writer) {
+    int count = 0;
+    for (Metric metric : metrics) {
+      String publishedName = namingConvention.getName(metric);
+
+      StringBuilder sb = new StringBuilder();
+      if (serverPrefix != null) {
+        sb.append(serverPrefix).append(".");
+      }
+      sb.append(publishedName).append(" ")
+          .append(metric.getValue().toString())
+          .append(" ")
+          .append(metric.getTimestamp() / 1000);
+      LOGGER.debug("{}", sb);
+      writer.write(sb.append("\n").toString());
+      count++;
     }
+    return count;
+  }
 
-    private void write(Socket socket, Iterable<Metric> metrics) throws IOException {
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),
-                "UTF-8"));
-        int count = writeMetrics(metrics, writer);
-        boolean checkError = writer.checkError();
-        if (checkError) {
-            throw new IOException("Writing to socket has failed");
-        }
-        checkNoReturnedData(socket);
+  /**
+   * the graphite protocol is a "one-way" streaming protocol and as such there is no easy way
+   * to check that we are sending the output to the wrong place. We can aim the graphite writer
+   * at any listening socket and it will never care if the data is being correctly handled. By
+   * logging any returned bytes we can help make it obvious that it's talking to the wrong
+   * server/socket. In particular if its aimed at the web port of a
+   * graphite server this will make it print out the HTTP error message.
+   */
+  private void checkNoReturnedData(Socket socket) throws IOException {
+    BufferedInputStream reader = new BufferedInputStream(socket.getInputStream());
 
-        LOGGER.debug("Wrote {} metrics to graphite", count);
+    if (reader.available() > 0) {
+      byte[] buffer = new byte[1000];
+      int toRead = Math.min(reader.available(), 1000);
+      int read = reader.read(buffer, 0, toRead);
+      if (read > 0) {
+        LOGGER.warn("Data returned by graphite server when expecting no response! "
+                + "Probably aimed at wrong socket or server. Make sure you "
+                + "are publishing to the data port, not the dashboard port. "
+                + "First {} bytes of response: {}", read,
+            new String(buffer, 0, read, "UTF-8"));
+      }
     }
+  }
 
-    private int writeMetrics(Iterable<Metric> metrics, PrintWriter writer) {
-        int count = 0;
-        for (Metric metric : metrics) {
-            String publishedName = namingConvention.getName(metric);
-
-            StringBuilder sb = new StringBuilder();
-            if (serverPrefix != null) {
-                sb.append(serverPrefix).append(".");
-            }
-            sb.append(publishedName).append(" ")
-                .append(metric.getValue().toString())
-                .append(" ")
-                .append(metric.getTimestamp() / 1000);
-            LOGGER.debug("{}", sb);
-            writer.write(sb.append("\n").toString());
-            count++;
-        }
-        return count;
+  /**
+   * It's a lot easier to configure and manage the location of the graphite server if we combine
+   * the ip and port into a single string. Using a "fake" transport and the ipString means we get
+   * standard host/port parsing (including domain names, ipv4 and ipv6) for free.
+   */
+  private static URI parseStringAsUri(String ipString) {
+    try {
+      URI uri = new URI("socket://" + ipString);
+      if (uri.getHost() == null || uri.getPort() == -1) {
+        throw new URISyntaxException(ipString, "URI must have host and port parts");
+      }
+      return uri;
+    } catch (URISyntaxException e) {
+      throw (IllegalArgumentException) new IllegalArgumentException(
+          "Graphite server address needs to be defined as {host}:{port}.").initCause(e);
     }
-
-    /**
-     * the graphite protocol is a "one-way" streaming protocol and as such there is no easy way
-     * to check that we are sending the output to the wrong place. We can aim the graphite writer
-     * at any listening socket and it will never care if the data is being correctly handled. By
-     * logging any returned bytes we can help make it obvious that it's talking to the wrong
-     * server/socket. In particular if its aimed at the web port of a
-     * graphite server this will make it print out the HTTP error message.
-     */
-    private void checkNoReturnedData(Socket socket) throws IOException {
-        BufferedInputStream reader = new BufferedInputStream(socket.getInputStream());
-
-        if (reader.available() > 0) {
-            byte[] buffer = new byte[1000];
-            int toRead = Math.min(reader.available(), 1000);
-            int read = reader.read(buffer, 0, toRead);
-            if (read > 0) {
-                LOGGER.warn("Data returned by graphite server when expecting no response! "
-                                + "Probably aimed at wrong socket or server. Make sure you "
-                                + "are publishing to the data port, not the dashboard port. "
-                                + "First {} bytes of response: {}", read,
-                        new String(buffer, 0, read, "UTF-8"));
-            }
-        }
-    }
-
-    /**
-     * It's a lot easier to configure and manage the location of the graphite server if we combine
-     * the ip and port into a single string. Using a "fake" transport and the ipString means we get
-     * standard host/port parsing (including domain names, ipv4 and ipv6) for free.
-     */
-    private static URI parseStringAsUri(String ipString) {
-        try {
-            URI uri = new URI("socket://" + ipString);
-            if (uri.getHost() == null || uri.getPort() == -1) {
-                throw new URISyntaxException(ipString, "URI must have host and port parts");
-            }
-            return uri;
-        } catch (URISyntaxException e) {
-            throw (IllegalArgumentException) new IllegalArgumentException(
-                "Graphite server address needs to be defined as {host}:{port}.").initCause(e);
-        }
-    }
+  }
 }

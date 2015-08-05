@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,24 +23,38 @@ import java.util.Map;
  */
 public interface TagList extends Iterable<Tag> {
 
-    /** Returns the tag matching a given key or null if not match is found. */
-    Tag getTag(String key);
+  /**
+   * Returns the tag matching a given key or null if not match is found.
+   */
+  Tag getTag(String key);
 
-    /** Returns the value matching a given key or null if not match is found. */
-    String getValue(String key);
+  /**
+   * Returns the value matching a given key or null if not match is found.
+   */
+  String getValue(String key);
 
-    /** Returns true if this list has a tag with the given key. */
-    boolean containsKey(String key);
+  /**
+   * Returns true if this list has a tag with the given key.
+   */
+  boolean containsKey(String key);
 
-    /** Returns true if this list is emtpy. */
-    boolean isEmpty();
+  /**
+   * Returns true if this list is emtpy.
+   */
+  boolean isEmpty();
 
-    /** Returns the number of tags in this list. */
-    int size();
+  /**
+   * Returns the number of tags in this list.
+   */
+  int size();
 
-    /** {@inheritDoc} */
-    Iterator<Tag> iterator();
+  /**
+   * {@inheritDoc}
+   */
+  Iterator<Tag> iterator();
 
-    /** Returns a map containing a copy of the tags in this list. */
-    Map<String, String> asMap();
+  /**
+   * Returns a map containing a copy of the tags in this list.
+   */
+  Map<String, String> asMap();
 }

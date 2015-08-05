@@ -20,23 +20,23 @@ package com.netflix.servo.util;
  * Utility class to deal with exceptions. Intended for internal use of servo only.
  */
 public final class Throwables {
-    private Throwables() {
+  private Throwables() {
+  }
+
+  /**
+   * Propagates {@code throwable} as-is if it is an instance of
+   * {@link RuntimeException} or {@link Error}, or else as a last resort, wraps
+   * it in a {@code RuntimeException} then propagates.
+   */
+  public static RuntimeException propagate(Throwable throwable) {
+    final Throwable t = Preconditions.checkNotNull(throwable, "throwable");
+    if (t instanceof Error) {
+      throw (Error) t;
+    }
+    if (t instanceof RuntimeException) {
+      throw (RuntimeException) t;
     }
 
-    /**
-     * Propagates {@code throwable} as-is if it is an instance of
-     * {@link RuntimeException} or {@link Error}, or else as a last resort, wraps
-     * it in a {@code RuntimeException} then propagates.
-     */
-    public static RuntimeException propagate(Throwable throwable) {
-        final Throwable t = Preconditions.checkNotNull(throwable, "throwable");
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        }
-
-        throw new RuntimeException(t);
-    }
+    throw new RuntimeException(t);
+  }
 }

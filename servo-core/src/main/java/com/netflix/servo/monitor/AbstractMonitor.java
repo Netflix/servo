@@ -21,24 +21,28 @@ import com.netflix.servo.util.Preconditions;
  * Base type to simplify implementing monitors.
  */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
-    protected final MonitorConfig config;
+  protected final MonitorConfig config;
 
-    /**
-     * Create a new instance with the specified configuration.
-     */
-    protected AbstractMonitor(MonitorConfig config) {
-        this.config = Preconditions.checkNotNull(config, "config");
-    }
+  /**
+   * Create a new instance with the specified configuration.
+   */
+  protected AbstractMonitor(MonitorConfig config) {
+    this.config = Preconditions.checkNotNull(config, "config");
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public MonitorConfig getConfig() {
-        return config;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public MonitorConfig getConfig() {
+    return config;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public T getValue() {
-        return getValue(0);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T getValue() {
+    return getValue(0);
+  }
 }

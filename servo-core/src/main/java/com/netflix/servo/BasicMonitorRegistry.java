@@ -15,9 +15,9 @@
  */
 package com.netflix.servo;
 
-import com.netflix.servo.util.UnmodifiableList;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.UnmodifiableList;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,51 +29,51 @@ import java.util.Set;
  */
 public final class BasicMonitorRegistry implements MonitorRegistry {
 
-    private final Set<Monitor<?>> monitors;
+  private final Set<Monitor<?>> monitors;
 
-    /**
-     * Creates a new instance.
-     */
-    public BasicMonitorRegistry() {
-        monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
-    }
+  /**
+   * Creates a new instance.
+   */
+  public BasicMonitorRegistry() {
+    monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
+  }
 
-    /**
-     * The set of registered Monitor objects.
-     */
-    @Override
-    public Collection<Monitor<?>> getRegisteredMonitors() {
-        return UnmodifiableList.copyOf(monitors);
-    }
+  /**
+   * The set of registered Monitor objects.
+   */
+  @Override
+  public Collection<Monitor<?>> getRegisteredMonitors() {
+    return UnmodifiableList.copyOf(monitors);
+  }
 
-    /**
-     * Register a new monitor in the registry.
-     */
-    @Override
-    public void register(Monitor<?> monitor) {
-        Preconditions.checkNotNull(monitor, "monitor");
-        try {
-            monitors.add(monitor);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid object", e);
-        }
+  /**
+   * Register a new monitor in the registry.
+   */
+  @Override
+  public void register(Monitor<?> monitor) {
+    Preconditions.checkNotNull(monitor, "monitor");
+    try {
+      monitors.add(monitor);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("invalid object", e);
     }
+  }
 
-    /**
-     * Unregister a Monitor from the registry.
-     */
-    @Override
-    public void unregister(Monitor<?> monitor) {
-        Preconditions.checkNotNull(monitor, "monitor");
-        try {
-            monitors.remove(monitor);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid object", e);
-        }
+  /**
+   * Unregister a Monitor from the registry.
+   */
+  @Override
+  public void unregister(Monitor<?> monitor) {
+    Preconditions.checkNotNull(monitor, "monitor");
+    try {
+      monitors.remove(monitor);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("invalid object", e);
     }
+  }
 
-    @Override
-    public boolean isRegistered(Monitor<?> monitor) {
-        return monitors.contains(monitor);
-    }
+  @Override
+  public boolean isRegistered(Monitor<?> monitor) {
+    return monitors.contains(monitor);
+  }
 }

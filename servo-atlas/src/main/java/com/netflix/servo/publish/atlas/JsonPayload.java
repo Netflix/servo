@@ -24,6 +24,8 @@ import java.io.IOException;
  */
 public interface JsonPayload {
 
-    /** Serialize the current entity to JSON using the given generator. */
-    void toJson(JsonGenerator gen) throws IOException;
+  /**
+   * Serialize the current entity to JSON using the given generator.
+   */
+  void toJson(JsonGenerator gen) throws IOException;
 }

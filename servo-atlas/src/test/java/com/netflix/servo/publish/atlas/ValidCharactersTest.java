@@ -20,18 +20,18 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 public class ValidCharactersTest {
-    @Test
-    public void testValidStrIsUnchanged() throws Exception {
-        String valid = "abc09.-_";
-        assertEquals(ValidCharacters.toValidCharset(valid), valid);
-    }
+  @Test
+  public void testValidStrIsUnchanged() throws Exception {
+    String valid = "abc09.-_";
+    assertEquals(ValidCharacters.toValidCharset(valid), valid);
+  }
 
-    @Test
-    public void testInvalidStrIsFixed() throws Exception {
-        String str = "abc09.-_ abc";
-        assertEquals(ValidCharacters.toValidCharset(str), "abc09.-__abc");
+  @Test
+  public void testInvalidStrIsFixed() throws Exception {
+    String str = "abc09.-_ abc";
+    assertEquals(ValidCharacters.toValidCharset(str), "abc09.-__abc");
 
-        String boundaries = "\u0000\u0128\uffff";
-        assertEquals(ValidCharacters.toValidCharset(boundaries), "___");
-    }
+    String boundaries = "\u0000\u0128\uffff";
+    assertEquals(ValidCharacters.toValidCharset(boundaries), "___");
+  }
 }

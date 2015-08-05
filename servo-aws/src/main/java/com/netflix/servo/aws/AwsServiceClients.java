@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Netflix, Inc.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,27 +27,27 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
  */
 public final class AwsServiceClients {
 
-    private AwsServiceClients() {
-    }
+  private AwsServiceClients() {
+  }
 
-    /**
-     * Get a CloudWatch client whose endpoint is configured based on properties.
-     */
-    public static AmazonCloudWatch cloudWatch(AWSCredentialsProvider credentials) {
-        AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
-        client.setEndpoint(System.getProperty(AwsPropertyKeys.AWS_CLOUD_WATCH_END_POINT.getBundle(),
-                "monitoring.amazonaws.com"));
-        return client;
-    }
+  /**
+   * Get a CloudWatch client whose endpoint is configured based on properties.
+   */
+  public static AmazonCloudWatch cloudWatch(AWSCredentialsProvider credentials) {
+    AmazonCloudWatch client = new AmazonCloudWatchClient(credentials);
+    client.setEndpoint(System.getProperty(AwsPropertyKeys.AWS_CLOUD_WATCH_END_POINT.getBundle(),
+        "monitoring.amazonaws.com"));
+    return client;
+  }
 
-    /**
-     * Get an AutoScaling client whose endpoint is configured based on properties.
-     */
-    public static AmazonAutoScaling autoScaling(AWSCredentials credentials) {
-        AmazonAutoScaling client = new AmazonAutoScalingClient(credentials);
-        client.setEndpoint(System.getProperty(
-                AwsPropertyKeys.AWS_AUTO_SCALING_END_POINT.getBundle(),
-                "autoscaling.amazonaws.com"));
-        return client;
-    }
+  /**
+   * Get an AutoScaling client whose endpoint is configured based on properties.
+   */
+  public static AmazonAutoScaling autoScaling(AWSCredentials credentials) {
+    AmazonAutoScaling client = new AmazonAutoScalingClient(credentials);
+    client.setEndpoint(System.getProperty(
+        AwsPropertyKeys.AWS_AUTO_SCALING_END_POINT.getBundle(),
+        "autoscaling.amazonaws.com"));
+    return client;
+  }
 }

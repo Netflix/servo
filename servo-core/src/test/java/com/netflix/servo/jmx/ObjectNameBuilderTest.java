@@ -27,46 +27,46 @@ import static org.testng.Assert.fail;
 
 public class ObjectNameBuilderTest {
 
-    @Test
-    public void testInvalidCharactersSanitized() {
-        ObjectName name =
-                ObjectNameBuilder.forDomain("test*Domain&")
-                                 .addProperty("foo%", "$bar")
-                                 .build();
-        assertEquals(name.getDomain(), "test_Domain_");
-        assertEquals(name.getKeyPropertyListString(), "foo_=_bar");
-    }
+  @Test
+  public void testInvalidCharactersSanitized() {
+    ObjectName name =
+        ObjectNameBuilder.forDomain("test*Domain&")
+            .addProperty("foo%", "$bar")
+            .build();
+    assertEquals(name.getDomain(), "test_Domain_");
+    assertEquals(name.getKeyPropertyListString(), "foo_=_bar");
+  }
 
-    @Test
-    public void testAddTagList() {
-        ObjectName name =
-                ObjectNameBuilder.forDomain("testDomain")
-                                 .addProperties(BasicTagList.of("foo", "bar", "test", "stuff"))
-                                 .build();
-        assertEquals(name.getDomain(), "testDomain");
-        assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");
-    }
+  @Test
+  public void testAddTagList() {
+    ObjectName name =
+        ObjectNameBuilder.forDomain("testDomain")
+            .addProperties(BasicTagList.of("foo", "bar", "test", "stuff"))
+            .build();
+    assertEquals(name.getDomain(), "testDomain");
+    assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");
+  }
 
-    @Test
-    public void testTagByTag() {
-        // Order will be in the order tags were added to the builder
-        ObjectName name =
-                ObjectNameBuilder.forDomain("testDomain")
-                        .addProperty(Tags.newTag("foo", "bar"))
-                        .addProperty(Tags.newTag("test", "stuff"))
-                                 .build();
-        assertEquals(name.getDomain(), "testDomain");
-        assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");
-    }
+  @Test
+  public void testTagByTag() {
+    // Order will be in the order tags were added to the builder
+    ObjectName name =
+        ObjectNameBuilder.forDomain("testDomain")
+            .addProperty(Tags.newTag("foo", "bar"))
+            .addProperty(Tags.newTag("test", "stuff"))
+            .build();
+    assertEquals(name.getDomain(), "testDomain");
+    assertEquals(name.getKeyPropertyListString(), "foo=bar,test=stuff");
+  }
 
-    @Test
-    public void testBuildWithoutPropertyAdded() {
-        try {
-            ObjectNameBuilder.forDomain("testDomain").build();
-            fail("Should have thrown an exception without keys being added!");
-        } catch (RuntimeException expected) {
-            assertEquals(expected.getCause().getClass(), MalformedObjectNameException.class);
-        }
+  @Test
+  public void testBuildWithoutPropertyAdded() {
+    try {
+      ObjectNameBuilder.forDomain("testDomain").build();
+      fail("Should have thrown an exception without keys being added!");
+    } catch (RuntimeException expected) {
+      assertEquals(expected.getCause().getClass(), MalformedObjectNameException.class);
     }
+  }
 
 }

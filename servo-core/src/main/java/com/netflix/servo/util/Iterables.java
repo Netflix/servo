@@ -23,21 +23,21 @@ import java.util.List;
  * Utility class for dealing with Iterables. For internal use of servo only.
  */
 public final class Iterables {
-    private Iterables() {
+  private Iterables() {
+  }
+
+  /**
+   * Creates a new {@link Iterable} by concatenating two iterables.
+   */
+  public static <E> Iterable<E> concat(Iterable<E> a, Iterable<E> b) {
+    List<E> result = new ArrayList<E>();
+    for (E e : a) {
+      result.add(e);
+    }
+    for (E e : b) {
+      result.add(e);
     }
 
-    /**
-     * Creates a new {@link Iterable} by concatenating two iterables.
-     */
-    public static <E> Iterable<E> concat(Iterable<E> a, Iterable<E> b) {
-        List<E> result = new ArrayList<E>();
-        for (E e : a) {
-            result.add(e);
-        }
-        for (E e : b) {
-            result.add(e);
-        }
-
-        return result;
-    }
+    return result;
+  }
 }

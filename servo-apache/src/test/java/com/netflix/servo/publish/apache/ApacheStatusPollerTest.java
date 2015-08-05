@@ -34,102 +34,102 @@ import static org.testng.Assert.assertEquals;
 
 public class ApacheStatusPollerTest {
 
-    private static final int OPEN_SLOTS = 20430;
-    private static final long TIMESTAMP = 1234L;
-    private static final int TOTAL_ACCESSES = 3020567;
-    private static final int KBYTES = 46798223;
-    private static final int UPTIME = 3204689;
-    private static final double RPS = .942546;
-    private static final double BPS = 14953.5;
-    private static final int BPR = 15865;
-    private static final int BUSY_WORKERS = 5;
-    private static final int IDLE_WORKERS = 45;
+  private static final int OPEN_SLOTS = 20430;
+  private static final long TIMESTAMP = 1234L;
+  private static final int TOTAL_ACCESSES = 3020567;
+  private static final int KBYTES = 46798223;
+  private static final int UPTIME = 3204689;
+  private static final double RPS = .942546;
+  private static final double BPS = 14953.5;
+  private static final int BPR = 15865;
+  private static final int BUSY_WORKERS = 5;
+  private static final int IDLE_WORKERS = 45;
 
-    private static String repeat(char c, int n) {
-        char[] result = new char[n];
-        Arrays.fill(result, c);
-        return new String(result);
-    }
+  private static String repeat(char c, int n) {
+    char[] result = new char[n];
+    Arrays.fill(result, c);
+    return new String(result);
+  }
 
-    private static Metric metric(String name, double value, Tag metricType) {
-        MonitorConfig config = MonitorConfig.builder(name).withTag(metricType)
-                .withTag("class", "ApacheStatusPoller").build();
-        return new Metric(config, TIMESTAMP, value);
-    }
+  private static Metric metric(String name, double value, Tag metricType) {
+    MonitorConfig config = MonitorConfig.builder(name).withTag(metricType)
+        .withTag("class", "ApacheStatusPoller").build();
+    return new Metric(config, TIMESTAMP, value);
+  }
 
-    private static Metric scoreboard(String state, double value) {
-        MonitorConfig config = MonitorConfig.builder("Scoreboard")
-                .withTag(DataSourceType.GAUGE)
-                .withTag("state", state)
-                .withTag("class", "ApacheStatusPoller").build();
-        return new Metric(config, TIMESTAMP, value);
-    }
+  private static Metric scoreboard(String state, double value) {
+    MonitorConfig config = MonitorConfig.builder("Scoreboard")
+        .withTag(DataSourceType.GAUGE)
+        .withTag("state", state)
+        .withTag("class", "ApacheStatusPoller").build();
+    return new Metric(config, TIMESTAMP, value);
+  }
 
-    private static Metric counter(String name, double value) {
-        return metric(name, value, DataSourceType.COUNTER);
-    }
+  private static Metric counter(String name, double value) {
+    return metric(name, value, DataSourceType.COUNTER);
+  }
 
-    private static Metric gauge(String name, double value) {
-        return metric(name, value, DataSourceType.GAUGE);
-    }
+  private static Metric gauge(String name, double value) {
+    return metric(name, value, DataSourceType.GAUGE);
+  }
 
-    @Test
-    public void testParse() throws Exception {
-        final String statusText = "Total Accesses: " + TOTAL_ACCESSES + "\n"
-                + "Total kBytes: " + KBYTES + "\n"
-                + "CPULoad: .044688\n"
-                + "Uptime: " + UPTIME + "\n"
-                + "ReqPerSec: " + RPS + "\n"
-                + "BytesPerSec: " + BPS + "\n"
-                + "BytesPerReq: " + BPR + "\n"
-                + "BusyWorkers: " + BUSY_WORKERS + "\n"
-                + "IdleWorkers: " + IDLE_WORKERS + "\n"
-                + "Scoreboard: __________________K___W_K_____K______________K____"
-                + repeat('.', OPEN_SLOTS)
-                + "\n";
-        ApacheStatusPoller.StatusFetcher fetcher = new ApacheStatusPoller.StatusFetcher() {
-            @Override
-            public InputStream fetchStatus() throws IOException {
-                return new ByteArrayInputStream(statusText.getBytes("UTF-8"));
-            }
-        };
+  @Test
+  public void testParse() throws Exception {
+    final String statusText = "Total Accesses: " + TOTAL_ACCESSES + "\n"
+        + "Total kBytes: " + KBYTES + "\n"
+        + "CPULoad: .044688\n"
+        + "Uptime: " + UPTIME + "\n"
+        + "ReqPerSec: " + RPS + "\n"
+        + "BytesPerSec: " + BPS + "\n"
+        + "BytesPerReq: " + BPR + "\n"
+        + "BusyWorkers: " + BUSY_WORKERS + "\n"
+        + "IdleWorkers: " + IDLE_WORKERS + "\n"
+        + "Scoreboard: __________________K___W_K_____K______________K____"
+        + repeat('.', OPEN_SLOTS)
+        + "\n";
+    ApacheStatusPoller.StatusFetcher fetcher = new ApacheStatusPoller.StatusFetcher() {
+      @Override
+      public InputStream fetchStatus() throws IOException {
+        return new ByteArrayInputStream(statusText.getBytes("UTF-8"));
+      }
+    };
 
-        ApacheStatusPoller poller = new ApacheStatusPoller(fetcher);
+    ApacheStatusPoller poller = new ApacheStatusPoller(fetcher);
 
-        List<Metric> metrics = poller.pollImpl(TIMESTAMP);
+    List<Metric> metrics = poller.pollImpl(TIMESTAMP);
 
-        Metric accesses = counter("Total_Accesses", TOTAL_ACCESSES);
-        Metric kBytes = counter("Total_kBytes", KBYTES);
-        Metric uptime = counter("Uptime", UPTIME);
+    Metric accesses = counter("Total_Accesses", TOTAL_ACCESSES);
+    Metric kBytes = counter("Total_kBytes", KBYTES);
+    Metric uptime = counter("Uptime", UPTIME);
 
-        List<Metric> counters = UnmodifiableList.of(accesses, kBytes, uptime);
-        Metric rps = gauge("ReqPerSec", RPS);
-        Metric bps = gauge("BytesPerSec", BPS);
-        Metric bpr = gauge("BytesPerReq", BPR);
-        Metric busyWorkers = gauge("BusyWorkers", BUSY_WORKERS);
-        Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
-        List<Metric> gauges = UnmodifiableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
+    List<Metric> counters = UnmodifiableList.of(accesses, kBytes, uptime);
+    Metric rps = gauge("ReqPerSec", RPS);
+    Metric bps = gauge("BytesPerSec", BPS);
+    Metric bpr = gauge("BytesPerReq", BPR);
+    Metric busyWorkers = gauge("BusyWorkers", BUSY_WORKERS);
+    Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
+    List<Metric> gauges = UnmodifiableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
 
-        Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
-        Metric startingUp = scoreboard("StartingUp", 0.0);
-        Metric readingRequest = scoreboard("ReadingRequest", 0.0);
-        Metric sendingReply = scoreboard("SendingReply", 1.0);
-        Metric keepalive = scoreboard("Keepalive", 4.0);
-        Metric dnsLookup = scoreboard("DnsLookup", 0.0);
-        Metric closingConnection = scoreboard("ClosingConnection", 0.0);
-        Metric logging = scoreboard("Logging", 0.0);
-        Metric gracefullyFinishing = scoreboard("GracefullyFinishing", 0.0);
-        Metric idleCleanupOfWorker = scoreboard("IdleCleanupOfWorker", 0.0);
-        Metric unknownState = scoreboard("UnknownState", 0.0);
-        List<Metric> scoreboard = UnmodifiableList.of(waitingForConnection,
-                startingUp, readingRequest, sendingReply, keepalive, dnsLookup, closingConnection,
-                logging, gracefullyFinishing, idleCleanupOfWorker, unknownState);
+    Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
+    Metric startingUp = scoreboard("StartingUp", 0.0);
+    Metric readingRequest = scoreboard("ReadingRequest", 0.0);
+    Metric sendingReply = scoreboard("SendingReply", 1.0);
+    Metric keepalive = scoreboard("Keepalive", 4.0);
+    Metric dnsLookup = scoreboard("DnsLookup", 0.0);
+    Metric closingConnection = scoreboard("ClosingConnection", 0.0);
+    Metric logging = scoreboard("Logging", 0.0);
+    Metric gracefullyFinishing = scoreboard("GracefullyFinishing", 0.0);
+    Metric idleCleanupOfWorker = scoreboard("IdleCleanupOfWorker", 0.0);
+    Metric unknownState = scoreboard("UnknownState", 0.0);
+    List<Metric> scoreboard = UnmodifiableList.of(waitingForConnection,
+        startingUp, readingRequest, sendingReply, keepalive, dnsLookup, closingConnection,
+        logging, gracefullyFinishing, idleCleanupOfWorker, unknownState);
 
-        List<Metric> expected = new ArrayList<Metric>();
-        expected.addAll(counters);
-        expected.addAll(gauges);
-        expected.addAll(scoreboard);
+    List<Metric> expected = new ArrayList<Metric>();
+    expected.addAll(counters);
+    expected.addAll(gauges);
+    expected.addAll(scoreboard);
 
-        assertEquals(metrics, expected);
-    }
+    assertEquals(metrics, expected);
+  }
 }

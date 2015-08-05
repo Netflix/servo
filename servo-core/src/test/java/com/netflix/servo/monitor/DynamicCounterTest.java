@@ -34,115 +34,115 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 public class DynamicCounterTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounterTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounterTest.class);
 
-    private DynamicCounter getInstance() throws Exception {
-        Field theInstance = DynamicCounter.class.getDeclaredField("INSTANCE");
-        theInstance.setAccessible(true);
-        return (DynamicCounter) theInstance.get(null);
+  private DynamicCounter getInstance() throws Exception {
+    Field theInstance = DynamicCounter.class.getDeclaredField("INSTANCE");
+    theInstance.setAccessible(true);
+    return (DynamicCounter) theInstance.get(null);
+  }
+
+  private List<Monitor<?>> getCounters() throws Exception {
+    return getInstance().getMonitors();
+  }
+
+  private final TagList tagList = BasicTagList.of("PLATFORM", "true");
+
+  private StepCounter getByName(String name) throws Exception {
+    List<Monitor<?>> counters = getCounters();
+    for (Monitor<?> m : counters) {
+      String monitorName = m.getConfig().getName();
+      if (name.equals(monitorName)) {
+        return (StepCounter) m;
+      }
     }
+    return null;
+  }
 
-    private List<Monitor<?>> getCounters() throws Exception {
-        return getInstance().getMonitors();
-    }
+  @Test
+  public void testHasRightType() throws Exception {
+    DynamicCounter.increment("test1", tagList);
+    StepCounter c = getByName("test1");
+    Tag type = c.getConfig().getTags().getTag(DataSourceType.KEY);
+    assertEquals(type.getValue(), "NORMALIZED");
+  }
 
-    private final TagList tagList = BasicTagList.of("PLATFORM", "true");
+  final ManualClock clock = new ManualClock(0L);
 
-    private StepCounter getByName(String name) throws Exception {
-        List<Monitor<?>> counters = getCounters();
-        for (Monitor<?> m : counters) {
-            String monitorName = m.getConfig().getName();
-            if (name.equals(monitorName)) {
-                return (StepCounter) m;
-            }
-        }
-        return null;
-    }
+  /**
+   * Erase all previous counters by creating a new loading cache with a short expiration time.
+   */
+  @BeforeMethod
+  public void setupInstance() throws Exception {
+    LOGGER.info("Setting up DynamicCounter instance with a new cache");
+    DynamicCounter theInstance = getInstance();
+    Field counters = DynamicCounter.class.getDeclaredField("counters");
+    counters.setAccessible(true);
+    ExpiringCache<MonitorConfig, Counter> newShortExpiringCache =
+        new ExpiringCache<MonitorConfig, Counter>(60000L,
+            new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
+              @Override
+              public Counter apply(final MonitorConfig config) {
+                return new StepCounter(config, clock);
+              }
+            }, 100L, clock);
 
-    @Test
-    public void testHasRightType() throws Exception {
-        DynamicCounter.increment("test1", tagList);
-        StepCounter c = getByName("test1");
-        Tag type = c.getConfig().getTags().getTag(DataSourceType.KEY);
-        assertEquals(type.getValue(), "NORMALIZED");
-    }
+    counters.set(theInstance, newShortExpiringCache);
+  }
 
-    final ManualClock clock = new ManualClock(0L);
+  @Test
+  public void testGetValue() throws Exception {
+    clock.set(0L);
+    DynamicCounter.increment("test1", tagList);
+    StepCounter c = getByName("test1");
+    clock.set(60000L);
+    assertEquals(c.getCount(0), 1L);
+    c.increment(13);
+    clock.set(120000L);
+    assertEquals(c.getCount(0), 13L);
+  }
 
-    /**
-     * Erase all previous counters by creating a new loading cache with a short expiration time.
-     */
-    @BeforeMethod
-    public void setupInstance() throws Exception {
-        LOGGER.info("Setting up DynamicCounter instance with a new cache");
-        DynamicCounter theInstance = getInstance();
-        Field counters = DynamicCounter.class.getDeclaredField("counters");
-        counters.setAccessible(true);
-        ExpiringCache<MonitorConfig, Counter> newShortExpiringCache =
-                new ExpiringCache<MonitorConfig, Counter>(60000L,
-                        new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
-                            @Override
-                            public Counter apply(final MonitorConfig config) {
-                                return new StepCounter(config, clock);
-                            }
-                        }, 100L, clock);
+  @Test
+  public void testExpiration() throws Exception {
+    clock.set(0L);
+    DynamicCounter.increment("test1", tagList);
+    DynamicCounter.increment("test2", tagList);
 
-        counters.set(theInstance, newShortExpiringCache);
-    }
+    clock.set(500L);
+    DynamicCounter.increment("test1", tagList);
 
-    @Test
-    public void testGetValue() throws Exception {
-        clock.set(0L);
-        DynamicCounter.increment("test1", tagList);
-        StepCounter c = getByName("test1");
-        clock.set(60000L);
-        assertEquals(c.getCount(0), 1L);
-        c.increment(13);
-        clock.set(120000L);
-        assertEquals(c.getCount(0), 13L);
-    }
+    clock.set(1000L);
+    DynamicCounter.increment("test1", tagList);
 
-    @Test
-    public void testExpiration() throws Exception {
-        clock.set(0L);
-        DynamicCounter.increment("test1", tagList);
-        DynamicCounter.increment("test2", tagList);
+    clock.set(60200L);
+    StepCounter c1 = getByName("test1");
+    assertEquals(c1.getCount(0), 3L);
 
-        clock.set(500L);
-        DynamicCounter.increment("test1", tagList);
+    // the expiration task is not using Clock
+    Thread.sleep(200);
 
-        clock.set(1000L);
-        DynamicCounter.increment("test1", tagList);
+    StepCounter c2 = getByName("test2");
+    assertNull(c2, "Counters not used in a while should expire");
+  }
 
-        clock.set(60200L);
-        StepCounter c1 = getByName("test1");
-        assertEquals(c1.getCount(0), 3L);
+  @Test
+  public void testByStrings() throws Exception {
+    clock.set(1L);
+    DynamicCounter.increment("byName");
+    DynamicCounter.increment("byName");
+    StepCounter c = getByName("byName");
+    clock.set(60001L);
+    assertEquals(c.getCount(0), 2L);
 
-        // the expiration task is not using Clock
-        Thread.sleep(200);
+    DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
+    DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
+    StepCounter c2 = getByName("byName2");
+    clock.set(120001L);
+    assertEquals(c2.getCount(0), 2L);
+  }
 
-        StepCounter c2 = getByName("test2");
-        assertNull(c2, "Counters not used in a while should expire");
-    }
-
-    @Test
-    public void testByStrings() throws Exception {
-        clock.set(1L);
-        DynamicCounter.increment("byName");
-        DynamicCounter.increment("byName");
-        StepCounter c = getByName("byName");
-        clock.set(60001L);
-        assertEquals(c.getCount(0), 2L);
-
-        DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
-        DynamicCounter.increment("byName2", "key", "value", "key2", "value2");
-        StepCounter c2 = getByName("byName2");
-        clock.set(120001L);
-        assertEquals(c2.getCount(0), 2L);
-    }
-
-    @Test
-    public void testShouldNotThrow() throws Exception {
-        DynamicCounter.increment("name", "", "");
-    }
+  @Test
+  public void testShouldNotThrow() throws Exception {
+    DynamicCounter.increment("name", "", "");
+  }
 }

@@ -29,56 +29,58 @@ import java.util.NavigableMap;
  */
 public final class PrefixMetricFilter implements MetricFilter {
 
-    private final String tagKey;
-    private final MetricFilter root;
-    private final NavigableMap<String, MetricFilter> filters;
+  private final String tagKey;
+  private final MetricFilter root;
+  private final NavigableMap<String, MetricFilter> filters;
 
-    /**
-     * Creates a new prefix filter.
-     *
-     * @param tagKey   the tag to perform matching on, if null the name will be
-     *                 checked
-     * @param root     filter used if there are no prefix matches
-     * @param filters  map of prefix to sub-filter. The filter associated with
-     *                 the longest matching prefix will be used.
-     */
-    public PrefixMetricFilter(
-            String tagKey,
-            MetricFilter root,
-            NavigableMap<String, MetricFilter> filters) {
-        this.tagKey = tagKey;
-        this.root = root;
-        this.filters = filters;
+  /**
+   * Creates a new prefix filter.
+   *
+   * @param tagKey  the tag to perform matching on, if null the name will be
+   *                checked
+   * @param root    filter used if there are no prefix matches
+   * @param filters map of prefix to sub-filter. The filter associated with
+   *                the longest matching prefix will be used.
+   */
+  public PrefixMetricFilter(
+      String tagKey,
+      MetricFilter root,
+      NavigableMap<String, MetricFilter> filters) {
+    this.tagKey = tagKey;
+    this.root = root;
+    this.filters = filters;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean matches(MonitorConfig config) {
+    String name = config.getName();
+    TagList tags = config.getTags();
+    String value;
+    if (tagKey == null) {
+      value = name;
+    } else {
+      Tag t = tags.getTag(tagKey);
+      value = (t == null) ? null : t.getValue();
     }
 
-    /** {@inheritDoc} */
-    public boolean matches(MonitorConfig config) {
-        String name = config.getName();
-        TagList tags = config.getTags();
-        String value;
-        if (tagKey == null) {
-            value = name;
-        } else {
-            Tag t = tags.getTag(tagKey);
-            value = (t == null) ? null : t.getValue();
+    if (Strings.isNullOrEmpty(value)) {
+      return root.matches(config);
+    } else {
+      String start = value.substring(0, 1);
+      NavigableMap<String, MetricFilter> candidates =
+          filters.subMap(start, true, value, true).descendingMap();
+      if (candidates.isEmpty()) {
+        return root.matches(config);
+      } else {
+        for (Map.Entry<String, MetricFilter> e : candidates.entrySet()) {
+          if (value.startsWith(e.getKey())) {
+            return e.getValue().matches(config);
+          }
         }
-
-        if (Strings.isNullOrEmpty(value)) {
-            return root.matches(config);
-        } else {
-            String start = value.substring(0, 1);
-            NavigableMap<String, MetricFilter> candidates =
-                filters.subMap(start, true, value, true).descendingMap();
-            if (candidates.isEmpty()) {
-                return root.matches(config);
-            } else {
-                for (Map.Entry<String, MetricFilter> e : candidates.entrySet()) {
-                    if (value.startsWith(e.getKey())) {
-                        return e.getValue().matches(config);
-                    }
-                }
-                return root.matches(config);
-            }
-        }
+        return root.matches(config);
+      }
     }
+  }
 }
