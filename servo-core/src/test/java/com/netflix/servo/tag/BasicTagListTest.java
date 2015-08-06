@@ -37,7 +37,7 @@ public class BasicTagListTest {
   static Map<String, String> mapOf(String... elts) {
     Preconditions.checkArgument(elts.length > 0, "elts must not be empty");
     Preconditions.checkArgument(elts.length % 2 == 0, "elts must be even: key,value pairs");
-    Map<String, String> res = new HashMap<String, String>(elts.length / 2);
+    Map<String, String> res = new HashMap<>(elts.length / 2);
     for (int i = 0; i < elts.length; i += 2) {
       final String key = elts[i];
       final String value = elts[i + 1];
@@ -182,23 +182,20 @@ public class BasicTagListTest {
     final int count = 10;
     final CountDownLatch latch = new CountDownLatch(count);
     final Set<BasicTagList> tagLists = Collections
-        .newSetFromMap(new ConcurrentHashMap<BasicTagList, Boolean>());
+        .newSetFromMap(new ConcurrentHashMap<>());
 
     final CyclicBarrier barrier = new CyclicBarrier(count);
 
     for (int i = 0; i < count; i++) {
-      new Thread(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            barrier.await();
-            tagLists.add(BasicTagList.of("id", "1", "color",
-                "green"));
-          } catch (Exception e) {
-            e.printStackTrace(System.out);
-          } finally {
-            latch.countDown();
-          }
+      new Thread(() -> {
+        try {
+          barrier.await();
+          tagLists.add(BasicTagList.of("id", "1", "color",
+              "green"));
+        } catch (Exception e) {
+          e.printStackTrace(System.out);
+        } finally {
+          latch.countDown();
         }
       }).start();
     }

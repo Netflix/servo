@@ -50,7 +50,7 @@ public class SortedTagListTest {
         .withTag("c", "c")
         .build();
 
-    collection = new ArrayList<Tag>();
+    collection = new ArrayList<>();
     collection.add(A);
     collection.add(C);
     collection.add(B);

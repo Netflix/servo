@@ -37,7 +37,6 @@ import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,7 +222,7 @@ public class JvmMetricPoller implements MetricPoller {
   private static final long[] BASE_THREAD_COUNTS = new long[]{0L, 0L, 0L, 0L};
 
   private static final Map<Thread.State, Integer> STATE_LOOKUP =
-      new HashMap<Thread.State, Integer>();
+      new HashMap<>();
 
   static {
     for (int i = 0; i < VALID_STATES.length; ++i) {
@@ -354,11 +353,9 @@ public class JvmMetricPoller implements MetricPoller {
     ThreadInfo[] threadInfo = bean.dumpAllThreads(false, false);
     Arrays.sort(
         threadInfo,
-        new Comparator<ThreadInfo>() {
-          public int compare(ThreadInfo a, ThreadInfo b) {
-            long diff = b.getThreadId() - a.getThreadId();
-            return ((diff == 0L) ? 0 : (diff < 0L) ? -1 : 1);
-          }
+        (a, b) -> {
+          long diff = b.getThreadId() - a.getThreadId();
+          return ((diff == 0L) ? 0 : (diff < 0L) ? -1 : 1);
         }
     );
     long[] stateCounts = new long[VALID_STATES.length];
@@ -426,7 +423,7 @@ public class JvmMetricPoller implements MetricPoller {
 
     public MetricList(MetricFilter filter) {
       this.filter = filter;
-      list = new ArrayList<Metric>();
+      list = new ArrayList<>();
     }
 
     public void add(Metric m) {

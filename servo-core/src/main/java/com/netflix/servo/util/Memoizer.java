@@ -35,7 +35,7 @@ public final class Memoizer<T> {
    * @return A thread safe memoizer.
    */
   public static <T> Memoizer<T> create(Callable<T> getter, long duration, TimeUnit unit) {
-    return new Memoizer<T>(getter, duration, unit);
+    return new Memoizer<>(getter, duration, unit);
   }
 
   private volatile long whenItExpires = 0L;

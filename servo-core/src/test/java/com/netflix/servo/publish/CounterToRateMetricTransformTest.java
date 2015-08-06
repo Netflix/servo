@@ -49,7 +49,7 @@ public class CounterToRateMetricTransformTest {
   }
 
   private Map<String, Double> mkMap(List<List<Metric>> updates) {
-    Map<String, Double> map = new HashMap<String, Double>();
+    Map<String, Double> map = new HashMap<>();
     for (Metric m : updates.get(0)) {
       map.put(m.getConfig().getName(), m.getNumberValue().doubleValue());
     }
@@ -57,7 +57,7 @@ public class CounterToRateMetricTransformTest {
   }
 
   private Map<String, String> mkTypeMap(List<List<Metric>> updates) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     for (Metric m : updates.get(0)) {
       map.put(m.getConfig().getName(), m.getConfig().getTags().getValue(DataSourceType.KEY));
     }

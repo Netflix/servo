@@ -36,6 +36,7 @@ public final class UnmodifiableList {
    * @param <E>      Type of the elements of the list.
    * @return an unmodifiable view of the list composed of elements.
    */
+  @SafeVarargs
   public static <E> List<E> of(E... elements) {
     Preconditions.checkNotNull(elements, "elements");
     return Collections.unmodifiableList(Arrays.asList(elements));
@@ -50,7 +51,7 @@ public final class UnmodifiableList {
    */
   public static <E> List<E> copyOf(E[] elements) {
     Preconditions.checkNotNull(elements, "elements");
-    List<E> result = new ArrayList<E>(elements.length);
+    List<E> result = new ArrayList<>(elements.length);
     Collections.addAll(result, elements);
     return Collections.unmodifiableList(result);
   }
@@ -71,9 +72,9 @@ public final class UnmodifiableList {
     Preconditions.checkNotNull(elements, "elements");
     List<E> result = (elements instanceof Collection)
         // can pre-allocate the array
-        ? new ArrayList<E>(cast(elements).size())
+        ? new ArrayList<>(cast(elements).size())
         // cannot
-        : new ArrayList<E>();
+        : new ArrayList<>();
     for (E e : elements) {
       result.add(e);
     }

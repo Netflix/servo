@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.ExpiringCache;
 import com.netflix.servo.util.Preconditions;
@@ -52,13 +51,7 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
     final long expirationValue = Long.parseLong(expiration);
     final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
     final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-    counters = new ExpiringCache<MonitorConfig, Counter>(expireAfterMs,
-        new ConcurrentHashMapV8.Fun<MonitorConfig, Counter>() {
-          @Override
-          public Counter apply(final MonitorConfig config) {
-            return new StepCounter(config);
-          }
-        });
+    counters = new ExpiringCache<>(expireAfterMs, StepCounter::new);
     DefaultMonitorRegistry.getInstance().register(this);
   }
 

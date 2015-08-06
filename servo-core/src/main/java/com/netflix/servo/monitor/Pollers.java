@@ -109,7 +109,7 @@ public final class Pollers {
   }
 
   static {
-    List<Long> intervals = new ArrayList<Long>(POLLING_INTERVALS.length);
+    List<Long> intervals = new ArrayList<>(POLLING_INTERVALS.length);
     for (Long interval : POLLING_INTERVALS) {
       intervals.add(interval);
     }

@@ -31,7 +31,7 @@ public class MonitorsTest {
 
   @Test
   public void testAddMonitorsAnon() throws Exception {
-    List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitors = new ArrayList<>();
     ClassWithMonitors obj = new ClassWithMonitors() {
       final Counter c1 = Monitors.newCounter("publicCounter");
       @com.netflix.servo.annotations.Monitor(
@@ -50,7 +50,7 @@ public class MonitorsTest {
 
   @Test
   public void testAddMonitorFields() throws Exception {
-    List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitors = new ArrayList<>();
     ClassWithMonitors obj = new ClassWithMonitors();
 
     TagList tags = BasicTagList.of("abc", "def");
@@ -67,7 +67,7 @@ public class MonitorsTest {
 
   @Test
   public void testAddAnnotatedFields() throws Exception {
-    List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitors = new ArrayList<>();
     ClassWithMonitors obj = new ClassWithMonitors();
     Monitors.addAnnotatedFields(monitors, null, null, obj, obj.getClass());
     Monitors.addAnnotatedFields(monitors, "foo", null, obj, obj.getClass());

@@ -87,12 +87,7 @@ public class ApacheStatusPollerTest {
         + "Scoreboard: __________________K___W_K_____K______________K____"
         + repeat('.', OPEN_SLOTS)
         + "\n";
-    ApacheStatusPoller.StatusFetcher fetcher = new ApacheStatusPoller.StatusFetcher() {
-      @Override
-      public InputStream fetchStatus() throws IOException {
-        return new ByteArrayInputStream(statusText.getBytes("UTF-8"));
-      }
-    };
+    ApacheStatusPoller.StatusFetcher fetcher = () -> new ByteArrayInputStream(statusText.getBytes("UTF-8"));
 
     ApacheStatusPoller poller = new ApacheStatusPoller(fetcher);
 
@@ -125,7 +120,7 @@ public class ApacheStatusPollerTest {
         startingUp, readingRequest, sendingReply, keepalive, dnsLookup, closingConnection,
         logging, gracefullyFinishing, idleCleanupOfWorker, unknownState);
 
-    List<Metric> expected = new ArrayList<Metric>();
+    List<Metric> expected = new ArrayList<>();
     expected.addAll(counters);
     expected.addAll(gauges);
     expected.addAll(scoreboard);

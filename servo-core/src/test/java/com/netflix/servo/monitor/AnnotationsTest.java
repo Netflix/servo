@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static com.netflix.servo.annotations.DataSourceType.COUNTER;
 import static com.netflix.servo.annotations.DataSourceType.GAUGE;
@@ -50,15 +51,13 @@ public class AnnotationsTest {
   @Test
   public void testDefaultNames() throws Exception {
     Metrics m = new Metrics();
-    List<Monitor<?>> monitors = new ArrayList<Monitor<?>>();
+    List<Monitor<?>> monitors = new ArrayList<>();
     Monitors.addAnnotatedFields(monitors, null, null, m, m.getClass());
 
     List<String> expectedNames = UnmodifiableList.of(
         "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
-    List<String> actualNames = new ArrayList<String>();
-    for (Monitor<?> monitor : monitors) {
-      actualNames.add(monitor.getConfig().getName());
-    }
+    List<String> actualNames = monitors.stream().map(
+        monitor -> monitor.getConfig().getName()).collect(Collectors.toList());
     Collections.sort(actualNames);
     assertEquals(actualNames, expectedNames);
   }

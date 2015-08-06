@@ -35,7 +35,7 @@ public final class BasicMonitorRegistry implements MonitorRegistry {
    * Creates a new instance.
    */
   public BasicMonitorRegistry() {
-    monitors = Collections.synchronizedSet(new HashSet<Monitor<?>>());
+    monitors = Collections.synchronizedSet(new HashSet<>());
   }
 
   /**

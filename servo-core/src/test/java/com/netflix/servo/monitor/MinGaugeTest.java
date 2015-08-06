@@ -22,7 +22,7 @@ import static org.testng.Assert.assertEquals;
 
 public class MinGaugeTest extends AbstractMonitorTest<MinGauge> {
 
-  private ManualClock clock = new ManualClock(0L);
+  private final ManualClock clock = new ManualClock(0L);
 
   @Override
   public MinGauge newInstance(String name) {

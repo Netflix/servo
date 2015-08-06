@@ -184,7 +184,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
         tally[idx]++;
       }
 
-      final List<Metric> scoreboardMetrics = new ArrayList<Metric>();
+      final List<Metric> scoreboardMetrics = new ArrayList<>();
       for (final char item : SCOREBOARD_CHARS) {
         if (item == '.') { // Open slots are not particularly useful to track
           continue;
@@ -203,10 +203,9 @@ public class ApacheStatusPoller extends BaseMetricPoller {
     }
 
     static List<Metric> parse(InputStream input, long timestamp) throws IOException {
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
-      final List<Metric> metrics = new ArrayList<Metric>();
+      final List<Metric> metrics = new ArrayList<>();
 
-      try {
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"))) {
         String line = reader.readLine();
         while (line != null) {
           if (line.startsWith(SCOREBOARD)) {
@@ -216,8 +215,6 @@ public class ApacheStatusPoller extends BaseMetricPoller {
           }
           line = reader.readLine();
         }
-      } finally {
-        reader.close();
       }
       return Collections.unmodifiableList(metrics);
     }
@@ -235,11 +232,8 @@ public class ApacheStatusPoller extends BaseMetricPoller {
 
   List<Metric> pollImpl(long timestamp) {
     try {
-      InputStream statusStream = fetcher.fetchStatus();
-      try {
+      try (InputStream statusStream = fetcher.fetchStatus()) {
         return StatusPageParser.parse(statusStream, timestamp);
-      } finally {
-        statusStream.close();
       }
     } catch (IOException e) {
       logger.error("Could not fetch status page", e);

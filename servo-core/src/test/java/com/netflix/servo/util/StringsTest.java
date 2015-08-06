@@ -19,6 +19,7 @@ package com.netflix.servo.util;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -58,7 +59,7 @@ public class StringsTest {
   @Test
   public void testJoin() throws Exception {
     assertEquals(Strings.join(", ", emptyIterator()), "");
-    assertEquals(Strings.join(", ", Arrays.asList(1).iterator()), "1");
+    assertEquals(Strings.join(", ", Collections.singletonList(1).iterator()), "1");
     assertEquals(Strings.join(", ", Arrays.asList(1, 2).iterator()), "1, 2");
   }
 }

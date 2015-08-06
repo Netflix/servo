@@ -27,9 +27,9 @@ public enum Namespace {
   AWS_AUTOSCALING("AWS/AutoScaling"),
   AWS_ELB("AWS/ELB");
 
-  private String value;
+  private final String value;
 
-  private Namespace(String value) {
+  Namespace(String value) {
     this.value = value;
   }
 

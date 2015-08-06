@@ -17,7 +17,6 @@ package com.netflix.servo.publish;
 
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tags;
 import org.testng.annotations.Test;
 
@@ -96,14 +95,9 @@ public class JmxMetricPollerTest {
           new ObjectName("com.netflix.servo.test:*"),
           MATCH_ALL);
 
-      List<Metric> metrics = poller.poll(new MetricFilter() {
-        @Override
-        public boolean matches(MonitorConfig config) {
-          return config.getName().equals("Count");
-        }
-      });
+      List<Metric> metrics = poller.poll(config -> config.getName().equals("Count"));
       assertEquals(metrics.size(), 2);
-      Map<String, Integer> values = new HashMap<String, Integer>();
+      Map<String, Integer> values = new HashMap<>();
       for (Metric m : metrics) {
         values.put(m.getConfig().getTags().getTag("JmxCompositePath").getValue(), (Integer) m.getValue());
       }
@@ -140,7 +134,7 @@ public class JmxMetricPollerTest {
 
     @Override
     public Map<String, Integer> getCount() {
-      Map<String, Integer> map = new HashMap<String, Integer>();
+      Map<String, Integer> map = new HashMap<>();
       map.put("Entry1", 111);
       map.put("Entry2", 222);
       return map;
@@ -179,12 +173,7 @@ public class JmxMetricPollerTest {
           false,
           null);
 
-      List<Metric> metrics = poller.poll(new MetricFilter() {
-        @Override
-        public boolean matches(MonitorConfig config) {
-          return config.getName().equals("StringValue");
-        }
-      });
+      List<Metric> metrics = poller.poll(config -> config.getName().equals("StringValue"));
       assertEquals(metrics.size(), 1);
       assertEquals(metrics.get(0).getValue(), "AStringResult");
     } finally {

@@ -15,13 +15,14 @@
  */
 package com.netflix.servo.util;
 
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import org.testng.annotations.Test;
+
+import java.util.function.Function;
 
 import static org.testng.Assert.assertEquals;
 
 public class ExpiringCacheTest {
-  static class CountingFun implements ConcurrentHashMapV8.Fun<String, Integer> {
+  static class CountingFun implements Function<String, Integer> {
     int numCalled = 0;
 
     @Override
@@ -35,8 +36,7 @@ public class ExpiringCacheTest {
   public void testGet() throws Exception {
     ManualClock clock = new ManualClock(0L);
     CountingFun fun = new CountingFun();
-    ExpiringCache<String, Integer> map = new ExpiringCache<String, Integer>(100L,
-        fun, 100L, clock);
+    ExpiringCache<String, Integer> map = new ExpiringCache<>(100L, fun, 100L, clock);
 
     Integer three = map.get("foo");
     assertEquals(three, Integer.valueOf(3));

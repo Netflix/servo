@@ -154,7 +154,7 @@ public final class CounterToRateMetricTransform implements MetricObserver {
   public void update(List<Metric> metrics) {
     Preconditions.checkNotNull(metrics, "metrics");
     LOGGER.debug("received {} metrics", metrics.size());
-    final List<Metric> newMetrics = new ArrayList<Metric>(metrics.size());
+    final List<Metric> newMetrics = new ArrayList<>(metrics.size());
     for (Metric m : metrics) {
       if (isCounter(m)) {
         final MonitorConfig rateConfig = toRateConfig(m.getConfig());

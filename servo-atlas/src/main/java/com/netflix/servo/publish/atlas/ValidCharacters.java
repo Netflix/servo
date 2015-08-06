@@ -19,8 +19,8 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility class to deal with rewriting keys/values to the character set accepted by atlas.
@@ -30,20 +30,20 @@ public final class ValidCharacters {
    * Only allow letters, numbers, underscores, dashes and dots in our identifiers.
    */
 
-  private static boolean[] charIsAllowed = new boolean[128];
+  private static final boolean[] CHARS_ALLOWED = new boolean[128];
 
   static {
-    charIsAllowed['.'] = true;
-    charIsAllowed['-'] = true;
-    charIsAllowed['_'] = true;
+    CHARS_ALLOWED['.'] = true;
+    CHARS_ALLOWED['-'] = true;
+    CHARS_ALLOWED['_'] = true;
     for (char ch = '0'; ch <= '9'; ch++) {
-      charIsAllowed[ch] = true;
+      CHARS_ALLOWED[ch] = true;
     }
     for (char ch = 'A'; ch <= 'Z'; ch++) {
-      charIsAllowed[ch] = true;
+      CHARS_ALLOWED[ch] = true;
     }
     for (char ch = 'a'; ch <= 'z'; ch++) {
-      charIsAllowed[ch] = true;
+      CHARS_ALLOWED[ch] = true;
     }
   }
 
@@ -59,7 +59,7 @@ public final class ValidCharacters {
     final StringBuilder buf = new StringBuilder(n + 1);
     for (int i = 0; i < n; i++) {
       final char c = str.charAt(i);
-      if (c < charIsAllowed.length && charIsAllowed[c]) {
+      if (c < CHARS_ALLOWED.length && CHARS_ALLOWED[c]) {
         buf.append(c);
       } else {
         buf.append('_');
@@ -86,10 +86,6 @@ public final class ValidCharacters {
    * Create a new list of metrics where all metrics are using the valid character set.
    */
   public static List<Metric> toValidValues(List<Metric> metrics) {
-    List<Metric> fixedMetrics = new ArrayList<Metric>(metrics.size());
-    for (Metric m : metrics) {
-      fixedMetrics.add(toValidValue(m));
-    }
-    return fixedMetrics;
+    return metrics.stream().map(ValidCharacters::toValidValue).collect(Collectors.toList());
   }
 }

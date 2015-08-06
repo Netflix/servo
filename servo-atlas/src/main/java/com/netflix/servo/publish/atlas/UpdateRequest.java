@@ -47,7 +47,7 @@ public final class UpdateRequest implements JsonPayload {
     Preconditions.checkArgument(numMetrics > 0 && numMetrics <= metricsToSend.length,
         "numMetrics is 0 or out of bounds");
 
-    this.metrics = new ArrayList<AtlasMetric>(numMetrics);
+    this.metrics = new ArrayList<>(numMetrics);
     for (int i = 0; i < numMetrics; ++i) {
       Metric m = metricsToSend[i];
       if (m.hasNumberValue()) {

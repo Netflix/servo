@@ -30,7 +30,7 @@ public final class Iterables {
    * Creates a new {@link Iterable} by concatenating two iterables.
    */
   public static <E> Iterable<E> concat(Iterable<E> a, Iterable<E> b) {
-    List<E> result = new ArrayList<E>();
+    List<E> result = new ArrayList<>();
     for (E e : a) {
       result.add(e);
     }

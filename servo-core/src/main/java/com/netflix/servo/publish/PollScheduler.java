@@ -43,7 +43,7 @@ public final class PollScheduler {
   }
 
   private final AtomicReference<ScheduledExecutorService> executor =
-      new AtomicReference<ScheduledExecutorService>();
+      new AtomicReference<>();
 
   /**
    * Add a tasks to execute at a fixed rate based on the provided delay.

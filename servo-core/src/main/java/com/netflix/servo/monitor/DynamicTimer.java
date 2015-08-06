@@ -16,7 +16,6 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.DefaultMonitorRegistry;
-import com.netflix.servo.jsr166e.ConcurrentHashMapV8;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.ExpiringCache;
 import com.netflix.servo.util.Preconditions;
@@ -88,13 +87,8 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     final long expirationValue = Long.parseLong(expiration);
     final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
     final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-    timers = new ExpiringCache<ConfigUnit, Timer>(expireAfterMs,
-        new ConcurrentHashMapV8.Fun<ConfigUnit, Timer>() {
-          @Override
-          public Timer apply(final ConfigUnit configUnit) {
-            return new BasicTimer(configUnit.config, configUnit.unit);
-          }
-        });
+    timers = new ExpiringCache<>(expireAfterMs,
+        configUnit -> new BasicTimer(configUnit.config, configUnit.unit));
     DefaultMonitorRegistry.getInstance().register(this);
   }
 

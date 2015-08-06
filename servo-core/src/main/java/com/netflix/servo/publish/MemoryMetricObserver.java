@@ -60,7 +60,7 @@ public final class MemoryMetricObserver extends BaseMetricObserver {
    * Returns the current set of observations.
    */
   public List<List<Metric>> getObservations() {
-    List<List<Metric>> builder = new ArrayList<List<Metric>>();
+    List<List<Metric>> builder = new ArrayList<>();
     int pos = next;
     for (List<Metric> ignored : observations) {
       if (observations[pos] != null) {

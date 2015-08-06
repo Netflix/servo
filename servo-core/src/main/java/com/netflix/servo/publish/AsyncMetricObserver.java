@@ -73,7 +73,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     Preconditions.checkArgument(queueSize >= 1,
         String.format("invalid queueSize %d, size must be >= 1", queueSize));
 
-    updateQueue = new LinkedBlockingDeque<TimestampedUpdate>(queueSize);
+    updateQueue = new LinkedBlockingDeque<>(queueSize);
 
     String threadName = getClass().getSimpleName() + "-" + name;
     processingThread = new Thread(new UpdateProcessor(), threadName);

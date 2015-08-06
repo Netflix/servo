@@ -41,7 +41,7 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
   protected final TaggingContext context;
 
   /**
-   * Factory funtion used to create a new instance of a monitor.
+   * Factory function used to create a new instance of a monitor.
    */
   protected final Function<MonitorConfig, M> newMonitor;
 
@@ -65,7 +65,7 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
     this.context = context;
     this.newMonitor = newMonitor;
 
-    monitors = new ConcurrentHashMap<MonitorConfig, M>();
+    monitors = new ConcurrentHashMap<>();
   }
 
   /**

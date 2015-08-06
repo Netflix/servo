@@ -52,7 +52,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
 
   private final AtomicBoolean updatePending = new AtomicBoolean(false);
   private final AtomicReference<Collection<Monitor<?>>> monitorList =
-      new AtomicReference<Collection<Monitor<?>>>(UnmodifiableList.<Monitor<?>>of());
+      new AtomicReference<>(UnmodifiableList.<Monitor<?>>of());
 
   /**
    * Creates a new instance that registers metrics with the local mbean
@@ -75,7 +75,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
     this.name = name;
     this.mapper = mapper;
     mBeanServer = ManagementFactory.getPlatformMBeanServer();
-    monitors = new ConcurrentHashMap<MonitorConfig, Monitor<?>>();
+    monitors = new ConcurrentHashMap<>();
   }
 
   private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {

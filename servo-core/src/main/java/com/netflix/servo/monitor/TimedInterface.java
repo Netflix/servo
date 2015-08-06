@@ -21,10 +21,10 @@ import com.netflix.servo.tag.TagList;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class creates a {@link java.lang.reflect.Proxy} monitor that tracks all calls to methods
@@ -63,11 +63,7 @@ public final class TimedInterface {
      */
     @Override
     public List<Monitor<?>> getMonitors() {
-      List<Monitor<?>> dynamicTimers = new ArrayList<Monitor<?>>();
-      for (Timer timer : timers.values()) {
-        dynamicTimers.add(timer);
-      }
-      return dynamicTimers;
+      return timers.values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -99,7 +95,7 @@ public final class TimedInterface {
       baseTagList = tagList;
       baseConfig = MonitorConfig.builder(TIMED_INTERFACE).withTags(baseTagList).build();
 
-      timers = new HashMap<String, Timer>();
+      timers = new HashMap<>();
       for (Method method : ctype.getMethods()) {
         final MonitorConfig config =
             MonitorConfig.builder(method.getName())
@@ -138,7 +134,7 @@ public final class TimedInterface {
    */
   @SuppressWarnings("unchecked")
   public static <T> T newProxy(Class<T> ctype, T concrete, String id) {
-    final InvocationHandler handler = new TimedHandler<T>(ctype, concrete, id);
+    final InvocationHandler handler = new TimedHandler<>(ctype, concrete, id);
     final Class<?>[] types = new Class[]{ctype, CompositeMonitor.class};
     return (T) Proxy.newProxyInstance(ctype.getClassLoader(), types, handler);
   }

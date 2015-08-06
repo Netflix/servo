@@ -40,8 +40,8 @@ subprojects {
     jcenter()
   }
 
-  sourceCompatibility = '1.6'
-  targetCompatibility = '1.6'
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
 
   tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
@@ -79,6 +79,7 @@ subprojects {
 
   checkstyle {
     ignoreFailures = false 
+    toolVersion = '6.0'
     configFile = rootProject.file('codequality/checkstyle.xml')
     sourceSets = [sourceSets.main]
   }
@@ -93,7 +94,7 @@ subprojects {
   }
 
   tasks.withType(FindBugs) {
-    findbugs.toolVersion "3.0.0"
+    findbugs.toolVersion "3.0.1"
     reports {
       xml.enabled = false
       html.enabled = true

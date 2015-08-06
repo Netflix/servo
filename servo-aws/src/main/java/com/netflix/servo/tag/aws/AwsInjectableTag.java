@@ -61,7 +61,7 @@ public enum AwsInjectableTag implements Tag {
   private final String key;
   private final String value;
 
-  private AwsInjectableTag(String key, String val) {
+  AwsInjectableTag(String key, String val) {
     this.key = key;
     this.value = val;
   }

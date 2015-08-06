@@ -45,7 +45,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
 
   private final List<Monitor<?>> monitors;
   private final AtomicLong nextTaskId = new AtomicLong(0L);
-  private final ConcurrentMap<Long, Long> tasks = new ConcurrentHashMap<Long, Long>();
+  private final ConcurrentMap<Long, Long> tasks = new ConcurrentHashMap<>();
   private final Clock clock;
 
   private static MonitorConfig subId(MonitorConfig config, String sub) {
@@ -71,14 +71,10 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
 
     this.clock = clock;
 
-    Monitor<?> duration = new BasicGauge<Long>(subId(config, "duration"), new Callable<Long>() {
-      @Override
-      public Long call() throws Exception {
-        return getDurationMillis() / 1000L;
-      }
-    });
+    Monitor<?> duration = new BasicGauge<>(subId(config, "duration"),
+        () -> getDurationMillis() / 1000L);
 
-    Monitor<?> activeTasks = new BasicGauge<Long>(subId(config, "activeTasks"),
+    Monitor<?> activeTasks = new BasicGauge<>(subId(config, "activeTasks"),
         new Callable<Long>() {
           @Override
           public Long call() throws Exception {
