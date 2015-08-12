@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
@@ -108,6 +109,86 @@ public class BucketTimerTest extends AbstractMonitorTest<BucketTimer> {
     expectedValues.put("max", 125L);
     expectedValues.put("bucket=10ms", 2L);
     expectedValues.put("bucket=20ms", 1L);
+    expectedValues.put("bucket=overflow", 2L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 5L);
+  }
+
+  @Test
+  public void testRecordDifferentUnits() throws Exception {
+    BucketTimer c = new BucketTimer(
+        MonitorConfig.builder("foo").build(),
+        new BucketConfig.Builder().withBuckets(new long[]{10000L, 20000L}).withTimeUnit(TimeUnit.NANOSECONDS).build(),
+        TimeUnit.MICROSECONDS
+    );;
+    Map<String, Number> expectedValues;
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 0L);
+    expectedValues.put("min", 0L);
+    expectedValues.put("max", 0L);
+    expectedValues.put("bucket=10000ns", 0L);
+    expectedValues.put("bucket=20000ns", 0L);
+    expectedValues.put("bucket=overflow", 0L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 0L);
+
+    c.record(40);
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 40L);
+    expectedValues.put("min", 40L);
+    expectedValues.put("max", 40L);
+    expectedValues.put("bucket=10000ns", 0L);
+    expectedValues.put("bucket=20000ns", 0L);
+    expectedValues.put("bucket=overflow", 1L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 1L);
+
+    c.record(10);
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 50L);
+    expectedValues.put("min", 10L);
+    expectedValues.put("max", 40L);
+    expectedValues.put("bucket=10000ns", 1L);
+    expectedValues.put("bucket=20000ns", 0L);
+    expectedValues.put("bucket=overflow", 1L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 2L);
+
+    c.record(5);
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 55L);
+    expectedValues.put("min", 5L);
+    expectedValues.put("max", 40L);
+    expectedValues.put("bucket=10000ns", 2L);
+    expectedValues.put("bucket=20000ns", 0L);
+    expectedValues.put("bucket=overflow", 1L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 3L);
+
+    c.record(20);
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 75L);
+    expectedValues.put("min", 5L);
+    expectedValues.put("max", 40L);
+    expectedValues.put("bucket=10000ns", 2L);
+    expectedValues.put("bucket=20000ns", 1L);
+    expectedValues.put("bucket=overflow", 1L);
+    assertMonitors(c.getMonitors(), expectedValues);
+    assertEquals(c.getCount(0).longValue(), 4L);
+
+    c.record(125);
+
+    expectedValues = new HashMap<>();
+    expectedValues.put("totalTime", 200L);
+    expectedValues.put("min", 5L);
+    expectedValues.put("max", 125L);
+    expectedValues.put("bucket=10000ns", 2L);
+    expectedValues.put("bucket=20000ns", 1L);
     expectedValues.put("bucket=overflow", 2L);
     assertMonitors(c.getMonitors(), expectedValues);
     assertEquals(c.getCount(0).longValue(), 5L);

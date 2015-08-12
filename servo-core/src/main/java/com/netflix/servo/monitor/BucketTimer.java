@@ -174,8 +174,9 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     max.update(duration);
 
     final long[] buckets = bucketConfig.getBuckets();
+    final long bucketDuration = bucketConfig.getTimeUnit().convert(duration, timeUnit);
     for (int i = 0; i < buckets.length; i++) {
-      if (duration <= buckets[i]) {
+      if (bucketDuration <= buckets[i]) {
         bucketCount[i].increment();
         return;
       }
