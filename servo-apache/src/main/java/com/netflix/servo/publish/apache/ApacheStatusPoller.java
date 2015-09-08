@@ -22,6 +22,7 @@ import com.netflix.servo.publish.BaseMetricPoller;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.UnmodifiableList;
+import com.netflix.servo.util.UnmodifiableSet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,14 +93,17 @@ public class ApacheStatusPoller extends BaseMetricPoller {
     }
 
     private static final Pattern INVALID_CHARS = Pattern.compile("[^a-zA-Z0-9_\\-\\.]");
-    private static final Pattern STAT_LINE = Pattern.compile("^([^:]+): (\\S+)$");
+    private static final Pattern STAT_LINE = Pattern.compile("^([^:]+): ([.\\d]+)$");
+    private static final Pattern SCOREBOARD_LINE = Pattern.compile("^Scoreboard: (\\S+)$");
     private static final char[] SCOREBOARD_CHARS = {
         '_', 'S', 'R', 'W', 'K', 'D', 'C', 'L', 'G', 'I', '.', '*'};
     private static final Tag CLASS_TAG = Tags.newTag("class", "ApacheStatusPoller");
     /**
-     * Metrics that should not be included. These can be confusing for end users.
+     * Metrics that should be included.
      */
-    private static final List<String> BLACKLISTED_METRICS = UnmodifiableList.of("CPULoad");
+    private static final Set<String> WHITELISTED_METRICS = UnmodifiableSet.of("Total_Accesses",
+        "Total_kBytes", "Uptime", "ReqPerSec", "BytesPerSec", "BytesPerReq",
+        "BusyWorkers", "IdleWorkers");
     private static final int ASCII_CHARS = 128;
     private static final String SCOREBOARD = "Scoreboard";
 
@@ -138,7 +143,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
       }
 
       final String name = INVALID_CHARS.matcher(m.group(1)).replaceAll("_");
-      if (BLACKLISTED_METRICS.contains(name)) {
+      if (!WHITELISTED_METRICS.contains(name)) {
         return EMPTY_LIST;
       }
       final double value = Double.parseDouble(m.group(2));
@@ -168,12 +173,12 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      * ." Open slot with no current process (ignored)
      */
     static List<Metric> parseScoreboardLine(String line, long timestamp) {
-      final Matcher m = STAT_LINE.matcher(line);
+      final Matcher m = SCOREBOARD_LINE.matcher(line);
       if (!m.matches()) {
         return EMPTY_LIST;
       }
 
-      final char[] scoreboard = m.group(2).toCharArray();
+      final char[] scoreboard = m.group(1).toCharArray();
 
       final double[] tally = new double[ASCII_CHARS];
       for (final char item : SCOREBOARD_CHARS) {
