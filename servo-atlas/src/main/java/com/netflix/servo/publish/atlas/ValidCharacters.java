@@ -52,6 +52,20 @@ public final class ValidCharacters {
   }
 
   /**
+   * Check whether a given string contains an invalid character.
+   */
+  public static boolean hasInvalidCharacters(String str) {
+    final int n = str.length();
+    for (int i = 0; i < n; i++) {
+      final char c = str.charAt(i);
+      if (c >= CHARS_ALLOWED.length || !CHARS_ALLOWED[c]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Convert a given string to one where all characters are valid.
    */
   public static String toValidCharset(String str) {
