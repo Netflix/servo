@@ -44,14 +44,14 @@ public class StatsTimer extends StatsMonitor implements Timer {
    * Creates a new instance of the timer with a unit of milliseconds, using the default executor.
    */
   public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig) {
-    this(baseConfig, statsConfig, TimeUnit.MILLISECONDS, defaultExecutor);
+    this(baseConfig, statsConfig, TimeUnit.MILLISECONDS, DEFAULT_EXECUTOR);
   }
 
   /**
    * Creates a new instance of the timer with a given unit, using the default executor.
    */
   public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig, TimeUnit unit) {
-    this(baseConfig, statsConfig, unit, defaultExecutor);
+    this(baseConfig, statsConfig, unit, DEFAULT_EXECUTOR);
   }
 
 
@@ -59,6 +59,9 @@ public class StatsTimer extends StatsMonitor implements Timer {
    * Creates a new instance of the timer with a unit of milliseconds,
    * using the {@link ScheduledExecutorService} provided by
    * the user.
+   * To avoid memory leaks the ScheduledExecutorService
+   * should have the policy to remove tasks from the work queue.
+   * See {@link java.util.concurrent.ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)}
    */
   public StatsTimer(MonitorConfig config, StatsConfig statsConfig, TimeUnit unit,
                     ScheduledExecutorService executor) {

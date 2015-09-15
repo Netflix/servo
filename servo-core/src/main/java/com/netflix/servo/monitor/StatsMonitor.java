@@ -19,8 +19,8 @@ import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
-import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
+import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ThreadFactories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,26 +31,43 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
  * A {@link Timer} that provides statistics.
- * <p/>
+ * <p>
  * The statistics are collected periodically and are published according to the configuration
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
  */
 public class StatsMonitor extends AbstractMonitor<Long> implements
     CompositeMonitor<Long>, NumericMonitor<Long> {
-  private static final ThreadFactory THREAD_FACTORY = ThreadFactories.withName("StatsMonitor-%d");
 
-  //CHECKSTYLE.OFF: ConstantName
-  protected static final ScheduledExecutorService defaultExecutor =
-      Executors.newScheduledThreadPool(1, THREAD_FACTORY);
-  //CHECKSTYLE.ON: ConstantName
+  protected static final ScheduledExecutorService DEFAULT_EXECUTOR;
+  private static final long EXPIRE_AFTER_MS;
+
+  static {
+    final String className = StatsMonitor.class.getCanonicalName();
+    final String expirationProp = className + ".expiration";
+    final String expirationPropUnit = className + ".expirationUnit";
+    final String expiration = System.getProperty(expirationProp, "15");
+    final String expirationUnit = System.getProperty(expirationPropUnit, "MINUTES");
+    final long expirationValue = Long.parseLong(expiration);
+    final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
+    EXPIRE_AFTER_MS = expirationUnitValue.toMillis(expirationValue);
+
+    final ThreadFactory threadFactory = ThreadFactories.withName("StatsMonitor-%d");
+    final ScheduledThreadPoolExecutor poolExecutor =
+        new ScheduledThreadPoolExecutor(1, threadFactory);
+    poolExecutor.setRemoveOnCancelPolicy(true);
+    DEFAULT_EXECUTOR = poolExecutor;
+  }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(StatsMonitor.class);
 
   private final MonitorConfig baseConfig;
@@ -73,6 +90,12 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   private static final Tag STAT_MEAN = Tags.newTag(STATISTIC, "avg");
   private static final Tag STAT_VARIANCE = Tags.newTag(STATISTIC, "variance");
   private static final Tag STAT_STDDEV = Tags.newTag(STATISTIC, "stdDev");
+
+  private final Clock clock;
+  private volatile long lastUsed;
+  private final ScheduledExecutorService executor;
+  private final StatsConfig statsConfig;
+  private AtomicReference<ScheduledFuture<?>> myFutureRef = new AtomicReference<>();
 
   private interface GaugeWrapper {
     void update(StatsBuffer buffer);
@@ -287,7 +310,11 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
   /**
    * Creates a new instance of the timer with a unit of milliseconds,
-   * using the {@link ScheduledExecutorService} provided by the user.
+   * using the {@link ScheduledExecutorService} provided by the user,
+   * and the default Clock.
+   * To avoid memory leaks the ScheduledExecutorService
+   * should have the policy to remove tasks from the work queue.
+   * See {@link ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)}
    */
   public StatsMonitor(final MonitorConfig config,
                       final StatsConfig statsConfig,
@@ -295,10 +322,32 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
                       final String totalTagName,
                       final boolean autoStart,
                       final Tag... additionalTags) {
+    this(config, statsConfig, executor, totalTagName, autoStart, Clock.WALL, additionalTags);
+  }
+
+  /**
+   * Creates a new instance of the timer with a unit of milliseconds,
+   * using the {@link ScheduledExecutorService} provided by the user.
+   * To avoid memory leaks the ScheduledExecutorService
+   * should have the policy to remove tasks from the work queue.
+   * See {@link ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)}
+   */
+  public StatsMonitor(final MonitorConfig config,
+                      final StatsConfig statsConfig,
+                      final ScheduledExecutorService executor,
+                      final String totalTagName,
+                      final boolean autoStart,
+                      final Clock clock,
+                      final Tag... additionalTags) {
+
+
     super(config);
     final Tag statsTotal = Tags.newTag(STATISTIC, totalTagName);
-    TagList additionalTagList = new BasicTagList(Arrays.asList(additionalTags));
-    this.baseConfig = config.withAdditionalTags(additionalTagList);
+    this.baseConfig = config.withAdditionalTags(new BasicTagList(Arrays.asList(additionalTags)));
+    this.clock = clock;
+    this.lastUsed = clock.now();
+    this.executor = executor;
+    this.statsConfig = statsConfig;
     this.cur = new StatsBuffer(statsConfig.getSampleSize(), statsConfig.getPercentiles());
     this.prev = new StatsBuffer(statsConfig.getSampleSize(), statsConfig.getPercentiles());
     this.count = new BasicCounter(baseConfig.withAdditionalTag(STAT_COUNT));
@@ -331,6 +380,19 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   private void startComputingStats(ScheduledExecutorService executor, long frequencyMillis) {
     Runnable command = () -> {
       try {
+        if (myFutureRef.get() == null) {
+          return;
+        }
+        final boolean expired = (clock.now() - lastUsed) > EXPIRE_AFTER_MS;
+        if (expired) {
+          final ScheduledFuture<?> future = myFutureRef.getAndSet(null);
+          if (future != null) {
+            LOGGER.debug("Expiring unused StatsMonitor {}", getConfig().getName());
+            future.cancel(true);
+          }
+          return;
+        }
+
         synchronized (updateLock) {
           final StatsBuffer tmp = prev;
           prev = cur;
@@ -344,8 +406,8 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
       }
     };
 
-    executor.scheduleWithFixedDelay(command, frequencyMillis, frequencyMillis,
-        TimeUnit.MILLISECONDS);
+    this.myFutureRef.set(executor.scheduleWithFixedDelay(command, frequencyMillis, frequencyMillis,
+        TimeUnit.MILLISECONDS));
   }
 
   private void updateGauges() {
@@ -359,6 +421,14 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
    */
   @Override
   public List<Monitor<?>> getMonitors() {
+    lastUsed = clock.now();
+    if (isExpired()) {
+      LOGGER.info("Attempting to get the value for an expired monitor: {}."
+              + "Will start computing stats again.",
+          getConfig().getName());
+      startComputingStats(executor, statsConfig.getFrequencyMillis());
+      return Collections.emptyList();
+    }
     return monitors;
   }
 
@@ -442,5 +512,13 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
    */
   public long getTotalMeasurement() {
     return totalMeasurement.getValue().longValue();
+  }
+
+  /**
+   * Whether the current monitor has expired, and its task removed from
+   * the executor.
+   */
+  boolean isExpired() {
+    return myFutureRef.get() == null;
   }
 }
