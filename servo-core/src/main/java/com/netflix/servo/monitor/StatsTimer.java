@@ -44,14 +44,14 @@ public class StatsTimer extends StatsMonitor implements Timer {
    * Creates a new instance of the timer with a unit of milliseconds, using the default executor.
    */
   public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig) {
-    this(baseConfig, statsConfig, TimeUnit.MILLISECONDS, defaultExecutor);
+    this(baseConfig, statsConfig, TimeUnit.MILLISECONDS, DEFAULT_EXECUTOR);
   }
 
   /**
    * Creates a new instance of the timer with a given unit, using the default executor.
    */
   public StatsTimer(MonitorConfig baseConfig, StatsConfig statsConfig, TimeUnit unit) {
-    this(baseConfig, statsConfig, unit, defaultExecutor);
+    this(baseConfig, statsConfig, unit, DEFAULT_EXECUTOR);
   }
 
 
