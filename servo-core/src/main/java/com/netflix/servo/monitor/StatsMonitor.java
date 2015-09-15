@@ -312,6 +312,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
    * Creates a new instance of the timer with a unit of milliseconds,
    * using the {@link ScheduledExecutorService} provided by the user,
    * and the default Clock.
+   * To avoid memory leaks the ScheduledExecutorService
+   * should have the policy to remove tasks from the work queue.
+   * See {@link ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)}
    */
   public StatsMonitor(final MonitorConfig config,
                       final StatsConfig statsConfig,
@@ -325,6 +328,9 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   /**
    * Creates a new instance of the timer with a unit of milliseconds,
    * using the {@link ScheduledExecutorService} provided by the user.
+   * To avoid memory leaks the ScheduledExecutorService
+   * should have the policy to remove tasks from the work queue.
+   * See {@link ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)}
    */
   public StatsMonitor(final MonitorConfig config,
                       final StatsConfig statsConfig,
@@ -416,7 +422,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   @Override
   public List<Monitor<?>> getMonitors() {
     lastUsed = clock.now();
-    if (myFutureRef.get() == null) {
+    if (isExpired()) {
       LOGGER.info("Attempting to get the value for an expired monitor: {}."
               + "Will start computing stats again.",
           getConfig().getName());
