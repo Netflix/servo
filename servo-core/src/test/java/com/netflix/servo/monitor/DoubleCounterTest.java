@@ -24,14 +24,15 @@ import static org.testng.Assert.assertTrue;
 
 public class DoubleCounterTest {
 
-  final ManualClock clock = new ManualClock(50 * Pollers.POLLING_INTERVALS[1]);
+  private static final double DELTA = 1e-06;
+  final ManualClock clock = new ManualClock(Pollers.POLLING_INTERVALS[1]);
 
   public DoubleCounter newInstance(String name) {
     return new DoubleCounter(MonitorConfig.builder(name).build(), clock);
   }
 
-  public long time(long t) {
-    return t * 1000 + Pollers.POLLING_INTERVALS[1] * 50;
+  private long time(long t) {
+    return t * 1000 + Pollers.POLLING_INTERVALS[1];
   }
 
   @Test
@@ -44,25 +45,25 @@ public class DoubleCounterTest {
 
   @Test
   public void testSimpleTransition() {
-    clock.set(0);
+    clock.set(time(1));
     DoubleCounter c = newInstance("c");
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 0.0);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 0.0);
 
-    clock.set(2000);
+    clock.set(time(3));
     c.increment(1);
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 1.0);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 1.0);
 
-    clock.set(52000);
+    clock.set(time(6));
     c.increment(1);
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 2.0);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 2.0);
 
-    clock.set(62000);
+    clock.set(time(12));
     c.increment(1);
-    assertEquals(c.getCurrentCount(0), 1.0);
-    assertEquals(c.getValue(0).doubleValue(), 1.0 / 30.0);
+    assertEquals(c.getCurrentCount(1), 1.0);
+    assertEquals(c.getValue(1).doubleValue(), 2.0 / 10.0);
   }
 
 
@@ -154,7 +155,7 @@ public class DoubleCounterTest {
     c.increment(1);
     assertEquals(c.getCurrentCount(1), 5.0);
 
-    // Check rate for previous internval
+    // Check rate for previous interval
     assertEquals(c.getValue(1).doubleValue(), 0.2);
   }
 
