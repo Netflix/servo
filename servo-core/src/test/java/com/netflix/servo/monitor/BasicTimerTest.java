@@ -33,34 +33,29 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
     assertEquals(c.getValue().longValue(), 0L);
     assertEquals(c.getTotalTime().longValue(), 0L);
     assertEquals(c.getCount().longValue(), 0L);
-    assertEquals(c.getMin().longValue(), 0L);
     assertEquals(c.getMax().longValue(), 0L);
 
     c.record(42, TimeUnit.MILLISECONDS);
     assertEquals(c.getValue().longValue(), 42L);
     assertEquals(c.getTotalTime().longValue(), 42L);
     assertEquals(c.getCount().longValue(), 1L);
-    assertEquals(c.getMin().longValue(), 42L);
     assertEquals(c.getMax().longValue(), 42L);
 
     c.record(21, TimeUnit.MILLISECONDS);
     assertEquals(c.getValue().longValue(), 31L);
     assertEquals(c.getTotalTime().longValue(), 63L);
     assertEquals(c.getCount().longValue(), 2L);
-    assertEquals(c.getMin().longValue(), 21L);
     assertEquals(c.getMax().longValue(), 42L);
 
     c.record(84, TimeUnit.MILLISECONDS);
     assertEquals(c.getValue().longValue(), 49L);
     assertEquals(c.getTotalTime().longValue(), 147L);
     assertEquals(c.getCount().longValue(), 3L);
-    assertEquals(c.getMin().longValue(), 21L);
     assertEquals(c.getMax().longValue(), 84L);
 
     assertEquals(c.getValue().longValue(), 49L);
     assertEquals(c.getTotalTime().longValue(), 147L);
     assertEquals(c.getCount().longValue(), 3L);
-    assertEquals(c.getMin().longValue(), 21L);
     assertEquals(c.getMax().longValue(), 84L);
   }
 
@@ -88,6 +83,5 @@ public class BasicTimerTest extends AbstractMonitorTest<BasicTimer> {
     timer.record(1000, TimeUnit.NANOSECONDS);
     assertEquals(timer.getTotalTime(), 0.001);
     assertEquals(timer.getMax(), 0.001);
-    assertEquals(timer.getMin(), 0.001);
   }
 }
