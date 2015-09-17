@@ -87,12 +87,13 @@ class StepLong {
     final long last = lastPollTime[pollerIndex].getAndSet(now);
     final long missed = (now - last) / step - 1;
 
+    final long stepStart = now / step * step;
     if (last / step == now / step) {
-      return new Datapoint(now / step * step, value);
+      return new Datapoint(stepStart, value);
     } else if (last > 0L && missed > 0L) {
       return Datapoint.UNKNOWN;
     } else {
-      return new Datapoint(now / step * step, value);
+      return new Datapoint(stepStart, value);
     }
   }
 

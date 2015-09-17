@@ -24,37 +24,39 @@ import static org.testng.Assert.assertTrue;
 
 public class StepCounterTest {
 
+  private static final double DELTA = 1e-06;
   final ManualClock clock = new ManualClock(50 * Pollers.POLLING_INTERVALS[1]);
 
   public StepCounter newInstance(String name) {
     return new StepCounter(MonitorConfig.builder(name).build(), clock);
   }
 
-  public long time(long t) {
-    return t * 1000 + Pollers.POLLING_INTERVALS[1] * 50;
+  private long time(long t) {
+    return t * 1000 + Pollers.POLLING_INTERVALS[1];
   }
 
   @Test
   public void testSimpleTransition() {
-    clock.set(0);
+    long start = time(1);
+    clock.set(start);
     StepCounter c = newInstance("c");
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 0L);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 0L);
 
-    clock.set(2000);
+    clock.set(start + 2000);
     c.increment();
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 1L);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 1L);
 
-    clock.set(52000);
+    clock.set(start + 8000);
     c.increment();
-    assertEquals(c.getValue(0).doubleValue(), Double.NaN);
-    assertEquals(c.getCurrentCount(0), 2L);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 2L);
 
-    clock.set(62000);
+    clock.set(start + 12000);
     c.increment();
-    assertEquals(c.getValue(0).doubleValue(), 1.0 / 30.0);
-    assertEquals(c.getCurrentCount(0), 1L);
+    assertEquals(c.getValue(1).doubleValue(), 2.0 / 10.0, DELTA);
+    assertEquals(c.getCurrentCount(1), 1L);
   }
 
 
@@ -62,7 +64,7 @@ public class StepCounterTest {
   public void testInitialPollIsZero() {
     clock.set(time(1));
     StepCounter c = newInstance("foo");
-    assertEquals(c.getValue(1).doubleValue(), 0.0);
+    assertEquals(c.getValue(1).doubleValue(), 0.0, DELTA);
   }
 
   @Test
@@ -90,7 +92,7 @@ public class StepCounterTest {
     c.increment();
 
     // Check counts
-    assertEquals(c.getValue(1).doubleValue(), 0.3);
+    assertEquals(c.getValue(1).doubleValue(), 0.3, DELTA);
     assertEquals(c.getCurrentCount(1), 2);
   }
 
@@ -101,7 +103,7 @@ public class StepCounterTest {
     for (int i = 1; i <= 100000; ++i) {
       c.increment();
       clock.set(time(i * 10 + 1));
-      assertEquals(c.getValue(1).doubleValue(), 0.1);
+      assertEquals(c.getValue(1).doubleValue(), 0.1, DELTA);
     }
   }
 
@@ -146,21 +148,21 @@ public class StepCounterTest {
     c.increment();
     assertEquals(c.getCurrentCount(1), 5);
 
-    // Check rate for previous internval
-    assertEquals(c.getValue(1).doubleValue(), 0.2);
+    // Check rate for previous interval
+    assertEquals(c.getValue(1).doubleValue(), 0.2, DELTA);
   }
 
   @Test
   public void testGetValueTwice() {
-    ManualClock manualClock = new ManualClock(0L);
+    ManualClock manualClock = new ManualClock(60000L);
 
     StepCounter c = new StepCounter(MonitorConfig.builder("test").build(), manualClock);
     c.increment();
-    for (int i = 1; i < 10; ++i) {
+    for (int i = 2; i < 10; ++i) {
       manualClock.set(i * 60000L);
       c.increment();
       c.getValue(0);
-      assertEquals(c.getValue(0).doubleValue(), 1 / 60.0);
+      assertEquals(c.getValue(0).doubleValue(), 1 / 60.0, DELTA);
     }
   }
 }
