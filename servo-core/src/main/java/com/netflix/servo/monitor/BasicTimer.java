@@ -35,14 +35,14 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
   private static final Tag STAT_TOTAL = Tags.newTag(STATISTIC, "totalTime");
   private static final Tag STAT_COUNT = Tags.newTag(STATISTIC, "count");
-  private static final Tag STAT_MIN = Tags.newTag(STATISTIC, "min");
+  private static final Tag STAT_TOTAL_SQ = Tags.newTag(STATISTIC, "totalOfSquares");
   private static final Tag STAT_MAX = Tags.newTag(STATISTIC, "max");
 
   private final TimeUnit timeUnit;
   private final double timeUnitNanosFactor;
   private final StepCounter totalTime;
   private final StepCounter count;
-  private final MinGauge min;
+  private final DoubleCounter totalOfSquares;
   private final MaxGauge max;
 
   private final List<Monitor<?>> monitors;
@@ -84,17 +84,18 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
     totalTime = new StepCounter(unitConfig.withAdditionalTag(STAT_TOTAL), clock);
     count = new StepCounter(unitConfig.withAdditionalTag(STAT_COUNT), clock);
-    min = new MinGauge(unitConfig.withAdditionalTag(STAT_MIN), clock);
+    totalOfSquares = new DoubleCounter(unitConfig.withAdditionalTag(STAT_TOTAL_SQ), clock);
     max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
 
     final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<>(totalTime,
         timeUnitNanosFactor);
-    final FactorMonitor<Long> minFactor = new FactorMonitor<>(min,
-        timeUnitNanosFactor);
+    final FactorMonitor<Number> totalSquaresFactor = new FactorMonitor<>(totalOfSquares,
+        timeUnitNanosFactor * timeUnitNanosFactor);
     final FactorMonitor<Long> maxFactor = new FactorMonitor<>(max,
         timeUnitNanosFactor);
 
-    monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count, minFactor, maxFactor);
+    monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count,
+        totalSquaresFactor, maxFactor);
   }
 
   /**
@@ -135,7 +136,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     if (nanos >= 0) {
       totalTime.increment(nanos);
       count.increment();
-      min.update(nanos);
+      totalOfSquares.increment((double) nanos * (double) nanos);
       max.update(nanos);
     }
   }
@@ -187,13 +188,6 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
   }
 
   /**
-   * Get the min value since the last reset.
-   */
-  public Double getMin() {
-    return min.getCurrentValue(0) * timeUnitNanosFactor;
-  }
-
-  /**
    * Get the max value since the last reset.
    */
   public Double getMax() {
@@ -215,7 +209,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     return config.equals(m.getConfig())
         && totalTime.equals(m.totalTime)
         && count.equals(m.count)
-        && min.equals(m.min)
+        && totalOfSquares.equals(m.totalOfSquares)
         && max.equals(m.max);
   }
 
@@ -227,7 +221,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     int result = config.hashCode();
     result = 31 * result + totalTime.hashCode();
     result = 31 * result + count.hashCode();
-    result = 31 * result + min.hashCode();
+    result = 31 * result + totalOfSquares.hashCode();
     result = 31 * result + max.hashCode();
     return result;
   }
@@ -238,6 +232,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
   @Override
   public String toString() {
     return "BasicTimer{config=" + config + ", totalTime=" + totalTime
-        + ", count=" + count + ", min=" + min + ", max=" + max + '}';
+        + ", count=" + count + ", totalOfSquares=" + totalOfSquares
+        + ", max=" + max + '}';
   }
 }
