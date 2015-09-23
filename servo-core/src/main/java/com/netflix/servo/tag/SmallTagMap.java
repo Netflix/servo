@@ -209,8 +209,6 @@ public class SmallTagMap implements Iterable<Tag> {
    *
    * @param tagArray sorted array of tags
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2",
-      justification = "Only used from the builder")
   SmallTagMap(Tag[] tagArray) {
     this.tagArray = Preconditions.checkNotNull(tagArray, "tagArray");
   }

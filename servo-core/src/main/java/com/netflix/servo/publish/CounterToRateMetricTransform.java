@@ -67,9 +67,6 @@ public final class CounterToRateMetricTransform implements MetricObserver {
    * heartbeat should be some multiple of the sampling interval used when
    * collecting the metrics.
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value = "SE_BAD_FIELD_INNER_CLASS",
-      justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
   public CounterToRateMetricTransform(MetricObserver observer, long heartbeat, TimeUnit unit) {
     this(observer, heartbeat, 0L, unit);
   }
@@ -94,9 +91,6 @@ public final class CounterToRateMetricTransform implements MetricObserver {
    * @param unit               unit for the heartbeat and estPollingInterval params.
    * @param clock              Clock instance to use for getting the time.
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value = "SE_BAD_FIELD_INNER_CLASS",
-      justification = "We don't use serialization - ignore that LinkedHashMap is serializable")
   CounterToRateMetricTransform(
       MetricObserver observer, long heartbeat, long estPollingInterval, TimeUnit unit,
       final Clock clock) {

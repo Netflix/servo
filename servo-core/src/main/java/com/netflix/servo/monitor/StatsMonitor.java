@@ -249,7 +249,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
 
     @Override
     public void update(StatsBuffer buffer) {
-      gauge.set(buffer.getPercentileValues()[index]);
+      gauge.set(buffer.getPercentileValueForIdx(index));
     }
 
 

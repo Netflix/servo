@@ -223,10 +223,8 @@ public class StatsBuffer {
    *
    * @return An array of computed percentileValues.
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP",
-      justification = "Performance critical code. Users treat it as read-only")
   public double[] getPercentileValues() {
-    return percentileValues;
+    return Arrays.copyOf(percentileValues, percentileValues.length);
   }
 
   /**
@@ -234,5 +232,16 @@ public class StatsBuffer {
    */
   public double[] getPercentiles() {
     return Arrays.copyOf(percentiles, percentiles.length);
+  }
+
+  /**
+   * Return the value for the percentile given an index.
+   * @param index If percentiles are [ 95.0, 99.0 ] index must be 0 or 1 to get the 95th
+   *              or 99th percentile respectively.
+   *
+   * @return The value for the percentile requested.
+   */
+  public double getPercentileValueForIdx(int index) {
+    return percentileValues[index];
   }
 }

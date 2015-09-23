@@ -15,9 +15,7 @@
  */
 package com.netflix.servo.util;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
-
 
 /**
  * Static helpers for {@code String} instances.
@@ -29,7 +27,7 @@ public final class Strings {
   /**
    * Returns true if the given string is null or is the empty string.
    */
-  public static boolean isNullOrEmpty(@Nullable String string) {
+  public static boolean isNullOrEmpty(String string) {
     return string == null || string.isEmpty();
   }
 
