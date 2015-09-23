@@ -30,8 +30,6 @@ import static com.netflix.servo.annotations.DataSourceType.INFORMATIONAL;
 import static org.testng.Assert.assertEquals;
 
 public class AnnotationsTest {
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SS_SHOULD_BE_STATIC",
-      justification = "Values used through reflection")
   static class Metrics {
     @com.netflix.servo.annotations.Monitor(type = GAUGE)
     private final AtomicLong annoGauge = new AtomicLong(0L);

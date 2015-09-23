@@ -39,6 +39,7 @@ import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,13 +73,9 @@ public final class HttpHelper {
 
     /**
      * Get the body of the response as a byte array.
-     * You must treat the returned array as read-only.
      */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "EI_EXPOSE_REP",
-        justification =
-            "For efficiency we trust callers will treat the array as read-only.")
     public byte[] getBody() {
-      return body;
+      return Arrays.copyOf(body, body.length);
     }
 
     /**

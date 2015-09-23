@@ -21,8 +21,6 @@ import static com.netflix.servo.annotations.DataSourceType.COUNTER;
 import static com.netflix.servo.annotations.DataSourceType.GAUGE;
 import static com.netflix.servo.annotations.DataSourceType.INFORMATIONAL;
 
-@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SS_SHOULD_BE_STATIC",
-    justification = "Values used through reflection")
 public class ClassWithMonitors {
 
   public final Counter c1 = Monitors.newCounter("publicCounter");

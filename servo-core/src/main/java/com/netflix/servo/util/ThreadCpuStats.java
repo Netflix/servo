@@ -26,6 +26,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,14 +209,12 @@ public final class ThreadCpuStats {
     printThreadCpuUsages(System.out, CpuUsageComparator.ONE_MINUTE);
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DM_DEFAULT_ENCODING",
-      justification = "The default encoding is used if UTF-8 is not available.")
   private static PrintWriter getPrintWriter(OutputStream out) {
     try {
       return new PrintWriter(new OutputStreamWriter(out, "UTF-8"), true);
     } catch (UnsupportedEncodingException e) {
       // should never happen
-      return new PrintWriter(out, true);
+      throw Throwables.propagate(e);
     }
   }
 
@@ -347,9 +346,6 @@ public final class ThreadCpuStats {
   /**
    * Update the stats for all threads and the jvm.
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "REC_CATCH_EXCEPTION",
-      justification = "findBugs wants explicit catch clauses for each exception. "
-          + "Too verbose until j7")
   private void updateStats() {
     final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (bean.isThreadCpuTimeEnabled()) {
@@ -386,7 +382,7 @@ public final class ThreadCpuStats {
         final Method m = osBean.getClass().getMethod("getProcessCpuTime");
         final long jvmCpuTime = (Long) m.invoke(osBean);
         jvmCpuUsage.update((jvmCpuTime < 0) ? totalCpuTime : jvmCpuTime);
-      } catch (Exception e) {
+      } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
         jvmCpuUsage.update(totalCpuTime);
       }
 
