@@ -58,11 +58,22 @@ subprojects {
     group = 'verification'
     options.excludeGroups = [] as Set
   }
+  
+  
+  configurations {
+    provided
+  }
+
+  sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+  }
 
   dependencies {
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'com.google.guava:guava:16.0.1'
-    compile 'com.google.code.findbugs:annotations:2.0.0'
+    provided 'com.google.code.findbugs:annotations:2.0.0'
     testCompile 'org.testng:testng:6.1.1'
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
     testRuntime 'log4j:log4j:1.2.17'
