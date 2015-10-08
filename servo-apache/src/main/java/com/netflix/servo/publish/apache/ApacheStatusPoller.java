@@ -103,7 +103,9 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      */
     private static final Set<String> WHITELISTED_METRICS = UnmodifiableSet.of("Total_Accesses",
         "Total_kBytes", "Uptime", "ReqPerSec", "BytesPerSec", "BytesPerReq",
-        "BusyWorkers", "IdleWorkers");
+        "BusyWorkers", "IdleWorkers",
+        "ConnsTotal", "ConnsAsyncWriting",
+        "ConnsAsyncKeepAlive", "ConnsAsyncClosing");
     private static final int ASCII_CHARS = 128;
     private static final String SCOREBOARD = "Scoreboard";
 
