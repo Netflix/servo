@@ -29,8 +29,9 @@ public class LongGauge extends NumberGauge {
    * @param config configuration for this gauge
    */
   public LongGauge(MonitorConfig config) {
-    super(config, new AtomicLong(0L));
-    number = (AtomicLong) getBackingNumber();
+    super(config);
+    number = new AtomicLong(0L);
+    setBackingNumber(number);
   }
 
   /**

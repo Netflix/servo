@@ -29,8 +29,9 @@ public class DoubleGauge extends NumberGauge {
    * @param config configuration for this gauge
    */
   public DoubleGauge(MonitorConfig config) {
-    super(config, new AtomicDouble(0.0));
-    number = (AtomicDouble) getBackingNumber();
+    super(config);
+    number = new AtomicDouble(0.0);
+    setBackingNumber(number);
   }
 
   /**

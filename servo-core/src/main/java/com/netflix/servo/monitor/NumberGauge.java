@@ -24,10 +24,19 @@ import java.lang.ref.WeakReference;
  * A {@link Gauge} that returns the value stored in {@link Number}.
  */
 public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number> {
-  private final WeakReference<Number> numberRef;
+  private WeakReference<Number> numberRef;
 
   /**
-   * Construct a gauge that will store weak reference to the number. The value returned
+   * Construct a gauge that will store a weak reference to a number. The number
+   * should be set by the subclass immediately after the call to super(config);
+   * using the {@link #setBackingNumber(Number)} method.
+   */
+  protected NumberGauge(MonitorConfig config) {
+    super(config.withAdditionalTag(DataSourceType.GAUGE));
+  }
+
+  /**
+   * Construct a gauge that will store a weak reference to the number. The value returned
    * by the monitor will be the value stored in {@code number} or {@code Double.NaN} in case
    * the referred Number has been garbage collected.
    */
@@ -86,5 +95,13 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
    */
   protected Number getBackingNumber() {
     return numberRef.get();
+  }
+
+  /**
+   * Sets a new {@link Number} to hold. We keep a week reference to this value
+   * allowing it to be GC.
+   */
+  protected void setBackingNumber(Number number) {
+    numberRef = new WeakReference<>(number);
   }
 }
