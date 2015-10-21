@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.DynamicMBean;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
@@ -122,7 +123,12 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
         try {
             List<MonitorMBean> beans = MonitorMBean.createMBeans(name, monitor, mapper);
             for (MonitorMBean bean : beans) {
-                mBeanServer.unregisterMBean(bean.getObjectName());
+                try {
+                    mBeanServer.unregisterMBean(bean.getObjectName());
+                } catch (InstanceNotFoundException ignored) {
+                    // ignore errors attempting to unregister a non-registered monitor
+                    // a common error is to unregister twice
+                }
             }
             monitors.remove(monitor.getConfig());
             updatePending.set(true);
