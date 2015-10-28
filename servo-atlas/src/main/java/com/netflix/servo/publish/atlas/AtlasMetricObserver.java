@@ -245,7 +245,7 @@ public class AtlasMetricObserver implements MetricObserver {
     List<Metric> valid = ValidCharacters.toValidValues(rawMetrics);
     List<Metric> metrics = identifyDsTypes(filter(valid));
     List<Metric> transformed = transformMetrics(metrics);
-    sendNow(getUpdateTasks(commonTags, transformed));
+    sendNow(getUpdateTasks(getCommonTags(), transformed));
   }
 
   private UpdateTasks getUpdateTasks(TagList tags, List<Metric> metrics) {
@@ -293,6 +293,13 @@ public class AtlasMetricObserver implements MetricObserver {
     JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
     return httpHelper.postSmile(config.getAtlasUri(), payload)
         .map(withBookkeeping(batch.length));
+  }
+
+  /**
+   * Get the list of common tags that will be added to all metrics sent by this Observer.
+   */
+  protected TagList getCommonTags() {
+    return commonTags;
   }
 
   /**
