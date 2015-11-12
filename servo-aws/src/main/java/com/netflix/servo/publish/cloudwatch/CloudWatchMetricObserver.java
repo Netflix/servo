@@ -179,15 +179,13 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     Preconditions.checkNotNull(metrics, "metrics");
 
     List<Metric> batch = new ArrayList<>(batchSize);
-    int batchCount = 1;
 
     while (!metrics.isEmpty()) {
       Metric m = metrics.remove(0);
       if (m.hasNumberValue()) {
         batch.add(m);
 
-        if (batchCount % batchSize == 0) {
-          ++batchCount;
+        if (batch.size() % batchSize == 0) {
           putMetricData(batch);
           batch.clear();
         }
