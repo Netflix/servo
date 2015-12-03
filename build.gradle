@@ -14,8 +14,14 @@
  *     limitations under the License.
  */
 
+buildscript {
+  repositories {
+    jcenter()
+  }
+}
+
 plugins {
-  id 'nebula.netflixoss' version '2.2.9'
+  id 'nebula.netflixoss' version '3.1.2'
   id 'me.champeau.gradle.jmh' version '0.2.0'
 }
 
@@ -83,10 +89,6 @@ subprojects {
     sourceSets = [sourceSets.main]
   }
 
-  tasks.withType(Checkstyle) {
-    exclude "**/jsr166e/**"
-  }
-
   findbugs {
     ignoreFailures = false 
     sourceSets = [sourceSets.main]
@@ -107,10 +109,11 @@ subprojects {
     sourceSets = [sourceSets.main]
   }
 
-  tasks.withType(Pmd) {
-    exclude "**/jsr166e/**"
+  project.tasks.withType(Javadoc) {
+    if (JavaVersion.current().isJava8Compatible()) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
   }
-
   javadoc {
     options.addStringOption("sourcepath", "")
   }
