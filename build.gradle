@@ -60,12 +60,12 @@ subprojects {
   }
 
   dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.12'
-    compile 'com.google.guava:guava:16.0.1'
+    compile 'org.slf4j:slf4j-api:1.7.13'
+    compile 'com.google.guava:guava:18.0'
     testCompile 'org.testng:testng:6.1.1'
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.13'
     testRuntime 'log4j:log4j:1.2.17'
-    jmh 'org.slf4j:slf4j-simple:1.7.12'
+    jmh 'org.slf4j:slf4j-simple:1.7.13'
   }
 
   jmh {
