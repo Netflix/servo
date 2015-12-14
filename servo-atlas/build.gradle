@@ -1,8 +1,8 @@
 dependencies {
   compile project(':servo-core')
-  compile 'com.netflix.iep-shadow:iepshadow-rxnetty:0.4.13.13'
-  compile 'com.netflix.iep-shadow:iepshadow-iep-rxhttp:0.3.2.13'
-  compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
-  compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jackson_version}"
+  compile 'com.netflix.iep-shadow:iepshadow-rxnetty'
+  compile 'com.netflix.iep-shadow:iepshadow-iep-rxhttp'
+  compile "com.fasterxml.jackson.core:jackson-databind"
+  compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
   jmh project(':servo-core')
 }

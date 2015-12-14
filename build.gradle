@@ -18,6 +18,9 @@ buildscript {
   repositories {
     jcenter()
   }
+  dependencies {
+    classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
+  }
 }
 
 plugins {
@@ -30,6 +33,7 @@ ext {
 }
 
 allprojects {
+  apply plugin: 'nebula.dependency-recommender'
   apply plugin: 'me.champeau.gradle.jmh'
 }
 
@@ -65,13 +69,17 @@ subprojects {
     options.excludeGroups = [] as Set
   }
 
+  dependencyRecommendations {
+    propertiesFile file: new File(rootProject.projectDir, 'dependencies.properties')
+  }
+
   dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.13'
-    compile 'com.google.guava:guava:18.0'
+    compile 'org.slf4j:slf4j-api'
+    compile 'com.google.guava:guava'
     testCompile 'org.testng:testng:6.1.1'
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.13'
+    testRuntime 'org.slf4j:slf4j-log4j12'
     testRuntime 'log4j:log4j:1.2.17'
-    jmh 'org.slf4j:slf4j-simple:1.7.13'
+    jmh 'org.slf4j:slf4j-simple'
   }
 
   jmh {
