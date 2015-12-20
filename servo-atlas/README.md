@@ -47,3 +47,14 @@ Then sample graphs can be viewed:
 * [Memory usage](http://localhost:7101/api/v1/graph?q=name,actualUsage,:eq,class,MemoryPoolMXBean,:eq,:and,:avg,(,id,),:by,$(id),:legend&title=Memory+Usage)
 * [Max request latency](http://localhost:7101/api/v1/graph?q=statistic,max,:eq,:max,(,class,),:by,name,latency,:eq,:cq&title=Max+Latency)
 * [Bytes sent/received for echo](http://localhost:7101/api/v1/graph?q=name,(,bytesSent,bytesReceived,),:in,class,EchoHandler,:eq,:and,(,name,),:by,$name,:legend&title=Bytes+Sent+and+Received+for+EchoHandler)
+
+## Step Size
+
+Atlas stores data at a given step size, e.g. a datapoint per minute. This can be configured with
+the `atlas.core.model.step` setting. See an example in
+[memory.conf](https://github.com/Netflix/atlas/blob/master/conf/memory.conf#L6).
+
+Servo should report datapoints at the same interval. The reporting interval can be configured
+with the `server.pollers` system property which has a unit of milliseconds. See an example in
+[build.gradle](https://github.com/Netflix/servo/blob/master/servo-example/build.gradle#L22)
+for servo-example.
