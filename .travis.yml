@@ -1,6 +1,6 @@
 language: java
 jdk:
-- openjdk6
+- oraclejdk8
 sudo: false
 install: "./installViaTravis.sh"
 script: "./buildViaTravis.sh"
