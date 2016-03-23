@@ -155,9 +155,6 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
   }
 
   private Object getLock(ObjectName objectName) {
-    if (locks.get(objectName) == null) {
-      locks.putIfAbsent(objectName, new Object());
-    }
-    return locks.get(objectName);
+    return locks.computeIfAbsent(objectName, k -> new Object());
   }
 }
