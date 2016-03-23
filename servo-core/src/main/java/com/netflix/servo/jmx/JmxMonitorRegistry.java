@@ -50,6 +50,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
   private final ConcurrentMap<MonitorConfig, Monitor<?>> monitors;
   private final String name;
   private final ObjectNameMapper mapper;
+  private final ConcurrentMap<ObjectName, Object> locks = new ConcurrentHashMap<>();
 
   private final AtomicBoolean updatePending = new AtomicBoolean(false);
   private final AtomicReference<Collection<Monitor<?>>> monitorList =
@@ -80,7 +81,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
   }
 
   private void register(ObjectName objectName, DynamicMBean mbean) throws Exception {
-    synchronized (mBeanServer) {
+    synchronized (getLock(objectName)) {
       if (mBeanServer.isRegistered(objectName)) {
         mBeanServer.unregisterMBean(objectName);
       }
@@ -151,5 +152,12 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
       return false;
     }
     return false;
+  }
+
+  private Object getLock(ObjectName objectName) {
+    if (locks.get(objectName) == null) {
+      locks.putIfAbsent(objectName, new Object());
+    }
+    return locks.get(objectName);
   }
 }

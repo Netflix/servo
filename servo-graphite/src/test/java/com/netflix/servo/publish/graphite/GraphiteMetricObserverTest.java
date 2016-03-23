@@ -15,16 +15,18 @@
  */
 package com.netflix.servo.publish.graphite;
 
+
 import com.netflix.servo.Metric;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
-
 
 public class GraphiteMetricObserverTest {
   private String getLocalHostIp() throws UnknownHostException {
@@ -45,13 +47,22 @@ public class GraphiteMetricObserverTest {
   public void testBadAddress3() throws Exception {
     new GraphiteMetricObserver("serverA", "socket://" + getLocalHostIp() + ":808");
   }
+  
+  private int getAvailablePort() {
+    try (ServerSocket serverSocket = new ServerSocket(0)) {
+      return serverSocket.getLocalPort();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Test
   public void testSuccessfulSend() throws Exception {
-    SocketReceiverTester receiver = new SocketReceiverTester(8082);
+    final int port = getAvailablePort();
+    SocketReceiverTester receiver = new SocketReceiverTester(port);
     receiver.start();
 
-    String host = getLocalHostIp() + ":8082";
+    String host = getLocalHostIp() + ":" + port;
     GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
 
     try {
@@ -76,10 +87,11 @@ public class GraphiteMetricObserverTest {
 
   @Test
   public void testReconnection() throws Exception {
-    SocketReceiverTester receiver = new SocketReceiverTester(8082);
+    final int port = getAvailablePort();
+    SocketReceiverTester receiver = new SocketReceiverTester(port);
     receiver.start();
 
-    String host = getLocalHostIp() + ":8082";
+    String host = getLocalHostIp() + ":" + port;
     GraphiteMetricObserver gw = new GraphiteMetricObserver("serverA", host);
 
     try {
@@ -98,7 +110,7 @@ public class GraphiteMetricObserverTest {
 
       // restarting the receiver
       receiver.stop();
-      receiver = new SocketReceiverTester(8082);
+      receiver = new SocketReceiverTester(port);
       receiver.start();
 
       // the first write does not trigger exception given how TCP works
