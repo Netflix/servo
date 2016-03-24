@@ -127,6 +127,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
       for (MonitorMBean bean : beans) {
         try {
           mBeanServer.unregisterMBean(bean.getObjectName());
+          locks.remove(bean.getObjectName());
         } catch (InstanceNotFoundException ignored) {
           // ignore errors attempting to unregister a non-registered monitor
           // a common error is to unregister twice
