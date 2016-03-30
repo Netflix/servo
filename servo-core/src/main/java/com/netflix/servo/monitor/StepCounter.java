@@ -70,16 +70,16 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
    */
   @Override
   public Number getValue(int pollerIndex) {
-    final Datapoint dp = count.poll(pollerIndex);
+    final long n = count.poll(pollerIndex);
     final double stepSeconds = Pollers.POLLING_INTERVALS[pollerIndex] / 1000.0;
-    return dp.isUnknown() ? Double.NaN : dp.getValue() / stepSeconds;
+    return n / stepSeconds;
   }
 
   /**
    * Get the count for the last completed polling interval for the given poller index.
    */
   public long getCount(int pollerIndex) {
-    return count.poll(pollerIndex).getValue();
+    return count.poll(pollerIndex);
   }
 
   /**

@@ -70,7 +70,7 @@ public class MinGauge extends AbstractMonitor<Long>
    */
   @Override
   public Long getValue(int pollerIdx) {
-    long v = min.poll(pollerIdx).getValue();
+    long v = min.poll(pollerIdx);
     return (v == Long.MAX_VALUE) ? 0L : v;
   }
 
