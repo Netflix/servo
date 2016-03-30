@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utility class for managing a set of AtomicLong instances mapped to a particular step interval.
- * The current implementation keeps an array of with two items where one is the current value
+ * The current implementation keeps an array of two items where one is the current value
  * being updated and the other is the value from the previous interval and is only available for
  * polling.
  */
@@ -34,19 +34,14 @@ class StepLong {
   private final Clock clock;
 
   private final AtomicLong[] data;
-
-  private final AtomicLong[] lastPollTime;
-
   private final AtomicLong[] lastInitPos;
 
   StepLong(long init, Clock clock) {
     this.init = init;
     this.clock = clock;
     lastInitPos = new AtomicLong[Pollers.NUM_POLLERS];
-    lastPollTime = new AtomicLong[Pollers.NUM_POLLERS];
     for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
       lastInitPos[i] = new AtomicLong(0L);
-      lastPollTime[i] = new AtomicLong(0L);
     }
     data = new AtomicLong[2 * Pollers.NUM_POLLERS];
     for (int i = 0; i < data.length; ++i) {
@@ -76,32 +71,17 @@ class StepLong {
     return data[2 * pollerIndex + CURRENT];
   }
 
-  Datapoint poll(int pollerIndex) {
-    final long now = clock.now();
-    final long step = Pollers.POLLING_INTERVALS[pollerIndex];
+  long poll(int pollerIndex) {
+    rollCount(pollerIndex, clock.now());
 
-    rollCount(pollerIndex, now);
     final int prevPos = 2 * pollerIndex + PREVIOUS;
-    final long value = data[prevPos].get();
-
-    final long last = lastPollTime[pollerIndex].getAndSet(now);
-    final long missed = (now - last) / step - 1;
-
-    final long stepStart = now / step * step;
-    if (last / step == now / step) {
-      return new Datapoint(stepStart, value);
-    } else if (last > 0L && missed > 0L) {
-      return Datapoint.UNKNOWN;
-    } else {
-      return new Datapoint(stepStart, value);
-    }
+    return data[prevPos].get();
   }
 
   @Override
   public String toString() {
     return "StepLong{init=" + init
         + ", data=" + Arrays.toString(data)
-        + ", lastPollTime=" + Arrays.toString(lastPollTime)
         + ", lastInitPos=" + Arrays.toString(lastInitPos) + '}';
   }
 }

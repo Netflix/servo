@@ -20,12 +20,11 @@ import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class StepCounterTest {
 
   private static final double DELTA = 1e-06;
-  final ManualClock clock = new ManualClock(50 * Pollers.POLLING_INTERVALS[1]);
+  private final ManualClock clock = new ManualClock(50 * Pollers.POLLING_INTERVALS[1]);
 
   public StepCounter newInstance(String name) {
     return new StepCounter(MonitorConfig.builder(name).build(), clock);
@@ -108,28 +107,6 @@ public class StepCounterTest {
   }
 
   @Test
-  public void testMissedInterval() {
-    clock.set(time(1));
-    StepCounter c = newInstance("foo");
-    c.getValue(1);
-
-    // Multiple updates without polling
-    c.increment();
-    clock.set(time(4));
-    c.increment();
-    clock.set(time(14));
-    c.increment();
-    clock.set(time(24));
-    c.increment();
-    clock.set(time(34));
-    c.increment();
-
-    // Check counts
-    assertTrue(Double.isNaN(c.getValue(1).doubleValue()));
-    assertEquals(c.getCurrentCount(1), 1);
-  }
-
-  @Test
   public void testNonMonotonicClock() {
     clock.set(time(1));
     StepCounter c = newInstance("foo");
@@ -164,5 +141,22 @@ public class StepCounterTest {
       c.getValue(0);
       assertEquals(c.getValue(0).doubleValue(), 1 / 60.0, DELTA);
     }
+  }
+
+  @Test
+  public void testIncrAfterMissedSteps() {
+    clock.set(time(1));
+    StepCounter c = newInstance("foo");
+    c.increment();
+
+    clock.set(time(11));
+    assertEquals(c.getValue(1).doubleValue(), 0.1, DELTA);
+
+    clock.set(time(31));
+    c.increment();
+    c.increment();
+    c.increment();
+    clock.set(time(41));
+    assertEquals(c.getValue(1).doubleValue(), 0.3, DELTA);
   }
 }
