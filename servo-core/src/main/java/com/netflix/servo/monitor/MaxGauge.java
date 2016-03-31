@@ -72,7 +72,7 @@ public class MaxGauge extends AbstractMonitor<Long>
    */
   @Override
   public Long getValue(int nth) {
-    return max.poll(nth).getValue();
+    return max.poll(nth);
   }
 
   /**
