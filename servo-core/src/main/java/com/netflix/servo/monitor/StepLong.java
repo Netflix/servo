@@ -62,7 +62,11 @@ class StepLong {
     if (lastInit < stepTime && lastInitPos[pollerIndex].compareAndSet(lastInit, stepTime)) {
       final int prev = 2 * pollerIndex + PREVIOUS;
       final int curr = 2 * pollerIndex + CURRENT;
-      data[prev].set(data[curr].getAndSet(init));
+      final long v = data[curr].getAndSet(init);
+      // Need to check if there was any activity during the previous step interval. If there was
+      // then the init position will move forward by 1, otherwise it will be older. No activity
+      // means the previous interval should be set to the `init` value.
+      data[prev].set((lastInit == stepTime - 1) ? v : init);
     }
   }
 

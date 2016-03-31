@@ -20,6 +20,7 @@ import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class StepCounterTest {
 
@@ -104,6 +105,43 @@ public class StepCounterTest {
       clock.set(time(i * 10 + 1));
       assertEquals(c.getValue(1).doubleValue(), 0.1, DELTA);
     }
+  }
+
+  @Test
+  public void testMissedInterval() {
+    clock.set(time(1));
+    StepCounter c = newInstance("foo");
+    c.getValue(1);
+
+    // Multiple updates without polling
+    c.increment(1);
+    clock.set(time(4));
+    c.increment(1);
+    clock.set(time(14));
+    c.increment(1);
+    clock.set(time(24));
+    c.increment(1);
+    clock.set(time(34));
+    c.increment(1);
+
+    // Check counts
+    assertEquals(c.getValue(1).doubleValue(), 0.1);
+    assertEquals(c.getCurrentCount(1), 1);
+  }
+
+  @Test
+  public void testMissedIntervalNoIncrements() {
+    clock.set(time(1));
+    StepCounter c = newInstance("foo");
+    c.getValue(1);
+
+    // Gaps without polling
+    c.increment(5);
+    clock.set(time(34));
+
+    // Check counts, previous and current interval should be 0
+    assertEquals(c.getValue(1).doubleValue(), 0.0);
+    assertEquals(c.getCurrentCount(1), 0);
   }
 
   @Test
