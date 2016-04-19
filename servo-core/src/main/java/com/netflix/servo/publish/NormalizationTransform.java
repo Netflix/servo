@@ -213,10 +213,8 @@ public final class NormalizationTransform implements MetricObserver {
           newMetrics.add(normalized);
         }
       } else if (!isInformational(dsType)) {
-        LOGGER.warn("NormalizationTransform should get only GAUGE and RATE metrics. "
-                + "Please use CounterToRateMetricTransform. "
-                + m.getConfig()
-        );
+        // unknown type - use a safe fallback
+        newMetrics.add(m); // we cannot normalize this
       }
     }
     observer.update(newMetrics);
