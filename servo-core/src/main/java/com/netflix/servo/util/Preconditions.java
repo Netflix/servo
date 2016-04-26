@@ -35,11 +35,22 @@ public final class Preconditions {
     return obj;
   }
 
+    /**
+     * Ensures the truth of an expression involving one or more parameters to the
+     * calling method.
+     *
+     * @param expression a boolean expression
+     * @throws IllegalArgumentException if {@code expression} is false
+     */
+  public static void checkArgument(boolean expression, String errorMessage) {
+    checkArgument(expression, errorMessage, null);
+  }
+
   /**
    * Ensures the truth of an expression involving one or more parameters to the
    * calling method.
    *
-   * @param errorMessage the error message - can be a <a href="../util/Formatter.html#syntax">format string</a>
+   * @param errorMessage the error message that can be a formattable string
    * @param args arguments if using a formatted string
    * @param expression a boolean expression
    * @throws IllegalArgumentException if {@code expression} is false
@@ -47,7 +58,7 @@ public final class Preconditions {
   public static void checkArgument(boolean expression, String errorMessage, String... args) {
     if (!expression) {
       if (args != null && args.length > 0) {
-        String message = String.format("errorMessage", args);
+        String message = String.format(errorMessage, args);
         throw new IllegalArgumentException(message);
       } else {
         throw new IllegalArgumentException(errorMessage);
