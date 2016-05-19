@@ -397,8 +397,12 @@ public final class Monitors {
    * Creates a monitor config for a composite object.
    */
   private static MonitorConfig newObjectConfig(Class<?> c, String id, TagList tags) {
-    MonitorConfig.Builder builder = MonitorConfig.builder(id);
-    builder.withTag("class", c.getSimpleName());
+    final MonitorConfig.Builder builder = MonitorConfig.builder(id);
+    final String className = className(c);
+    if (!className.isEmpty()) {
+      builder.withTag("class", className);
+    }
+
     if (tags != null) {
       builder.withTags(tags);
     }

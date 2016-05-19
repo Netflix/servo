@@ -38,7 +38,7 @@ public final class BasicTag implements Tag {
    */
   private static String checkNotEmpty(String v, String name) {
     Preconditions.checkNotNull(v, name);
-    Preconditions.checkArgument(!v.isEmpty(), name + " cannot be empty");
+    Preconditions.checkArgument(!v.isEmpty(), "%s cannot be empty", name);
     return v;
   }
 

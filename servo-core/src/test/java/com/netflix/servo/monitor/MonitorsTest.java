@@ -108,4 +108,15 @@ public class MonitorsTest {
     assertTrue(Monitors.isObjectRegistered("id", obj));
   }
 
+  @Test
+  public void testNewObjectConfig() throws Exception {
+    ClassWithMonitors obj = new ClassWithMonitors() {
+    };
+    List<Monitor<?>> monitors = Monitors.newObjectMonitor(obj).getMonitors();
+    for (Monitor m : monitors) {
+      assertEquals(m.getConfig().getTags().getValue("class"), "MonitorsTest",
+          String.format("%s should have class MonitorsTest", m.getConfig().getName()));
+    }
+    assertEquals(monitors.size(), 8);
+  }
 }

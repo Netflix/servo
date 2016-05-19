@@ -20,7 +20,6 @@ import com.netflix.servo.util.ManualClock;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class DoubleCounterTest {
 
@@ -112,28 +111,6 @@ public class DoubleCounterTest {
       clock.set(time(i * 10 + 1));
       assertEquals(c.getValue(1).doubleValue(), 0.1);
     }
-  }
-
-  @Test
-  public void testMissedInterval() {
-    clock.set(time(1));
-    DoubleCounter c = newInstance("foo");
-    c.getValue(1);
-
-    // Multiple updates without polling
-    c.increment(1);
-    clock.set(time(4));
-    c.increment(1);
-    clock.set(time(14));
-    c.increment(1);
-    clock.set(time(24));
-    c.increment(1);
-    clock.set(time(34));
-    c.increment(1);
-
-    // Check counts
-    assertTrue(Double.isNaN(c.getValue(1).doubleValue()));
-    assertEquals(c.getCurrentCount(1), 1.0);
   }
 
   @Test
