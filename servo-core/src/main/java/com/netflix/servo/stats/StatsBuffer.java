@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This implementation is not thread safe.
  */
 public class StatsBuffer {
-  private int count;
+  private int pos;
+  private int curSize;
   private double mean;
   private double variance;
   private double stddev;
@@ -75,7 +76,8 @@ public class StatsBuffer {
    */
   public void reset() {
     statsComputed.set(false);
-    count = 0;
+    pos = 0;
+    curSize = 0;
     total = 0L;
     mean = 0.0;
     variance = 0.0;
@@ -91,7 +93,8 @@ public class StatsBuffer {
    * Record a new value for this buffer.
    */
   public void record(long n) {
-    values[Integer.remainderUnsigned(count++, size)] = n;
+    values[Integer.remainderUnsigned(pos++, size)] = n;
+    if (curSize < size) ++curSize;
   }
 
   /**
@@ -102,11 +105,10 @@ public class StatsBuffer {
       return;
     }
 
-    if (count == 0) {
+    if (curSize == 0) {
       return;
     }
 
-    int curSize = Math.min(count, size);
     Arrays.sort(values, 0, curSize); // to compute percentileValues
     min = values[0];
     max = values[curSize - 1];
@@ -161,10 +163,10 @@ public class StatsBuffer {
   }
 
   /**
-   * Get the number of entries recorded.
+   * Get the number of entries recorded up to the size of the buffer.
    */
   public int getCount() {
-    return count;
+    return curSize;
   }
 
   /**

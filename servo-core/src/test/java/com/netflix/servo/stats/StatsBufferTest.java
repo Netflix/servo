@@ -156,7 +156,7 @@ public class StatsBufferTest {
   @Test
   public void testCountWrap() {
     StatsBuffer buffer = getWithWrap();
-    assertEquals(buffer.getCount(), SIZE * 2);
+    assertEquals(buffer.getCount(), SIZE);
   }
 
   static final long EXPECTED_TOTAL_WRAP = SIZE * (SIZE + 1) / 2;
@@ -220,7 +220,7 @@ public class StatsBufferTest {
   // a count that will cause an integer overflow.
   private void setCount(StatsBuffer buffer, int v) throws Exception {
     Class<?> cls = buffer.getClass();
-    Field field = cls.getDeclaredField("count");
+    Field field = cls.getDeclaredField("pos");
     field.setAccessible(true);
     field.set(buffer, v);
   }
