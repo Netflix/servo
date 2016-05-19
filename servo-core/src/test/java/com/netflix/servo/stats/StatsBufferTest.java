@@ -17,6 +17,8 @@ package com.netflix.servo.stats;
 
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Field;
+
 import static org.testng.Assert.assertEquals;
 
 public class StatsBufferTest {
@@ -214,5 +216,20 @@ public class StatsBufferTest {
     assertEquals(percentiles[3], 996.0);
   }
 
+  // Used to access private count field via reflection so we can quickly simulate
+  // a count that will cause an integer overflow.
+  private void setCount(StatsBuffer buffer, int v) throws Exception {
+    Class<?> cls = buffer.getClass();
+    Field field = cls.getDeclaredField("count");
+    field.setAccessible(true);
+    field.set(buffer, v);
+  }
 
+  @Test
+  public void testCountOverflow() throws Exception {
+    StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
+    setCount(buffer, Integer.MAX_VALUE);
+    buffer.record(1);
+    buffer.record(2);
+  }
 }
