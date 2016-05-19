@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StatsBuffer {
   private int count;
   private double mean;
-  private double sumSquares;
   private double variance;
   private double stddev;
   private long min;
@@ -83,7 +82,6 @@ public class StatsBuffer {
     stddev = 0.0;
     min = 0L;
     max = 0L;
-    sumSquares = 0.0;
     for (int i = 0; i < percentileValues.length; ++i) {
       percentileValues[i] = 0.0;
     }
@@ -94,8 +92,6 @@ public class StatsBuffer {
    */
   public void record(long n) {
     values[Integer.remainderUnsigned(count++, size)] = n;
-    total += n;
-    sumSquares += n * n;
   }
 
   /**
@@ -114,9 +110,19 @@ public class StatsBuffer {
     Arrays.sort(values, 0, curSize); // to compute percentileValues
     min = values[0];
     max = values[curSize - 1];
-    mean = (double) total / count;
+
+    // TODO: This should probably be changed to use Welford's method to
+    // compute the variance.
+    total = 0L;
+    double sumSquares = 0.0;
+    for (int i = 0; i < curSize; ++i) {
+      total += values[i];
+      sumSquares += values[i] * values[i];
+    }
+    mean = (double) total / curSize;
     variance = (sumSquares / curSize) - (mean * mean);
     stddev = Math.sqrt(variance);
+
     computePercentiles(curSize);
   }
 
