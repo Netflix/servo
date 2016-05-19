@@ -225,11 +225,22 @@ public class StatsBufferTest {
     field.set(buffer, v);
   }
 
+  // Before fix this would throw an ArrayIndexOutOfBoundException
   @Test
   public void testCountOverflow() throws Exception {
     StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
     setCount(buffer, Integer.MAX_VALUE);
     buffer.record(1);
     buffer.record(2);
+  }
+
+  // java.lang.IllegalArgumentException: fromIndex(0) > toIndex(-2147483647)
+  @Test
+  public void testComputeStatsWithOverflow() throws Exception {
+    StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
+    setCount(buffer, Integer.MAX_VALUE);
+    buffer.record(1);
+    buffer.record(2);
+    buffer.computeStats();
   }
 }
