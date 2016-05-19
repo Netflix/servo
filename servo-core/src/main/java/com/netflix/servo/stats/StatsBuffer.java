@@ -94,7 +94,9 @@ public class StatsBuffer {
    */
   public void record(long n) {
     values[Integer.remainderUnsigned(pos++, size)] = n;
-    if (curSize < size) ++curSize;
+    if (curSize < size) {
+      ++curSize;
+    }
   }
 
   /**
