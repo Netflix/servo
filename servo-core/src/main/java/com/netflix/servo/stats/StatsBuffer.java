@@ -93,7 +93,7 @@ public class StatsBuffer {
    * Record a new value for this buffer.
    */
   public void record(long n) {
-    values[(int) Long.remainderUnsigned(count++, size)] = n;
+    values[Integer.remainderUnsigned(count++, size)] = n;
     total += n;
     sumSquares += n * n;
   }
