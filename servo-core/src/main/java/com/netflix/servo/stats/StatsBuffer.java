@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This implementation is not thread safe.
  */
 public class StatsBuffer {
-  private int count;
+  private int pos;
+  private int curSize;
   private double mean;
-  private double sumSquares;
   private double variance;
   private double stddev;
   private long min;
@@ -76,14 +76,14 @@ public class StatsBuffer {
    */
   public void reset() {
     statsComputed.set(false);
-    count = 0;
+    pos = 0;
+    curSize = 0;
     total = 0L;
     mean = 0.0;
     variance = 0.0;
     stddev = 0.0;
     min = 0L;
     max = 0L;
-    sumSquares = 0.0;
     for (int i = 0; i < percentileValues.length; ++i) {
       percentileValues[i] = 0.0;
     }
@@ -93,9 +93,10 @@ public class StatsBuffer {
    * Record a new value for this buffer.
    */
   public void record(long n) {
-    values[count++ % size] = n;
-    total += n;
-    sumSquares += n * n;
+    values[Integer.remainderUnsigned(pos++, size)] = n;
+    if (curSize < size) {
+      ++curSize;
+    }
   }
 
   /**
@@ -106,17 +107,26 @@ public class StatsBuffer {
       return;
     }
 
-    if (count == 0) {
+    if (curSize == 0) {
       return;
     }
 
-    int curSize = Math.min(count, size);
     Arrays.sort(values, 0, curSize); // to compute percentileValues
     min = values[0];
     max = values[curSize - 1];
-    mean = (double) total / count;
+
+    // TODO: This should probably be changed to use Welford's method to
+    // compute the variance.
+    total = 0L;
+    double sumSquares = 0.0;
+    for (int i = 0; i < curSize; ++i) {
+      total += values[i];
+      sumSquares += values[i] * values[i];
+    }
+    mean = (double) total / curSize;
     variance = (sumSquares / curSize) - (mean * mean);
     stddev = Math.sqrt(variance);
+
     computePercentiles(curSize);
   }
 
@@ -155,10 +165,10 @@ public class StatsBuffer {
   }
 
   /**
-   * Get the number of entries recorded.
+   * Get the number of entries recorded up to the size of the buffer.
    */
   public int getCount() {
-    return count;
+    return curSize;
   }
 
   /**

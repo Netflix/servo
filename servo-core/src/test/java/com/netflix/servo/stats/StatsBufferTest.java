@@ -17,6 +17,8 @@ package com.netflix.servo.stats;
 
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Field;
+
 import static org.testng.Assert.assertEquals;
 
 public class StatsBufferTest {
@@ -154,10 +156,10 @@ public class StatsBufferTest {
   @Test
   public void testCountWrap() {
     StatsBuffer buffer = getWithWrap();
-    assertEquals(buffer.getCount(), SIZE * 2);
+    assertEquals(buffer.getCount(), SIZE);
   }
 
-  static final long EXPECTED_TOTAL_WRAP = SIZE * 2 * (SIZE * 2 + 1) / 2;
+  static final long EXPECTED_TOTAL_WRAP = SIZE * (SIZE + 1) / 2;
 
   @Test
   public void testTotalWrap() {
@@ -168,10 +170,10 @@ public class StatsBufferTest {
   @Test
   public void testMeanWrap() {
     StatsBuffer buffer = getWithWrap();
-    assertEquals(buffer.getMean(), (double) EXPECTED_TOTAL_WRAP / (SIZE * 2));
+    assertEquals(buffer.getMean(), (double) EXPECTED_TOTAL_WRAP / SIZE);
   }
 
-  static final double EXPECTED_VARIANCE_WRAP = 1667666.75;
+  static final double EXPECTED_VARIANCE_WRAP = 83333.25;
 
   @Test
   public void testVarianceWrap() {
@@ -214,5 +216,31 @@ public class StatsBufferTest {
     assertEquals(percentiles[3], 996.0);
   }
 
+  // Used to access private count field via reflection so we can quickly simulate
+  // a count that will cause an integer overflow.
+  private void setCount(StatsBuffer buffer, int v) throws Exception {
+    Class<?> cls = buffer.getClass();
+    Field field = cls.getDeclaredField("pos");
+    field.setAccessible(true);
+    field.set(buffer, v);
+  }
 
+  // Before fix this would throw an ArrayIndexOutOfBoundException
+  @Test
+  public void testCountOverflow() throws Exception {
+    StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
+    setCount(buffer, Integer.MAX_VALUE);
+    buffer.record(1);
+    buffer.record(2);
+  }
+
+  // java.lang.IllegalArgumentException: fromIndex(0) > toIndex(-2147483647)
+  @Test
+  public void testComputeStatsWithOverflow() throws Exception {
+    StatsBuffer buffer = new StatsBuffer(SIZE, PERCENTILES);
+    setCount(buffer, Integer.MAX_VALUE);
+    buffer.record(1);
+    buffer.record(2);
+    buffer.computeStats();
+  }
 }
