@@ -38,6 +38,7 @@ import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.servo.util.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,10 +206,13 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     } catch (AmazonServiceException e) {
       final Tag error = new BasicTag("error", e.getErrorCode());
       DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
-    } catch (Exception e) {
-      final Tag error = new BasicTag("error", e.getClass().getSimpleName());
+    } catch (Throwable throwable) {
+      final Tag error = new BasicTag("error", throwable.getClass().getSimpleName());
       DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
-      LOG.error("Error while submitting data for metrics : " + batch, e);
+      LOG.error("Error while submitting data for metrics : " + batch, throwable);
+      if (throwable instanceof Error) {
+        throw Throwables.propagate(throwable);
+      }
     } finally {
       s.stop();
     }
