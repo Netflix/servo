@@ -63,19 +63,19 @@ Maven Example:
 <dependency>
     <groupId>com.netflix.servo</groupId>
     <artifactId>servo-core</artifactId>
-    <version>0.8.0</version>
+    <version>0.12.7</version>
 </dependency>
 ```
 
 Ivy Example:
 
 ```
-<dependency org="com.netflix.servo" name="servo-core" rev="0.8.0" />
+<dependency org="com.netflix.servo" name="servo-core" rev="0.12.7" />
 ```
 
 ## License
 
-Copyright 2014 Netflix, Inc.
+Copyright 2012-2016 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
