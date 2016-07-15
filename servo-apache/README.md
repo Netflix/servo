@@ -4,8 +4,8 @@ The following metrics are collected by Servo from the Apache [mod_status](http:/
 
 The CPULoad metric provided by the server-status page has been blacklisted.
 
-| Class | Name | State | Type | Description |
-|-------|------|-------|------|-------------|
+| Name  | Class | State | Type | Description |
+|-------|-------|-------|------|-------------|
 | BusyWorkers | ApacheStatusPoller | -- | GAUGE | number of workers serving requests |
 | BytesPerReq | ApacheStatusPoller | -- | GAUGE | average number of bytes per request |
 | BytesPerSec | ApacheStatusPoller | -- | GAUGE | average number of bytes served per second |
