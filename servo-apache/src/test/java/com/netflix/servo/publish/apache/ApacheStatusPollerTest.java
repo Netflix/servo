@@ -96,12 +96,9 @@ public class ApacheStatusPollerTest {
     Metric uptime = counter("Uptime", UPTIME);
 
     List<Metric> counters = UnmodifiableList.of(accesses, kBytes, uptime);
-    Metric rps = gauge("ReqPerSec", RPS);
-    Metric bps = gauge("BytesPerSec", BPS);
-    Metric bpr = gauge("BytesPerReq", BPR);
     Metric busyWorkers = gauge("BusyWorkers", BUSY_WORKERS);
     Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
-    List<Metric> gauges = UnmodifiableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
+    List<Metric> gauges = UnmodifiableList.of(busyWorkers, idleWorkers);
 
     Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
     Metric startingUp = scoreboard("StartingUp", 0.0);
@@ -168,12 +165,9 @@ public class ApacheStatusPollerTest {
     Metric uptime = counter("Uptime", UPTIME);
 
     List<Metric> counters = UnmodifiableList.of(accesses, kBytes, uptime);
-    Metric rps = gauge("ReqPerSec", RPS);
-    Metric bps = gauge("BytesPerSec", BPS);
-    Metric bpr = gauge("BytesPerReq", BPR);
     Metric busyWorkers = gauge("BusyWorkers", BUSY_WORKERS);
     Metric idleWorkers = gauge("IdleWorkers", IDLE_WORKERS);
-    List<Metric> gauges = UnmodifiableList.of(rps, bps, bpr, busyWorkers, idleWorkers);
+    List<Metric> gauges = UnmodifiableList.of(busyWorkers, idleWorkers);
 
     Metric waitingForConnection = scoreboard("WaitingForConnection", 45.0);
     Metric startingUp = scoreboard("StartingUp", 0.0);

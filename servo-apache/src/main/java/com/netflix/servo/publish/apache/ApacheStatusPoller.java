@@ -102,7 +102,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
      * Metrics that should be included.
      */
     private static final Set<String> WHITELISTED_METRICS = UnmodifiableSet.of("Total_Accesses",
-        "Total_kBytes", "Uptime", "ReqPerSec", "BytesPerSec", "BytesPerReq",
+        "Total_kBytes", "Uptime",
         "BusyWorkers", "IdleWorkers",
         "ConnsTotal", "ConnsAsyncWriting",
         "ConnsAsyncKeepAlive", "ConnsAsyncClosing");
