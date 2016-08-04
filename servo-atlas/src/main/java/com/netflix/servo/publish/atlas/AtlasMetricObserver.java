@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.publish.atlas;
 
+import com.netflix.archaius.config.EmptyConfig;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.BasicCounter;
@@ -94,7 +95,7 @@ public class AtlasMetricObserver implements MetricObserver {
    * and poller index.
    */
   public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags, int pollerIdx) {
-    this(config, commonTags, pollerIdx, new HttpHelper(new RxHttp(new BasicServerRegistry())));
+    this(config, commonTags, pollerIdx, new HttpHelper(new RxHttp(EmptyConfig.INSTANCE, new BasicServerRegistry())));
   }
 
   /**
