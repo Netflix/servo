@@ -111,6 +111,16 @@ public class ExpiringCache<K, V> {
      this(expireAfterMs, getter, expirationFreqMs, clock, new ConcurrentHashMap<>(1024));
   }
 
+  /**
+   * Create a new ExpiringCache that will expire entries after a given number of milliseconds
+   * computing the values as needed using the given getter and using the provided map
+   *
+   * @param expireAfterMs    Number of milliseconds after which entries will be evicted
+   * @param getter           Function that will be used to compute the values
+   * @param expirationFreqMs Frequency at which to schedule the job that evicts entries
+   *                         from the cache.
+   * @param map              ConcurrentMap that will be used for in-memory storage
+   */
   public ExpiringCache(final long expireAfterMs, final Function<K, V> getter,
                        final long expirationFreqMs, final Clock clock, ConcurrentMap<K, Entry<V>> map) {
     Preconditions.checkArgument(expireAfterMs > 0, "expireAfterMs must be positive.");
