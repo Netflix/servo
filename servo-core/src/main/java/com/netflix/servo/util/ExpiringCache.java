@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  * @param <V> The type of values maintained
  */
 public class ExpiringCache<K, V> {
-  private final ConcurrentHashMap<K, Entry<V>> map;
+  private final ConcurrentMap<K, Entry<V>> map;
   private final long expireAfterMs;
   private final Function<K, Entry<V>> entryGetter;
   private final Clock clock;
@@ -107,9 +108,14 @@ public class ExpiringCache<K, V> {
    */
   public ExpiringCache(final long expireAfterMs, final Function<K, V> getter,
                        final long expirationFreqMs, final Clock clock) {
+     this(expireAfterMs, getter, expirationFreqMs, clock, new ConcurrentHashMap<>(1024));
+  }
+
+  public ExpiringCache(final long expireAfterMs, final Function<K, V> getter,
+                       final long expirationFreqMs, final Clock clock, ConcurrentMap<K, Entry<V>> map) {
     Preconditions.checkArgument(expireAfterMs > 0, "expireAfterMs must be positive.");
     Preconditions.checkArgument(expirationFreqMs > 0, "expirationFreqMs must be positive.");
-    this.map = new ConcurrentHashMap<>();
+    this.map = map;
     this.expireAfterMs = expireAfterMs;
     this.entryGetter = toEntry(getter);
     this.clock = clock;
