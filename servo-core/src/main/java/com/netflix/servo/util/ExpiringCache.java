@@ -126,10 +126,29 @@ public class ExpiringCache<K, V> {
   }
 
   /**
+   * This method should be used instead of the
+   * {@link ConcurrentHashMap#computeIfAbsent(Object, Function)} call to minimize
+   * thread contention. This method does not require locking for the common case
+   * where the key exists, but potentially performs additional computation when
+   * absent.
+   */
+  private Entry<V> computeIfAbsent(K key) {
+    Entry<V> v = map.get(key);
+    if (v == null) {
+      Entry<V> tmp = entryGetter.apply(key);
+      v = map.putIfAbsent(key, tmp);
+      if (v == null) {
+        v = tmp;
+      }
+    }
+    return v;
+  }
+
+  /**
    * Get the (possibly cached) value for a given key.
    */
   public V get(final K key) {
-    Entry<V> entry = map.computeIfAbsent(key, entryGetter);
+    Entry<V> entry = computeIfAbsent(key);
     return entry.getValue();
   }
 
