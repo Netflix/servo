@@ -16,7 +16,7 @@ public final class Reflection {
   }
 
   /**
-   * Gets all fields from class and it's super classes.
+   * Gets all fields from class and its super classes.
    *
    * @param classs class to get fields from
    * @return set of fields
@@ -32,7 +32,7 @@ public final class Reflection {
   }
 
   /**
-   * Gets all methods from class and it's super classes.
+   * Gets all methods from class and its super classes.
    *
    * @param classs class to get methods from
    * @return set of methods
