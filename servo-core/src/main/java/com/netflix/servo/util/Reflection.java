@@ -10,7 +10,10 @@ import java.util.Set;
 /**
  * Utility methods for dealing with reflection.
  */
-public class Reflection {
+public final class Reflection {
+
+  private Reflection() {
+  }
 
   /**
    * Gets all fields from class and it's super classes.
@@ -45,7 +48,7 @@ public class Reflection {
   }
 
   /**
-   * Gets all fields annotated by annotation
+   * Gets all fields annotated by annotation.
    *
    * @param classs class to get fields from
    * @param ann    annotation that must be present on the field
@@ -62,10 +65,10 @@ public class Reflection {
   }
 
   /**
-   * Gets all methods annotated by annotation
+   * Gets all methods annotated by annotation.
    *
    * @param classs class to get fields from
-   * @param ann    annotation that must be presnt on the method
+   * @param ann    annotation that must be present on the method
    * @return set of methods
    */
   public static Set<Method> getMethodsAnnotatedBy(Class<?> classs, Class<? extends Annotation> ann) {
