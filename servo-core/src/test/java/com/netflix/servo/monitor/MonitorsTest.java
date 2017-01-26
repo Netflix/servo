@@ -23,9 +23,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class MonitorsTest {
 
@@ -55,8 +53,8 @@ public class MonitorsTest {
 
     TagList tags = BasicTagList.of("abc", "def");
 
-    Monitors.addMonitorFields(monitors, null, tags, obj, obj.getClass());
-    Monitors.addMonitorFields(monitors, "foo", null, obj, obj.getClass());
+    Monitors.addMonitorFields(monitors, null, tags, obj);
+    Monitors.addMonitorFields(monitors, "foo", null, obj);
     //System.out.println(monitors);
     assertEquals(monitors.size(), 8);
 
@@ -69,8 +67,8 @@ public class MonitorsTest {
   public void testAddAnnotatedFields() throws Exception {
     List<Monitor<?>> monitors = new ArrayList<>();
     ClassWithMonitors obj = new ClassWithMonitors();
-    Monitors.addAnnotatedFields(monitors, null, null, obj, obj.getClass());
-    Monitors.addAnnotatedFields(monitors, "foo", null, obj, obj.getClass());
+    Monitors.addAnnotatedFields(monitors, null, null, obj);
+    Monitors.addAnnotatedFields(monitors, "foo", null, obj);
     //System.out.println(monitors);
     assertEquals(monitors.size(), 8);
   }
@@ -118,5 +116,20 @@ public class MonitorsTest {
           String.format("%s should have class MonitorsTest", m.getConfig().getName()));
     }
     assertEquals(monitors.size(), 8);
+  }
+
+  @Test
+  public void testAddMonitorsAnnoHierarchical() throws Exception {
+    SuperClassWithMonitors.ChildClassWithMonitors obj = new SuperClassWithMonitors.ChildClassWithMonitors();
+    CompositeMonitor compositeMonitor = Monitors.newObjectMonitor(obj);
+
+    List<Monitor> monitors = compositeMonitor.getMonitors();
+
+    assertEquals(monitors.size(), 4);
+    for(Monitor m : monitors) {
+      String tagValue = m.getConfig().getTags().asMap().get("tag1");
+      assertNotNull(tagValue, "tag value not returned");
+      assertEquals(tagValue, "tag2", "tag value is not tag2");
+    }
   }
 }

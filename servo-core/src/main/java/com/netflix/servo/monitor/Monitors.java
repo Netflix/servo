@@ -23,14 +23,19 @@ import com.netflix.servo.annotations.MonitorTags;
 import com.netflix.servo.tag.SortedTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.TaggingContext;
+import com.netflix.servo.util.Reflection;
 import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static com.netflix.servo.util.Reflection.getFieldsAnnotatedBy;
+import static com.netflix.servo.util.Reflection.getMethodsAnnotatedBy;
 
 /**
  * Some helper functions for creating monitor objects.
@@ -246,10 +251,8 @@ public final class Monitors {
    * Extract all monitors across class hierarchy.
    */
   static void addMonitors(List<Monitor<?>> monitors, String id, TagList tags, Object obj) {
-    for (Class<?> c = obj.getClass(); c != null; c = c.getSuperclass()) {
-      addMonitorFields(monitors, id, tags, obj, c);
-      addAnnotatedFields(monitors, id, tags, obj, c);
-    }
+    addMonitorFields(monitors, id, tags, obj);
+    addAnnotatedFields(monitors, id, tags, obj);
   }
 
   /**
@@ -257,7 +260,7 @@ public final class Monitors {
    * {@code monitors}.
    */
   static void addMonitorFields(
-      List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
+      List<Monitor<?>> monitors, String id, TagList tags, Object obj) {
     try {
       final SortedTagList.Builder builder = SortedTagList.builder();
       builder.withTag("class", className(obj.getClass()));
@@ -269,14 +272,14 @@ public final class Monitors {
       }
       final TagList classTags = builder.build();
 
-      final Field[] fields = c.getDeclaredFields();
+      final Set<Field> fields = Reflection.getAllFields(obj.getClass());
       for (Field field : fields) {
         if (isMonitorType(field.getType())) {
           field.setAccessible(true);
           final Monitor<?> m = (Monitor<?>) field.get(obj);
           if (m == null) {
             throw new NullPointerException("field " + field.getName()
-                + " in class " + c.getName() + " is null, all monitor fields must be"
+                + " in class " + field.getDeclaringClass().getName() + " is null, all monitor fields must be"
                 + " initialized before registering");
           }
           monitors.add(wrap(classTags, m));
@@ -292,11 +295,11 @@ public final class Monitors {
    * {@code monitors}.
    */
   static void addAnnotatedFields(
-      List<Monitor<?>> monitors, String id, TagList tags, Object obj, Class<?> c) {
+      List<Monitor<?>> monitors, String id, TagList tags, Object obj) {
     final Class<com.netflix.servo.annotations.Monitor> annoClass =
         com.netflix.servo.annotations.Monitor.class;
     try {
-      Field[] fields = c.getDeclaredFields();
+      Set<Field> fields = getFieldsAnnotatedBy(obj.getClass(), annoClass);
       for (Field field : fields) {
         final com.netflix.servo.annotations.Monitor anno = field.getAnnotation(annoClass);
         if (anno != null) {
@@ -305,13 +308,13 @@ public final class Monitors {
           if (anno.type() == DataSourceType.INFORMATIONAL) {
             monitors.add(new AnnotatedStringMonitor(config, obj, field));
           } else {
-            checkType(anno, field.getType(), c);
+            checkType(anno, field.getType(), field.getDeclaringClass());
             monitors.add(new AnnotatedNumberMonitor(config, obj, field));
           }
         }
       }
 
-      Method[] methods = c.getDeclaredMethods();
+      Set<Method> methods = getMethodsAnnotatedBy(obj.getClass(), annoClass);
       for (Method method : methods) {
         final com.netflix.servo.annotations.Monitor anno = method.getAnnotation(annoClass);
         if (anno != null) {
@@ -320,7 +323,7 @@ public final class Monitors {
           if (anno.type() == DataSourceType.INFORMATIONAL) {
             monitors.add(new AnnotatedStringMonitor(config, obj, method));
           } else {
-            checkType(anno, method.getReturnType(), c);
+            checkType(anno, method.getReturnType(), method.getDeclaringClass());
             monitors.add(new AnnotatedNumberMonitor(config, obj, method));
           }
         }
@@ -335,23 +338,16 @@ public final class Monitors {
    */
   private static TagList getMonitorTags(Object obj) {
     try {
-      Class<?> c = obj.getClass();
-      Field[] fields = c.getDeclaredFields();
+      Set<Field> fields = getFieldsAnnotatedBy(obj.getClass(), MonitorTags.class);
       for (Field field : fields) {
-        final MonitorTags anno = field.getAnnotation(MonitorTags.class);
-        if (anno != null) {
-          field.setAccessible(true);
-          return (TagList) field.get(obj);
-        }
+        field.setAccessible(true);
+        return (TagList) field.get(obj);
       }
 
-      Method[] methods = c.getDeclaredMethods();
+      Set<Method> methods = getMethodsAnnotatedBy(obj.getClass(), MonitorTags.class);
       for (Method method : methods) {
-        final MonitorTags anno = method.getAnnotation(MonitorTags.class);
-        if (anno != null) {
-          method.setAccessible(true);
-          return (TagList) method.invoke(obj);
-        }
+        method.setAccessible(true);
+        return (TagList) method.invoke(obj);
       }
     } catch (Exception e) {
       throw Throwables.propagate(e);
