@@ -181,8 +181,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
 
     List<Metric> batch = new ArrayList<>(batchSize);
 
-    while (!metrics.isEmpty()) {
-      Metric m = metrics.remove(0);
+    for (final Metric m : metrics) {
       if (m.hasNumberValue()) {
         batch.add(m);
 
