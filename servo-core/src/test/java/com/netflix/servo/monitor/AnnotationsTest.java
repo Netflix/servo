@@ -50,7 +50,7 @@ public class AnnotationsTest {
   public void testDefaultNames() throws Exception {
     Metrics m = new Metrics();
     List<Monitor<?>> monitors = new ArrayList<>();
-    Monitors.addAnnotatedFields(monitors, null, null, m, m.getClass());
+    Monitors.addAnnotatedFields(monitors, null, null, m);
 
     List<String> expectedNames = UnmodifiableList.of(
         "annoCounter", "annoGauge", "annoInfo", "primitiveGauge");
