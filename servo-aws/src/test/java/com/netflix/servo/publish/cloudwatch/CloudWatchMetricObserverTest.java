@@ -19,7 +19,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.netflix.servo.Metric;
 import com.netflix.servo.tag.BasicTagList;
-import junit.framework.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;

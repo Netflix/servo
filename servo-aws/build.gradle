@@ -5,5 +5,5 @@ dependencies {
 }
 
 checkstyle {
-  ignoreFailures = true
+  sourceSets = []
 }

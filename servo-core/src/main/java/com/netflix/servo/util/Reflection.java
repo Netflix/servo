@@ -71,7 +71,8 @@ public final class Reflection {
    * @param ann    annotation that must be present on the method
    * @return set of methods
    */
-  public static Set<Method> getMethodsAnnotatedBy(Class<?> classs, Class<? extends Annotation> ann) {
+  public static Set<Method> getMethodsAnnotatedBy(
+      Class<?> classs, Class<? extends Annotation> ann) {
     Set<Method> set = new HashSet<>();
     for (Method method : getAllMethods(classs)) {
       if (method.isAnnotationPresent(ann)) {
