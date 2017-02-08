@@ -69,17 +69,21 @@ public final class ValidCharacters {
    * Convert a given string to one where all characters are valid.
    */
   public static String toValidCharset(String str) {
-    final int n = str.length();
-    final StringBuilder buf = new StringBuilder(n + 1);
-    for (int i = 0; i < n; i++) {
-      final char c = str.charAt(i);
-      if (c < CHARS_ALLOWED.length && CHARS_ALLOWED[c]) {
-        buf.append(c);
-      } else {
-        buf.append('_');
+    if (hasInvalidCharacters(str)) {
+      final int n = str.length();
+      final StringBuilder buf = new StringBuilder(n + 1);
+      for (int i = 0; i < n; i++) {
+        final char c = str.charAt(i);
+        if (c < CHARS_ALLOWED.length && CHARS_ALLOWED[c]) {
+          buf.append(c);
+        } else {
+          buf.append('_');
+        }
       }
+      return buf.toString();
+    } else {
+      return str;
     }
-    return buf.toString();
   }
 
   /**
