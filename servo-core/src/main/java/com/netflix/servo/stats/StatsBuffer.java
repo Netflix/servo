@@ -115,8 +115,6 @@ public class StatsBuffer {
     min = values[0];
     max = values[curSize - 1];
 
-    // TODO: This should probably be changed to use Welford's method to
-    // compute the variance.
     total = 0L;
     double sumSquares = 0.0;
     for (int i = 0; i < curSize; ++i) {

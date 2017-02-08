@@ -25,5 +25,5 @@ task(runWithAtlas, dependsOn: 'classes', type: JavaExec) {
 }
 
 checkstyle {
-  ignoreFailures = true
+  sourceSets = []
 }

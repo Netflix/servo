@@ -103,7 +103,7 @@ public final class BucketConfig {
   private final TimeUnit timeUnit;
   private final long[] buckets;
 
-  private BucketConfig(Builder builder) {
+  BucketConfig(Builder builder) {
     this.timeUnit = builder.timeUnit;
     this.buckets = Arrays.copyOf(builder.buckets, builder.buckets.length);
   }

@@ -123,6 +123,7 @@ public class MonitorsTest {
     SuperClassWithMonitors.ChildClassWithMonitors obj = new SuperClassWithMonitors.ChildClassWithMonitors();
     CompositeMonitor compositeMonitor = Monitors.newObjectMonitor(obj);
 
+    @SuppressWarnings("unchecked")
     List<Monitor> monitors = compositeMonitor.getMonitors();
 
     assertEquals(monitors.size(), 4);

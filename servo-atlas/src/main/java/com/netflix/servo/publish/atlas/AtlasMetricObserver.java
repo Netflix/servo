@@ -95,7 +95,8 @@ public class AtlasMetricObserver implements MetricObserver {
    * and poller index.
    */
   public AtlasMetricObserver(ServoAtlasConfig config, TagList commonTags, int pollerIdx) {
-    this(config, commonTags, pollerIdx, new HttpHelper(new RxHttp(EmptyConfig.INSTANCE, new BasicServerRegistry())));
+    this(config, commonTags, pollerIdx,
+        new HttpHelper(new RxHttp(EmptyConfig.INSTANCE, new BasicServerRegistry())));
   }
 
   /**

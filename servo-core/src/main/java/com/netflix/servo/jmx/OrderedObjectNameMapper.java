@@ -77,7 +77,7 @@ public final class OrderedObjectNameMapper implements ObjectNameMapper {
     // For the known ordered keys, try to add them if they're present in the monitor's tags
     for (String knownKey : keyOrder) {
       // Special case for name as it isn't a tag
-      if (knownKey.equals("name")) {
+      if ("name".equals(knownKey)) {
         addName(objBuilder, monitor);
       } else {
         String value = tags.remove(knownKey);

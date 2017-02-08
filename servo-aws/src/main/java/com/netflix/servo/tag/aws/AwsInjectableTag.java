@@ -128,7 +128,7 @@ public enum AwsInjectableTag implements Tag {
           reader.close();
         }
       } catch (IOException e) {
-        // ignore problems closing the stream
+        getLogger().info("Ignoring failure while closing the stream", e);
       }
     }
   }

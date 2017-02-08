@@ -279,7 +279,8 @@ public final class Monitors {
           final Monitor<?> m = (Monitor<?>) field.get(obj);
           if (m == null) {
             throw new NullPointerException("field " + field.getName()
-                + " in class " + field.getDeclaringClass().getName() + " is null, all monitor fields must be"
+                + " in class " + field.getDeclaringClass().getName()
+                + " is null, all monitor fields must be"
                 + " initialized before registering");
           }
           monitors.add(wrap(classTags, m));

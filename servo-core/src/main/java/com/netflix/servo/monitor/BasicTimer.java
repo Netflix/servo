@@ -52,7 +52,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     private final Monitor<T> wrapped;
     private final double factor;
 
-    private FactorMonitor(Monitor<T> wrapped, double factor) {
+    FactorMonitor(Monitor<T> wrapped, double factor) {
       super(wrapped.getConfig());
       this.wrapped = wrapped;
       this.factor = factor;
