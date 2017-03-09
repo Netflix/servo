@@ -79,7 +79,7 @@ class AtlasMetric implements JsonPayload {
     gen.writeObjectFieldStart("tags");
     gen.writeStringField("name", config.getName());
     for (Tag tag : config.getTags()) {
-      gen.writeStringField(tag.getKey(), tag.getValue());
+      ValidCharacters.tagToJson(gen, tag);
     }
     gen.writeEndObject();
 
