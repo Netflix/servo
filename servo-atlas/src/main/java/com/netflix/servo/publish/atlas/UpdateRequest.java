@@ -93,9 +93,7 @@ public final class UpdateRequest implements JsonPayload {
     // common tags
     gen.writeObjectFieldStart("tags");
     for (Tag tag : tags) {
-      gen.writeStringField(
-          ValidCharacters.toValidCharset(tag.getKey()),
-          ValidCharacters.toValidCharset(tag.getValue()));
+      ValidCharacters.tagToJson(gen, tag);
     }
     gen.writeEndObject();
 

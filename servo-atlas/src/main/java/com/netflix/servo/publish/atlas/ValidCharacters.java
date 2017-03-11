@@ -15,10 +15,13 @@
  */
 package com.netflix.servo.publish.atlas;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.netflix.servo.Metric;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.Tag;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public final class ValidCharacters {
    */
 
   private static final boolean[] CHARS_ALLOWED = new boolean[128];
+  private static final boolean[] CHARS_ALLOWED_GROUPS = new boolean[128];
 
   static {
     CHARS_ALLOWED['.'] = true;
@@ -45,20 +49,22 @@ public final class ValidCharacters {
     for (char ch = 'a'; ch <= 'z'; ch++) {
       CHARS_ALLOWED[ch] = true;
     }
+
+    // relax rules a bit for tags describing groups
+    System.arraycopy(CHARS_ALLOWED, 0, CHARS_ALLOWED_GROUPS, 0, CHARS_ALLOWED.length);
+    CHARS_ALLOWED_GROUPS['^'] = true;
+    CHARS_ALLOWED_GROUPS['~'] = true;
   }
 
   private ValidCharacters() {
     // utility class
   }
 
-  /**
-   * Check whether a given string contains an invalid character.
-   */
-  public static boolean hasInvalidCharacters(String str) {
+  private static boolean hasInvalidCharactersTable(boolean[] table, String str) {
     final int n = str.length();
     for (int i = 0; i < n; i++) {
       final char c = str.charAt(i);
-      if (c >= CHARS_ALLOWED.length || !CHARS_ALLOWED[c]) {
+      if (c >= table.length || !table[c]) {
         return true;
       }
     }
@@ -66,15 +72,19 @@ public final class ValidCharacters {
   }
 
   /**
-   * Convert a given string to one where all characters are valid.
+   * Check whether a given string contains an invalid character.
    */
-  public static String toValidCharset(String str) {
-    if (hasInvalidCharacters(str)) {
+  public static boolean hasInvalidCharacters(String str) {
+    return hasInvalidCharactersTable(CHARS_ALLOWED, str);
+  }
+
+  private static String toValidCharsetTable(boolean[] table, String str) {
+    if (hasInvalidCharactersTable(table, str)) {
       final int n = str.length();
       final StringBuilder buf = new StringBuilder(n + 1);
       for (int i = 0; i < n; i++) {
         final char c = str.charAt(i);
-        if (c < CHARS_ALLOWED.length && CHARS_ALLOWED[c]) {
+        if (c < table.length && table[c]) {
           buf.append(c);
         } else {
           buf.append('_');
@@ -87,6 +97,15 @@ public final class ValidCharacters {
   }
 
   /**
+   * Convert a given string to one where all characters are valid.
+   */
+  public static String toValidCharset(String str) {
+    return toValidCharsetTable(CHARS_ALLOWED, str);
+  }
+
+  private static final List<String> RELAXED_GROUP_KEYS = Arrays.asList("nf.asg", "nf.cluster");
+
+  /**
    * Return a new metric where the name and all tags are using the valid character
    * set.
    */
@@ -94,7 +113,12 @@ public final class ValidCharacters {
     MonitorConfig cfg = metric.getConfig();
     MonitorConfig.Builder cfgBuilder = MonitorConfig.builder(toValidCharset(cfg.getName()));
     for (Tag orig : cfg.getTags()) {
-      cfgBuilder.withTag(toValidCharset(orig.getKey()), toValidCharset(orig.getValue()));
+      final String key = orig.getKey();
+      if (RELAXED_GROUP_KEYS.contains(key)) {
+        cfgBuilder.withTag(key, toValidCharsetTable(CHARS_ALLOWED_GROUPS, orig.getValue()));
+      } else {
+        cfgBuilder.withTag(toValidCharset(key), toValidCharset(orig.getValue()));
+      }
     }
     cfgBuilder.withPublishingPolicy(cfg.getPublishingPolicy());
     return new Metric(cfgBuilder.build(), metric.getTimestamp(), metric.getValue());
@@ -105,5 +129,17 @@ public final class ValidCharacters {
    */
   public static List<Metric> toValidValues(List<Metric> metrics) {
     return metrics.stream().map(ValidCharacters::toValidValue).collect(Collectors.toList());
+  }
+
+  /**
+   * Serialize a tag to the given JsonGenerator.
+   */
+  public static void tagToJson(JsonGenerator gen, Tag tag) throws IOException {
+    final String key = tag.getKey();
+    if (RELAXED_GROUP_KEYS.contains(key)) {
+      gen.writeStringField(key, toValidCharsetTable(CHARS_ALLOWED_GROUPS, tag.getValue()));
+    } else {
+      gen.writeStringField(toValidCharset(tag.getKey()), toValidCharset(tag.getValue()));
+    }
   }
 }
