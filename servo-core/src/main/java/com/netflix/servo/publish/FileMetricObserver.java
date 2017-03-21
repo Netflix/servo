@@ -44,7 +44,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(FileMetricObserver.class);
 
-  private static final String FILE_DATE_FORMAT = "yyyy_dd_MM_HH_mm_ss_SSS";
+  private static final String FILE_DATE_FORMAT = "yyyy_MM_dd_HH_mm_ss_SSS";
   private final File dir;
   private final boolean compress;
   private final Clock clock;
@@ -53,7 +53,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
   /**
    * Creates a new instance that stores files in {@code dir} with a prefix of
    * {@code name} and a suffix of a timestamp in the format
-   * {@code yyyy_dd_MM_HH_mm_ss_SSS}.
+   * {@code yyyy_MM_dd_HH_mm_ss_SSS}.
    *
    * @param name name to use as a prefix on files
    * @param dir  directory where observations will be stored
@@ -65,7 +65,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
   /**
    * Creates a new instance that stores files in {@code dir} with a prefix of
    * {@code name} and a suffix of a timestamp in the format
-   * {@code yyyy_dd_MM_HH_mm_ss_SSS}.
+   * {@code yyyy_MM_dd_HH_mm_ss_SSS}.
    *
    * @param name     name to use as a prefix on files
    * @param dir      directory where observations will be stored
