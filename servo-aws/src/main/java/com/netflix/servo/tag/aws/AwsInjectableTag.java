@@ -19,11 +19,13 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
+import com.amazonaws.services.autoscaling.model.AutoScalingInstanceDetails;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesRequest;
 import com.netflix.servo.aws.AwsPropertyKeys;
 import com.netflix.servo.aws.AwsServiceClients;
 import com.netflix.servo.aws.constants.Dimensions;
 import com.netflix.servo.tag.Tag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Group of Tags who's values will be dynamically set at runtime
@@ -98,9 +101,9 @@ public enum AwsInjectableTag implements Tag {
 
       AmazonAutoScaling autoScalingClient = AwsServiceClients.autoScaling(credentials);
 
-      return autoScalingClient.describeAutoScalingInstances(
-          new DescribeAutoScalingInstancesRequest().withInstanceIds(getInstanceId()))
-          .getAutoScalingInstances().get(0).getAutoScalingGroupName();
+      List<AutoScalingInstanceDetails> autoScalingInstances = autoScalingClient.describeAutoScalingInstances(
+          new DescribeAutoScalingInstancesRequest().withInstanceIds(getInstanceId())).getAutoScalingInstances();
+	  return autoScalingInstances.isEmpty() ? UNDEFINED : autoScalingInstances.get(0).getAutoScalingGroupName();
     } catch (Exception e) {
       getLogger().error("Unable to get ASG name.", e);
       return UNDEFINED;
