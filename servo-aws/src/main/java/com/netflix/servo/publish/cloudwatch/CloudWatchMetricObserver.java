@@ -205,6 +205,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
     } catch (AmazonServiceException e) {
       final Tag error = new BasicTag("error", e.getErrorCode());
       DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
+      LOG.error("Error while submitting data for metrics : " + batch, e);
     } catch (Exception e) {
       final Tag error = new BasicTag("error", e.getClass().getSimpleName());
       DynamicCounter.increment(ERRORS_COUNTER_ID.withAdditionalTag(error));
