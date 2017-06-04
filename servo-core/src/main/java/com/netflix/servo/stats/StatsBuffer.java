@@ -122,7 +122,11 @@ public class StatsBuffer {
       sumSquares += values[i] * values[i];
     }
     mean = (double) total / curSize;
-    variance = (sumSquares / curSize) - (mean * mean);
+    if (curSize == 1) {
+      variance = 0d;
+    } else {
+      variance = (sumSquares - ((double) total * total / curSize)) / (curSize - 1);
+    }
     stddev = Math.sqrt(variance);
 
     computePercentiles(curSize);

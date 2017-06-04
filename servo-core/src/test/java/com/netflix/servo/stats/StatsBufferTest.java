@@ -72,13 +72,13 @@ public class StatsBufferTest {
   @Test
   public void testVarianceNoWrap() {
     StatsBuffer buffer = getNoWrap();
-    assertEquals(buffer.getVariance(), 20916.66667, 1e-4);
+    assertEquals(buffer.getVariance(), 20958.5, 1e-4);
   }
 
   @Test
   public void testStdDevNoWrap() {
     StatsBuffer buffer = getNoWrap();
-    assertEquals(buffer.getStdDev(), 144.62595, 1e-4);
+    assertEquals(buffer.getStdDev(), 144.77051, 1e-4);
   }
 
   @Test
@@ -173,7 +173,7 @@ public class StatsBufferTest {
     assertEquals(buffer.getMean(), (double) EXPECTED_TOTAL_WRAP / SIZE);
   }
 
-  static final double EXPECTED_VARIANCE_WRAP = 83333.25;
+  static final double EXPECTED_VARIANCE_WRAP = 83416.66667;
 
   @Test
   public void testVarianceWrap() {
