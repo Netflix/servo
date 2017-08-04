@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -81,6 +82,9 @@ public class AtlasMetricObserver implements MetricObserver {
     }
   });
 
+  private final Thread pushThread;
+  private final AtomicBoolean shouldPushMetrics = new AtomicBoolean(true);
+
   /**
    * Create an observer that can send metrics to atlas with a given
    * config and list of common tags.
@@ -112,9 +116,20 @@ public class AtlasMetricObserver implements MetricObserver {
     this.sendTimeoutMs = stepMs * 9 / 10;
     this.commonTags = commonTags;
     pushQueue = new LinkedBlockingQueue<>(config.getPushQueueSize());
-    final Thread pushThread = new Thread(new PushProcessor(), "BaseAtlasMetricObserver-Push");
+    pushThread = new Thread(new PushProcessor(), "BaseAtlasMetricObserver-Push");
     pushThread.setDaemon(true);
     pushThread.start();
+  }
+
+  /**
+   * Stop attempting to send metrics to atlas.
+   * Cleans up the thread that is created by this observer.
+   */
+  public void stop() {
+    shouldPushMetrics.set(false);
+    // since we're probably blocking on getting an element from the
+    // push queue, interrupt the thread now
+    pushThread.interrupt();
   }
 
   protected static Counter newErrCounter(String name, String err) {
@@ -344,18 +359,16 @@ public class AtlasMetricObserver implements MetricObserver {
   private class PushProcessor implements Runnable {
     @Override
     public void run() {
-      boolean interrupted = false;
-      while (!interrupted) {
+      while (shouldPushMetrics.get()) {
         try {
           sendNow(pushQueue.take());
         } catch (InterruptedException e) {
           LOGGER.debug("Interrupted trying to get next UpdateTask to push");
-          interrupted = true;
+          break;
         } catch (Exception t) {
           LOGGER.info("Caught unexpected exception pushing metrics", t);
         }
       }
     }
   }
-
 }
