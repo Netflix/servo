@@ -19,12 +19,12 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
+    classpath 'com.netflix.nebula:nebula-dependency-recommender:5.0.0'
   }
 }
 
 plugins {
-  id 'nebula.netflixoss' version '3.1.2'
+  id 'nebula.netflixoss' version '4.0.0'
   id 'me.champeau.gradle.jmh' version '0.2.0'
 }
 
