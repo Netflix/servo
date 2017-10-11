@@ -30,7 +30,7 @@ import static org.testng.Assert.assertEquals;
 
 public class GraphiteMetricObserverTest {
   private String getLocalHostIp() throws UnknownHostException {
-    return InetAddress.getLocalHost().getHostAddress();
+    return "127.0.0.1";
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
