@@ -10,6 +10,7 @@
 
   <rule ref="rulesets/internal/all-java.xml">
     <exclude name="AbstractNaming"/>
+    <exclude name="AccessorMethodGeneration"/>
     <exclude name="AddEmptyString"/>
     <exclude name="AppendCharacterWithChar"/>
     <exclude name="ArrayIsStoredDirectly"/>
@@ -20,10 +21,14 @@
     <exclude name="AvoidFinalLocalVariable"/>
     <exclude name="AvoidInstantiatingObjectsInLoops"/>
     <exclude name="AvoidLiteralsInIfCondition"/>
+    <exclude name="AvoidPrefixingMethodParameters"/>
     <exclude name="AvoidSynchronizedAtMethodLevel"/>
     <exclude name="AvoidThrowingNullPointerException"/>
     <exclude name="AvoidThrowingRawExceptionTypes"/>
+    <exclude name="AvoidUsingShortType"/>
+    <exclude name="AvoidUsingVolatile"/>
     <exclude name="BeanMembersShouldSerialize"/>
+    <exclude name="CommentDefaultAccessModifier"/>
     <exclude name="CommentRequired"/>
     <exclude name="CommentSize"/>
     <exclude name="CompareObjectsWithEquals"/>
@@ -32,8 +37,11 @@
     <exclude name="DataflowAnomalyAnalysis"/>
     <exclude name="DefaultPackage"/>
     <exclude name="DoNotUseThreads"/>
+    <exclude name="DontImportJavaLang"/> <!-- Incorrectly flags java.lang.invoke.* -->
     <exclude name="DuplicateImports"/>
+    <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
     <exclude name="ExcessiveImports"/>
+    <exclude name="ExcessivePublicCount"/>
     <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
     <exclude name="ForLoopsMustUseBraces"/>
     <exclude name="GodClass"/>
@@ -51,6 +59,7 @@
     <exclude name="MethodReturnsInternalArray"/>
     <exclude name="ModifiedCyclomaticComplexity"/>
     <exclude name="NullAssignment"/>
+    <exclude name="OneDeclarationPerLine"/>
     <exclude name="OnlyOneReturn"/>
     <exclude name="PrematureDeclaration"/>
     <exclude name="RedundantFieldInitializer"/>
@@ -59,12 +68,14 @@
     <exclude name="SimplifyConditional"/>
     <exclude name="ShortClassName"/>
     <exclude name="ShortMethodName"/>
+    <exclude name="ShortMethodName"/>
     <exclude name="ShortVariable"/>
     <exclude name="StdCyclomaticComplexity"/>
     <exclude name="TooManyFields"/>
     <exclude name="TooManyMethods"/>
-    <exclude name="UncommentedEmptyMethod"/>
+    <exclude name="UncommentedEmptyMethodBody"/>
     <exclude name="UnusedPrivateMethod"/>
+    <exclude name="UnnecessaryConstructor"/>
     <exclude name="UnnecessaryParentheses"/>
     <exclude name="UseConcurrentHashMap"/>
     <exclude name="UseIndexOfChar"/>
