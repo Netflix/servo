@@ -46,4 +46,21 @@ public interface MetricPoller {
    * @return list of current metric values
    */
   List<Metric> poll(MetricFilter filter, boolean reset);
+
+  /**
+   * Try to convert an object into a number. Boolean values will return 1 if
+   * true and 0 if false. If the value is null or an unknown data type null
+   * will be returned.
+   */
+  static Number asNumber(Object value) {
+    Number num = null;
+    if (value == null) {
+      num = null;
+    } else if (value instanceof Number) {
+      num = (Number) value;
+    } else if (value instanceof Boolean) {
+      num = ((Boolean) value) ? 1 : 0;
+    }
+    return num;
+  }
 }

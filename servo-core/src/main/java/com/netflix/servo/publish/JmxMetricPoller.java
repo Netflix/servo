@@ -150,7 +150,7 @@ public final class JmxMetricPoller implements MetricPoller {
       Object value) {
     long now = System.currentTimeMillis();
     if (onlyNumericMetrics) {
-      value = asNumber(value);
+      value = MetricPoller.asNumber(value);
     }
     if (value != null) {
 
@@ -245,23 +245,6 @@ public final class JmxMetricPoller implements MetricPoller {
         addMetric(metrics, attrName, newTags, e.getValue());
       }
     }
-  }
-
-  /**
-   * Try to convert an object into a number. Boolean values will return 1 if
-   * true and 0 if false. If the value is null or an unknown data type null
-   * will be returned.
-   */
-  private static Number asNumber(Object value) {
-    Number num = null;
-    if (value == null) {
-      num = null;
-    } else if (value instanceof Number) {
-      num = (Number) value;
-    } else if (value instanceof Boolean) {
-      num = ((Boolean) value) ? 1 : 0;
-    }
-    return num;
   }
 
   /**

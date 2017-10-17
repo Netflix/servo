@@ -60,6 +60,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
   private final ExecutorService service;
 
   private final Clock clock;
+  private final boolean onlyNumericMetrics;
 
   /**
    * Creates a new instance using {@link com.netflix.servo.DefaultMonitorRegistry}.
@@ -74,7 +75,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
    * @param registry registry to query for annotated objects
    */
   public MonitorRegistryMetricPoller(MonitorRegistry registry) {
-    this(registry, 0L, TimeUnit.MILLISECONDS, true, ClockWithOffset.INSTANCE);
+    this(registry, 0L, TimeUnit.MILLISECONDS, true, ClockWithOffset.INSTANCE, false);
   }
 
   /**
@@ -98,7 +99,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
    */
   public MonitorRegistryMetricPoller(MonitorRegistry registry, long cacheTTL, TimeUnit unit,
                                      boolean useLimiter) {
-    this(registry, cacheTTL, unit, useLimiter, ClockWithOffset.INSTANCE);
+    this(registry, cacheTTL, unit, useLimiter, ClockWithOffset.INSTANCE, false);
   }
 
   /**
@@ -109,13 +110,16 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
    * @param unit       time unit for the cache ttl
    * @param useLimiter whether to use a time limiter for getting the values from the monitors
    * @param clock      clock instance to use to get the time
+   * @param onlyNumericMetrics only produce metrics that can be converted to a Number
+   *                           (filter out all strings, etc)
    */
   public MonitorRegistryMetricPoller(
       MonitorRegistry registry, long cacheTTL, TimeUnit unit, boolean useLimiter,
-      Clock clock) {
+      Clock clock, boolean onlyNumericMetrics) {
     this.registry = registry;
     this.cacheTTL = TimeUnit.MILLISECONDS.convert(cacheTTL, unit);
     this.clock = clock;
+    this.onlyNumericMetrics = onlyNumericMetrics;
 
     if (useLimiter) {
       final ThreadFactory factory =
@@ -191,6 +195,9 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
     List<Metric> metrics = new ArrayList<>(monitors.size());
     for (Monitor<?> monitor : monitors) {
       Object v = getValue(monitor);
+      if (onlyNumericMetrics) {
+        v = MetricPoller.asNumber(v);
+      }
       if (v != null) {
         metrics.add(new Metric(monitor.getConfig(), clock.now(), v));
       }
