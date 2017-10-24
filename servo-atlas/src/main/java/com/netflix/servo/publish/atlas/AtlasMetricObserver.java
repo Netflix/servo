@@ -45,6 +45,10 @@ import rx.Observable;
 import rx.functions.Func1;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -325,29 +329,31 @@ public class AtlasMetricObserver implements MetricObserver {
   }
 
 
-  private String getPayloadFilename() {
+  private String getPayloadPrefix() {
     SimpleDateFormat fmt = new SimpleDateFormat(FILE_DATE_FORMAT);
     fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return fmt.format(new Date()) + ".json";
+    return fmt.format(new Date());
   }
 
-  protected void dumpPayload(File out, JsonPayload payload) {
-    try {
+  protected void dumpPayload(File out, JsonPayload payload) throws IOException {
     JsonGenerator generator = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
     generator.setPrettyPrinter(new AtlasPrettyPrinter());
     payload.toJson(generator);
-  } catch (Exception ex) {
-    LOGGER.debug("Ignoring error writing payload sent to atlas: {}", ex.getMessage());
-  }
+
   }
 
   protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
     JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
     if (shouldDumpPayload()) {
-        String name = getPayloadFilename();
-        File out = new File(getPayloadDirectory(), name);
-        dumpPayload(out, payload);
+      String prefix = getPayloadPrefix();
+      try {
+        Path tempFile = Files.createTempFile(Paths.get(getPayloadDirectory()), prefix, ".json");
+        dumpPayload(tempFile.toFile(), payload);
+      } catch (IOException ex) {
+        LOGGER.debug("Ignoring error writing payload sent to atlas: {}", ex.getMessage());
+      }
     }
+
     return httpHelper.postSmile(config.getAtlasUri(), payload)
         .map(withBookkeeping(batch.length));
   }
