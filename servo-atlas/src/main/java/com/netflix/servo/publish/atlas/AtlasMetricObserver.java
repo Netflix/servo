@@ -66,7 +66,7 @@ public class AtlasMetricObserver implements MetricObserver {
   private static final Tag ATLAS_GAUGE_TAG = new BasicTag("atlas.dstype", "gauge");
   private static final UpdateTasks NO_TASKS = new UpdateTasks(0, null, -1L);
   private static final String FILE_DATE_FORMAT = "yyyy_MM_dd_HH_mm_ss_SSS";
-  private final JsonFactory factory = new JsonFactory();
+  private final JsonFactory jsonFactory = new JsonFactory();
   protected final HttpHelper httpHelper;
   protected final ServoAtlasConfig config;
   protected final long sendTimeoutMs; // in milliseconds
@@ -328,20 +328,25 @@ public class AtlasMetricObserver implements MetricObserver {
   private String getPayloadFilename() {
     SimpleDateFormat fmt = new SimpleDateFormat(FILE_DATE_FORMAT);
     fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return fmt.format(new Date());
+    return fmt.format(new Date()) + ".json";
+  }
+
+  protected void dumpPayload(File out, JsonPayload payload) {
+    try {
+    JsonGenerator generator = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    generator.setPrettyPrinter(new AtlasPrettyPrinter());
+    payload.toJson(generator);
+  } catch (Exception ex) {
+    LOGGER.debug("Ignoring error writing payload sent to atlas: {}", ex.getMessage());
+  }
   }
 
   protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
     JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
     if (shouldDumpPayload()) {
-      try {
         String name = getPayloadFilename();
         File out = new File(getPayloadDirectory(), name);
-        JsonGenerator generator = factory.createGenerator(out, JsonEncoding.UTF8);
-        payload.toJson(generator);
-      } catch (Exception ex) {
-        LOGGER.debug("Ignoring error writing payload sent to atlas: {}", ex.getMessage());
-      }
+        dumpPayload(out, payload);
     }
     return httpHelper.postSmile(config.getAtlasUri(), payload)
         .map(withBookkeeping(batch.length));
