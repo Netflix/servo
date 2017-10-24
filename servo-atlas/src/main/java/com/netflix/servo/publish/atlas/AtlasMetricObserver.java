@@ -15,6 +15,9 @@
  */
 package com.netflix.servo.publish.atlas;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.netflix.archaius.config.EmptyConfig;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
@@ -41,8 +44,12 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.functions.Func1;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -58,6 +65,8 @@ public class AtlasMetricObserver implements MetricObserver {
   private static final Tag ATLAS_COUNTER_TAG = new BasicTag("atlas.dstype", "counter");
   private static final Tag ATLAS_GAUGE_TAG = new BasicTag("atlas.dstype", "gauge");
   private static final UpdateTasks NO_TASKS = new UpdateTasks(0, null, -1L);
+  private static final String FILE_DATE_FORMAT = "yyyy_MM_dd_HH_mm_ss_SSS";
+  private final JsonFactory factory = new JsonFactory();
   protected final HttpHelper httpHelper;
   protected final ServoAtlasConfig config;
   protected final long sendTimeoutMs; // in milliseconds
@@ -81,6 +90,15 @@ public class AtlasMetricObserver implements MetricObserver {
       return pushQueue.size();
     }
   });
+
+  protected boolean shouldDumpPayload() {
+    return false;
+  }
+
+  protected String getPayloadDirectory() {
+    String tmp = System.getProperty("java.io.tmpdir");
+    return tmp != null ? tmp : "/tmp";
+  }
 
   private final Thread pushThread;
   private final AtomicBoolean shouldPushMetrics = new AtomicBoolean(true);
@@ -306,8 +324,25 @@ public class AtlasMetricObserver implements MetricObserver {
     return 1;
   }
 
+
+  private String getPayloadFilename() {
+    SimpleDateFormat fmt = new SimpleDateFormat(FILE_DATE_FORMAT);
+    fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+    return fmt.format(new Date());
+  }
+
   protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {
     JsonPayload payload = new UpdateRequest(tags, batch, batch.length);
+    if (shouldDumpPayload()) {
+      try {
+        String name = getPayloadFilename();
+        File out = new File(getPayloadDirectory(), name);
+        JsonGenerator generator = factory.createGenerator(out, JsonEncoding.UTF8);
+        payload.toJson(generator);
+      } catch (Exception ex) {
+        LOGGER.debug("Ignoring error writing payload sent to atlas: {}", ex.getMessage());
+      }
+    }
     return httpHelper.postSmile(config.getAtlasUri(), payload)
         .map(withBookkeeping(batch.length));
   }
