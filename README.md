@@ -1,3 +1,14 @@
+# DEPRECATED
+
+This project receives minimal maintenance to keep software that relies on it working. There
+is no active development or planned feature improvement. For any new projects it is recommended
+to use the [Spectator] library instead.
+
+For more details see the [Servo comparison] page in the Spectator docs.
+
+[Spectator]: https://github.com/Netflix/spectator
+[Servo comparison]: http://netflix.github.io/spectator/en/latest/intro/servo-comparison/
+
 # Servo: Application Metrics in Java
 
 > servo v. : WATCH OVER, OBSERVE
@@ -12,7 +23,7 @@ Servo provides a simple interface for exposing and publishing application metric
 
 This has already been implemented inside of Netflix and most of our applications currently use it.
 
-# Project Details
+## Project Details
 
 ### Build Status
 
