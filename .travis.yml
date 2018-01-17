@@ -2,9 +2,9 @@ language: java
 matrix:
   include:
   - jdk: oraclejdk8
-    env: BINTRAY_PUBLISH=true
+    env: GRADLE_PUBLISH=true
   - jdk: oraclejdk9
-    env: BINTRAY_PUBLISH=false
+    env: GRADLE_PUBLISH=false
 sudo: false
 install: ./installViaTravis.sh
 script: ./buildViaTravis.sh
