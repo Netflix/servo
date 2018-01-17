@@ -19,7 +19,9 @@ import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.CompositeMonitor;
+import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.Monitors;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.ThreadFactories;
@@ -44,6 +46,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class MonitorRegistryMetricPoller implements MetricPoller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitorRegistryMetricPoller.class);
+  private static final Counter TIMEOUT_ERRORS = Monitors.newCounter("servo.getValueTimeout");
+  static {
+    DefaultMonitorRegistry.getInstance().register(TIMEOUT_ERRORS);
+  }
 
   private final MonitorRegistry registry;
 
@@ -138,6 +144,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
       }
     } catch (TimeLimiter.UncheckedTimeoutException e) {
       LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
+      TIMEOUT_ERRORS.increment();
     } catch (Exception e) {
       LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
     }
