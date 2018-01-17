@@ -18,8 +18,12 @@ package com.netflix.servo.publish;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.Metric;
 import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.monitor.BasicCounter;
 import com.netflix.servo.monitor.CompositeMonitor;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.DynamicCounter;
 import com.netflix.servo.monitor.Monitor;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.ThreadFactories;
@@ -44,6 +48,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class MonitorRegistryMetricPoller implements MetricPoller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitorRegistryMetricPoller.class);
+  private static final String GET_VALUE_ERROR = "servo.getValueError";
+  private static final Counter TIMEOUT_ERROR = new BasicCounter(MonitorConfig.builder(GET_VALUE_ERROR)
+      .withTag("id", "timeout").build());
+  static {
+    DefaultMonitorRegistry.getInstance().register(TIMEOUT_ERROR);
+  }
 
   private final MonitorRegistry registry;
 
@@ -138,8 +148,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
       }
     } catch (TimeLimiter.UncheckedTimeoutException e) {
       LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
+      TIMEOUT_ERROR.increment();
     } catch (Exception e) {
       LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
+      DynamicCounter.increment(GET_VALUE_ERROR, "id", e.getClass().getSimpleName());
     }
     return null;
   }
