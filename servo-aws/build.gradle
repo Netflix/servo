@@ -7,3 +7,11 @@ dependencies {
 checkstyle {
   sourceSets = []
 }
+
+jar {
+  manifest {
+    attributes(
+      "Automatic-Module-Name": "com.netflix.servo.aws"
+    )
+  }
+}

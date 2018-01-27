@@ -27,3 +27,11 @@ task(runWithAtlas, dependsOn: 'classes', type: JavaExec) {
 checkstyle {
   sourceSets = []
 }
+
+jar {
+  manifest {
+    attributes(
+      "Automatic-Module-Name": "com.netflix.servo.example"
+    )
+  }
+}
