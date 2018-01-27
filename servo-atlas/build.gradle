@@ -7,3 +7,11 @@ dependencies {
   compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
   jmh project(':servo-core')
 }
+
+jar {
+  manifest {
+    attributes(
+      "Automatic-Module-Name": "com.netflix.servo.atlas"
+    )
+  }
+}

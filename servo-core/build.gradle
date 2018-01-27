@@ -17,3 +17,10 @@ pmd {
   ignoreFailures = true
 }
 
+jar {
+  manifest {
+    attributes(
+      "Automatic-Module-Name": "com.netflix.servo.core"
+    )
+  }
+}
