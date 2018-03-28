@@ -61,7 +61,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
    * Creates a new instance based on system properties.
    */
   DefaultMonitorRegistry() {
-    this(System.getProperties());
+    this(loadProps());
   }
 
   /**
@@ -117,6 +117,24 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
 
     return mapper;
+  }
+  
+  private static Properties loadProps() {
+    String registryClassProp = System.getProperty(REGISTRY_CLASS_PROP);
+    String registryNameProp = System.getProperty(REGISTRY_NAME_PROP);
+    String registryJmxNameProp = System.getProperty(REGISTRY_JMX_NAME_PROP);
+    
+    Properties props = new Properties();
+    if (registryClassProp != null) {
+      props.setProperty(REGISTRY_CLASS_PROP, registryClassProp);
+    }
+    if (registryNameProp != null) {
+      props.setProperty(REGISTRY_NAME_PROP, registryNameProp);
+    }
+    if (registryJmxNameProp != null) {
+      props.setProperty(REGISTRY_JMX_NAME_PROP, registryJmxNameProp);
+    }
+    return props;
   }
 
   /**
