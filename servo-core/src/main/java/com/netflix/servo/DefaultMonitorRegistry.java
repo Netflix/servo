@@ -122,7 +122,6 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
   private static Properties loadProps() {
     String registryClassProp = System.getProperty(REGISTRY_CLASS_PROP);
     String registryNameProp = System.getProperty(REGISTRY_NAME_PROP);
-    String defaultRegistryName = System.getProperty(DEFAULT_REGISTRY_NAME);
     String registryJmxNameProp = System.getProperty(REGISTRY_JMX_NAME_PROP);
     
     Properties props = new Properties();
@@ -131,9 +130,6 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     }
     if (registryNameProp != null) {
       props.setProperty(REGISTRY_NAME_PROP, registryNameProp);
-    }
-    if (defaultRegistryName != null) {
-      props.setProperty(DEFAULT_REGISTRY_NAME, defaultRegistryName);
     }
     if (registryJmxNameProp != null) {
       props.setProperty(REGISTRY_JMX_NAME_PROP, registryJmxNameProp);
