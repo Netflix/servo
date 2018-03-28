@@ -120,18 +120,23 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
   }
   
   private static Properties loadProps() {
+    String registryClassProp = System.getProperty(REGISTRY_CLASS_PROP);
+    String registryNameProp = System.getProperty(REGISTRY_NAME_PROP);
+    String defaultRegistryName = System.getProperty(DEFAULT_REGISTRY_NAME);
+    String registryJmxNameProp = System.getProperty(REGISTRY_JMX_NAME_PROP);
+    
     Properties props = new Properties();
-    if (System.getProperty(REGISTRY_CLASS_PROP) != null) {
-      props.setProperty(REGISTRY_CLASS_PROP, System.getProperty(REGISTRY_CLASS_PROP));
+    if (registryClassProp != null) {
+      props.setProperty(REGISTRY_CLASS_PROP, registryClassProp);
     }
-    if (System.getProperty(REGISTRY_NAME_PROP) != null) {
-      props.setProperty(REGISTRY_NAME_PROP, System.getProperty(REGISTRY_NAME_PROP));
+    if (registryNameProp != null) {
+      props.setProperty(REGISTRY_NAME_PROP, registryNameProp);
     }
-    if (System.getProperty(DEFAULT_REGISTRY_NAME) != null) {
-      props.setProperty(DEFAULT_REGISTRY_NAME, System.getProperty(DEFAULT_REGISTRY_NAME));
+    if (defaultRegistryName != null) {
+      props.setProperty(DEFAULT_REGISTRY_NAME, defaultRegistryName);
     }
-    if (System.getProperty(REGISTRY_JMX_NAME_PROP) != null) {
-      props.setProperty(REGISTRY_JMX_NAME_PROP, System.getProperty(REGISTRY_JMX_NAME_PROP));
+    if (registryJmxNameProp != null) {
+      props.setProperty(REGISTRY_JMX_NAME_PROP, registryJmxNameProp);
     }
     return props;
   }
