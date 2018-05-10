@@ -49,8 +49,10 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitorRegistryMetricPoller.class);
   private static final String GET_VALUE_ERROR = "servo.getValueError";
-  private static final Counter TIMEOUT_ERROR = new BasicCounter(MonitorConfig.builder(GET_VALUE_ERROR)
-      .withTag("id", "timeout").build());
+  private static final Counter TIMEOUT_ERROR = new BasicCounter(MonitorConfig
+      .builder(GET_VALUE_ERROR)
+      .withTag("id", "timeout")
+      .build());
   static {
     DefaultMonitorRegistry.getInstance().register(TIMEOUT_ERROR);
   }
