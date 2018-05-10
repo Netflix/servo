@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,29 +40,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
   private final TimeUnit timeUnit;
   private final double timeUnitNanosFactor;
-  private final StepCounter totalTime;
+  private final DoubleCounter totalTime;
   private final StepCounter count;
   private final DoubleCounter totalOfSquares;
-  private final MaxGauge max;
+  private final DoubleMaxGauge max;
 
   private final List<Monitor<?>> monitors;
-
-  private static final class FactorMonitor<T extends Number> extends AbstractMonitor<Double>
-      implements NumericMonitor<Double> {
-    private final Monitor<T> wrapped;
-    private final double factor;
-
-    FactorMonitor(Monitor<T> wrapped, double factor) {
-      super(wrapped.getConfig());
-      this.wrapped = wrapped;
-      this.factor = factor;
-    }
-
-    @Override
-    public Double getValue(int pollerIndex) {
-      return wrapped.getValue(pollerIndex).doubleValue() * factor;
-    }
-  }
 
   /**
    * Creates a new instance of the timer with a unit of milliseconds.
@@ -82,20 +65,12 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
     timeUnit = unit;
     timeUnitNanosFactor = 1.0 / timeUnit.toNanos(1);
 
-    totalTime = new StepCounter(unitConfig.withAdditionalTag(STAT_TOTAL), clock);
+    totalTime = new DoubleCounter(unitConfig.withAdditionalTag(STAT_TOTAL), clock);
     count = new StepCounter(unitConfig.withAdditionalTag(STAT_COUNT), clock);
     totalOfSquares = new DoubleCounter(unitConfig.withAdditionalTag(STAT_TOTAL_SQ), clock);
-    max = new MaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
+    max = new DoubleMaxGauge(unitConfig.withAdditionalTag(STAT_MAX), clock);
 
-    final FactorMonitor<Number> totalTimeFactor = new FactorMonitor<>(totalTime,
-        timeUnitNanosFactor);
-    final FactorMonitor<Number> totalSquaresFactor = new FactorMonitor<>(totalOfSquares,
-        timeUnitNanosFactor * timeUnitNanosFactor);
-    final FactorMonitor<Long> maxFactor = new FactorMonitor<>(max,
-        timeUnitNanosFactor);
-
-    monitors = UnmodifiableList.<Monitor<?>>of(totalTimeFactor, count,
-        totalSquaresFactor, maxFactor);
+    monitors = UnmodifiableList.<Monitor<?>>of(totalTime, count, totalOfSquares, max);
   }
 
   /**
@@ -134,10 +109,11 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
 
   private void recordNanos(long nanos) {
     if (nanos >= 0) {
-      totalTime.increment(nanos);
+      double amount = nanos * timeUnitNanosFactor;
+      totalTime.increment(amount);
       count.increment();
-      totalOfSquares.increment((double) nanos * (double) nanos);
-      max.update(nanos);
+      totalOfSquares.increment(amount * amount);
+      max.update(amount);
     }
   }
 
@@ -160,7 +136,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
   }
 
   private double getTotal(int pollerIndex) {
-    return totalTime.getCurrentCount(pollerIndex) * timeUnitNanosFactor;
+    return totalTime.getCurrentCount(pollerIndex);
   }
 
   /**
@@ -191,7 +167,7 @@ public class BasicTimer extends AbstractMonitor<Long> implements Timer, Composit
    * Get the max value since the last reset.
    */
   public Double getMax() {
-    return max.getCurrentValue(0) * timeUnitNanosFactor;
+    return max.getCurrentValue(0);
   }
 
   /**

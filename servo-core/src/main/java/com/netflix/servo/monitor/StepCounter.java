@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -27,6 +28,7 @@ import com.netflix.servo.util.VisibleForTesting;
 public class StepCounter extends AbstractMonitor<Number> implements Counter {
 
   private final StepLong count;
+  private final com.netflix.spectator.api.Counter spectatorCounter;
 
   /**
    * Creates a new instance of the counter.
@@ -45,6 +47,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
     // the publishing pipeline receiving the value.
     super(config.withAdditionalTag(DataSourceType.NORMALIZED));
     count = new StepLong(0L, clock);
+    spectatorCounter = SpectatorContext.counter(config);
   }
 
   /**
@@ -52,6 +55,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
    */
   @Override
   public void increment() {
+    spectatorCounter.increment();
     count.addAndGet(1L);
   }
 
@@ -60,6 +64,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter {
    */
   @Override
   public void increment(long amount) {
+    spectatorCounter.increment(amount);
     if (amount > 0L) {
       count.addAndGet(amount);
     }

@@ -16,12 +16,14 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.netflix.servo.SpectatorContext;
 
 /**
  * A {@link Gauge} that reports a double value.
  */
 public class DoubleGauge extends NumberGauge {
   private final AtomicDouble number;
+  private final com.netflix.spectator.api.Gauge spectatorGauge;
 
   /**
    * Create a new instance with the specified configuration.
@@ -32,12 +34,14 @@ public class DoubleGauge extends NumberGauge {
     super(config);
     number = new AtomicDouble(0.0);
     setBackingNumber(number);
+    spectatorGauge = SpectatorContext.gauge(config);
   }
 
   /**
    * Set the current value.
    */
   public void set(Double n) {
+    spectatorGauge.set(n);
     number.set(n);
   }
 

@@ -15,6 +15,8 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -22,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class LongGauge extends NumberGauge {
   private final AtomicLong number;
+  private final com.netflix.spectator.api.Gauge spectatorGauge;
 
   /**
    * Create a new instance with the specified configuration.
@@ -32,12 +35,14 @@ public class LongGauge extends NumberGauge {
     super(config);
     number = new AtomicLong(0L);
     setBackingNumber(number);
+    spectatorGauge = SpectatorContext.gauge(config);
   }
 
   /**
    * Set the current value.
    */
   public void set(Long n) {
+    spectatorGauge.set(n);
     AtomicLong number = getNumber();
     number.set(n);
   }

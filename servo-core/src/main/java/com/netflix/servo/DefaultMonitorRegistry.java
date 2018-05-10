@@ -123,7 +123,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
     String registryClassProp = System.getProperty(REGISTRY_CLASS_PROP);
     String registryNameProp = System.getProperty(REGISTRY_NAME_PROP);
     String registryJmxNameProp = System.getProperty(REGISTRY_JMX_NAME_PROP);
-    
+
     Properties props = new Properties();
     if (registryClassProp != null) {
       props.setProperty(REGISTRY_CLASS_PROP, registryClassProp);

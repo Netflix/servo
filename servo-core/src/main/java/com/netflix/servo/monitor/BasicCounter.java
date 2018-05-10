@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,12 +27,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class BasicCounter extends AbstractMonitor<Number> implements Counter {
   private final AtomicLong count = new AtomicLong();
+  private final com.netflix.spectator.api.Counter spectatorCounter;
 
   /**
    * Creates a new instance of the counter.
    */
   public BasicCounter(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.COUNTER));
+    spectatorCounter = SpectatorContext.counter(config);
   }
 
   /**
@@ -39,6 +42,7 @@ public final class BasicCounter extends AbstractMonitor<Number> implements Count
    */
   @Override
   public void increment() {
+    spectatorCounter.increment();
     count.incrementAndGet();
   }
 
@@ -47,6 +51,7 @@ public final class BasicCounter extends AbstractMonitor<Number> implements Count
    */
   @Override
   public void increment(long amount) {
+    spectatorCounter.increment(amount);
     count.getAndAdd(amount);
   }
 

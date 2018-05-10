@@ -15,8 +15,10 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Throwables;
+import com.netflix.spectator.api.patterns.PolledMeter;
 
 import java.util.concurrent.Callable;
 
@@ -35,6 +37,8 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
   public BasicGauge(MonitorConfig config, Callable<T> function) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
     this.function = function;
+    SpectatorContext.polledGauge(config)
+        .monitorValue(this, m -> m.getValue(0).doubleValue());
   }
 
   /**

@@ -15,7 +15,9 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.util.Throwables;
+import com.netflix.spectator.api.patterns.PolledMeter;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -33,6 +35,13 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericM
     super(config);
     this.object = object;
     this.field = field;
+    if ("COUNTER".equals(config.getTags().getValue("type"))) {
+      SpectatorContext.polledGauge(config)
+          .monitorMonotonicCounter(this, m -> m.getValue(0).longValue());
+    } else {
+      SpectatorContext.polledGauge(config)
+          .monitorValue(this, m -> m.getValue(0).doubleValue());
+    }
   }
 
   /**
