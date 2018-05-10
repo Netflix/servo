@@ -18,6 +18,7 @@ package com.netflix.servo.monitor;
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
+import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.util.Clock;
 import com.netflix.spectator.api.DefaultRegistry;
 import com.netflix.spectator.api.Id;
@@ -189,6 +190,41 @@ public class SpectatorIntegrationTest {
     assertEquals(42, registry.counter(id.withTag(Statistic.totalTime)).actualCount(), 1e-12);
     assertEquals(42 * 42, registry.counter(id.withTag(Statistic.totalOfSquares)).actualCount(), 1e-12);
     assertEquals(42, registry.maxGauge(id.withTag(Statistic.max)).value(), 1e-12);
+  }
+
+  @Test
+  public void testBucketTimerRecordMillis() {
+    BucketConfig bc = new BucketConfig.Builder()
+        .withBuckets(new long[] {10L, 50L})
+        .withTimeUnit(TimeUnit.MILLISECONDS)
+        .build();
+    BucketTimer d = new BucketTimer(CONFIG, bc);
+    d.record(42, TimeUnit.MILLISECONDS);
+    Id id = ID.withTag("unit", "MILLISECONDS");
+    assertEquals(1, registry.counter(id.withTag(Statistic.count).withTag("servo.bucket", "bucket=50ms")).count());
+    assertEquals(42.0, registry.counter(id.withTag(Statistic.totalTime)).actualCount(), 1e-12);
+    assertEquals(42.0, registry.maxGauge(id.withTag(Statistic.max)).value(), 1e-12);
+  }
+
+  @Test
+  public void testStatsTimerRecordMillis() {
+    StatsConfig sc = new StatsConfig.Builder()
+        .withPercentiles(new double[] {50.0, 95.0})
+        .withPublishCount(true)
+        .withPublishMax(true)
+        .withPublishMean(true)
+        .withSampleSize(10)
+        .build();
+    StatsTimer d = new StatsTimer(CONFIG, sc);
+    d.record(42, TimeUnit.MILLISECONDS);
+    d.computeStats();
+    Id id = ID.withTag("unit", "MILLISECONDS");
+    assertEquals(1, registry.counter(id.withTag(Statistic.count)).count());
+    assertEquals(42.0, registry.counter(id.withTag(Statistic.totalTime)).actualCount(), 1e-12);
+    assertEquals(42.0, registry.maxGauge(id.withTag(Statistic.max)).value(), 1e-12);
+    assertEquals(42.0, registry.gauge(id.withTag("statistic", "percentile_50")).value(), 1e-12);
+    assertEquals(42.0, registry.gauge(id.withTag("statistic", "percentile_95")).value(), 1e-12);
+    assertEquals(42.0, registry.gauge(id.withTag("statistic", "avg")).value(), 1e-12);
   }
 
   public static class AnnotateExample {
