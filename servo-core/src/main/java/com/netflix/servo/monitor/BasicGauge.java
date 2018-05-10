@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Throwables;
 
@@ -23,7 +24,8 @@ import java.util.concurrent.Callable;
 /**
  * A gauge implementation that invokes a specified callable to get the current value.
  */
-public final class BasicGauge<T extends Number> extends AbstractMonitor<T> implements Gauge<T> {
+public final class BasicGauge<T extends Number> extends AbstractMonitor<T>
+    implements Gauge<T>, SpectatorMonitor {
   private final Callable<T> function;
 
   /**
@@ -35,6 +37,8 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T> imple
   public BasicGauge(MonitorConfig config, Callable<T> function) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
     this.function = function;
+    SpectatorContext.polledGauge(config)
+        .monitorValue(this, m -> m.getValue(0).doubleValue());
   }
 
   /**

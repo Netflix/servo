@@ -15,15 +15,18 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Preconditions;
+import com.netflix.spectator.api.patterns.PolledMeter;
 
 import java.lang.ref.WeakReference;
 
 /**
  * A {@link Gauge} that returns the value stored in {@link Number}.
  */
-public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number> {
+public class NumberGauge extends AbstractMonitor<Number>
+    implements Gauge<Number>, SpectatorMonitor {
   private WeakReference<Number> numberRef;
 
   /**
@@ -44,6 +47,9 @@ public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number
     super(config.withAdditionalTag(DataSourceType.GAUGE));
     Preconditions.checkNotNull(number, "number");
     this.numberRef = new WeakReference<>(number);
+    PolledMeter.using(SpectatorContext.getRegistry())
+        .withId(SpectatorContext.createId(config))
+        .monitorValue(number);
   }
 
   /**

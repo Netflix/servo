@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.AccessibleObject;
@@ -24,7 +25,8 @@ import java.lang.reflect.Method;
 /**
  * Wraps an annotated field and exposes it as a numeric monitor object.
  */
-class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericMonitor<Number> {
+class AnnotatedNumberMonitor extends AbstractMonitor<Number>
+    implements NumericMonitor<Number>, SpectatorMonitor {
 
   private final Object object;
   private final AccessibleObject field;
@@ -33,6 +35,13 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number> implements NumericM
     super(config);
     this.object = object;
     this.field = field;
+    if ("COUNTER".equals(config.getTags().getValue("type"))) {
+      SpectatorContext.polledGauge(config)
+          .monitorMonotonicCounter(this, m -> m.getValue(0).longValue());
+    } else {
+      SpectatorContext.polledGauge(config)
+          .monitorValue(this, m -> m.getValue(0).doubleValue());
+    }
   }
 
   /**

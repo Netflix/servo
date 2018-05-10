@@ -26,35 +26,35 @@ import java.util.concurrent.atomic.AtomicLong;
  * Gauge that keeps track of the maximum value seen since the last reset. Updates should be
  * non-negative, the reset value is 0.
  */
-public class MaxGauge extends AbstractMonitor<Long>
-    implements Gauge<Long>, SpectatorMonitor {
+public class DoubleMaxGauge extends AbstractMonitor<Double>
+    implements Gauge<Double>, SpectatorMonitor {
   private final StepLong max;
   private final com.netflix.spectator.api.Gauge spectatorGauge;
 
   /**
    * Creates a new instance of the gauge.
    */
-  public MaxGauge(MonitorConfig config) {
+  public DoubleMaxGauge(MonitorConfig config) {
     this(config, ClockWithOffset.INSTANCE);
   }
 
   /**
    * Creates a new instance of the gauge using a specific clock. Useful for unit testing.
    */
-  MaxGauge(MonitorConfig config, Clock clock) {
+  DoubleMaxGauge(MonitorConfig config, Clock clock) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
-    max = new StepLong(0L, clock);
+    max = new StepLong(Double.doubleToLongBits(0.0), clock);
     spectatorGauge = SpectatorContext.maxGauge(config);
   }
 
   /**
    * Update the max for the given index if the provided value is larger than the current max.
    */
-  private void updateMax(int idx, long v) {
+  private void updateMax(int idx, double v) {
     AtomicLong current = max.getCurrent(idx);
     long m = current.get();
-    while (v > m) {
-      if (current.compareAndSet(m, v)) {
+    while (v > Double.longBitsToDouble(m)) {
+      if (current.compareAndSet(m, Double.doubleToLongBits(v))) {
         break;
       }
       m = current.get();
@@ -64,7 +64,7 @@ public class MaxGauge extends AbstractMonitor<Long>
   /**
    * Update the max if the provided value is larger than the current max.
    */
-  public void update(long v) {
+  public void update(double v) {
     spectatorGauge.set(v);
     for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
       updateMax(i, v);
@@ -75,15 +75,15 @@ public class MaxGauge extends AbstractMonitor<Long>
    * {@inheritDoc}
    */
   @Override
-  public Long getValue(int nth) {
-    return max.poll(nth);
+  public Double getValue(int nth) {
+    return Double.longBitsToDouble(max.poll(nth));
   }
 
   /**
    * Returns the current max value since the last reset.
    */
-  public long getCurrentValue(int nth) {
-    return max.getCurrent(nth).get();
+  public double getCurrentValue(int nth) {
+    return Double.longBitsToDouble(max.getCurrent(nth).get());
   }
 
   /**
@@ -94,10 +94,10 @@ public class MaxGauge extends AbstractMonitor<Long>
     if (this == obj) {
       return true;
     }
-    if (obj == null || !(obj instanceof MaxGauge)) {
+    if (obj == null || !(obj instanceof DoubleMaxGauge)) {
       return false;
     }
-    MaxGauge m = (MaxGauge) obj;
+    DoubleMaxGauge m = (DoubleMaxGauge) obj;
     return config.equals(m.getConfig()) && getValue(0).equals(m.getValue(0));
   }
 

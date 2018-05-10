@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.VisibleForTesting;
@@ -27,9 +28,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * The value returned is a rate for the
  * previous interval as defined by the step.
  */
-class DoubleCounter extends AbstractMonitor<Number> implements NumericMonitor<Number> {
+class DoubleCounter extends AbstractMonitor<Number>
+    implements NumericMonitor<Number>, SpectatorMonitor {
 
   private final StepLong count;
+  private final com.netflix.spectator.api.Counter spectatorCounter;
 
   /**
    * Creates a new instance of the counter.
@@ -40,6 +43,7 @@ class DoubleCounter extends AbstractMonitor<Number> implements NumericMonitor<Nu
     // the publishing pipeline receiving the value.
     super(config.withAdditionalTag(DataSourceType.NORMALIZED));
     count = new StepLong(0L, clock);
+    spectatorCounter = SpectatorContext.counter(config);
   }
 
   private void add(AtomicLong num, double amount) {
@@ -57,6 +61,7 @@ class DoubleCounter extends AbstractMonitor<Number> implements NumericMonitor<Nu
    * Increment the value by the specified amount.
    */
   void increment(double amount) {
+    spectatorCounter.add(amount);
     if (amount >= 0.0) {
       for (int i = 0; i < Pollers.NUM_POLLERS; ++i) {
         add(count.getCurrent(i), amount);

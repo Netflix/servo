@@ -18,11 +18,13 @@ package com.netflix.servo.monitor;
 import com.netflix.servo.stats.StatsConfig;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.testng.Assert.assertEquals;
 
@@ -67,7 +69,7 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
       timer.record(i);
     }
 
-    Thread.sleep(1000L);
+    timer.computeStats();
     assertStats(timer.getMonitors(), expectedValues);
   }
 
@@ -117,11 +119,16 @@ public class StatsTimerTest extends AbstractMonitorTest<StatsTimer> {
     final int poolSize = Runtime.getRuntime().availableProcessors();
     ExecutorService service = Executors.newFixedThreadPool(poolSize);
 
+    List<Future<?>> futures = new ArrayList<>();
     for (int i = 0; i < n; ++i) {
-      service.submit(new TimerTask(timer, i));
+      futures.add(service.submit(new TimerTask(timer, i)));
     }
 
-    Thread.sleep(1000L);
+    // Wait for all submitted tasks to complete
+    for (Future<?> f : futures) {
+      f.get();
+    }
+    timer.computeStats();
     assertStats(timer.getMonitors(), expectedValues);
   }
 

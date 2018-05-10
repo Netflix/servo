@@ -35,13 +35,11 @@ public class StatsMonitorTest {
         Executors.newSingleThreadScheduledExecutor(),
         "total", false, clock);
 
-    monitor.startComputingStats();
-
     clock.set(TimeUnit.MINUTES.toMillis(20));
-    Thread.sleep(20);
+    monitor.computeStats();
     assertTrue(monitor.isExpired());
     monitor.getMonitors();
-    Thread.sleep(20);
+    monitor.computeStats();
     assertFalse(monitor.isExpired());
   }
 }

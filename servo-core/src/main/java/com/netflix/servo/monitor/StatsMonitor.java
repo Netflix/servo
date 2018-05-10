@@ -368,6 +368,34 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
     }
   }
 
+  void computeStats() {
+    try {
+      if (myFutureRef.get() == null) {
+        return;
+      }
+      final boolean expired = (clock.now() - lastUsed) > EXPIRE_AFTER_MS;
+      if (expired) {
+        final ScheduledFuture<?> future = myFutureRef.getAndSet(null);
+        if (future != null) {
+          LOGGER.debug("Expiring unused StatsMonitor {}", getConfig().getName());
+          future.cancel(true);
+        }
+        return;
+      }
+
+      synchronized (updateLock) {
+        final StatsBuffer tmp = prev;
+        prev = cur;
+        cur = tmp;
+      }
+      prev.computeStats();
+      updateGauges();
+      prev.reset();
+    } catch (Exception e) {
+      handleException(e);
+    }
+  }
+
   /**
    * starts computation.
    * Because of potential race conditions, derived classes may wish
@@ -378,35 +406,8 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   }
 
   private void startComputingStats(ScheduledExecutorService executor, long frequencyMillis) {
-    Runnable command = () -> {
-      try {
-        if (myFutureRef.get() == null) {
-          return;
-        }
-        final boolean expired = (clock.now() - lastUsed) > EXPIRE_AFTER_MS;
-        if (expired) {
-          final ScheduledFuture<?> future = myFutureRef.getAndSet(null);
-          if (future != null) {
-            LOGGER.debug("Expiring unused StatsMonitor {}", getConfig().getName());
-            future.cancel(true);
-          }
-          return;
-        }
-
-        synchronized (updateLock) {
-          final StatsBuffer tmp = prev;
-          prev = cur;
-          cur = tmp;
-        }
-        prev.computeStats();
-        updateGauges();
-        prev.reset();
-      } catch (Exception e) {
-        handleException(e);
-      }
-    };
-
-    this.myFutureRef.set(executor.scheduleWithFixedDelay(command, frequencyMillis, frequencyMillis,
+    this.myFutureRef.set(executor.scheduleWithFixedDelay(this::computeStats,
+        frequencyMillis, frequencyMillis,
         TimeUnit.MILLISECONDS));
   }
 
