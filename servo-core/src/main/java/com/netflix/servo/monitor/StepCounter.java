@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.netflix.servo.util.VisibleForTesting;
  * A simple counter implementation backed by a StepLong. The value returned is a rate for the
  * previous interval as defined by the step.
  */
-public class StepCounter extends AbstractMonitor<Number> implements Counter {
+public class StepCounter extends AbstractMonitor<Number> implements Counter, SpectatorMonitor {
 
   private final StepLong count;
   private final com.netflix.spectator.api.Counter spectatorCounter;

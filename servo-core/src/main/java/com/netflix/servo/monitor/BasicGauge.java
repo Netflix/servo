@@ -24,7 +24,8 @@ import java.util.concurrent.Callable;
 /**
  * A gauge implementation that invokes a specified callable to get the current value.
  */
-public final class BasicGauge<T extends Number> extends AbstractMonitor<T> implements Gauge<T> {
+public final class BasicGauge<T extends Number> extends AbstractMonitor<T>
+    implements Gauge<T>, SpectatorMonitor {
   private final Callable<T> function;
 
   /**

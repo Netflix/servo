@@ -167,9 +167,9 @@ public class NormalizationTransformTest {
     assertMetrics(60000, 120000, inputList, expected);
   }
 
-  private List<Metric> getValue(List<? extends AbstractMonitor<Number>> monitors, Clock clock) {
+  private List<Metric> getValue(List<? extends AbstractMonitor<? extends Number>> monitors, Clock clock) {
     List<Metric> result = new ArrayList<>();
-    for (AbstractMonitor<Number> m : monitors) {
+    for (AbstractMonitor<? extends Number> m : monitors) {
       Number n = m.getValue(0);
       Metric metric = new Metric(m.getConfig(), clock.now(), n);
       result.add(metric);
@@ -187,7 +187,7 @@ public class NormalizationTransformTest {
         manualClock);
     LongGauge gauge = new LongGauge(MonitorConfig.builder("longGauge").build());
 
-    List<? extends AbstractMonitor<Number>> monitors = UnmodifiableList.of(basicCounter,
+    List<? extends AbstractMonitor<? extends Number>> monitors = UnmodifiableList.of(basicCounter,
         stepCounter, gauge);
 
     MemoryMetricObserver observer = new MemoryMetricObserver("normalization-test", 1);

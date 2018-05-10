@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * The value is the total count for the life of the counter. Observers are responsible
  * for converting to a rate and handling overflows if they occur.
  */
-public final class BasicCounter extends AbstractMonitor<Number> implements Counter {
+public final class BasicCounter extends AbstractMonitor<Number>
+    implements Counter, SpectatorMonitor {
   private final AtomicLong count = new AtomicLong();
   private final com.netflix.spectator.api.Counter spectatorCounter;
 

@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * non-negative, the reset value is 0.
  */
 public class MaxGauge extends AbstractMonitor<Long>
-    implements Gauge<Long> {
+    implements Gauge<Long>, SpectatorMonitor {
   private final StepLong max;
   private final com.netflix.spectator.api.Gauge spectatorGauge;
 

@@ -25,7 +25,8 @@ import java.lang.ref.WeakReference;
 /**
  * A {@link Gauge} that returns the value stored in {@link Number}.
  */
-public class NumberGauge extends AbstractMonitor<Number> implements Gauge<Number> {
+public class NumberGauge extends AbstractMonitor<Number>
+    implements Gauge<Number>, SpectatorMonitor {
   private WeakReference<Number> numberRef;
 
   /**

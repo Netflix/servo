@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * The value returned is a rate for the
  * previous interval as defined by the step.
  */
-class DoubleCounter extends AbstractMonitor<Number> implements NumericMonitor<Number> {
+class DoubleCounter extends AbstractMonitor<Number>
+    implements NumericMonitor<Number>, SpectatorMonitor {
 
   private final StepLong count;
   private final com.netflix.spectator.api.Counter spectatorCounter;

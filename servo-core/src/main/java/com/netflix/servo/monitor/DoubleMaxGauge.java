@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * non-negative, the reset value is 0.
  */
 public class DoubleMaxGauge extends AbstractMonitor<Double>
-    implements Gauge<Double> {
+    implements Gauge<Double>, SpectatorMonitor {
   private final StepLong max;
   private final com.netflix.spectator.api.Gauge spectatorGauge;
 

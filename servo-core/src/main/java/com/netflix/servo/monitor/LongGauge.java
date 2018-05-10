@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
+import com.netflix.servo.annotations.DataSourceType;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A {@link Gauge} that reports a long value.
  */
-public class LongGauge extends NumberGauge {
+public class LongGauge extends AbstractMonitor<Long>
+    implements Gauge<Long>, SpectatorMonitor {
   private final AtomicLong number;
   private final com.netflix.spectator.api.Gauge spectatorGauge;
 
@@ -32,9 +34,8 @@ public class LongGauge extends NumberGauge {
    * @param config configuration for this gauge
    */
   public LongGauge(MonitorConfig config) {
-    super(config);
+    super(config.withAdditionalTag(DataSourceType.GAUGE));
     number = new AtomicLong(0L);
-    setBackingNumber(number);
     spectatorGauge = SpectatorContext.gauge(config);
   }
 
@@ -85,9 +86,17 @@ public class LongGauge extends NumberGauge {
    * {@inheritDoc}
    */
   @Override
-  public Number getValue(int pollerIdx) {
+  public Long getValue(int pollerIdx) {
     // we return the actual value at the time of the call and not a reference
     // to the atomic number so the value doesn't change and is also available to jmx viewers
     return number.get();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return "LongGauge{config=" + config + ", number=" + number + '}';
   }
 }
