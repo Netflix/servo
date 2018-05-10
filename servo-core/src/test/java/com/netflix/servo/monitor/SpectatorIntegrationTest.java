@@ -15,11 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
 import com.netflix.servo.stats.StatsConfig;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
+import com.netflix.servo.util.ManualClock;
 import com.netflix.spectator.api.DefaultRegistry;
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Registry;
@@ -31,10 +35,6 @@ import org.testng.annotations.Test;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 public class SpectatorIntegrationTest {
 
@@ -105,6 +105,35 @@ public class SpectatorIntegrationTest {
   }
 
   @Test
+  public void testContextualCounter() {
+    TagList context = BasicTagList.of("a", "1");
+    ContextualCounter c = new ContextualCounter(CONFIG, () -> context, BasicCounter::new);
+    c.increment();
+    Id id = ID.withTag("a", "1");
+    assertEquals(1, registry.counter(id).count());
+  }
+
+  @Test
+  public void testPeakRateCounter() {
+    PeakRateCounter c = new PeakRateCounter(CONFIG);
+    DefaultMonitorRegistry.getInstance().register(c);
+    c.increment();
+    PolledMeter.update(registry);
+    registry.stream().forEach(m -> System.out.println(m.id()));
+    assertEquals(1.0, registry.gauge(ID.withTag("type", "GAUGE")).value());
+  }
+
+  @Test
+  public void testPeakRateCounterRemove() {
+    PeakRateCounter c = new PeakRateCounter(CONFIG);
+    DefaultMonitorRegistry.getInstance().register(c);
+    DefaultMonitorRegistry.getInstance().unregister(c);
+    c.increment();
+    PolledMeter.update(registry);
+    assertEquals(0, registry.stream().count());
+  }
+
+  @Test
   public void testDoubleGauge() {
     DoubleGauge c = new DoubleGauge(CONFIG);
     c.set(42.0);
@@ -149,6 +178,27 @@ public class SpectatorIntegrationTest {
     DoubleGauge c = new DoubleGauge(CONFIG);
     c.set(42.0);
     assertEquals(42.0, registry.maxGauge(ID).value(), 1e-12);
+  }
+
+  @Test
+  public void testMinGauge() {
+    ManualClock clock = new ManualClock(0);
+    MinGauge g = new MinGauge(CONFIG, clock);
+    DefaultMonitorRegistry.getInstance().register(g);
+    g.update(42);
+    clock.set(60000);
+    PolledMeter.update(registry);
+    assertEquals(42.0, registry.gauge(ID.withTag("type", "GAUGE")).value());
+  }
+
+  @Test
+  public void testMinGaugeRemove() {
+    MinGauge g = new MinGauge(CONFIG);
+    DefaultMonitorRegistry.getInstance().register(g);
+    DefaultMonitorRegistry.getInstance().unregister(g);
+    g.update(42);
+    PolledMeter.update(registry);
+    assertEquals(0, registry.stream().count());
   }
 
   @Test
@@ -225,6 +275,18 @@ public class SpectatorIntegrationTest {
     assertEquals(42.0, registry.gauge(id.withTag("statistic", "percentile_50")).value(), 1e-12);
     assertEquals(42.0, registry.gauge(id.withTag("statistic", "percentile_95")).value(), 1e-12);
     assertEquals(42.0, registry.gauge(id.withTag("statistic", "avg")).value(), 1e-12);
+  }
+
+  @Test
+  public void testContextualTimerRecordMillis() {
+    TagList context = BasicTagList.of("a", "1");
+    ContextualTimer d = new ContextualTimer(CONFIG, () -> context, BasicTimer::new);
+    d.record(42, TimeUnit.NANOSECONDS);
+    Id id = ID.withTag("unit", "MILLISECONDS").withTag("a", "1");
+    assertEquals(1, registry.counter(id.withTag(Statistic.count)).count());
+    assertEquals(42e-6, registry.counter(id.withTag(Statistic.totalTime)).actualCount(), 1e-12);
+    assertEquals(42e-6 * 42e-6, registry.counter(id.withTag(Statistic.totalOfSquares)).actualCount(), 1e-12);
+    assertEquals(42e-6, registry.maxGauge(id.withTag(Statistic.max)).value(), 1e-12);
   }
 
   public static class AnnotateExample {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
 
     return mapper;
   }
-  
+
   private static Properties loadProps() {
     String registryClassProp = System.getProperty(REGISTRY_CLASS_PROP);
     String registryNameProp = System.getProperty(REGISTRY_NAME_PROP);
@@ -150,6 +150,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
    */
   @Override
   public void register(Monitor<?> monitor) {
+    SpectatorContext.register(monitor);
     registry.register(monitor);
   }
 
@@ -158,6 +159,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
    */
   @Override
   public void unregister(Monitor<?> monitor) {
+    SpectatorContext.unregister(monitor);
     registry.unregister(monitor);
   }
 

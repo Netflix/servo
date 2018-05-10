@@ -15,16 +15,25 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.monitor.CompositeMonitor;
+import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.SpectatorMonitor;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
+import com.netflix.spectator.api.Measurement;
+import com.netflix.spectator.api.Meter;
 import com.netflix.spectator.api.NoopRegistry;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 import com.netflix.spectator.api.patterns.PolledMeter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -46,6 +55,8 @@ public final class SpectatorContext {
         return t;
       }
   );
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SpectatorContext.class);
 
   private static volatile Registry registry = new NoopRegistry();
 
@@ -105,5 +116,66 @@ public final class SpectatorContext {
     return PolledMeter.using(registry)
         .withId(createId(config))
         .scheduleOn(GAUGE_POOL);
+  }
+
+  /** Register a custom monitor. */
+  public static void register(Monitor<?> monitor) {
+    PolledMeter.monitorMeter(registry, new ServoMeter(monitor));
+  }
+
+  /** Unregister a custom monitor. */
+  public static void unregister(Monitor<?> monitor) {
+    PolledMeter.remove(registry, createId(monitor.getConfig()));
+  }
+
+  private static class ServoMeter implements Meter {
+
+    private final Id id;
+    private final Monitor<?> monitor;
+
+    ServoMeter(Monitor<?> monitor) {
+      this.id = createId(monitor.getConfig());
+      this.monitor = monitor;
+    }
+
+    @Override public Id id() {
+      return id;
+    }
+
+    private void addMeasurements(Monitor<?> m, List<Measurement> measurements) {
+      // Skip any that will report directly
+      if (!(m instanceof SpectatorMonitor)) {
+        if (m instanceof CompositeMonitor<?>) {
+          CompositeMonitor<?> cm = (CompositeMonitor<?>) m;
+          for (Monitor<?> v : cm.getMonitors()) {
+            addMeasurements(v, measurements);
+          }
+        } else {
+          try {
+            Object obj = m.getValue();
+            if (obj instanceof Number) {
+              double value = ((Number) obj).doubleValue();
+              // timestamp will get ignored as the value will get forwarded to a gauge
+              Measurement v = new Measurement(createId(m.getConfig()), 0L, value);
+              measurements.add(v);
+            }
+          } catch (Throwable t) {
+            LOGGER.warn("Exception while querying user defined gauge ({}), "
+                + "the value will be ignored. The owner of the user defined "
+                + "function should fix it to not propagate an exception.", m.getConfig(), t);
+          }
+        }
+      }
+    }
+
+    @Override public Iterable<Measurement> measure() {
+      List<Measurement> measurements = new ArrayList<>();
+      addMeasurements(monitor, measurements);
+      return measurements;
+    }
+
+    @Override public boolean hasExpired() {
+      return false;
+    }
   }
 }
