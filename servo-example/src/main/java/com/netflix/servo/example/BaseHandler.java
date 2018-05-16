@@ -41,6 +41,7 @@ public abstract class BaseHandler implements HttpHandler {
     Monitors.registerObject(this);
   }
 
+  @Override
   public void handle(HttpExchange exchange) throws IOException {
     CountingInputStream input = new CountingInputStream(exchange.getRequestBody());
     CountingOutputStream output = new CountingOutputStream(exchange.getResponseBody());

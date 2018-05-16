@@ -176,6 +176,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
   /**
    * @param metrics The list of metrics you want to send to CloudWatch
    */
+  @Override
   public void updateImpl(List<Metric> metrics) {
     Preconditions.checkNotNull(metrics, "metrics");
 

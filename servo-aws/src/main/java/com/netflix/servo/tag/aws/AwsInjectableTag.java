@@ -72,6 +72,7 @@ public enum AwsInjectableTag implements Tag {
   /**
    * @return Amazon compliant string representation of the key.
    */
+  @Override
   public String getKey() {
     return key;
   }
@@ -79,10 +80,12 @@ public enum AwsInjectableTag implements Tag {
   /**
    * @return value as determined at runtime for the key.
    */
+  @Override
   public String getValue() {
     return value;
   }
 
+  @Override
   public String tagString() {
     return key + "=" + value;
   }
