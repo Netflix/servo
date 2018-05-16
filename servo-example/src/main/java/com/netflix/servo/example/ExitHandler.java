@@ -30,6 +30,7 @@ public class ExitHandler extends BaseHandler {
     init();
   }
 
+  @Override
   protected void handleImpl(HttpExchange exchange) throws IOException {
     try {
       exchange.sendResponseHeaders(200, 0);

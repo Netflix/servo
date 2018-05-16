@@ -112,7 +112,7 @@ subprojects {
   }
 
   pmd {
-    toolVersion = '5.6.1'
+    toolVersion = '6.3.0'
     ignoreFailures = false
     ruleSets = []
     ruleSetFiles = rootProject.files("codequality/pmd.xml")

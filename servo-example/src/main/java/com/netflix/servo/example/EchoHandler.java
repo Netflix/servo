@@ -27,6 +27,7 @@ public class EchoHandler extends BaseHandler {
     init();
   }
 
+  @Override
   protected void handleImpl(HttpExchange exchange) throws IOException {
     exchange.sendResponseHeaders(200, 0);
     ByteStreams.copy(exchange.getRequestBody(), exchange.getResponseBody());

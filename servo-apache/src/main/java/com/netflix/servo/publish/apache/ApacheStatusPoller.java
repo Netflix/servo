@@ -87,8 +87,8 @@ public class ApacheStatusPoller extends BaseMetricPoller {
     }
   }
 
-  private static final class StatusPageParser {
-    private StatusPageParser() {
+  private static final class StatusPageParserUtil {
+    private StatusPageParserUtil() {
       // utility class
     }
 
@@ -240,7 +240,7 @@ public class ApacheStatusPoller extends BaseMetricPoller {
   List<Metric> pollImpl(long timestamp) {
     try {
       try (InputStream statusStream = fetcher.fetchStatus()) {
-        return StatusPageParser.parse(statusStream, timestamp);
+        return StatusPageParserUtil.parse(statusStream, timestamp);
       }
     } catch (IOException e) {
       logger.error("Could not fetch status page", e);
