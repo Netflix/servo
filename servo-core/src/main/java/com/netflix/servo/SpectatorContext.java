@@ -18,6 +18,7 @@ package com.netflix.servo;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.Pollers;
 import com.netflix.servo.monitor.SpectatorMonitor;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.DistributionSummary;
@@ -32,6 +33,7 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -113,9 +115,11 @@ public final class SpectatorContext {
 
   /** Create builder for a polled gauge based on the config. */
   public static PolledMeter.Builder polledGauge(MonitorConfig config) {
+    long delayMillis = Math.max(Pollers.getPollingIntervals().get(0) - 1000, 5000);
     return PolledMeter.using(registry)
         .withId(createId(config))
-        .scheduleOn(GAUGE_POOL);
+        .withDelay(Duration.ofMillis(delayMillis))
+        .scheduleOn(gaugePool());
   }
 
   /** Register a custom monitor. */
