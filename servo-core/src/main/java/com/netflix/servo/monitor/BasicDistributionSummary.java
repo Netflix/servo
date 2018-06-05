@@ -1,5 +1,5 @@
-/**
- * Copyright 2014 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.UnmodifiableList;
 
@@ -25,7 +27,7 @@ import java.util.List;
  * Track the sample distribution of events. Similar to a BasicTimer without the time unit aspect.
  */
 public class BasicDistributionSummary
-    extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
+    extends AbstractMonitor<Long> implements CompositeMonitor<Long>, SpectatorMonitor {
 
   private static final String STATISTIC = "statistic";
 
@@ -112,6 +114,16 @@ public class BasicDistributionSummary
    */
   public Long getMax() {
     return max.getCurrentValue(0);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    totalAmount.initializeSpectator(BasicTagList.concat(tags, STAT_TOTAL));
+    count.initializeSpectator(BasicTagList.concat(tags, STAT_COUNT));
+    max.initializeSpectator(BasicTagList.concat(tags, STAT_MAX));
   }
 
   @Override

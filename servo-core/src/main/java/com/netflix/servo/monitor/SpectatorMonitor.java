@@ -15,10 +15,18 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.tag.TagList;
+
 /**
  * Indicates that the monitor implementation will automatically update the spectator
  * registry defined in {@code SpectatorContext}. Other monitors need to get polled and
  * update the registry.
  */
 public interface SpectatorMonitor {
+
+  /**
+   * Servo registration can add tags based on the context. This method will be called
+   * during the registration to apply that context to the underlying Spectator ids.
+   */
+  void initializeSpectator(TagList tags);
 }

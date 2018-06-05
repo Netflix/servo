@@ -18,14 +18,18 @@ package com.netflix.servo.monitor;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
+import com.netflix.spectator.api.Id;
 
 /**
  * A {@link Gauge} that reports a double value.
  */
 public class DoubleGauge extends AbstractMonitor<Double>
     implements Gauge<Double>, SpectatorMonitor {
+
+  private final MonitorConfig baseConfig;
   private final AtomicDouble number;
-  private final com.netflix.spectator.api.Gauge spectatorGauge;
+  private final SpectatorContext.LazyGauge spectatorGauge;
 
   /**
    * Create a new instance with the specified configuration.
@@ -34,6 +38,7 @@ public class DoubleGauge extends AbstractMonitor<Double>
    */
   public DoubleGauge(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    baseConfig = config;
     number = new AtomicDouble(0.0);
     spectatorGauge = SpectatorContext.gauge(config);
   }
@@ -51,6 +56,15 @@ public class DoubleGauge extends AbstractMonitor<Double>
    */
   public AtomicDouble getNumber() {
     return number;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    Id id = SpectatorContext.createId(baseConfig.withAdditionalTags(tags));
+    spectatorGauge.setId(id);
   }
 
   /**

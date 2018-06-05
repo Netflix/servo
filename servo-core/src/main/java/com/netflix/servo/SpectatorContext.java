@@ -20,6 +20,8 @@ import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.monitor.Pollers;
 import com.netflix.servo.monitor.SpectatorMonitor;
+import com.netflix.servo.tag.BasicTagList;
+import com.netflix.spectator.api.AbstractTimer;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Gauge;
@@ -38,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 /**
  * Helper that can be used to delegate to spectator. Other than calling
@@ -77,28 +81,28 @@ public final class SpectatorContext {
   }
 
   /** Create a gauge based on the config. */
-  public static Gauge gauge(MonitorConfig config) {
-    return registry.gauge(createId(config));
+  public static LazyGauge gauge(MonitorConfig config) {
+    return new LazyGauge(Registry::gauge, registry, createId(config));
   }
 
   /** Create a max gauge based on the config. */
-  public static Gauge maxGauge(MonitorConfig config) {
-    return registry.maxGauge(createId(config));
+  public static LazyGauge maxGauge(MonitorConfig config) {
+    return new LazyGauge(Registry::maxGauge, registry, createId(config));
   }
 
   /** Create a counter based on the config. */
-  public static Counter counter(MonitorConfig config) {
-    return registry.counter(createId(config));
+  public static LazyCounter counter(MonitorConfig config) {
+    return new LazyCounter(registry, createId(config));
   }
 
   /** Create a timer based on the config. */
-  public static Timer timer(MonitorConfig config) {
-    return registry.timer(createId(config));
+  public static LazyTimer timer(MonitorConfig config) {
+    return new LazyTimer(registry, createId(config));
   }
 
   /** Create a distribution summary based on the config. */
-  public static DistributionSummary distributionSummary(MonitorConfig config) {
-    return registry.distributionSummary(createId(config));
+  public static LazyDistributionSummary distributionSummary(MonitorConfig config) {
+    return new LazyDistributionSummary(registry, createId(config));
   }
 
   /** Convert servo config to spectator id. */
@@ -116,15 +120,21 @@ public final class SpectatorContext {
   /** Create builder for a polled gauge based on the config. */
   public static PolledMeter.Builder polledGauge(MonitorConfig config) {
     long delayMillis = Math.max(Pollers.getPollingIntervals().get(0) - 1000, 5000);
+    Id id = createId(config);
+    PolledMeter.remove(registry, id);
     return PolledMeter.using(registry)
-        .withId(createId(config))
+        .withId(id)
         .withDelay(Duration.ofMillis(delayMillis))
         .scheduleOn(gaugePool());
   }
 
   /** Register a custom monitor. */
   public static void register(Monitor<?> monitor) {
-    PolledMeter.monitorMeter(registry, new ServoMeter(monitor));
+    if (monitor instanceof SpectatorMonitor) {
+      ((SpectatorMonitor) monitor).initializeSpectator(BasicTagList.EMPTY);
+    } else {
+      PolledMeter.monitorMeter(registry, new ServoMeter(monitor));
+    }
   }
 
   /** Unregister a custom monitor. */
@@ -180,6 +190,209 @@ public final class SpectatorContext {
 
     @Override public boolean hasExpired() {
       return false;
+    }
+  }
+
+  /** Create a counter when it is first updated. */
+  public static class LazyCounter implements Counter {
+
+    private final Registry registry;
+    private volatile Id id;
+    private volatile Counter counter;
+
+    LazyCounter(Registry registry, Id id) {
+      this.registry = registry;
+      this.id = id;
+    }
+
+    /** Set a new id to use. */
+    public void setId(Id id) {
+      this.id = id;
+      this.counter = null;
+    }
+
+    private Counter get() {
+      Counter c = counter;
+      if (c == null) {
+        c = registry.counter(id);
+        counter = c;
+      }
+      return c;
+    }
+
+    @Override public void add(double amount) {
+      get().add(amount);
+    }
+
+    @Override public double actualCount() {
+      return get().actualCount();
+    }
+
+    @Override public Id id() {
+      return get().id();
+    }
+
+    @Override public Iterable<Measurement> measure() {
+      return get().measure();
+    }
+
+    @Override public boolean hasExpired() {
+      return get().hasExpired();
+    }
+  }
+
+  /** Create a timer when it is first updated. */
+  public static class LazyTimer extends AbstractTimer implements Timer {
+
+    private final Registry registry;
+    private volatile Id id;
+    private volatile Timer timer;
+
+    LazyTimer(Registry registry, Id id) {
+      super(registry.clock());
+      this.registry = registry;
+      this.id = id;
+    }
+
+    /** Set a new id to use. */
+    public void setId(Id id) {
+      this.id = id;
+      this.timer = null;
+    }
+
+    private Timer get() {
+      Timer t = timer;
+      if (t == null) {
+        t = registry.timer(id);
+        timer = t;
+      }
+      return t;
+    }
+
+    @Override public Id id() {
+      return get().id();
+    }
+
+    @Override public Iterable<Measurement> measure() {
+      return get().measure();
+    }
+
+    @Override public boolean hasExpired() {
+      return get().hasExpired();
+    }
+
+    @Override public void record(long amount, TimeUnit unit) {
+      get().record(amount, unit);
+    }
+
+    @Override public long count() {
+      return get().count();
+    }
+
+    @Override public long totalTime() {
+      return get().totalTime();
+    }
+  }
+
+  /** Create a distribution summary when it is first updated. */
+  public static class LazyDistributionSummary implements DistributionSummary {
+
+    private final Registry registry;
+    private volatile Id id;
+    private volatile DistributionSummary summary;
+
+    LazyDistributionSummary(Registry registry, Id id) {
+      this.registry = registry;
+      this.id = id;
+    }
+
+    /** Set a new id to use. */
+    public void setId(Id id) {
+      this.id = id;
+      this.summary = null;
+    }
+
+    private DistributionSummary get() {
+      DistributionSummary s = summary;
+      if (s == null) {
+        s = registry.distributionSummary(id);
+        summary = s;
+      }
+      return s;
+    }
+
+    @Override public Id id() {
+      return get().id();
+    }
+
+    @Override public Iterable<Measurement> measure() {
+      return get().measure();
+    }
+
+    @Override public boolean hasExpired() {
+      return get().hasExpired();
+    }
+
+    @Override public void record(long amount) {
+      get().record(amount);
+    }
+
+    @Override public long count() {
+      return get().count();
+    }
+
+    @Override public long totalAmount() {
+      return get().totalAmount();
+    }
+  }
+
+  /** Create a gauge when it is first updated. */
+  public static class LazyGauge implements Gauge {
+
+    private final Registry registry;
+    private final BiFunction<Registry, Id, Gauge> factory;
+    private volatile Id id;
+    private volatile Gauge gauge;
+
+    LazyGauge(BiFunction<Registry, Id, Gauge> factory, Registry registry, Id id) {
+      this.registry = registry;
+      this.factory = factory;
+      this.id = id;
+    }
+
+    /** Set a new id to use. */
+    public void setId(Id id) {
+      this.id = id;
+      this.gauge = null;
+    }
+
+    private Gauge get() {
+      Gauge g = gauge;
+      if (g == null) {
+        g = factory.apply(registry, id);
+        gauge = g;
+      }
+      return g;
+    }
+
+    @Override public Id id() {
+      return get().id();
+    }
+
+    @Override public Iterable<Measurement> measure() {
+      return get().measure();
+    }
+
+    @Override public boolean hasExpired() {
+      return get().hasExpired();
+    }
+
+    @Override public void set(double v) {
+      get().set(v);
+    }
+
+    @Override public double value() {
+      return get().value();
     }
   }
 }

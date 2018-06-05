@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.netflix.servo.stats.StatsBuffer;
 import com.netflix.servo.stats.StatsConfig;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ThreadFactories;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
  * specified by the user using a {@link com.netflix.servo.stats.StatsConfig} object.
  */
 public class StatsMonitor extends AbstractMonitor<Long> implements
-    CompositeMonitor<Long>, NumericMonitor<Long> {
+    CompositeMonitor<Long>, NumericMonitor<Long>, SpectatorMonitor {
 
   protected static final ScheduledExecutorService DEFAULT_EXECUTOR;
   private static final long EXPIRE_AFTER_MS;
@@ -366,6 +367,18 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
     if (autoStart) {
       startComputingStats();
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    monitors.forEach(m -> {
+      if (m instanceof SpectatorMonitor) {
+        ((SpectatorMonitor) m).initializeSpectator(tags);
+      }
+    });
   }
 
   void computeStats() {

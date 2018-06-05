@@ -17,6 +17,8 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
+import com.netflix.spectator.api.Id;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,8 +27,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class LongGauge extends AbstractMonitor<Long>
     implements Gauge<Long>, SpectatorMonitor {
+  private final MonitorConfig baseConfig;
   private final AtomicLong number;
-  private final com.netflix.spectator.api.Gauge spectatorGauge;
+  private final SpectatorContext.LazyGauge spectatorGauge;
 
   /**
    * Create a new instance with the specified configuration.
@@ -35,6 +38,7 @@ public class LongGauge extends AbstractMonitor<Long>
    */
   public LongGauge(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    baseConfig = config;
     number = new AtomicLong(0L);
     spectatorGauge = SpectatorContext.gauge(config);
   }
@@ -53,6 +57,15 @@ public class LongGauge extends AbstractMonitor<Long>
    */
   public AtomicLong getNumber() {
     return number;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    Id id = SpectatorContext.createId(baseConfig.withAdditionalTags(tags));
+    spectatorGauge.setId(id);
   }
 
   /**

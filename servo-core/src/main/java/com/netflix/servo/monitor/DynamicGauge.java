@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * or {@link com.netflix.servo.monitor.MonitorConfig}
  * Gauges are automatically expired after 15 minutes of inactivity.
  */
-public final class DynamicGauge implements CompositeMonitor<Long> {
+public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMonitor {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicGauge.class);
   private static final String DEFAULT_EXPIRATION = "15";
   private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
@@ -67,6 +67,13 @@ public final class DynamicGauge implements CompositeMonitor<Long> {
         });
     cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, gauges);
     DefaultMonitorRegistry.getInstance().register(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
   }
 
   /**

@@ -17,6 +17,7 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Throwables;
 
 import java.util.concurrent.Callable;
@@ -26,6 +27,8 @@ import java.util.concurrent.Callable;
  */
 public final class BasicGauge<T extends Number> extends AbstractMonitor<T>
     implements Gauge<T>, SpectatorMonitor {
+
+  private final MonitorConfig baseConfig;
   private final Callable<T> function;
 
   /**
@@ -36,9 +39,8 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T>
    */
   public BasicGauge(MonitorConfig config, Callable<T> function) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    this.baseConfig = config;
     this.function = function;
-    SpectatorContext.polledGauge(config)
-        .monitorValue(this, m -> m.getValue(0).doubleValue());
   }
 
   /**
@@ -51,6 +53,15 @@ public final class BasicGauge<T extends Number> extends AbstractMonitor<T>
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    SpectatorContext.polledGauge(baseConfig)
+        .monitorValue(this, m -> m.getValue(0).doubleValue());
   }
 
   /**

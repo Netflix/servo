@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Throwables;
 
 import java.lang.reflect.AccessibleObject;
@@ -59,6 +60,13 @@ class AnnotatedNumberMonitor extends AbstractMonitor<Number>
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
   }
 
   /**

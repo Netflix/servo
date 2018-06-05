@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import java.util.concurrent.TimeUnit;
  * (name, tagList), or {@link MonitorConfig}. Timers are automatically expired after 15 minutes of
  * inactivity.
  */
-public final class DynamicTimer extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
+public final class DynamicTimer extends AbstractMonitor<Long>
+    implements CompositeMonitor<Long>, SpectatorMonitor {
   private static final String DEFAULT_EXPIRATION = "15";
   private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
   private static final String CLASS_NAME = DynamicTimer.class.getCanonicalName();
@@ -87,9 +88,19 @@ public final class DynamicTimer extends AbstractMonitor<Long> implements Composi
     final long expirationValue = Long.parseLong(expiration);
     final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
     final long expireAfterMs = expirationUnitValue.toMillis(expirationValue);
-    timers = new ExpiringCache<>(expireAfterMs,
-        configUnit -> new BasicTimer(configUnit.config, configUnit.unit));
+    timers = new ExpiringCache<>(expireAfterMs, this::newTimer);
     DefaultMonitorRegistry.getInstance().register(this);
+  }
+
+  private BasicTimer newTimer(ConfigUnit configUnit) {
+    return new BasicTimer(configUnit.config, configUnit.unit);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
   }
 
   private Timer get(MonitorConfig config, TimeUnit unit) {
