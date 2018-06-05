@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -107,9 +109,13 @@ public final class SpectatorContext {
 
   /** Convert servo config to spectator id. */
   public static Id createId(MonitorConfig config) {
+    // Need to ensure that Servo type tag is removed to avoid incorrectly reprocessing the
+    // data in later transforms
+    Map<String, String> tags = new HashMap<>(config.getTags().asMap());
+    tags.remove("type");
     return registry
         .createId(config.getName())
-        .withTags(config.getTags().asMap());
+        .withTags(tags);
   }
 
   /** Dedicated thread pool for polling user defined functions registered as gauges. */
@@ -134,6 +140,25 @@ public final class SpectatorContext {
       ((SpectatorMonitor) monitor).initializeSpectator(BasicTagList.EMPTY);
     } else {
       PolledMeter.monitorMeter(registry, new ServoMeter(monitor));
+      monitorMonitonicValues(monitor);
+    }
+  }
+
+  private static boolean isCounter(MonitorConfig config) {
+    return "COUNTER".equals(config.getTags().getValue("type"));
+  }
+
+  private static void monitorMonitonicValues(Monitor<?> monitor) {
+    if (!(monitor instanceof SpectatorMonitor)) {
+      if (monitor instanceof CompositeMonitor<?>) {
+        CompositeMonitor<?> cm = (CompositeMonitor<?>) monitor;
+        for (Monitor<?> m : cm.getMonitors()) {
+          monitorMonitonicValues(m);
+        }
+      } else if (isCounter(monitor.getConfig())) {
+        polledGauge(monitor.getConfig())
+            .monitorMonotonicCounter(monitor, m -> ((Number) m.getValue()).longValue());
+      }
     }
   }
 
@@ -164,7 +189,7 @@ public final class SpectatorContext {
           for (Monitor<?> v : cm.getMonitors()) {
             addMeasurements(v, measurements);
           }
-        } else {
+        } else if (!isCounter(m.getConfig())) {
           try {
             Object obj = m.getValue();
             if (obj instanceof Number) {
