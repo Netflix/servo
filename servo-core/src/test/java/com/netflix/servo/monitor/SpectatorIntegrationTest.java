@@ -158,9 +158,8 @@ public class SpectatorIntegrationTest {
     Id id = registry.createId("counter")
         .withTag("class", "AnnotateExample")
         .withTag("level", "INFO")
-        .withTag("id", "foo")
-        .withTag("type", "COUNTER");
-    assertEquals(1, registry.counter(id.withTag(COUNTER)).count());
+        .withTag("id", "foo");
+    assertEquals(1, registry.counter(id).count());
   }
 
   @Test
@@ -207,7 +206,7 @@ public class SpectatorIntegrationTest {
     DefaultMonitorRegistry.getInstance().register(c);
     c.increment();
     PolledMeter.update(registry);
-    assertEquals(1.0, registry.gauge(ID.withTag("type", "GAUGE")).value());
+    assertEquals(1.0, registry.gauge(ID).value());
   }
 
   @Test
@@ -218,6 +217,15 @@ public class SpectatorIntegrationTest {
     c.increment();
     PolledMeter.update(registry);
     assertEquals(0, registry.stream().count());
+  }
+
+  @Test
+  public void testCustomCounter() {
+    CustomCounter c = new CustomCounter();
+    register(c);
+    c.increment();
+    PolledMeter.update(registry);
+    assertEquals(1, registry.counter(ID).count());
   }
 
   @Test
@@ -252,8 +260,7 @@ public class SpectatorIntegrationTest {
     Id id = registry.createId("gauge")
         .withTag("class", "AnnotateExample")
         .withTag("level", "INFO")
-        .withTag("id", "foo")
-        .withTag("type", "GAUGE");
+        .withTag("id", "foo");
     assertEquals(42.0, registry.gauge(id).value(), 1e-12);
   }
 
@@ -279,7 +286,7 @@ public class SpectatorIntegrationTest {
     g.update(42);
     clock.set(60000);
     PolledMeter.update(registry);
-    assertEquals(42.0, registry.gauge(ID.withTag("type", "GAUGE")).value());
+    assertEquals(42.0, registry.gauge(ID).value());
   }
 
   @Test
@@ -473,6 +480,28 @@ public class SpectatorIntegrationTest {
     @Override
     public Long getValue(int pollerIndex) {
       return 0L;
+    }
+  }
+
+  public static class CustomCounter implements com.netflix.servo.monitor.Monitor<Long> {
+
+    private final MonitorConfig config = CONFIG.withAdditionalTag(DataSourceType.COUNTER);
+    private long value = 0L;
+
+    public void increment() {
+      ++value;
+    }
+
+    @Override public Long getValue() {
+      return value;
+    }
+
+    @Override public Long getValue(int pollerIndex) {
+      return value;
+    }
+
+    @Override public MonitorConfig getConfig() {
+      return config;
     }
   }
 }
