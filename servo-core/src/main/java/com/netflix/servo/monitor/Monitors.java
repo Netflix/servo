@@ -239,10 +239,8 @@ public final class Monitors {
     Monitor<T> m;
     if (monitor instanceof CompositeMonitor<?>) {
       m = new CompositeMonitorWrapper<>(tags, (CompositeMonitor<T>) monitor);
-    } else if (monitor instanceof NumericMonitor<?>) {
-      m = (Monitor<T>) new NumericMonitorWrapper(tags, (NumericMonitor<?>) monitor);
     } else {
-      m = new MonitorWrapper<>(tags, monitor);
+      m = MonitorWrapper.create(tags, monitor);
     }
     return m;
   }

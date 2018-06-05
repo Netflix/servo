@@ -17,8 +17,10 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
+import com.netflix.spectator.api.Id;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,8 +30,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MaxGauge extends AbstractMonitor<Long>
     implements Gauge<Long>, SpectatorMonitor {
+  private final MonitorConfig baseConfig;
   private final StepLong max;
-  private final com.netflix.spectator.api.Gauge spectatorGauge;
+  private final SpectatorContext.LazyGauge spectatorGauge;
 
   /**
    * Creates a new instance of the gauge.
@@ -43,6 +46,7 @@ public class MaxGauge extends AbstractMonitor<Long>
    */
   MaxGauge(MonitorConfig config, Clock clock) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    baseConfig = config;
     max = new StepLong(0L, clock);
     spectatorGauge = SpectatorContext.maxGauge(config);
   }
@@ -84,6 +88,15 @@ public class MaxGauge extends AbstractMonitor<Long>
    */
   public long getCurrentValue(int nth) {
     return max.getCurrent(nth).get();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    Id id = SpectatorContext.createId(baseConfig.withAdditionalTags(tags));
+    spectatorGauge.setId(id);
   }
 
   /**

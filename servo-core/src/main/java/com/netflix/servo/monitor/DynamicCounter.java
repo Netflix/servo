@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ import java.util.concurrent.TimeUnit;
  * Utility class that dynamically creates counters based on an arbitrary (name, tagList), or
  * {@link MonitorConfig}. Counters are automatically expired after 15 minutes of inactivity.
  */
-public final class DynamicCounter extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
+public final class DynamicCounter
+    extends AbstractMonitor<Long> implements CompositeMonitor<Long>, SpectatorMonitor {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicCounter.class);
   private static final String DEFAULT_EXPIRATION = "15";
   private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
@@ -57,6 +58,13 @@ public final class DynamicCounter extends AbstractMonitor<Long> implements Compo
 
   private Counter get(final MonitorConfig config) {
     return counters.get(config);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
   }
 
   /**

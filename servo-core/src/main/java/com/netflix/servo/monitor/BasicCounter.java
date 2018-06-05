@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,14 +28,16 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class BasicCounter extends AbstractMonitor<Number>
     implements Counter, SpectatorMonitor {
+  private final MonitorConfig baseConfig;
   private final AtomicLong count = new AtomicLong();
-  private final com.netflix.spectator.api.Counter spectatorCounter;
+  private final SpectatorContext.LazyCounter spectatorCounter;
 
   /**
    * Creates a new instance of the counter.
    */
   public BasicCounter(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.COUNTER));
+    this.baseConfig = config;
     spectatorCounter = SpectatorContext.counter(config);
   }
 
@@ -62,6 +65,14 @@ public final class BasicCounter extends AbstractMonitor<Number>
   @Override
   public Number getValue(int pollerIdx) {
     return count.get();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    spectatorCounter.setId(SpectatorContext.createId(baseConfig.withAdditionalTags(tags)));
   }
 
   /**

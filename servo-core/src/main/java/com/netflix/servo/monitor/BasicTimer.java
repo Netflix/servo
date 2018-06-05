@@ -15,7 +15,9 @@
  */
 package com.netflix.servo.monitor;
 
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -169,6 +171,17 @@ public class BasicTimer extends AbstractMonitor<Long>
    */
   public Double getMax() {
     return max.getCurrentValue(0);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    totalTime.initializeSpectator(BasicTagList.concat(tags, STAT_TOTAL));
+    count.initializeSpectator(BasicTagList.concat(tags, STAT_COUNT));
+    totalOfSquares.initializeSpectator(BasicTagList.concat(tags, STAT_TOTAL_SQ));
+    max.initializeSpectator(BasicTagList.concat(tags, STAT_MAX));
   }
 
   /**

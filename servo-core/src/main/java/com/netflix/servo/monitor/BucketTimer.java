@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.netflix.servo.tag.Tag;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.Tags;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
@@ -62,7 +63,8 @@ import java.util.concurrent.TimeUnit;
  * on the use-case. If you fail to specify buckets in {@link BucketConfig} you will get a NPE.
  */
 
-public class BucketTimer extends AbstractMonitor<Long> implements Timer, CompositeMonitor<Long> {
+public class BucketTimer extends AbstractMonitor<Long>
+    implements Timer, CompositeMonitor<Long>, SpectatorMonitor {
 
   private static final String STATISTIC = "statistic";
   private static final String BUCKET = "servo.bucket";
@@ -136,6 +138,18 @@ public class BucketTimer extends AbstractMonitor<Long> implements Timer, Composi
     monitorList.addAll(Arrays.asList(bucketCount));
     monitorList.add(overflowCount);
     this.monitors = Collections.unmodifiableList(monitorList);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    monitors.forEach(m -> {
+      if (m instanceof SpectatorMonitor) {
+        ((SpectatorMonitor) m).initializeSpectator(tags);
+      }
+    });
   }
 
   /**

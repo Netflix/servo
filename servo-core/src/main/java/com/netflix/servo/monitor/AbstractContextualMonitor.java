@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.netflix.servo.monitor;
 
 import com.google.common.base.Function;
+import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.TaggingContext;
 import com.netflix.servo.util.UnmodifiableList;
@@ -28,12 +29,17 @@ import java.util.concurrent.ConcurrentMap;
  * Base class used to simplify creation of contextual monitors.
  */
 public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
-    implements CompositeMonitor<T> {
+    implements CompositeMonitor<T>, SpectatorMonitor {
 
   /**
    * Base configuration shared across all contexts.
    */
   protected final MonitorConfig baseConfig;
+
+  /**
+   * Additional tags to add to spectator monitors.
+   */
+  protected TagList spectatorTags = BasicTagList.EMPTY;
 
   /**
    * Context to query when accessing a monitor.
@@ -72,6 +78,14 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
    * {@inheritDoc}
    */
   @Override
+  public void initializeSpectator(TagList tags) {
+    spectatorTags = tags;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public T getValue() {
     return getValue(0);
   }
@@ -85,6 +99,9 @@ public abstract class AbstractContextualMonitor<T, M extends Monitor<T>>
     M monitor = monitors.get(contextConfig);
     if (monitor == null) {
       M newMon = newMonitor.apply(contextConfig);
+      if (newMon instanceof SpectatorMonitor) {
+        ((SpectatorMonitor) newMon).initializeSpectator(spectatorTags);
+      }
       monitor = monitors.putIfAbsent(contextConfig, newMon);
       if (monitor == null) {
         monitor = newMon;

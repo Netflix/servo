@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import java.util.List;
 /**
  * Wraps another composite monitor object providing an alternative configuration.
  */
-class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements CompositeMonitor<T> {
+class CompositeMonitorWrapper<T>
+    extends AbstractMonitor<T> implements CompositeMonitor<T>, SpectatorMonitor {
 
   private final TagList tags;
   private final CompositeMonitor<T> monitor;
@@ -36,6 +37,9 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
     super(monitor.getConfig().withAdditionalTags(tags));
     this.tags = tags;
     this.monitor = monitor;
+    if (monitor instanceof SpectatorMonitor) {
+      ((SpectatorMonitor) monitor).initializeSpectator(tags);
+    }
   }
 
   /**
@@ -49,6 +53,15 @@ class CompositeMonitorWrapper<T> extends AbstractMonitor<T> implements Composite
       wrappedMonitors.add(Monitors.wrap(tags, m));
     }
     return Collections.unmodifiableList(wrappedMonitors);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    // This class is only used internally when wrapping a monitor registered with
+    // Monitors.register
   }
 
   /**

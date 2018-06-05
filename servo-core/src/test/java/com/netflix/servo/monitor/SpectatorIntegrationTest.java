@@ -24,14 +24,20 @@ import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ManualClock;
+import com.netflix.spectator.api.BasicTag;
 import com.netflix.spectator.api.DefaultRegistry;
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Statistic;
+import com.netflix.spectator.api.Tag;
 import com.netflix.spectator.api.patterns.PolledMeter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
@@ -43,17 +49,66 @@ public class SpectatorIntegrationTest {
       .createId(CONFIG.getName())
       .withTags(CONFIG.getTags().asMap());
 
+  private static final Tag COUNTER = new BasicTag("type", "COUNTER");
+
   private Registry registry;
 
   @BeforeMethod
   public void before() {
+    DefaultMonitorRegistry.getInstance().getRegisteredMonitors().forEach(
+        m -> DefaultMonitorRegistry.getInstance().unregister(m)
+    );
     registry = new DefaultRegistry();
     SpectatorContext.setRegistry(registry);
+  }
+
+  private void register(com.netflix.servo.monitor.Monitor<?> monitor) {
+    DefaultMonitorRegistry.getInstance().register(monitor);
+  }
+
+  @Test
+  public void testUnregisteredBasicCounter() {
+    BasicCounter c = new BasicCounter(CONFIG);
+    assertEquals(0, registry.counters().count());
+  }
+
+  @Test
+  public void testUnregisteredBasicCounterIncrement() {
+    BasicCounter c = new BasicCounter(CONFIG);
+    c.increment();
+    assertEquals(1, registry.counters().count());
+    assertEquals(1, registry.counter("test").count());
+  }
+
+  @Test
+  public void testUnregisteredBasicTimer() {
+    BasicTimer t = new BasicTimer(CONFIG);
+    assertEquals(0, registry.timers().count());
+  }
+
+  @Test
+  public void testUnregisteredBasicTimerIncrement() {
+    BasicTimer t = new BasicTimer(CONFIG);
+    t.record(42, TimeUnit.MILLISECONDS);
+
+    Id id = registry.createId("test")
+        .withTag("unit", "MILLISECONDS");
+
+    assertEquals(3, registry.counters().count());
+    assertEquals(0, registry.timers().count());
+    assertEquals(1, registry.gauges().count());
+    assertEquals(0, registry.distributionSummaries().count());
+
+    assertEquals(1, registry.counter(id.withTag(Statistic.count)).count());
+    assertEquals(42, registry.counter(id.withTag(Statistic.totalTime)).count());
+    assertEquals(42 * 42, registry.counter(id.withTag(Statistic.totalOfSquares)).count());
+    assertEquals(42.0, registry.maxGauge(id.withTag(Statistic.max)).value());
   }
 
   @Test
   public void testBasicCounterIncrement() {
     BasicCounter c = new BasicCounter(CONFIG);
+    register(c);
     c.increment();
     assertEquals(1, registry.counter(ID).count());
   }
@@ -61,20 +116,23 @@ public class SpectatorIntegrationTest {
   @Test
   public void testBasicCounterIncrementAmount() {
     BasicCounter c = new BasicCounter(CONFIG);
+    register(c);
     c.increment(42);
     assertEquals(42, registry.counter(ID).count());
   }
 
   @Test
   public void testStepCounterIncrement() {
-    BasicCounter c = new BasicCounter(CONFIG);
+    StepCounter c = new StepCounter(CONFIG);
+    register(c);
     c.increment();
     assertEquals(1, registry.counter(ID).count());
   }
 
   @Test
   public void testStepCounterIncrementAmount() {
-    BasicCounter c = new BasicCounter(CONFIG);
+    StepCounter c = new StepCounter(CONFIG);
+    register(c);
     c.increment(42);
     assertEquals(42, registry.counter(ID).count());
   }
@@ -88,6 +146,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testDoubleCounterAdd() {
     DoubleCounter c = new DoubleCounter(CONFIG, Clock.WALL);
+    register(c);
     c.increment(0.2);
     assertEquals(0.2, registry.counter(ID).actualCount());
   }
@@ -101,6 +160,16 @@ public class SpectatorIntegrationTest {
         .withTag("level", "INFO")
         .withTag("id", "foo")
         .withTag("type", "COUNTER");
+    assertEquals(1, registry.counter(id.withTag(COUNTER)).count());
+  }
+
+  @Test
+  public void testMemberCounter() {
+    AnnotateExample ex = new AnnotateExample("foo");
+    ex.update();
+    Id id = registry.createId("test")
+        .withTag("class", "AnnotateExample")
+        .withTag("id", "foo");
     assertEquals(1, registry.counter(id).count());
   }
 
@@ -114,12 +183,30 @@ public class SpectatorIntegrationTest {
   }
 
   @Test
+  public void testContextualMemberCounter() {
+    ContextualExample c = new ContextualExample("foo");
+    c.update();
+    Id id = registry.createId("counter")
+        .withTag("a", "2")
+        .withTag("id", "foo")
+        .withTag("class", "ContextualExample");
+    assertEquals(1, registry.counter(id).count());
+  }
+
+  @Test
+  public void testCustomCompositeMemberCounter() {
+    CustomCompositeExample c = new CustomCompositeExample("foo");
+    c.update("2");
+    Id id = registry.createId("test").withTag("c", "2");
+    assertEquals(1, registry.counter(id).count());
+  }
+
+  @Test
   public void testPeakRateCounter() {
     PeakRateCounter c = new PeakRateCounter(CONFIG);
     DefaultMonitorRegistry.getInstance().register(c);
     c.increment();
     PolledMeter.update(registry);
-    registry.stream().forEach(m -> System.out.println(m.id()));
     assertEquals(1.0, registry.gauge(ID.withTag("type", "GAUGE")).value());
   }
 
@@ -136,6 +223,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testDoubleGauge() {
     DoubleGauge c = new DoubleGauge(CONFIG);
+    register(c);
     c.set(42.0);
     assertEquals(42.0, registry.gauge(ID).value(), 1e-12);
   }
@@ -144,6 +232,7 @@ public class SpectatorIntegrationTest {
   public void testNumberGauge() {
     Number n = 42.0;
     NumberGauge c = new NumberGauge(CONFIG, n);
+    register(c);
     PolledMeter.update(registry);
     assertEquals(42.0, registry.gauge(ID).value(), 1e-12);
   }
@@ -151,6 +240,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testBasicGauge() {
     BasicGauge<Double> c = new BasicGauge<>(CONFIG, () -> 42.0);
+    register(c);
     PolledMeter.update(registry);
     assertEquals(42.0, registry.gauge(ID).value(), 1e-12);
   }
@@ -176,6 +266,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testDoubleMaxGauge() {
     DoubleGauge c = new DoubleGauge(CONFIG);
+    register(c);
     c.set(42.0);
     assertEquals(42.0, registry.maxGauge(ID).value(), 1e-12);
   }
@@ -204,6 +295,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testBasicDistributionSummaryRecord() {
     BasicDistributionSummary d = new BasicDistributionSummary(CONFIG);
+    register(d);
     d.record(42);
     assertEquals(1, registry.counter(ID.withTag(Statistic.count)).count());
     assertEquals(42, registry.counter(ID.withTag(Statistic.totalAmount)).count());
@@ -213,6 +305,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testBasicTimerRecordMillis() {
     BasicTimer d = new BasicTimer(CONFIG);
+    register(d);
     d.record(42, TimeUnit.NANOSECONDS);
     Id id = ID.withTag("unit", "MILLISECONDS");
     assertEquals(1, registry.counter(id.withTag(Statistic.count)).count());
@@ -224,6 +317,7 @@ public class SpectatorIntegrationTest {
   @Test
   public void testBasicTimerRecordSeconds() {
     BasicTimer d = new BasicTimer(CONFIG, TimeUnit.SECONDS);
+    register(d);
     d.record(42, TimeUnit.NANOSECONDS);
     Id id = ID.withTag("unit", "SECONDS");
     assertEquals(1, registry.counter(id.withTag(Statistic.count)).count());
@@ -249,6 +343,7 @@ public class SpectatorIntegrationTest {
         .withTimeUnit(TimeUnit.MILLISECONDS)
         .build();
     BucketTimer d = new BucketTimer(CONFIG, bc);
+    register(d);
     d.record(42, TimeUnit.MILLISECONDS);
     Id id = ID.withTag("unit", "MILLISECONDS");
     assertEquals(1, registry.counter(id.withTag(Statistic.count).withTag("servo.bucket", "bucket=50ms")).count());
@@ -266,6 +361,7 @@ public class SpectatorIntegrationTest {
         .withSampleSize(10)
         .build();
     StatsTimer d = new StatsTimer(CONFIG, sc);
+    register(d);
     d.record(42, TimeUnit.MILLISECONDS);
     d.computeStats();
     Id id = ID.withTag("unit", "MILLISECONDS");
@@ -299,6 +395,10 @@ public class SpectatorIntegrationTest {
       Monitors.registerObject(id, this);
     }
 
+    public void update() {
+      c.increment();
+    }
+
     @Monitor(name = "gauge", type = DataSourceType.GAUGE)
     private double gauge() {
       return 42.0;
@@ -307,6 +407,72 @@ public class SpectatorIntegrationTest {
     @Monitor(name = "counter", type = DataSourceType.COUNTER)
     private long counter() {
       return count++;
+    }
+  }
+
+  public static class ContextualExample {
+    private final TagList context = BasicTagList.of("a", "2");
+
+    private final ContextualCounter c = new ContextualCounter(
+        new MonitorConfig.Builder("counter").build(),
+        () -> context,
+        BasicCounter::new
+    );
+
+    private final ContextualTimer t = new ContextualTimer(
+        new MonitorConfig.Builder("timer").build(),
+        () -> context,
+        BasicTimer::new
+    );
+
+    public ContextualExample(String id) {
+      Monitors.registerObject(id, this);
+    }
+
+    public void update() {
+      c.increment();
+      t.record(42, TimeUnit.NANOSECONDS);
+    }
+  }
+
+  public static class CustomCompositeExample {
+
+    private final DynCounter c = new DynCounter(CONFIG);
+
+    public CustomCompositeExample(String id) {
+      Monitors.registerObject(id, this);
+    }
+
+    public void update(String v) {
+      c.increment(v);
+    }
+  }
+
+  public static class DynCounter extends AbstractMonitor<Long> implements CompositeMonitor<Long> {
+
+    private final Map<String, BasicCounter> counters = new HashMap<>();
+    private final MonitorConfig baseConfig;
+
+    public DynCounter(MonitorConfig baseConfig) {
+      super(baseConfig);
+      this.baseConfig = baseConfig;
+    }
+
+    public void increment(String value) {
+      counters.computeIfAbsent(value, v -> {
+        MonitorConfig c = baseConfig.withAdditionalTag(new com.netflix.servo.tag.BasicTag("c", v));
+        return new BasicCounter(c);
+      }).increment();
+    }
+
+    @Override
+    public List<com.netflix.servo.monitor.Monitor<?>> getMonitors() {
+      return new ArrayList<>(counters.values());
+    }
+
+    @Override
+    public Long getValue(int pollerIndex) {
+      return 0L;
     }
   }
 }

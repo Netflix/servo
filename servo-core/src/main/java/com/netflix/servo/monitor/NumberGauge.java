@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2011-2018 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Preconditions;
-import com.netflix.spectator.api.patterns.PolledMeter;
 
 import java.lang.ref.WeakReference;
 
@@ -27,6 +27,8 @@ import java.lang.ref.WeakReference;
  */
 public class NumberGauge extends AbstractMonitor<Number>
     implements Gauge<Number>, SpectatorMonitor {
+
+  private final MonitorConfig baseConfig;
   private WeakReference<Number> numberRef;
 
   /**
@@ -36,6 +38,7 @@ public class NumberGauge extends AbstractMonitor<Number>
    */
   protected NumberGauge(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    baseConfig = config;
   }
 
   /**
@@ -45,11 +48,9 @@ public class NumberGauge extends AbstractMonitor<Number>
    */
   public NumberGauge(MonitorConfig config, Number number) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
+    baseConfig = config;
     Preconditions.checkNotNull(number, "number");
     this.numberRef = new WeakReference<>(number);
-    PolledMeter.using(SpectatorContext.getRegistry())
-        .withId(SpectatorContext.createId(config))
-        .monitorValue(number);
   }
 
   /**
@@ -59,6 +60,17 @@ public class NumberGauge extends AbstractMonitor<Number>
   public Number getValue(int pollerIdx) {
     Number n = numberRef.get();
     return n != null ? n : Double.NaN;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    Number n = numberRef.get();
+    if (n != null) {
+      SpectatorContext.polledGauge(baseConfig.withAdditionalTags(tags)).monitorValue(n);
+    }
   }
 
   /**

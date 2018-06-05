@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,24 @@ import com.netflix.servo.tag.TagList;
  * Wraps another monitor object providing an alternative configuration.
  */
 class MonitorWrapper<T> extends AbstractMonitor<T> {
+
+  @SuppressWarnings("unchecked")
+  static <T> MonitorWrapper<T> create(TagList tags, Monitor<T> monitor) {
+    if (monitor instanceof NumericMonitor<?>) {
+      return (MonitorWrapper<T>) ((monitor instanceof SpectatorMonitor)
+          ? new SpectatorMonitorWrapper(tags, (NumericMonitor<?>) monitor)
+          : new NumericMonitorWrapper(tags, (NumericMonitor<?>) monitor));
+    } else {
+      return new MonitorWrapper<>(tags, monitor);
+    }
+  }
+
   private final Monitor<T> monitor;
 
   /**
    * Creates a new instance of the wrapper.
    */
-  public MonitorWrapper(TagList tags, Monitor<T> monitor) {
+  MonitorWrapper(TagList tags, Monitor<T> monitor) {
     super(monitor.getConfig().withAdditionalTags(tags));
     this.monitor = monitor;
   }

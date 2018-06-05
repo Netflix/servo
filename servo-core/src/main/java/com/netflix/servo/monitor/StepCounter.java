@@ -17,9 +17,11 @@ package com.netflix.servo.monitor;
 
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.tag.TagList;
 import com.netflix.servo.util.Clock;
 import com.netflix.servo.util.ClockWithOffset;
 import com.netflix.servo.util.VisibleForTesting;
+import com.netflix.spectator.api.Id;
 
 /**
  * A simple counter implementation backed by a StepLong. The value returned is a rate for the
@@ -27,8 +29,9 @@ import com.netflix.servo.util.VisibleForTesting;
  */
 public class StepCounter extends AbstractMonitor<Number> implements Counter, SpectatorMonitor {
 
+  private final MonitorConfig baseConfig;
   private final StepLong count;
-  private final com.netflix.spectator.api.Counter spectatorCounter;
+  private SpectatorContext.LazyCounter spectatorCounter;
 
   /**
    * Creates a new instance of the counter.
@@ -46,6 +49,7 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter, Spe
     // expected for type=COUNTER. This class looks like a counter to the user and a gauge to
     // the publishing pipeline receiving the value.
     super(config.withAdditionalTag(DataSourceType.NORMALIZED));
+    this.baseConfig = config;
     count = new StepLong(0L, clock);
     spectatorCounter = SpectatorContext.counter(config);
   }
@@ -93,6 +97,15 @@ public class StepCounter extends AbstractMonitor<Number> implements Counter, Spe
   @VisibleForTesting
   public long getCurrentCount(int pollerIndex) {
     return count.getCurrent(pollerIndex).get();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initializeSpectator(TagList tags) {
+    Id id = SpectatorContext.createId(baseConfig.withAdditionalTags(tags));
+    spectatorCounter.setId(id);
   }
 
   /**
