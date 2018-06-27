@@ -435,14 +435,6 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
    */
   @Override
   public List<Monitor<?>> getMonitors() {
-    lastUsed = clock.now();
-    if (isExpired()) {
-      LOGGER.info("Attempting to get the value for an expired monitor: {}."
-              + "Will start computing stats again.",
-          getConfig().getName());
-      startComputingStats(executor, statsConfig.getFrequencyMillis());
-      return Collections.emptyList();
-    }
     return monitors;
   }
 
@@ -450,6 +442,14 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
    * Record the measurement we want to perform statistics on.
    */
   public void record(long measurement) {
+    lastUsed = clock.now();
+    if (isExpired()) {
+      LOGGER.info("Attempting to get the value for an expired monitor: {}."
+              + "Will start computing stats again.",
+          getConfig().getName());
+      startComputingStats(executor, statsConfig.getFrequencyMillis());
+    }
+
     synchronized (updateLock) {
       cur.record(measurement);
     }

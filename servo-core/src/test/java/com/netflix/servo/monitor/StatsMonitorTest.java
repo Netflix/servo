@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 Netflix, Inc.
+/*
+ * Copyright 2011-2018 Netflix, Inc.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class StatsMonitorTest {
     clock.set(TimeUnit.MINUTES.toMillis(20));
     monitor.computeStats();
     assertTrue(monitor.isExpired());
-    monitor.getMonitors();
+    monitor.record(42);
     monitor.computeStats();
     assertFalse(monitor.isExpired());
   }
