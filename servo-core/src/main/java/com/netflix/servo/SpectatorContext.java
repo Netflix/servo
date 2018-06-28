@@ -15,6 +15,7 @@
  */
 package com.netflix.servo;
 
+import com.netflix.servo.monitor.BasicCompositeMonitor;
 import com.netflix.servo.monitor.CompositeMonitor;
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -138,10 +139,21 @@ public final class SpectatorContext {
   public static void register(Monitor<?> monitor) {
     if (monitor instanceof SpectatorMonitor) {
       ((SpectatorMonitor) monitor).initializeSpectator(BasicTagList.EMPTY);
-    } else {
-      PolledMeter.monitorMeter(registry, new ServoMeter(monitor));
+    } else if (!isEmptyComposite(monitor)) {
+      ServoMeter m = new ServoMeter(monitor);
+      PolledMeter.remove(registry, m.id());
+      PolledMeter.monitorMeter(registry, m);
       monitorMonitonicValues(monitor);
     }
+  }
+
+  /**
+   * A basic composite has an immutable list, if it is empty then will never provide any
+   * useful monitors. This can happen if a monitor type is used with Monitors.registerObject.
+   */
+  private static boolean isEmptyComposite(Monitor<?> monitor) {
+    return (monitor instanceof BasicCompositeMonitor)
+        && ((BasicCompositeMonitor) monitor).getMonitors().isEmpty();
   }
 
   private static boolean isCounter(MonitorConfig config) {
