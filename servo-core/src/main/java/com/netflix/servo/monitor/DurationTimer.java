@@ -50,9 +50,7 @@ public class DurationTimer extends AbstractMonitor<Long> implements CompositeMon
 
   private static MonitorConfig subId(MonitorConfig config, String sub) {
     String newName = config.getName() + "." + sub;
-    return MonitorConfig.builder(newName).withTags(config.getTags())
-        .withPublishingPolicy(config.getPublishingPolicy())
-        .build();
+    return MonitorConfig.builder(newName).withTags(config.getTags()).build();
   }
 
   /**

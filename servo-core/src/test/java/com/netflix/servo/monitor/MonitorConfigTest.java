@@ -86,6 +86,5 @@ public class MonitorConfigTest {
     assertNotEquals(m1, m3);
     assertEquals(m1.getName(), m3.getName());
     assertNotEquals(m1.getTags(), m3.getTags());
-    assertEquals(m1.getPublishingPolicy(), m3.getPublishingPolicy());
   }
 }
