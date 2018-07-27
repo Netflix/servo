@@ -39,7 +39,6 @@ public final class MonitorConfig {
   public static class Builder {
     private final String name;
     private SmallTagMap.Builder tagsBuilder = SmallTagMap.builder();
-    private PublishingPolicy policy = DefaultPublishingPolicy.getInstance();
 
     /**
      * Create a new builder initialized with the specified config.
@@ -47,7 +46,6 @@ public final class MonitorConfig {
     public Builder(MonitorConfig config) {
       this(config.getName());
       withTags(config.getTags());
-      withPublishingPolicy(config.getPublishingPolicy());
     }
 
     /**
@@ -102,14 +100,6 @@ public final class MonitorConfig {
     }
 
     /**
-     * Add the publishing policy to the config.
-     */
-    public Builder withPublishingPolicy(PublishingPolicy policy) {
-      this.policy = policy;
-      return this;
-    }
-
-    /**
      * Create the monitor config object.
      */
     public MonitorConfig build() {
@@ -129,14 +119,8 @@ public final class MonitorConfig {
     public List<Tag> getTags() {
       return UnmodifiableList.copyOf(tagsBuilder.result());
     }
-
-    /**
-     * Get the publishingPolicy.
-     */
-    public PublishingPolicy getPublishingPolicy() {
-      return policy;
-    }
   }
+
 
   /**
    * Return a builder instance with the specified name.
@@ -147,7 +131,6 @@ public final class MonitorConfig {
 
   private final String name;
   private final TagList tags;
-  private final PublishingPolicy policy;
 
   /**
    * Config is immutable, cache the hash code to improve performance.
@@ -163,7 +146,6 @@ public final class MonitorConfig {
     this.tags = (builder.tagsBuilder.isEmpty())
         ? BasicTagList.EMPTY
         : new BasicTagList(builder.tagsBuilder.result());
-    this.policy = builder.policy;
   }
 
   /**
@@ -181,13 +163,6 @@ public final class MonitorConfig {
   }
 
   /**
-   * Returns the publishing policy.
-   */
-  public PublishingPolicy getPublishingPolicy() {
-    return policy;
-  }
-
-  /**
    * {@inheritDoc}
    */
   @Override
@@ -200,8 +175,7 @@ public final class MonitorConfig {
     }
     MonitorConfig m = (MonitorConfig) obj;
     return name.equals(m.getName())
-        && tags.equals(m.getTags())
-        && policy.equals(m.getPublishingPolicy());
+        && tags.equals(m.getTags());
   }
 
   /**
@@ -216,7 +190,6 @@ public final class MonitorConfig {
     if (hash == 0) {
       hash = name.hashCode();
       hash = 31 * hash + tags.hashCode();
-      hash = 31 * hash + policy.hashCode();
       cachedHashCode.set(hash);
     }
     return hash;
@@ -227,14 +200,14 @@ public final class MonitorConfig {
    */
   @Override
   public String toString() {
-    return "MonitorConfig{name=" + name + ", tags=" + tags + ", policy=" + policy + '}';
+    return "MonitorConfig{name=" + name + ", tags=" + tags + '}';
   }
 
   /**
    * Returns a copy of the current MonitorConfig.
    */
   private MonitorConfig.Builder copy() {
-    return MonitorConfig.builder(name).withTags(tags).withPublishingPolicy(policy);
+    return MonitorConfig.builder(name).withTags(tags);
   }
 
   /**

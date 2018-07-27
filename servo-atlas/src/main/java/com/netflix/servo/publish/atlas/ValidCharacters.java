@@ -120,7 +120,6 @@ public final class ValidCharacters {
         cfgBuilder.withTag(toValidCharset(key), toValidCharset(orig.getValue()));
       }
     }
-    cfgBuilder.withPublishingPolicy(cfg.getPublishingPolicy());
     return new Metric(cfgBuilder.build(), metric.getTimestamp(), metric.getValue());
   }
 
