@@ -421,7 +421,7 @@ public class JvmMetricPoller implements MetricPoller {
     private final MetricFilter filter;
     private final List<Metric> list;
 
-    public MetricList(MetricFilter filter) {
+    MetricList(MetricFilter filter) {
       this.filter = filter;
       list = new ArrayList<>();
     }

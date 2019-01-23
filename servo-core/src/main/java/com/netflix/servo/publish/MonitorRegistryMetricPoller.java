@@ -227,7 +227,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
 
     private final Monitor<?> monitor;
 
-    public MonitorValueCallable(Monitor<?> monitor) {
+    MonitorValueCallable(Monitor<?> monitor) {
       this.monitor = monitor;
     }
 

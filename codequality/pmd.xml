@@ -20,7 +20,6 @@
     <exclude name="AvoidFinalLocalVariable"/>
     <exclude name="AvoidInstantiatingObjectsInLoops"/>
     <exclude name="AvoidLiteralsInIfCondition"/>
-    <exclude name="AvoidPrefixingMethodParameters"/>
     <exclude name="AvoidSynchronizedAtMethodLevel"/>
     <exclude name="AvoidThrowingNullPointerException"/>
     <exclude name="AvoidThrowingRawExceptionTypes"/>
@@ -33,6 +32,7 @@
     <exclude name="CommentSize"/>
     <exclude name="CompareObjectsWithEquals"/>
     <exclude name="ConfusingTernary"/>
+    <exclude name="ControlStatementBraces"/>
     <exclude name="CyclomaticComplexity"/>
     <exclude name="DataflowAnomalyAnalysis"/>
     <exclude name="DefaultPackage"/>
@@ -43,17 +43,18 @@
     <exclude name="ExcessiveImports"/>
     <exclude name="ExcessivePublicCount"/>
     <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+    <exclude name="FieldNamingConventions"/>
     <exclude name="GodClass"/>
     <exclude name="GuardLogStatement"/>
     <exclude name="ImmutableField"/>
     <exclude name="LawOfDemeter"/>
+    <exclude name="LinguisticNaming"/>
     <exclude name="LocalVariableCouldBeFinal"/>
     <exclude name="LoggerIsNotStaticFinal"/>
     <exclude name="LongVariable"/>
     <exclude name="LoosePackageCoupling"/>
     <exclude name="MethodArgumentCouldBeFinal"/>
     <exclude name="MethodReturnsInternalArray"/>
-    <exclude name="NcssCount"/>
     <exclude name="NullAssignment"/>
     <exclude name="OneDeclarationPerLine"/>
     <exclude name="OnlyOneReturn"/>

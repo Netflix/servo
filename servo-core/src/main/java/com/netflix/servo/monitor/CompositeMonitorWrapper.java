@@ -33,7 +33,7 @@ class CompositeMonitorWrapper<T>
   /**
    * Creates a new instance of the wrapper.
    */
-  public CompositeMonitorWrapper(TagList tags, CompositeMonitor<T> monitor) {
+  CompositeMonitorWrapper(TagList tags, CompositeMonitor<T> monitor) {
     super(monitor.getConfig().withAdditionalTags(tags));
     this.tags = tags;
     this.monitor = monitor;

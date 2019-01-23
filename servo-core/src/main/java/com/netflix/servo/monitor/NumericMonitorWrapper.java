@@ -26,7 +26,7 @@ class NumericMonitorWrapper<T extends Number> extends MonitorWrapper<T>
   /**
    * Creates a new instance of the wrapper.
    */
-  public NumericMonitorWrapper(TagList tags, NumericMonitor<T> monitor) {
+  NumericMonitorWrapper(TagList tags, NumericMonitor<T> monitor) {
     super(tags, monitor);
   }
 }

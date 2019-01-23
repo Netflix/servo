@@ -53,7 +53,7 @@ public final class Monitors {
   private static class TimerFactory implements Function<MonitorConfig, Timer> {
     private final TimeUnit unit;
 
-    public TimerFactory(TimeUnit unit) {
+    TimerFactory(TimeUnit unit) {
       this.unit = unit;
     }
 
