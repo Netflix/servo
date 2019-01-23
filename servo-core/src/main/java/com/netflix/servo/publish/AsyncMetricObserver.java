@@ -165,7 +165,7 @@ public final class AsyncMetricObserver extends BaseMetricObserver {
     private final long timestamp;
     private final List<Metric> metrics;
 
-    public TimestampedUpdate(long timestamp, List<Metric> metrics) {
+    TimestampedUpdate(long timestamp, List<Metric> metrics) {
       this.timestamp = timestamp;
       this.metrics = metrics;
     }

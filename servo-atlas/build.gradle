@@ -5,6 +5,9 @@ dependencies {
   compile 'com.netflix.iep-shadow:iepshadow-iep-rxhttp'
   compile "com.fasterxml.jackson.core:jackson-databind"
   compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
+  compile 'io.netty:netty-buffer'
+  compile 'io.netty:netty-codec-http'
+  compile 'io.reactivex:rxjava'
   jmh project(':servo-core')
 }
 

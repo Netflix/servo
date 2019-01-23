@@ -198,12 +198,12 @@ public final class CounterToRateMetricTransform implements MetricObserver {
     private long timestamp;
     private double value;
 
-    public CounterValue(long timestamp, double value) {
+    CounterValue(long timestamp, double value) {
       this.timestamp = timestamp;
       this.value = value;
     }
 
-    public CounterValue(Metric m) {
+    CounterValue(Metric m) {
       this(m.getTimestamp(), m.getNumberValue().doubleValue());
     }
 
