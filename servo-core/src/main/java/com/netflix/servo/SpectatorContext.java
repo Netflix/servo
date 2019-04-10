@@ -69,11 +69,30 @@ public final class SpectatorContext {
 
   private static volatile Registry registry = new NoopRegistry();
 
+  // Used to keep track of where the registry was being set. This can be useful to help
+  // debug issues if missing metrics due to it being set from multiple places.
+  private static volatile Exception initStacktrace = null;
+
   /**
    * Set the registry to use. By default it will use the NoopRegistry.
    */
   public static void setRegistry(Registry registry) {
     SpectatorContext.registry = registry;
+    if (registry instanceof NoopRegistry) {
+      initStacktrace = null;
+    } else {
+      Exception cause = initStacktrace;
+      Exception e = new IllegalStateException(
+          "called SpectatorContext.setRegistry(" + registry.getClass().getName() + ")",
+          cause);
+      e.fillInStackTrace();
+      initStacktrace = e;
+      if (cause != null) {
+        LOGGER.warn(
+            "Registry used with Servo's SpectatorContext has been overwritten. This could " +
+            "result in missing metrics.", e);
+      }
+    }
   }
 
   /**
