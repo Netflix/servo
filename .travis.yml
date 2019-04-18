@@ -7,7 +7,6 @@ matrix:
     env: GRADLE_PUBLISH=false
   - jdk: openjdk12
     env: GRADLE_PUBLISH=false
-sudo: false
 install: ./installViaTravis.sh
 script: ./buildViaTravis.sh
 env:
