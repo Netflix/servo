@@ -31,6 +31,7 @@ import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.api.Meter;
 import com.netflix.spectator.api.NoopRegistry;
 import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.Spectator;
 import com.netflix.spectator.api.Timer;
 import com.netflix.spectator.api.patterns.PolledMeter;
 import org.slf4j.Logger;
@@ -78,7 +79,11 @@ public final class SpectatorContext {
    */
   public static void setRegistry(Registry registry) {
     SpectatorContext.registry = registry;
-    if (registry instanceof NoopRegistry) {
+    // Ignore if overwriting with the global registry. In some cases it is necessary to set
+    // the context for Servo early before a proper registry can be created via injection. In
+    // that case the global registry is the best option. If it is later overwritten with the
+    // registry created by the injector, then that should not trigger a warning to the user.
+    if (registry instanceof NoopRegistry || isGlobal(registry)) {
       initStacktrace = null;
     } else {
       Exception cause = initStacktrace;
@@ -92,6 +97,11 @@ public final class SpectatorContext {
             + "result in missing metrics.", e);
       }
     }
+  }
+
+  private static boolean isGlobal(Registry registry) {
+    // Use identity check to see it is the global instance
+    return registry == Spectator.globalRegistry();
   }
 
   /**
