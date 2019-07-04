@@ -43,7 +43,28 @@ public final class Preconditions {
      * @throws IllegalArgumentException if {@code expression} is false
      */
   public static void checkArgument(boolean expression, String errorMessage) {
-    checkArgument(expression, errorMessage, null);
+    checkArgument(expression, errorMessage, (String) null);
+  }
+
+  /**
+   * Ensures the truth of an expression involving one or more parameters to the
+   * calling method.
+   *
+   *
+   * @param expression a boolean expression
+   * @param errorMessage the error message that can be a formattable string
+   * @param arg argument if using a formatted string
+   * @throws IllegalArgumentException if {@code expression} is false
+   */
+  public static void checkArgument(boolean expression, String errorMessage, String arg) {
+    if (!expression) {
+      if (arg != null) {
+        String message = String.format(errorMessage, arg);
+        throw new IllegalArgumentException(message);
+      } else {
+        throw new IllegalArgumentException(errorMessage);
+      }
+    }
   }
 
   /**
