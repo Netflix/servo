@@ -32,6 +32,8 @@ public class DefaultMonitorRegistryTest {
   @Test
   public void testCustomJmxObjectMapper() {
     Properties props = new Properties();
+    props.put("com.netflix.servo.DefaultMonitorRegistry.registryClass",
+        "com.netflix.servo.jmx.JmxMonitorRegistry");
     props.put("com.netflix.servo.DefaultMonitorRegistry.jmxMapperClass",
         "com.netflix.servo.DefaultMonitorRegistryTest$ChangeDomainMapper");
     DefaultMonitorRegistry registry = new DefaultMonitorRegistry(props);
@@ -47,6 +49,8 @@ public class DefaultMonitorRegistryTest {
   @Test
   public void testInvalidMapperDefaults() {
     Properties props = new Properties();
+    props.put("com.netflix.servo.DefaultMonitorRegistry.registryClass",
+        "com.netflix.servo.jmx.JmxMonitorRegistry");
     props.put("com.netflix.servo.DefaultMonitorRegistry.jmxMapperClass",
         "com.my.invalid.class");
     DefaultMonitorRegistry registry = new DefaultMonitorRegistry(props);

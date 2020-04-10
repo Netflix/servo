@@ -29,9 +29,9 @@ import java.util.Properties;
  * {@code com.netflix.servo.DefaultMonitorRegistry.registryClass} property. The
  * specified registry class must have a constructor with no arguments. If the
  * property is not specified or the class cannot be loaded an instance of
- * {@link com.netflix.servo.jmx.JmxMonitorRegistry} will be used.
+ * {@link com.netflix.servo.NoopMonitorRegistry} will be used.
  * <p/>
- * If the default {@link com.netflix.servo.jmx.JmxMonitorRegistry} is used, the property
+ * If using {@link com.netflix.servo.jmx.JmxMonitorRegistry}, the property
  * {@code com.netflix.servo.DefaultMonitorRegistry.jmxMapperClass} can optionally be
  * specified to control how monitors are mapped to JMX {@link javax.management.ObjectName}.
  * This property specifies the {@link com.netflix.servo.jmx.ObjectNameMapper}
@@ -70,24 +70,28 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
    */
   DefaultMonitorRegistry(Properties props) {
     final String className = props.getProperty(REGISTRY_CLASS_PROP);
-    final String registryName = props.getProperty(REGISTRY_NAME_PROP, DEFAULT_REGISTRY_NAME);
     if (className != null) {
       MonitorRegistry r;
-      try {
-        Class<?> c = Class.forName(className);
-        r = (MonitorRegistry) c.newInstance();
-      } catch (Throwable t) {
-        LOG.error(
-            "failed to create instance of class " + className + ", "
-                + "using default class "
-                + JmxMonitorRegistry.class.getName(),
-            t);
-        r = new JmxMonitorRegistry(registryName);
+      if (className.equals(JmxMonitorRegistry.class.getName())) {
+        final String registryName = props.getProperty(REGISTRY_NAME_PROP, DEFAULT_REGISTRY_NAME);
+        r = new JmxMonitorRegistry(registryName, getObjectNameMapper(props));
+      } else {
+        try {
+          Class<?> c = Class.forName(className);
+          r = (MonitorRegistry) c.newInstance();
+        } catch (Throwable t) {
+          LOG.error(
+              "failed to create instance of class " + className + ", "
+                  + "using default class "
+                  + NoopMonitorRegistry.class.getName(),
+              t);
+          r = new NoopMonitorRegistry();
+          throw new RuntimeException(t);
+        }
       }
       registry = r;
     } else {
-      registry = new JmxMonitorRegistry(registryName,
-          getObjectNameMapper(props));
+      registry = new NoopMonitorRegistry();
     }
   }
 
