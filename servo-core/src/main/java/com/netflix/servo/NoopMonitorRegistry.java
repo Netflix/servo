@@ -25,6 +25,7 @@ import java.util.Collections;
  */
 public class NoopMonitorRegistry implements MonitorRegistry {
 
+  /** Create a new instance. */
   public NoopMonitorRegistry() {
   }
 

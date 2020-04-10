@@ -86,7 +86,6 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
                   + NoopMonitorRegistry.class.getName(),
               t);
           r = new NoopMonitorRegistry();
-          throw new RuntimeException(t);
         }
       }
       registry = r;
