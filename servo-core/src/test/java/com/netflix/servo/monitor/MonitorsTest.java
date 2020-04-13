@@ -99,6 +99,14 @@ public class MonitorsTest {
   }
 
   @Test
+  public void testIsRegistered() throws Exception {
+    ClassWithMonitors obj = new ClassWithMonitors();
+    assertFalse(Monitors.isObjectRegistered("id", obj));
+    Monitors.registerObject("id", obj);
+    assertTrue(Monitors.isObjectRegistered("id", obj));
+  }
+
+  @Test
   public void testNewObjectConfig() throws Exception {
     ClassWithMonitors obj = new ClassWithMonitors() {
     };
