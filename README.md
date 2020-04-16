@@ -9,6 +9,16 @@ For more details see the [Servo comparison] page in the Spectator docs.
 [Spectator]: https://github.com/Netflix/spectator
 [Servo comparison]: http://netflix.github.io/spectator/en/latest/intro/servo-comparison/
 
+# No-Op Registry
+
+As of version 0.13.0, the default monitor registry is a no-op implementation to minimize
+the overhead for legacy apps that still happen to have some usage of Servo. If the previous
+behavior is needed, then set the following system property:
+
+```
+com.netflix.servo.DefaultMonitorRegistry.registryClass=com.netflix.servo.jmx.JmxMonitorRegistry
+```
+
 # Servo: Application Metrics in Java
 
 > servo v. : WATCH OVER, OBSERVE
