@@ -2,6 +2,10 @@ dependencies {
   compile project(':servo-core')
 }
 
+pmd {
+  ignoreFailures = true
+}
+
 jar {
   manifest {
     attributes(

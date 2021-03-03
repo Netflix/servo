@@ -25,6 +25,16 @@
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
     <module name="FileLength"/>
 
+    <!-- Checks for Size Violations.                    -->
+    <!-- See http://checkstyle.sf.net/config_sizes.html -->
+    <module name="LineLength">
+      <!-- what is a good max value? -->
+      <property name="max" value="120"/>
+      <!-- ignore lines like "$File: //depot/... $" -->
+      <property name="ignorePattern" value="\$File.*\$"/>
+      <property name="severity" value="info"/>
+    </module>
+
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
     <module name="FileTabCharacter"/>
@@ -43,25 +53,23 @@
 
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+        <!--
         <module name="JavadocMethod">
-          <property name="scope" value="public"/>
+          <property name="scope" value="package"/>
           <property name="allowMissingParamTags" value="true"/>
-          <property name="allowMissingThrowsTags" value="true"/>
           <property name="allowMissingReturnTag" value="true"/>
-          <property name="allowThrowsTagsForSubclasses" value="true"/>
-          <property name="allowUndeclaredRTE" value="true"/>
-          <property name="allowMissingPropertyJavadoc" value="true"/>
         </module>
         <module name="JavadocType">
-          <property name="scope" value="public"/>
+          <property name="scope" value="package"/>
           <property name="allowMissingParamTags" value="true"/>
         </module>
         <module name="JavadocVariable">
-          <property name="scope" value="public"/>
+          <property name="scope" value="package"/>
         </module>
         <module name="JavadocStyle">
           <property name="checkEmptyJavadoc" value="true"/>
         </module>
+        -->
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See http://checkstyle.sf.net/config_naming.html -->
@@ -82,16 +90,7 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
-
         <!-- Checks for Size Violations.                    -->
-        <!-- See http://checkstyle.sf.net/config_sizes.html -->
-        <module name="LineLength">
-          <!-- what is a good max value? -->
-          <property name="max" value="100"/>
-          <!-- ignore lines like "$File: //depot/... $" -->
-          <property name="ignorePattern" value="\$File.*\$"/>
-          <property name="severity" value="info"/>
-        </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
 
