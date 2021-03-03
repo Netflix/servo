@@ -16,17 +16,17 @@
 
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
   }
   dependencies {
-    classpath 'com.netflix.nebula:nebula-dependency-recommender:6.1.1'
+    classpath 'com.netflix.nebula:nebula-dependency-recommender:9.1.1'
+    classpath 'com.netflix.nebula:gradle-netflixoss-project-plugin:9.1.0'
   }
 }
 
 plugins {
-  id 'nebula.netflixoss' version '7.1.0'
-  id 'me.champeau.gradle.jmh' version '0.4.7'
-  id "com.github.spotbugs" version "1.6.9" apply false
+  id 'me.champeau.gradle.jmh' version '0.5.2'
+  id "com.github.spotbugs" version "4.6.0" apply false
 }
 
 ext {
@@ -35,20 +35,20 @@ ext {
 
 allprojects {
   apply plugin: 'nebula.dependency-recommender'
+  apply plugin: 'nebula.netflixoss'
   apply plugin: 'me.champeau.gradle.jmh'
 }
 
 subprojects {
-  apply plugin: 'nebula.netflixoss'
-  apply plugin: 'java'
-  apply plugin: 'checkstyle'
+  apply plugin: 'java-library'
   apply plugin: 'com.github.spotbugs'
+  apply plugin: 'checkstyle'
   apply plugin: 'pmd'
 
   group = "com.netflix.${githubProjectName}"
 
   repositories {
-    jcenter()
+    mavenCentral()
   }
 
   sourceCompatibility = '1.8'
@@ -93,18 +93,21 @@ subprojects {
   }
 
   checkstyle {
+    toolVersion = '8.39'
     ignoreFailures = false 
-    toolVersion = '8.14'
     configFile = rootProject.file('codequality/checkstyle.xml')
     sourceSets = [sourceSets.main]
   }
 
   spotbugs {
-    toolVersion = '3.1.10'
+    toolVersion = '4.2.0'
+    excludeFilter = rootProject.file('codequality/findbugs-exclude.xml')
     ignoreFailures = false
-    sourceSets = [sourceSets.main]
+    spotbugsMain.enabled = true
+    spotbugsTest.enabled = false
+    spotbugsJmh.enabled = false
   }
-  tasks.withType(com.github.spotbugs.SpotBugsTask) {
+  spotbugsMain {
     reports {
       xml.enabled = false
       html.enabled = true
@@ -112,7 +115,7 @@ subprojects {
   }
 
   pmd {
-    toolVersion = '6.9.0'
+    toolVersion = '6.30.0'
     ignoreFailures = false
     ruleSets = []
     ruleSetFiles = rootProject.files("codequality/pmd.xml")

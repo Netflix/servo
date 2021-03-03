@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.impl.Scheduler$DelayedTask"/>
+      <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.sandbox.HttpResponse"/>
+      <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.sandbox.HttpResponse"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.sandbox.HttpRequestBuilder"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.ipc.http.HttpResponse"/>
+      <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.ipc.http.HttpResponse"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.ipc.http.HttpRequestBuilder"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.api.patterns.LongTaskTimer"/>
+      <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.impl.AsciiSet"/>
+      <Bug pattern="REC_CATCH_EXCEPTION"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.impl.matcher.Parser"/>
+      <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
+    </And>
+  </Match>
+  <Match>
+    <And>
+      <Class name="com.netflix.spectator.api.Clock"/>
+      <Bug pattern="IC_SUPERCLASS_USES_SUBCLASS_DURING_INITIALIZATION"/>
+    </And>
+  </Match>
+</FindBugsFilter>

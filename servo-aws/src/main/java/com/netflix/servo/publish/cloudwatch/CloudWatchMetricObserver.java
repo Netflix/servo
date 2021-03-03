@@ -71,7 +71,7 @@ public class CloudWatchMetricObserver extends BaseMetricObserver {
   /**
    * Maximum value that can be represented in cloudwatch.
    */
-  static final double MAX_VALUE = java.lang.Math.pow(2.0, MAX_EXPONENT);
+  static final double MAX_VALUE = Math.pow(2.0, MAX_EXPONENT);
 
   /**
    * Number of cloudwatch metrics reported.

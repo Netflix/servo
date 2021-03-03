@@ -336,10 +336,10 @@ public class AtlasMetricObserver implements MetricObserver {
   }
 
   protected void dumpPayload(File out, JsonPayload payload) throws IOException {
-    JsonGenerator generator = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
-    generator.setPrettyPrinter(new AtlasPrettyPrinter());
-    payload.toJson(generator);
-
+    try (JsonGenerator generator = jsonFactory.createGenerator(out, JsonEncoding.UTF8)) {
+      generator.setPrettyPrinter(new AtlasPrettyPrinter());
+      payload.toJson(generator);
+    }
   }
 
   protected Observable<Integer> getSenderObservable(TagList tags, Metric[] batch) {

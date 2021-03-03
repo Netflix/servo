@@ -28,6 +28,10 @@ checkstyle {
   sourceSets = []
 }
 
+pmd {
+  ignoreFailures = true
+}
+
 jar {
   manifest {
     attributes(

@@ -114,9 +114,9 @@ public final class HttpHelper {
   private byte[] toByteArray(JsonFactory factory, JsonPayload payload) {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      JsonGenerator gen = factory.createGenerator(baos, JsonEncoding.UTF8);
-      payload.toJson(gen);
-      gen.close();
+      try (JsonGenerator gen = factory.createGenerator(baos, JsonEncoding.UTF8)) {
+        payload.toJson(gen);
+      }
       baos.close();
       return baos.toByteArray();
     } catch (IOException e) {
