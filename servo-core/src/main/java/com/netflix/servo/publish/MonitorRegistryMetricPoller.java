@@ -152,7 +152,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
       LOGGER.warn("timeout trying to get value for {}", monitor.getConfig());
       TIMEOUT_ERROR.increment();
     } catch (Exception e) {
-      LOGGER.warn("failed to get value for " + monitor.getConfig(), e);
+      LOGGER.warn("failed to get value for {}", monitor.getConfig(), e);
       DynamicCounter.increment(GET_VALUE_ERROR, "id", e.getClass().getSimpleName());
     }
     return null;
@@ -176,7 +176,7 @@ public final class MonitorRegistryMetricPoller implements MetricPoller {
         try {
           getMonitors(monitors, filter, monitor);
         } catch (Exception e) {
-          LOGGER.warn("failed to get monitors for composite " + monitor.getConfig(), e);
+          LOGGER.warn("failed to get monitors for composite {}", monitor.getConfig(), e);
         }
       }
       cacheLastUpdateTime.set(clock.now());

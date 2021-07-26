@@ -92,8 +92,7 @@ public class TomcatPoller extends BaseMetricPoller {
     if (metric.getNumberValue().doubleValue() >= 0.0) {
       final MonitorConfig c = metric.getConfig();
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Adding " + c.getName() + " " + c.getTags() + " "
-            + metric.getNumberValue());
+        LOGGER.debug("Adding {} {} {}", c.getName(), c.getTags(), metric.getNumberValue());
       }
       metrics.add(metric);
     } else {

@@ -444,9 +444,7 @@ public class StatsMonitor extends AbstractMonitor<Long> implements
   public void record(long measurement) {
     lastUsed = clock.now();
     if (isExpired()) {
-      LOGGER.info("Attempting to get the value for an expired monitor: {}."
-              + "Will start computing stats again.",
-          getConfig().getName());
+      LOGGER.info("Attempting to get the value for an expired monitor: {}.Will start computing stats again.", getConfig().getName());
       startComputingStats(executor, statsConfig.getFrequencyMillis());
     }
 

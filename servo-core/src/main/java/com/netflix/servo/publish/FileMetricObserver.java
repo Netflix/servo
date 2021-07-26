@@ -145,7 +145,7 @@ public final class FileMetricObserver extends BaseMetricObserver {
       }
     } catch (IOException e) {
       incrementFailedCount();
-      LOGGER.error("failed to write update to file " + file, e);
+      LOGGER.error("failed to write update to file {}", file, e);
     }
   }
 }

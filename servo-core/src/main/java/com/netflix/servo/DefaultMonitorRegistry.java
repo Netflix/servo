@@ -80,11 +80,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
           Class<?> c = Class.forName(className);
           r = (MonitorRegistry) c.newInstance();
         } catch (Throwable t) {
-          LOG.error(
-              "failed to create instance of class " + className + ", "
-                  + "using default class "
-                  + NoopMonitorRegistry.class.getName(),
-              t);
+          LOG.error("failed to create instance of class {}, using default class {}", className, NoopMonitorRegistry.class.getName(), t);
           r = new NoopMonitorRegistry();
         }
       }
@@ -111,11 +107,7 @@ public final class DefaultMonitorRegistry implements MonitorRegistry {
         Class<?> mapperClazz = Class.forName(jmxNameMapperClass);
         mapper = (ObjectNameMapper) mapperClazz.newInstance();
       } catch (Throwable t) {
-        LOG.error(
-            "failed to create the JMX ObjectNameMapper instance of class "
-                + jmxNameMapperClass
-                + ", using the default naming scheme",
-            t);
+        LOG.error("failed to create the JMX ObjectNameMapper instance of class {}, using the default naming scheme", jmxNameMapperClass, t);
       }
     }
 
