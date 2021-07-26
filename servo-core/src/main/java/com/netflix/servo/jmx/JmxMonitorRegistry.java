@@ -113,7 +113,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
       monitors.put(monitor.getConfig(), monitor);
       updatePending.set(true);
     } catch (Exception e) {
-      LOG.warn("Unable to register Monitor:" + monitor.getConfig(), e);
+      LOG.warn("Unable to register Monitor:{}", monitor.getConfig(), e);
     }
   }
 
@@ -136,7 +136,7 @@ public final class JmxMonitorRegistry implements MonitorRegistry {
       monitors.remove(monitor.getConfig());
       updatePending.set(true);
     } catch (Exception e) {
-      LOG.warn("Unable to un-register Monitor:" + monitor.getConfig(), e);
+      LOG.warn("Unable to un-register Monitor:{}", monitor.getConfig(), e);
     }
   }
 

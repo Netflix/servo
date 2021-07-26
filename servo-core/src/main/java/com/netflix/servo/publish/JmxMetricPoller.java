@@ -287,7 +287,7 @@ public final class JmxMetricPoller implements MetricPoller {
             try {
               getMetrics(con, filter, metrics, name);
             } catch (Exception e) {
-              LOGGER.warn("failed to get metrics for: " + name, e);
+              LOGGER.warn("failed to get metrics for: {}", name, e);
             }
           }
         }

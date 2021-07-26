@@ -114,7 +114,7 @@ final class ObjectNameBuilder {
     try {
       return new ObjectName(name);
     } catch (MalformedObjectNameException e) {
-      LOG.warn("Invalid ObjectName provided: " + name);
+      LOG.warn("Invalid ObjectName provided: {}", name);
       throw Throwables.propagate(e);
     }
   }

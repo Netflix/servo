@@ -93,8 +93,7 @@ public final class SpectatorContext {
       e.fillInStackTrace();
       initStacktrace = e;
       if (cause != null) {
-        LOGGER.warn("Registry used with Servo's SpectatorContext has been overwritten. This could "
-            + "result in missing metrics.", e);
+        LOGGER.warn("Registry used with Servo's SpectatorContext has been overwritten. This could result in missing metrics.", e);
       }
     }
   }

@@ -84,7 +84,7 @@ public class PollRunnable implements Runnable {
         try {
           o.update(metrics);
         } catch (Throwable t) {
-          LOGGER.warn("failed to send metrics to " + o.getName(), t);
+          LOGGER.warn("failed to send metrics to {}", o.getName(), t);
         }
       }
     } catch (Throwable t) {
