@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 8
-          distribution: 'zulu'
+          distribution: 'temurin'
       - uses: actions/cache@v2
         id: gradle-cache
         with:
