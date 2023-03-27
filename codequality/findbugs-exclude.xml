@@ -7,40 +7,13 @@
     </And>
   </Match>
   <Match>
-    <And>
-      <Class name="com.netflix.spectator.sandbox.HttpResponse"/>
-      <Bug pattern="EI_EXPOSE_REP"/>
-    </And>
+    <Bug pattern="EI_EXPOSE_REP"/>
   </Match>
   <Match>
-    <And>
-      <Class name="com.netflix.spectator.sandbox.HttpResponse"/>
-      <Bug pattern="EI_EXPOSE_REP2"/>
-    </And>
+    <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
   <Match>
-    <And>
-      <Class name="com.netflix.spectator.sandbox.HttpRequestBuilder"/>
-      <Bug pattern="EI_EXPOSE_REP2"/>
-    </And>
-  </Match>
-  <Match>
-    <And>
-      <Class name="com.netflix.spectator.ipc.http.HttpResponse"/>
-      <Bug pattern="EI_EXPOSE_REP"/>
-    </And>
-  </Match>
-  <Match>
-    <And>
-      <Class name="com.netflix.spectator.ipc.http.HttpResponse"/>
-      <Bug pattern="EI_EXPOSE_REP2"/>
-    </And>
-  </Match>
-  <Match>
-    <And>
-      <Class name="com.netflix.spectator.ipc.http.HttpRequestBuilder"/>
-      <Bug pattern="EI_EXPOSE_REP2"/>
-    </And>
+    <Bug pattern="MS_EXPOSE_REP"/>
   </Match>
   <Match>
     <And>
