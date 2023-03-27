@@ -1,13 +1,13 @@
 dependencies {
-  compile project(':servo-core')
-  compile 'com.netflix.archaius:archaius2-core'
-  compile 'com.netflix.iep-shadow:iepshadow-rxnetty'
-  compile 'com.netflix.iep-shadow:iepshadow-iep-rxhttp'
-  compile "com.fasterxml.jackson.core:jackson-databind"
-  compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
-  compile 'io.netty:netty-buffer'
-  compile 'io.netty:netty-codec-http'
-  compile 'io.reactivex:rxjava'
+  api project(':servo-core')
+  api 'com.netflix.archaius:archaius2-core'
+  api 'com.netflix.iep-shadow:iepshadow-rxnetty'
+  api 'com.netflix.iep-shadow:iepshadow-iep-rxhttp'
+  api "com.fasterxml.jackson.core:jackson-databind"
+  api "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
+  api 'io.netty:netty-buffer'
+  api 'io.netty:netty-codec-http'
+  api 'io.reactivex:rxjava'
   jmh project(':servo-core')
 }
 

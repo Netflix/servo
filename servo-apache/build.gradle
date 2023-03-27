@@ -1,5 +1,5 @@
 dependencies {
-  compile project(':servo-core')
+  api project(':servo-core')
 }
 
 jar {
