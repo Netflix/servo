@@ -1,7 +1,7 @@
 dependencies {
-  compile project(':servo-core')
-  compile('com.amazonaws:aws-java-sdk-autoscaling')
-  compile('com.amazonaws:aws-java-sdk-cloudwatch')
+  api project(':servo-core')
+  api('com.amazonaws:aws-java-sdk-autoscaling')
+  api('com.amazonaws:aws-java-sdk-cloudwatch')
 }
 
 checkstyle {
