@@ -1,7 +1,7 @@
 dependencies {
-  compile project(':servo-core')
-  compile project(':servo-atlas')
-  compile project(':servo-graphite')
+  api project(':servo-core')
+  api project(':servo-atlas')
+  api project(':servo-graphite')
 }
 
 task(run, dependsOn: 'classes', type: JavaExec) {
