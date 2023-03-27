@@ -92,7 +92,7 @@ subprojects {
   }
 
   spotbugs {
-    toolVersion = '4.2.0'
+    toolVersion = '4.7.3'
     excludeFilter = rootProject.file('codequality/findbugs-exclude.xml')
     ignoreFailures = false
     spotbugsMain.enabled = true
