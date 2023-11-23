@@ -15,8 +15,8 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheStats;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.servo.util.Memoizer;
 
 import java.util.concurrent.Callable;
@@ -63,11 +63,6 @@ class MonitoredCache {
   @com.netflix.servo.annotations.Monitor(name = "loadCount", type = COUNTER)
   long loadCount() {
     return memoStats.get().loadCount();
-  }
-
-  @com.netflix.servo.annotations.Monitor(name = "loadExceptionCount", type = COUNTER)
-  long loadExceptionCount() {
-    return memoStats.get().loadExceptionCount();
   }
 
   @com.netflix.servo.annotations.Monitor(name = "loadSuccessCount", type = COUNTER)

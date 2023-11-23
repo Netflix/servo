@@ -2,6 +2,7 @@ dependencies {
   api project(':servo-core')
   api project(':servo-atlas')
   api project(':servo-graphite')
+  api "com.google.guava:guava:32.1.3-jre"
 }
 
 task(run, dependsOn: 'classes', type: JavaExec) {

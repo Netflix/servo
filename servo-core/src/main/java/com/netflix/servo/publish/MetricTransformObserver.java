@@ -15,10 +15,10 @@
  */
 package com.netflix.servo.publish;
 
-import com.google.common.base.Function;
 import com.netflix.servo.Metric;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**

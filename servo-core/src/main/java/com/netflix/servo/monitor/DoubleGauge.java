@@ -15,11 +15,11 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.netflix.servo.SpectatorContext;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.tag.TagList;
 import com.netflix.spectator.api.Id;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A {@link Gauge} that reports a double value.
@@ -28,7 +28,7 @@ public class DoubleGauge extends AbstractMonitor<Double>
     implements Gauge<Double>, SpectatorMonitor {
 
   private final MonitorConfig baseConfig;
-  private final AtomicDouble number;
+  private final AtomicReference<Double> number;
   private final SpectatorContext.LazyGauge spectatorGauge;
 
   /**
@@ -39,7 +39,7 @@ public class DoubleGauge extends AbstractMonitor<Double>
   public DoubleGauge(MonitorConfig config) {
     super(config.withAdditionalTag(DataSourceType.GAUGE));
     baseConfig = config;
-    number = new AtomicDouble(0.0);
+    number = new AtomicReference<>(0.0);
     spectatorGauge = SpectatorContext.gauge(config);
   }
 
@@ -52,9 +52,9 @@ public class DoubleGauge extends AbstractMonitor<Double>
   }
 
   /**
-   * Returns a reference to the {@link com.google.common.util.concurrent.AtomicDouble}.
+   * Returns a reference to the {@link AtomicReference}.
    */
-  public AtomicDouble getNumber() {
+  public AtomicReference<Double> getNumber() {
     return number;
   }
 
@@ -92,7 +92,7 @@ public class DoubleGauge extends AbstractMonitor<Double>
   @Override
   public int hashCode() {
     int result = config.hashCode();
-    final int n = Double.valueOf(number.get()).hashCode();
+    final int n = number.get().hashCode();
     result = 31 * result + n;
     return result;
   }

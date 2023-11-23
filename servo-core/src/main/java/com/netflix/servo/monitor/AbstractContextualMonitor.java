@@ -15,7 +15,6 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
 import com.netflix.servo.tag.BasicTagList;
 import com.netflix.servo.tag.TagList;
 import com.netflix.servo.tag.TaggingContext;
@@ -24,6 +23,7 @@ import com.netflix.servo.util.UnmodifiableList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 /**
  * Base class used to simplify creation of contextual monitors.

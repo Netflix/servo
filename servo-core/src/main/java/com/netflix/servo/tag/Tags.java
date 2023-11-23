@@ -15,37 +15,10 @@
  */
 package com.netflix.servo.tag;
 
-import com.google.common.collect.Interner;
-import com.google.common.collect.Interners;
-
 /**
  * Helper functions for working with tags and tag lists.
  */
 public final class Tags {
-  /**
-   * Keep track of the strings that have been used for keys and values.
-   */
-  private static final Interner<String> STR_CACHE = Interners.newWeakInterner();
-
-  /**
-   * Keep track of tags that have been seen before and reuse.
-   */
-  private static final Interner<Tag> TAG_CACHE = Interners.newWeakInterner();
-
-  /**
-   * Intern strings used for tag keys or values.
-   */
-  public static String intern(String v) {
-    return STR_CACHE.intern(v);
-  }
-
-  /**
-   * Returns the canonical representation of a tag.
-   */
-  public static Tag intern(Tag t) {
-    return TAG_CACHE.intern(t);
-  }
-
   /**
    * Interns custom tag types, assumes that basic tags are already interned. This is used to
    * ensure that we have a common view of tags internally. In particular, different subclasses of
@@ -60,8 +33,7 @@ public final class Tags {
    * Create a new tag instance.
    */
   public static Tag newTag(String key, String value) {
-    Tag newTag = new BasicTag(intern(key), intern(value));
-    return intern(newTag);
+    return new BasicTag(key, value);
   }
 
   /**
