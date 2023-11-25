@@ -15,19 +15,15 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.servo.DefaultMonitorRegistry;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.netflix.servo.tag.TagList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Gauges are automatically expired after 15 minutes of inactivity.
  */
 public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMonitor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DynamicGauge.class);
+
   private static final String DEFAULT_EXPIRATION = "15";
   private static final String DEFAULT_EXPIRATION_UNIT = "MINUTES";
   private static final String CLASS_NAME = DynamicGauge.class.getCanonicalName();
@@ -49,7 +45,6 @@ public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMoni
   private static final DynamicGauge INSTANCE = new DynamicGauge();
 
   private final LoadingCache<MonitorConfig, DoubleGauge> gauges;
-  private final CompositeMonitor<?> cacheMonitor;
 
   private DynamicGauge() {
     final String expiration = System.getProperty(EXPIRATION_PROP, DEFAULT_EXPIRATION);
@@ -57,15 +52,10 @@ public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMoni
     final long expirationValue = Long.parseLong(expiration);
     final TimeUnit expirationUnitValue = TimeUnit.valueOf(expirationUnit);
 
-    gauges = CacheBuilder.newBuilder()
+    gauges = Caffeine.newBuilder()
         .expireAfterAccess(expirationValue, expirationUnitValue)
-        .build(new CacheLoader<MonitorConfig, DoubleGauge>() {
-          @Override
-          public DoubleGauge load(final MonitorConfig config) throws Exception {
-            return new DoubleGauge(config);
-          }
-        });
-    cacheMonitor = Monitors.newCacheMonitor(CACHE_MONITOR_ID, gauges);
+        .build(DoubleGauge::new);
+    Monitors.newCacheMonitor(CACHE_MONITOR_ID, gauges);
     DefaultMonitorRegistry.getInstance().register(this);
   }
 
@@ -102,12 +92,7 @@ public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMoni
   }
 
   private DoubleGauge get(MonitorConfig config) {
-    try {
-      return gauges.get(config);
-    } catch (ExecutionException e) {
-      LOGGER.error("Failed to get a gauge for {}: {}", config, e.getMessage());
-      throw Throwables.propagate(e);
-    }
+    return gauges.get(config);
   }
 
   /**
@@ -116,7 +101,7 @@ public final class DynamicGauge implements CompositeMonitor<Long>, SpectatorMoni
   @Override
   public List<Monitor<?>> getMonitors() {
     final ConcurrentMap<MonitorConfig, DoubleGauge> gaugesMap = gauges.asMap();
-    return ImmutableList.copyOf(gaugesMap.values());
+    return Collections.unmodifiableList(new ArrayList<>(gaugesMap.values()));
   }
 
   /**

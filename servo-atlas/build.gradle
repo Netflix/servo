@@ -8,7 +8,6 @@ dependencies {
   api 'io.netty:netty-buffer'
   api 'io.netty:netty-codec-http'
   api 'io.reactivex:rxjava'
-  jmh project(':servo-core')
 }
 
 jar {

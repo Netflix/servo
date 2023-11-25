@@ -15,10 +15,10 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
 import com.netflix.servo.tag.TaggingContext;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Composite that maintains separate simple timers for each distinct set of tags returned by the
