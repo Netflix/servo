@@ -15,8 +15,7 @@
  */
 package com.netflix.servo.monitor;
 
-import com.google.common.base.Function;
-import com.google.common.cache.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.MonitorTags;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.netflix.servo.util.Reflection.getFieldsAnnotatedBy;
 import static com.netflix.servo.util.Reflection.getMethodsAnnotatedBy;
