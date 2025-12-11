@@ -45,4 +45,4 @@ placement/availability-zone
 us-east-1c
 
 public-keys/
-0=test-keypair
+0=test-keypairs
